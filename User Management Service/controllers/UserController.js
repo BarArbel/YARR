@@ -18,6 +18,22 @@ module.exports = {
   },
 
   addResearcher: async(req, res) => {
+    let { userName, password, firstName, lastName, email } = req.body;
+
+    if(!userName || !password || !firstName || !lastName || !email){
+      res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}","password": "${password}",
+        "firstName": "${firstName}", "lastName": "${lastName}", "email": "${email}"}, "msg": "A Parameter is missing."}`);
+      return;
+    }
+
+    let hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+
+    connection.query('INSERT INTO researchers (UserName, HashedPassword, FirstName, LastName, Email)' + 
+      `VALUES ("${userName}", "${hashedPassword}", "${firstName}", "${lastName}", "${email}")`, (error, results) => {
+      if(error)
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      else res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
+    });
   },
 
   // updateResearcher: async(req, res) => {
