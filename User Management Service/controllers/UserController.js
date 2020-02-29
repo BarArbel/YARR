@@ -139,9 +139,12 @@ module.exports = {
       }
       else{
         let hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+        let bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
+
         if(hashedPassword === results[0].HashedPassword)
-          res.status(200).send(`{"result": "Verified"}`);
+          res.status(200).send(`{"result": "Verified", "bearer-key": "${bearerKey}"}`);
         else res.status(400).send(`{"result": "wrongPassword"}`);
+
       }
     });
   }
