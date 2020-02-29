@@ -1,7 +1,68 @@
+var mysql      = require('mysql'),
+    crypto     = require('crypto'),
+    Validator  = require('validator'),
+    lodash     = require('lodash');
+
+var connection = mysql.createConnection({
+  host     : 'localhost',
+  user     : 'root',
+  password : 'root',
+  database : 'yarr!'
+});
+
+connection.connect();
+
+function validateInput(data){
+    let errors = {}
+    const { userName, password, confirmedPassword, firstName, lastName, email } = data;
+
+    if(lodash.isUndefined(userName)){
+     errors.userName = "User name is required";   
+    }
+    
+    if(lodash.isUndefined(password)){
+        errors.password = "Password is required";   
+    }
+
+    if(lodash.isUndefined(confirmedPassword)){
+        errors.confirmedPassword = "Password confirmation is required";   
+    }
+
+    if(!Validator.equals(password, confirmedPassword)){
+        errors.confirmedPassword = "Passwords do not match";
+    }
+
+    if(lodash.isUndefined(firstName)){
+        errors.firstName = "First name is required";   
+    }
+
+    if(lodash.isUndefined(lastName)){
+        errors.lastName = "Last name is required";   
+    }
+    
+    if(!Validator.isEmail(email)){
+        errors.email = "Email is invalid";   
+    }
+    
+    if(lodash.isUndefined(email)){
+        errors.email = "Email is required";   
+    }
+
+    return{
+        errors,
+        isValid: lodash.isEmpty(errors)
+    }
+}
+
 module.exports = {
   getResearcher: async(req, res) => {
 
     let { userName } = req.query;
+    if(!userName){
+        res.status(400).send(`{"result": "Failure", "error": "userName is required"}`);
+        return;
+    }
+
     connection.query(`SELECT * FROM researchers WHERE UserName = "${userName}"`, (error, results) => {
       if(error){
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
@@ -18,11 +79,12 @@ module.exports = {
   },
 
   addResearcher: async(req, res) => {
-    let { userName, password, firstName, lastName, email } = req.body;
+    const { userName, password, firstName, lastName, email } = req.body;
 
-    if(!userName || !password || !firstName || !lastName || !email){
-      res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}","password": "${password}",
-        "firstName": "${firstName}", "lastName": "${lastName}", "email": "${email}"}, "msg": "A Parameter is missing."}`);
+    const { errors, isValid } = validateInput(req.body);
+
+    if(!isValid){
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
       return;
     }
 
