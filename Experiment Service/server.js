@@ -1,8 +1,9 @@
-const   express      = require('express'),
-        app          = express(),
-        cors         = require('cors'),
-        parser       = require('body-parser'),
-        port         = process.env.PORT;
+const   express       = require('express'),
+        app           = express(),
+        cors          = require('cors'),
+        parser        = require('body-parser'),
+        port          = process.env.PORT;
+        ExperimentCtl = require('./controllers/ExperimentController.js')
 
 app.set('port', port);
 app.use(cors());
@@ -20,6 +21,11 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 // app.get('/getRuntime', runtimeCtl.getAll);
+app.get('/getExperiment', ExperimentCtl.getExperiment)
+app.get('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments)
+app.post('/addExperiment', ExperimentCtl.addExperiment)
+app.put('/updateExperiment', ExperimentCtl.updateExperiment)
+app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment)
 
 app.all('*', (req, res) => {
     res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`)

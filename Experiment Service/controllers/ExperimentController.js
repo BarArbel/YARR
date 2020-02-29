@@ -1,0 +1,85 @@
+var mysql  = require('mysql'),
+
+var connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
+    database: 'yarr!'
+});
+
+connection.connect();
+
+module.exports = {
+    getExperiment: async(req, res) => {
+        const { ExperimentId } = req.query;
+
+        if(!ExperimentId) {
+            res.status(404).send('{"result": "Faliure", "error": "Experiment ID is required."}');
+            return;
+        }
+
+        connection.query(`SELECT * FROM experiments WHERE experimentId = "${ExperimentId}"`, (error, results) => {
+            if(error) {
+                res.status(404).send(`{"result": "Failure", "error": "${JSON.stringify(error)}"}`);
+            }
+            else if(!results.length) {
+                res.status(404).send(`{"result": "Failure", "error": "No experiments found."}`);
+            }
+            else {
+                let { experimentId, studyId, details, gameSettings } = results[0];
+                res.status(200).send(`{"result": "Success", "experiment": {"experimentId": "${experimentId}",
+                    "studyId": "${studyId}", "details": "${details}", "gameSettings": "${gameSettings}"}}`);
+            }
+        });
+    },
+
+    getAllStudyExperiments: async(req, res) => {
+        const { StudyId } = req.query;
+
+        if(!StudyId) {
+            res.status(404).send('{"result": "Faliure", "error": "Study ID is required."}');
+            return;
+        }
+
+        connection.query(`SELECT * FROM experiments WHERE studyId = "${StudyId}"`, (error, results) => {
+            if(error) {
+                res.status(404).send(`{"result": "Failure", "error": "${JSON.stringify(error)}"}`);
+            }
+            else if(!results.length) {
+                res.status(404).send(`{"result": "Failure", "error": "No experiments found."}`);
+            }
+            else {
+                let resultsStr = '{"result": "Success", "experiments": ['
+                for(let i = 0; i < results.length; ++i) {
+                    let { experimentId, studyId, details, gameSettings } = results[i];
+                    resultStr = resultsStr.concat(`{"experimentId": "${experimentId}", "studyId": "${studyId}",
+                        "details": "${details}", "gameSettings": "${gameSettings}"}, `);
+                }
+                resultsStr = resultsStr.slice(0, -2);
+                resultsStr = resultsStr.concat("]}");
+                res.status(200).send(resultsStr);
+            }
+        });
+    },
+
+    addExperiment: async(req, res) => {
+        const { experimentId, studyId, details, gameSettings } = req.body;
+
+        if(!experimentId || !studyId || !details || !gameSettings) {
+            res.status(404).send(`{"result": "Failure", "params": {"experimentId": "${experimentId}", "studyId": "${studyId}",
+                "details": "${details}", "gameSettings": "${gameSettings}"}, "msg": "A parameter is missing."}`);
+            return;
+        }
+
+        connection.query(`INSERT INTO experiments (experimentId, studyId, details, gameSettings) VALUES ("${experimentId}",
+            "${studyId}", )`)
+    },
+
+    updateExperiment: async(req, res) => {
+        addEventListener;
+    },
+
+    deleteExperiment: async(req, res) => {
+        addEventListener;
+    },
+}
