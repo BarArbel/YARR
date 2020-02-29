@@ -1,10 +1,10 @@
-var mysql  = require('mysql'),
+var mysql  = require('mysql');
 
 var connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: 'root',
-    database: 'yarr!'
+    password: '',
+    database: 'yarr'
 });
 
 connection.connect();
@@ -50,29 +50,31 @@ module.exports = {
             }
             else {
                 let resultsStr = '{"result": "Success", "experiments": ['
-                for(let i = 0; i < results.length; ++i) {
+                let i;
+                for(i = 0; i < results.length; ++i) {
                     let { experimentId, studyId, details, gameSettings } = results[i];
-                    resultStr = resultsStr.concat(`{"experimentId": "${experimentId}", "studyId": "${studyId}",
+                    resultsStr = resultsStr.concat(`{"experimentId": "${experimentId}", "studyId": "${studyId}",
                         "details": "${details}", "gameSettings": "${gameSettings}"}, `);
                 }
                 resultsStr = resultsStr.slice(0, -2);
                 resultsStr = resultsStr.concat("]}");
                 res.status(200).send(resultsStr);
+                //res.status(200).send(results);
             }
         });
     },
 
     addExperiment: async(req, res) => {
-        const { experimentId, studyId, details, gameSettings } = req.body;
+        const { ExperimentId, StudyId, Details, GameSettings } = req.body;
 
-        if(!experimentId || !studyId || !details || !gameSettings) {
-            res.status(404).send(`{"result": "Failure", "params": {"experimentId": "${experimentId}", "studyId": "${studyId}",
-                "details": "${details}", "gameSettings": "${gameSettings}"}, "msg": "A parameter is missing."}`);
+        if(!ExperimentId || !StudyId || !Details || !GameSettings) {
+            res.status(404).send(`{"result": "Failure", "params": {"experimentId": "${ExperimentId}", "studyId": "${StudyId}",
+                "details": "${Details}", "gameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
             return;
         }
 
-        connection.query(`INSERT INTO experiments (experimentId, studyId, details, gameSettings) VALUES ("${experimentId}",
-            "${studyId}", "${details}", "${gameSettings}")`, (error, results) => {
+        connection.query(`INSERT INTO experiments (experimentId, studyId, details, gameSettings) VALUES ("${ExperimentId}",
+            "${StudyId}", "${Details}", "${GameSettings}")`, (error, results) => {
             if(error) {
                 res.status(404).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -83,28 +85,28 @@ module.exports = {
     },
 
     updateExperiment: async(req, res) => {
-        const { experimentId, details, gameSettings } = req.body;
+        const { ExperimentId, Details, GameSettings } = req.body;
 
         if(!ExperimentId) {
             res.status(404).send('{"result": "Faliure", "error": "Experiment ID is required."}');
             return;
         }
-        if(!details && !gameSettings) {
+        if(!Details && !GameSettings) {
             res.status(404).send('{"result": "Faliure", "error": "No parameters to update."}')
         }
 
         let setStr = "";
-        if(details) {
-            setStr = `details = "${details}"`;
+        if(Details) {
+            setStr = `details = "${Details}"`;
         }
-        if(gameSettings) {
-            setStr = setStr.concat(`, gameSettings = "${gameSettings}"`);
+        if(GameSettings) {
+            setStr = setStr.concat(`, gameSettings = "${GameSettings}"`);
         }
         if(setStr.charAt(0) == ',') {
             setStr = setStr.slice(2, setStr.length);
         }
 
-        connection.query(`UPDATE experiments SET ${setStr} WHERE experimentId = "${experimentId}"`, (error, results) => {
+        connection.query(`UPDATE experiments SET ${setStr} WHERE experimentId = "${ExperimentId}"`, (error, results) => {
             if(error) {
                 res.status(404).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -125,7 +127,7 @@ module.exports = {
             return;
         }
 
-        connection.query(`DELETE * FROM experiments WHERE experimentId = "${ExperimentId}"`, (error, results) => {
+        connection.query(`DELETE FROM experiments WHERE experimentId = "${ExperimentId}"`, (error, results) => {
             if(error) {
                 res.status(404).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -133,7 +135,7 @@ module.exports = {
                 res.status(404).send(`{"result": "Failure", "error": "No experiments found."}`);
             }
             else {
-                res.status(200).send(`{"result": "Success", "msg": "Experiment: ${experimentId} was deleted"}`);
+                res.status(200).send(`{"result": "Success", "msg": "Experiment: ${ExperimentId} was deleted"}`);
             }
         });
     }
