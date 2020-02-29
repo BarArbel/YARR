@@ -2,8 +2,7 @@ const   express      = require('express'),
         app          = express(),
         cors         = require('cors'),
         parser       = require('body-parser'),
-        port         = process.env.PORT,
-        UserCtl      = require('./controllers/UserController.js')
+        port         = process.env.PORT;
 
 app.set('port', port);
 app.use(cors());
@@ -20,11 +19,7 @@ app.use((req, res, next) => {
 });
 
 // /*** Routes ***/
-app.get('/getResearcher', UserCtl.getResearcher);
-app.post('/addResearcher', UserCtl.addResearcher);
-// app.put('/updateResearcher', UserCtl.updateResearcher);
-// app.delete('/deleteResearcher', UserCtl.deleteResearcher);
-app.post('/verifyResearcher', UserCtl.verifyResearcher);
+// app.get('/getRuntime', runtimeCtl.getAll);
 
 app.all('*', (req, res) => {
     res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`)
