@@ -2,3 +2,8 @@
 */.vscode
 */node_modules
 */.env
+*.cspro
+/YARR_Game/Library/*
+/YARR_Game/Logs/*
+/YARR_Game/obj/*
+/YARR_Game/Packages/*
