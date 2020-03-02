@@ -2,7 +2,7 @@
 */.vscode
 */node_modules
 */.env
-*.cspro
+*.csproj
 /YARR_Game/Library/*
 /YARR_Game/Logs/*
 /YARR_Game/obj/*
