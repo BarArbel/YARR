@@ -21,9 +21,10 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 app.get('/getStudy', StudyCtl.getStudy);
-app.put('/updateStudy', StudyCtl.getStudy);
-app.get('/getAllStudies', StudyCtl.getAllStudies);
+app.get('/getAllResearcherStudies', StudyCtl.getAllResearcherStudies);
 app.post('/addStudy', StudyCtl.addStudy);
+app.put('/updateStudy', StudyCtl.updateStudy);
+app.delete('/deleteStudy', StudyCtl.deleteStudy);
 
 app.all('*', (req, res) => {
     res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`)

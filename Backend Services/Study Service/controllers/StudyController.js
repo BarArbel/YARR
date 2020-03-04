@@ -1,150 +1,162 @@
-var mysql      = require('mysql'),
-    crypto     = require('crypto'),
-    Validator  = require('validator'),
-    lodash     = require('lodash');
+var mysql  = require('mysql');
 
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database : 'yarr!'
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'yarr'
 });
 
 connection.connect();
 
-function validateInput(data){
-    let errors = {}
-    const { userName, password, confirmedPassword, firstName, lastName, email } = data;
-
-    if(lodash.isUndefined(userName)){
-     errors.userName = "User name is required";   
-    }
-    
-    if(lodash.isUndefined(password)){
-        errors.password = "Password is required";   
-    }
-
-    if(lodash.isUndefined(confirmedPassword)){
-        errors.confirmedPassword = "Password confirmation is required";   
-    }
-
-    if(!Validator.equals(password, confirmedPassword)){
-        errors.confirmedPassword = "Passwords do not match";
-    }
-
-    if(lodash.isUndefined(firstName)){
-        errors.firstName = "First name is required";   
-    }
-
-    if(lodash.isUndefined(lastName)){
-        errors.lastName = "Last name is required";   
-    }
-    
-    if(!Validator.isEmail(email)){
-        errors.email = "Email is invalid";   
-    }
-    
-    if(lodash.isUndefined(email)){
-        errors.email = "Email is required";   
-    }
-
-    return{
-        errors,
-        isValid: lodash.isEmpty(errors)
-    }
-}
-
 module.exports = {
-  getResearcher: async(req, res) => {
+  getStudy: async(req, res) => {
+    const { StudyId } = req.query;
 
-    let { userName } = req.query;
-    if(!userName){
-        res.status(400).send(`{"result": "Failure", "error": "userName is required"}`);
-        return;
+    if(!StudyId) {
+      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      return;
     }
 
-    connection.query(`SELECT * FROM researchers WHERE UserName = "${userName}"`, (error, results) => {
-      if(error){
-        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
+    connection.query(`SELECT * FROM studies WHERE StudyId = "${StudyId}"`, (error, results) => {
+      if(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
-      else if(!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
+      else if(!results.length) {
+        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
       }
       else {
-        let { UserName, FirstName, LastName, Email } = results[0];
-        res.status(200).send(`{"result": "Success", "user": {"userName":  "${UserName}", "firstName": "${FirstName}", 
-          "lastName": "${LastName}", "email": "${Email}"}}`);
+        let { res_studyId, res_userName, res_title, res_studyQuestions, res_description } = results[0];
+        res.status(200).send(`{"result": "Success", "study": {"StudyId": "${res_studyId}", "UserName": "${res_userName}",
+          "Title": "${res_title}", "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}}`);
       }
     });
   },
 
-  addResearcher: async(req, res) => {
-    const { userName, password, firstName, lastName, email } = req.body;
+  getAllResearcherStudies: async(req, res) => {
+    const { UserName } = req.query;
 
-    const { errors, isValid } = validateInput(req.body);
-
-    if(!isValid){
-      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
+    if(!UserName) {
+      res.status(400).send('{"result": "Faliure", "error": "User name is required."}');
       return;
     }
 
-    let hashedPassword = crypto.createHash('md5').update(password).digest('hex');
-
-    connection.query('INSERT INTO researchers (UserName, HashedPassword, FirstName, LastName, Email)' + 
-      `VALUES ("${userName}", "${hashedPassword}", "${firstName}", "${lastName}", "${email}")`, (error, results) => {
-      if(error)
+    connection.query(`SELECT * FROM studies WHERE UserName = "${UserName}"`, (error, results) => {
+      if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-      else res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
+      }
+      else if(!results.length) {
+        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+      }
+      else {
+        let resultsStr = '{"result": "Success", "studies": ['
+        let i;
+        for(i = 0; i < results.length; ++i) {
+          let { res_studyId, res_userName, res_title, res_studyQuestions, res_description } = results[i];
+          resultsStr = resultsStr.concat(`{"StudyId": "${res_studyId}", "UserName": "${res_userName}", "Title": "${res_title}",
+            "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}, `);
+        }
+        resultsStr = resultsStr.slice(0, -2);
+        resultsStr = resultsStr.concat("]}");
+        res.status(200).send(resultsStr);
+      }
     });
   },
 
-  // updateResearcher: async(req, res) => {
-  //   let { userName, newPassword, oldPassword } = req.body;
-  // },
+  addStudy: async(req, res) => {
+    const { StudyId, UserName, Title, StudyQuestions, Description } = req.body;
 
-  // deleteResearcher: async(req, res) => {
-  //   let { userName } = req.body;
-
-  //   if(!userName){
-  //     res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}"}, 
-  //     "msg": "A Parameter is missing."}`);
-  //     return;
-  //   }
-
-  //   connection.query(`DELETE FROM researchers WHERE UserName = "${userName}"`, (error, results) => {
-  //     if(error){
-  //       res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
-  //     }
-  //     else {
-  //       if(results.affectedRows > 0)
-  //         res.status(200).send(`{"result": "Success", "msg": "User: ${userName} was deleted."}`);
-  //       else res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
-  //     }
-  //   });
-  // },
-
-  verifyResearcher: async(req, res) => {
-    let { userName, password } = req.body;
-    if(!userName || !password){
-      res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}","password": "${password}"}, 
-      "msg": "A Parameter is missing."}`);
+    if(!StudyId || !UserName || !Title || !StudyQuestions || !Description) {
+      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}", "UserName": "${UserName}",
+        "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"},
+        "msg": "A parameter is missing."}`);
       return;
     }
-    connection.query(`SELECT * FROM researchers WHERE UserName = "${userName}"`, (error, results) => {
-      if(error){
-        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
-      }
-      else if(!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
-      }
-      else{
-        let hashedPassword = crypto.createHash('md5').update(password).digest('hex');
-        let bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
 
-        if(hashedPassword === results[0].HashedPassword)
-          res.status(200).send(`{"result": "Verified", "bearer-key": "${bearerKey}"}`);
-        else res.status(400).send(`{"result": "wrongPassword"}`);
+    connection.query(`SELECT * FROM researchers WHERE UserName = "${UserName}"`, (error, results) => {
+      if(error) {
+        res.status(400).send('{"result": "Failure", "error": "User does not exist."}');
+        return;
+      }
+    });
 
+    connection.query(`INSERT INTO studies (StudyId, UserName, Title, StudyQuestions, Description) VALUES ("${StudyId}",
+      "${UserName}", "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
+      if(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      }
+      else {
+        res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
+      }
+    });
+  },
+
+  updateStudy: async(req, res) => {
+    const { StudyId, Title, StudyQuestions, Description } = req.body;
+
+    if(!StudyId) {
+      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      return;
+    }
+    if(!Title && !StudyQuestions && !Description) {
+      res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}')
+    }
+
+    let setStr = "";
+    if(Title) {
+      setStr = `Title = "${Title}"`;
+    }
+    if(StudyQuestions) {
+      setStr = setStr.concat(`, StudyQuestions = "${StudyQuestions}"`);
+    }
+    if(Description) {
+      setStr = setStr.concat(`, Description = "${Description}"`);
+    }
+    if(setStr.charAt(0) == ',') {
+      setStr = setStr.slice(2, setStr.length);
+    }
+
+    connection.query(`UPDATE studies SET ${setStr} WHERE StudyId = "${StudyId}"`, (error, results) => {
+      if(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      }
+      else if(results.affectedRows <= 0) {
+        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+      }
+      else {
+        res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
+      }
+    });
+  },
+
+  deleteStudy: async(req, res) => {
+    const { StudiesId } = req.query;
+
+    if(!StudiesId) {
+      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      return;
+    }
+
+    connection.query(`DELETE FROM studies WHERE StudyId = "${StudyId}"`, (error, results) => {
+      if(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+        return;
+      }
+      else if(results.affectedRows <= 0) {
+        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+        return;
+      }
+      else {
+        res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} was deleted"}`);
+      }
+    });
+
+    connection.query(`DELETE FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
+      if(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      }
+      else {
+        res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} experiments were deleted"}`);
       }
     });
   }

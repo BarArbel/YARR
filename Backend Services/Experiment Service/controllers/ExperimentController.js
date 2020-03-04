@@ -18,7 +18,7 @@ module.exports = {
             return;
         }
 
-        connection.query(`SELECT * FROM experiments WHERE experimentId = "${ExperimentId}"`, (error, results) => {
+        connection.query(`SELECT * FROM experiments WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -26,9 +26,9 @@ module.exports = {
                 res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
             }
             else {
-                let { experimentId, studyId, details, gameSettings } = results[0];
-                res.status(200).send(`{"result": "Success", "experiment": {"experimentId": "${experimentId}",
-                    "studyId": "${studyId}", "details": "${details}", "gameSettings": "${gameSettings}"}}`);
+                let { res_experimentId, res_studyId, res_details, res_gameSettings } = results[0];
+                res.status(200).send(`{"result": "Success", "experiment": {"ExperimentId": "${res_experimentId}",
+                    "StudyId": "${res_studyId}", "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}}`);
             }
         });
     },
@@ -41,7 +41,7 @@ module.exports = {
             return;
         }
 
-        connection.query(`SELECT * FROM experiments WHERE studyId = "${StudyId}"`, (error, results) => {
+        connection.query(`SELECT * FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -52,14 +52,13 @@ module.exports = {
                 let resultsStr = '{"result": "Success", "experiments": ['
                 let i;
                 for(i = 0; i < results.length; ++i) {
-                    let { experimentId, studyId, details, gameSettings } = results[i];
-                    resultsStr = resultsStr.concat(`{"experimentId": "${experimentId}", "studyId": "${studyId}",
-                        "details": "${details}", "gameSettings": "${gameSettings}"}, `);
+                    let { res_experimentId, res_studyId, res_details, res_gameSettings } = results[i];
+                    resultsStr = resultsStr.concat(`{"ExperimentId": "${res_experimentId}", "StudyId": "${res_studyId}",
+                        "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}, `);
                 }
                 resultsStr = resultsStr.slice(0, -2);
                 resultsStr = resultsStr.concat("]}");
                 res.status(200).send(resultsStr);
-                //res.status(200).send(results);
             }
         });
     },
@@ -68,12 +67,19 @@ module.exports = {
         const { ExperimentId, StudyId, Details, GameSettings } = req.body;
 
         if(!ExperimentId || !StudyId || !Details || !GameSettings) {
-            res.status(400).send(`{"result": "Failure", "params": {"experimentId": "${ExperimentId}", "studyId": "${StudyId}",
-                "details": "${Details}", "gameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
+            res.status(400).send(`{"result": "Failure", "params": {"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
+                "Details": "${Details}", "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
             return;
         }
 
-        connection.query(`INSERT INTO experiments (experimentId, studyId, details, gameSettings) VALUES ("${ExperimentId}",
+        connection.query(`SELECT * FROM studies WHERE studyId = "${StudyId}"`, (error, results) => {
+            if(error) {
+                res.status(400).send('{"result": "Failure", "error": "Study does not exist."}');
+                return;
+            }
+        });
+
+        connection.query(`INSERT INTO experiments (ExperimentId, StudyId, Details, GameSettings) VALUES ("${ExperimentId}",
             "${StudyId}", "${Details}", "${GameSettings}")`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -97,16 +103,16 @@ module.exports = {
 
         let setStr = "";
         if(Details) {
-            setStr = `details = "${Details}"`;
+            setStr = `Details = "${Details}"`;
         }
         if(GameSettings) {
-            setStr = setStr.concat(`, gameSettings = "${GameSettings}"`);
+            setStr = setStr.concat(`, GameSettings = "${GameSettings}"`);
         }
         if(setStr.charAt(0) == ',') {
             setStr = setStr.slice(2, setStr.length);
         }
 
-        connection.query(`UPDATE experiments SET ${setStr} WHERE experimentId = "${ExperimentId}"`, (error, results) => {
+        connection.query(`UPDATE experiments SET ${setStr} WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
@@ -127,7 +133,7 @@ module.exports = {
             return;
         }
 
-        connection.query(`DELETE FROM experiments WHERE experimentId = "${ExperimentId}"`, (error, results) => {
+        connection.query(`DELETE FROM experiments WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
