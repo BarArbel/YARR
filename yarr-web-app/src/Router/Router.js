@@ -1,15 +1,18 @@
 import React from 'react'
-import { Route } from 'react-router-dom'
+import { BrowserRouter as Router, Route } from 'react-router-dom'
+import { Provider } from 'react-redux'
+import PropTypes from 'prop-types'
 import App from '../App'
 
 const path = window.location.pathname
 
-const ReactRouter = () => {
-    return (
-        <React.Fragment>
-            <Route exact path = {path} component = {App}/>
-        </React.Fragment>
-    )
-}
+const ReactRouter = ({ store }) => (
+    <Provider store = {store}>
+        <Router>
+            {/* <Route exact path = {path} component = {App}/> */}
+            <Route exact path = "/" component = {App}/>
+        </Router>
+    </Provider>
+)
 
 export default ReactRouter
