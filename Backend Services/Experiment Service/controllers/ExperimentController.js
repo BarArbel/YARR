@@ -26,9 +26,10 @@ module.exports = {
                 res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
             }
             else {
-                let { res_experimentId, res_studyId, res_details, res_gameSettings } = results[0];
+                let { res_experimentId, res_studyId, res_creationDate, res_status, res_details, res_gameSettings } = results[0];
                 res.status(200).send(`{"result": "Success", "experiment": {"ExperimentId": "${res_experimentId}",
-                    "StudyId": "${res_studyId}", "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}}`);
+                    "StudyId": "${res_studyId}", "CreationDate": "${res_creationDate}", "Status": "${res_status}",
+                    "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}}`);
             }
         });
     },
@@ -52,9 +53,10 @@ module.exports = {
                 let resultsStr = '{"result": "Success", "experiments": ['
                 let i;
                 for(i = 0; i < results.length; ++i) {
-                    let { res_experimentId, res_studyId, res_details, res_gameSettings } = results[i];
+                    let { res_experimentId, res_studyId, res_creationDate, res_status, res_details, res_gameSettings } = results[i];
                     resultsStr = resultsStr.concat(`{"ExperimentId": "${res_experimentId}", "StudyId": "${res_studyId}",
-                        "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}, `);
+                        "CreationDate": "${res_creationDate}", "Status": "${res_status}", "Details": "${res_details}",
+                        "GameSettings": "${res_gameSettings}"}, `);
                 }
                 resultsStr = resultsStr.slice(0, -2);
                 resultsStr = resultsStr.concat("]}");
@@ -79,8 +81,12 @@ module.exports = {
             }
         });
 
-        connection.query(`INSERT INTO experiments (ExperimentId, StudyId, Details, GameSettings) VALUES ("${ExperimentId}",
-            "${StudyId}", "${Details}", "${GameSettings}")`, (error, results) => {
+        let date = new Date();
+        let CreationDate = date.getDay() + '/' + date.getMonth() + '/' + date.getFullYear();
+        let Status = "Ready";
+
+        connection.query(`INSERT INTO experiments (ExperimentId, StudyId, CreationDate, Status, Details, GameSettings) VALUES
+            ("${ExperimentId}", "${StudyId}", "${CreationDate}", "${Status}", "${Details}", "${GameSettings}")`, (error, results) => {
             if(error) {
                 res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
             }
