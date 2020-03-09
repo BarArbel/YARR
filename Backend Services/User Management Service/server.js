@@ -3,7 +3,7 @@ const   express      = require('express'),
         cors         = require('cors'),
         parser       = require('body-parser'),
         port         = process.env.PORT,
-        UserCtl      = require('./controllers/UserController.js.js')
+        UserCtl      = require('./controllers/UserController.js')
 
 app.set('port', port);
 app.use(cors());

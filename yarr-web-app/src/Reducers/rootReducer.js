@@ -1,11 +1,6 @@
-const initState = {
-    posts: [
-        {id: 1, text: "asdasdasd"}
-    ]
-}
+import { combineReducers } from 'redux'
+import testReducer from './testReducer'
 
-const rootReducer = (state = initState, action) => {
-    return state
-}
-
-export default rootReducer
+export default combineReducers({
+  test: testReducer
+})

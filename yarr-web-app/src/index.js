@@ -1,12 +1,16 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import ReactRouter from './Router/Router'
+import thunk from 'redux-thunk'
 import * as serviceWorker from './serviceWorker'
-import { createStore } from 'redux'
+import { applyMiddleware, createStore, compose } from 'redux'
 import rootReducer from './Reducers/rootReducer'
 import './index.css'
 
-const store = createStore(rootReducer)
+const middleware = applyMiddleware(thunk)
+const composedEnhancers = compose(middleware)
+const initialState = {}
+const store = createStore(rootReducer, initialState, composedEnhancers)
 
 ReactDOM.render(<ReactRouter store={store}/>, document.getElementById('root'))
 

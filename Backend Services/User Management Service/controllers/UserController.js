@@ -82,9 +82,10 @@ module.exports = {
     const { userName, password, firstName, lastName, email } = req.body;
 
     const { errors, isValid } = validateInput(req.body);
-
+    console.log(isValid)
     if(!isValid){
-      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
+      console.log(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`)
+      res.status(200).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
       return;
     }
 
@@ -93,7 +94,7 @@ module.exports = {
     connection.query('INSERT INTO researchers (UserName, HashedPassword, FirstName, LastName, Email)' + 
       `VALUES ("${userName}", "${hashedPassword}", "${firstName}", "${lastName}", "${email}")`, (error, results) => {
       if(error)
-        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+        res.status(200).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       else res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
     });
   },
