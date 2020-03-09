@@ -82,9 +82,7 @@ module.exports = {
     const { userName, password, firstName, lastName, email } = req.body;
 
     const { errors, isValid } = validateInput(req.body);
-    console.log(isValid)
     if(!isValid){
-      console.log(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`)
       res.status(200).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
       return;
     }
@@ -143,7 +141,7 @@ module.exports = {
         let bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
 
         if(hashedPassword === results[0].HashedPassword)
-          res.status(200).send(`{"result": "Verified", "bearer-key": "${bearerKey}"}`);
+          res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}"}`);
         else res.status(400).send(`{"result": "wrongPassword"}`);
 
       }

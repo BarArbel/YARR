@@ -6,7 +6,8 @@ import './App.css'
 
 const mapStateToProps = ({test}) => {
   return {
-    posts: test.posts
+    posts: test.posts,
+    bearerKey: test.bearerKey
   }
 }
 
@@ -16,6 +17,7 @@ class App extends Component {
     this.posts = [{id: 1, text: "blah blah"}, {id: 2, text: "due due"}]
     this.getUserTest = this.getUserTest.bind(this)
     this.addUserTest = this.addUserTest.bind(this)
+    this.verifyUserTest = this.verifyUserTest.bind(this)
   }
 
   componentDidMount(){
@@ -23,11 +25,12 @@ class App extends Component {
     handleSetPosts(this.posts) 
     this.getUserTest()
     this.addUserTest()
+    this.verifyUserTest()
   }
   
   getUserTest(){
     const userName = "edanAzran";
-    fetch(`http://localhost:3000/getResearcher?userName=${userName}`).then(res => res.json()).then(async json => {
+    fetch(`http://localhost:3001/getResearcher?userName=${userName}`).then(res => res.json()).then(async json => {
       if(json.result === "Success"){
         console.log(json.user)
       }
@@ -36,12 +39,12 @@ class App extends Component {
   }
 
   addUserTest(){
-    const url = "http://localhost:3000/addResearcher"
+    const url = "http://localhost:3001/addResearcher"
 
     let json = {
       userName: "EdanTest",
       password: "EdanTest",
-      // confirmedPassword: "EdanTest",
+      confirmedPassword: "EdanTest",
       firstName: "EdanTest",
       lastName: "EdanTest",
       email: "EdanTest@gmail.com"
@@ -63,7 +66,34 @@ class App extends Component {
     .catch(err => console.log(err));
   }
 
+  verifyUserTest(){
+    const url = "http://localhost:3001/verifyResearcher"
+    const { handleSetBearerKey } = this.props
+
+
+    let json = {
+      userName: "EdanTest",
+      password: "EdanTest",
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
+        .then(json => {
+            if(json.result === "Verified"){
+              handleSetBearerKey(json.bearerKey)
+            }   
+        })
+    .catch(err => console.log(err));
+  }
+
   render(){
+    console.log(this.props.bearerKey)
     return(
       <div className="App">
         <header className="App-header">
