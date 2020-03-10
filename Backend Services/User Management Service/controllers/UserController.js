@@ -83,7 +83,7 @@ module.exports = {
 
     const { errors, isValid } = validateInput(req.body);
     if(!isValid){
-      res.status(200).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
       return;
     }
 
@@ -92,7 +92,7 @@ module.exports = {
     connection.query('INSERT INTO researchers (UserName, HashedPassword, FirstName, LastName, Email)' + 
       `VALUES ("${userName}", "${hashedPassword}", "${firstName}", "${lastName}", "${email}")`, (error, results) => {
       if(error)
-        res.status(200).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       else res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
     });
   },
@@ -137,12 +137,20 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
       }
       else{
-        let hashedPassword = crypto.createHash('md5').update(password).digest('hex');
-        let bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
-
-        if(hashedPassword === results[0].HashedPassword)
-          res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}"}`);
-        else res.status(400).send(`{"result": "wrongPassword"}`);
+        const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
+        
+        if(hashedPassword === results[0].HashedPassword){
+          const { UserName, FirstName, LastName, Email } = results[0];
+          const userInfo = {
+            userName: UserName,
+            firstName: FirstName,
+            lastName: LastName,
+            email: Email
+          }
+          const bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
+          res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}", "userInfo": ${JSON.stringify(userInfo)}}`);
+        }
+        else res.status(400).send(`{"result": "Failure", "error": "wrongPassword"}`);
 
       }
     });

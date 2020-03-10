@@ -1,28 +1,37 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
-import testActions from './Actions/testActions'
-import logo from './logo.svg'
 import './App.css'
+import logo from './logo.svg'
+import { connect } from 'react-redux'
+import React, { Component } from 'react'
+import UserActions from './Actions/UserActions'
 
-const mapStateToProps = ({test}) => {
+const mapStateToProps = ({user}) => {
   return {
-    posts: test.posts,
-    bearerKey: test.bearerKey
+    userInfo: user.userInfo,
+    isLogged: user.isLogged,
+    bearerKey: user.bearerKey
   }
 }
 
 class App extends Component {
   constructor(props){
     super(props)
-    this.posts = [{id: 1, text: "blah blah"}, {id: 2, text: "due due"}]
+    this.userInfo = {userName: 1, email: "edan@gmail.com", firstName: "blah blah", lastName: "blahee"}
     this.getUserTest = this.getUserTest.bind(this)
     this.addUserTest = this.addUserTest.bind(this)
     this.verifyUserTest = this.verifyUserTest.bind(this)
   }
 
   componentDidMount(){
-    const { handleSetPosts } = this.props
-    handleSetPosts(this.posts) 
+    const { handleSetUser } = this.props
+    localStorage.removeItem("userInfo")
+    if(!localStorage.getItem("userInfo")){
+      console.log(`not in storage ${JSON.stringify(this.userInfo)}`)
+      localStorage.setItem("userInfo", JSON.stringify(this.userInfo))
+    }
+    
+    let userInfo = JSON.parse(localStorage.getItem("userInfo"))
+    console.log(userInfo)
+    handleSetUser(userInfo) 
     this.getUserTest()
     this.addUserTest()
     this.verifyUserTest()
@@ -68,9 +77,7 @@ class App extends Component {
 
   verifyUserTest(){
     const url = "http://localhost:3001/verifyResearcher"
-    const { handleSetBearerKey } = this.props
-
-
+    const { handleSetBearerKey, handleSetUser } = this.props
     let json = {
       userName: "EdanTest",
       password: "EdanTest",
@@ -85,15 +92,16 @@ class App extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json())
         .then(json => {
-            if(json.result === "Verified"){
-              handleSetBearerKey(json.bearerKey)
-            }   
+          console.log(json)
+          if(json.result === "Verified"){
+            handleSetUser(json.userInfo)
+            handleSetBearerKey(json.bearerKey)
+          }   
         })
     .catch(err => console.log(err));
   }
 
   render(){
-    console.log(this.props.bearerKey)
     return(
       <div className="App">
         <header className="App-header">
@@ -115,4 +123,4 @@ class App extends Component {
   }
 }
 
-export default connect(mapStateToProps, {...testActions})(App);
+export default connect(mapStateToProps, {...UserActions})(App);
