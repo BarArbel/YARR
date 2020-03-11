@@ -1,7 +1,7 @@
 import { USER_LOGIN, USER_LOGOUT, SET_BEARER_KEY, REMOVE_BEARER_KEY } from '../ActionsTypes/UserActionTypes'
 
 const initialState = {
-  userInfo: {},
+  userInfo: undefined,
   isLogged: false,
   bearerKey: undefined
 }
@@ -22,7 +22,7 @@ export default (state = initialState, action) => {
       case USER_LOGOUT: {
         return {
           ...state,
-          userInfo: {},
+          userInfo: undefined,
           isLogged: false,
           bearerKey: undefined
         }

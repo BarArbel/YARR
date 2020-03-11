@@ -100,6 +100,7 @@ module.exports = {
     }
     if(!Title && !StudyQuestions && !Description) {
       res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}')
+      return;
     }
 
     let setStr = "";
@@ -147,17 +148,17 @@ module.exports = {
         return;
       }
       else {
-        res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} was deleted"}`);
+        connection.query(`DELETE FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
+          if(error) {
+            res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+          }
+          else {
+            res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} experiments were deleted"}`);
+          }
+        });
       }
     });
 
-    connection.query(`DELETE FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
-      if(error) {
-        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-      }
-      else {
-        res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} experiments were deleted"}`);
-      }
-    });
+    
   }
 }
