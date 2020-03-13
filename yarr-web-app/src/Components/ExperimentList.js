@@ -48,14 +48,14 @@ export class ExperimentList extends Component {
         }
       }
     }
-    return <Text>Something went wrong, please try again.</Text>
+    return <label>Something went wrong, please try again.</label>
   }
 
   render() {
     return (
-      <Div>
-        <Div>{this.renderList}</Div>
-      </Div>
+      <div>
+        <div>{this.renderList}</div>
+      </div>
     )
   }
 }

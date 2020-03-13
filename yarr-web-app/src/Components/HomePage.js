@@ -19,31 +19,54 @@ class HomePage extends Component {
     this.state = {
         mountFinish: false
     }
+
+    this.handleLogout = this.handleLogout.bind(this)
   }
 
-  componentDidMount(){
-    const { isLogged, handleSetUser, handleSetBearerKey, handleRemoveUser } = this.props
-
+  async componentDidMount(){
+    const { isLogged, handleSetUser, handleSetBearerKey } = this.props
+   
     /* If not in state, check if in local storage */
     if(!isLogged){
-        /* If in local storage, add it to state */ 
-        if(localStorage.getItem("isLogged")){
-            console.log(localStorage.getItem("isLogged"))
+      /* If in local storage, add it to state */ 
+      if(localStorage.getItem("isLogged") != null){
+          const isLogged = JSON.parse(localStorage.getItem("isLogged"))
+          if(isLogged){
             const userInfo = JSON.parse(localStorage.getItem("userInfo"))
-            const bearerKey = JSON.parse(localStorage.getItem("bearerKey"))
+            const bearerKey = localStorage.getItem("bearerKey")
             handleSetUser(userInfo)
             handleSetBearerKey(bearerKey)
-        }
+          }
+      }
     }
 
     this.setState({ mountFinish: true })
   }
+
+  handleLogout(){
+    const { handleRemoveUser, handleRemoveBearerKey } = this.props
+    handleRemoveUser()
+    handleRemoveBearerKey()
+  }
   
-  render(){
-    const { isLogged, userInfo } = this.props
+  render() {
+    const { isLogged, userInfo, bearerKey } = this.props
     const { mountFinish } = this.state
-    console.log(userInfo)
-    return mountFinish ? (isLogged ? (<div className = "login">homepage</div>) : (<Redirect to = '/'/>)) : (null)
+    return mountFinish ? (isLogged ? (
+      <div className="homePage">
+        <header className="header-login-signup">
+          <div className="header-limiter">
+            <h1><a href="#">YARR<span>!!</span></a></h1>
+            <nav>
+              <a href="#" className="selected">Home</a>
+            </nav>
+            <ul>
+              <li><button onClick={this.handleLogout}>Logout</button></li>
+            </ul>
+          </div>
+        </header>
+      </div>
+    ) : (<Redirect to='/' />)) : (null)
   }
 }
 

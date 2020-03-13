@@ -11,8 +11,8 @@ const ReactRouter = ({ store }) => (
     <Provider store = {store}>
         <Router>
             {/* <Route exact path = {path} component = {App}/> */}
-            <Route exact path = "/" component = {HomePage}/>
-            {/* <Route exact path = "/homePage" component = {HomePage}/> */}
+            <Route exact path = "/" component = {Login}/>
+            <Route exact path = "/homePage" component = {HomePage}/>
         </Router>
     </Provider>
 )

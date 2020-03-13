@@ -66,11 +66,23 @@ class Login extends Component {
     .catch(err => console.log(err));
   }
 
-  render(){
+  render() {
     const { isLogged } = this.props
-    const { mountFinish } = this.state  
+    const { mountFinish } = this.state
 
-    return mountFinish ? (isLogged ? (<Redirect to = '/homePage'/>) : (<div className = "login">login</div>)) : null
+    return mountFinish ? (isLogged ? (<Redirect to='/homePage' />) : (
+      <div className="loginHeader">
+        <header className="header-login-signup">
+          <div className="header-limiter">
+            <h1><a href="#">YARR<span>!!</span></a></h1>
+            <ul>
+              <li><button onClick={this.verifyUserTest}>Login</button></li>
+              <li><a href="#">Sign up</a></li>
+            </ul>
+          </div>
+        </header>
+      </div>
+    )) : null
   }
 }
 

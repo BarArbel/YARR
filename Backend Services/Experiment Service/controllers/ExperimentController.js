@@ -71,7 +71,7 @@ module.exports = {
     }
 
     connection.query(`SELECT * FROM studies WHERE studyId = "${StudyId}"`, (error, results) => {
-      if (error) {
+      if (error || !result.length) {
         res.status(400).send('{"result": "Failure", "error": "Study does not exist."}');
         return;
       }
@@ -101,6 +101,7 @@ module.exports = {
     }
     if (!Status && !Details && !GameSettings) {
       res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}');
+      return;
     }
 
     let setStr = "";

@@ -29,7 +29,7 @@ const handleAddExperiment = (experimentId, studyId, title, creationDate, status,
   dispatch(addExperiment(experimentId, studyId, title, creationDate, status, details, gameSettings))
 }
 
-const handleUpdateExperiment = (experimentId, title, details) => async dipatch => {
+const handleUpdateExperiment = (experimentId, title, details) => async dispatch => {
   dispatch(updateExperiment(experimentId, title, details));
 }
 

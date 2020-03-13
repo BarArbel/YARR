@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import actions from "../Actions/ExperimentsActions"
+import ExperimentsActions from "../Actions/ExperimentsActions"
 
 const mapStateToProps = ({}) => {
   return {}
@@ -15,16 +15,16 @@ export class ExperimentItem extends Component {
   render() {
     const { title, creationDate, status } = this.props
     return (
-      <Div>
-        <Text>{title}</Text>
-        <Div>
-          <Text>{creationDate}</Text>
-          <Text>{status}</Text>
-          <Button>View</Button>
-          <Button>Edit</Button>
-        </Div>
-      </Div>
-    );
+      <div className = "experimentItem">
+        <label>{title}</label>
+        <div>
+          <label>{creationDate}</label>
+          <label>{status}</label>
+          <button>View</button>
+          <button>Edit</button>
+        </div>
+      </div>
+    )
   }
 }
 
@@ -38,4 +38,4 @@ ExperimentItem.propTypes = {
   gameSettings: PropTypes.string
 };
 
-export default connect(mapStateToProps, actions)(ExperimentItem)
+export default connect(mapStateToProps, ...ExperimentsActions)(ExperimentItem)
