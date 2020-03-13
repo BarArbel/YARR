@@ -15,8 +15,11 @@ class SignIn extends Component {
       firstName: "",
       lastName: "",
       password: "",
-      confirmPassword: "",
-      signUp: false
+      confirmedPassword: "",
+      signUp: false,
+      isMsg: false,
+      error: false,
+      msg: ""
     }
 
     this.renderLogin = this.renderLogin.bind(this)
@@ -27,7 +30,7 @@ class SignIn extends Component {
   }
 
   handleChangeForm() {
-    this.setState({signUp: !this.state.signUp})
+    this.setState({ signUp: !this.state.signUp })
   }
 
   handleChange(event) {
@@ -47,18 +50,47 @@ class SignIn extends Component {
     const { 
       userName, 
       password, 
-      confirmPassword, 
+      confirmedPassword, 
       firstName, 
       lastName, 
       email 
     } = this.state
 
-    console.log(this.state)
+    const url = 'http://localhost:3001/addResearcher'
+    /* fetch request to add user */
+    const json = {
+      userName: userName,
+      password: password,
+      confirmedPassword: confirmedPassword,
+      firstName: firstName,
+      lastName: lastName,
+      email: email
+    }
+    console.log(json)
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          console.log(json)
+          this.setState({msg: "success", isMsg: true, error: false, signUp: false})
+        }
+        else {
+          console.log(json)
+        }
+      })
+      .catch(err => console.log(err));
+    
     event.preventDefault();
   }
 
   renderLogin(){
-    const { userName, password } = this.state
+    const { userName, password, msg, isMsg } = this.state
 
     return (
       <form onSubmit={this.handleLoginSubmit}>
@@ -89,6 +121,7 @@ class SignIn extends Component {
         <div className="text-center mt-4">
           <MDBBtn color="elegant" type="submit" className="login-btn">Login</MDBBtn>
         </div>
+      {isMsg && <label>{msg}</label>}
       </form>
     )
   }
@@ -97,7 +130,7 @@ class SignIn extends Component {
     const {
       userName,
       password,
-      confirmPassword,
+      confirmedPassword,
       firstName,
       lastName,
       email
@@ -167,12 +200,12 @@ class SignIn extends Component {
           Confirm Password
         </label>
         <input
-          value={confirmPassword}
+          value={confirmedPassword}
           onChange={this.handleChange}
           type="password"
           id="defaultFormSignInConfirm"
           className="form-control"
-          name="confirmPassword"
+          name="confirmedPassword"
           required
         />
         <div className="text-center mt-4">

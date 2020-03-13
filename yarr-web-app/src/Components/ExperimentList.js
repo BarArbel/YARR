@@ -44,7 +44,7 @@ export class ExperimentList extends Component {
         return results["experiments"].map(this.eachResult)
       } else if (results["result"] == "Failure") {
         if (results["error"] == "No experiments found.") {
-          return <Text>There are no experiments related to this study.</Text>
+          return <label>There are no experiments related to this study.</label>
         }
       }
     }

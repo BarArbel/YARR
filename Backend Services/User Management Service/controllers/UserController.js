@@ -15,7 +15,7 @@ connection.connect();
 function validateInput(data){
     let errors = {}
     const { userName, password, confirmedPassword, firstName, lastName, email } = data;
-
+    console.log(password, confirmedPassword)
     if(lodash.isUndefined(userName)){
      errors.userName = "User name is required";   
     }
