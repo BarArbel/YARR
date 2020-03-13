@@ -3,25 +3,31 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import ExperimentsActions from "../Actions/ExperimentsActions"
 
-const mapStateToProps = ({}) => {
-  return {}
+const mapStateToProps = ({ study }) => {
+  return {
+    experimentList: study.experimentList
+  }
 }
 
 export class ExperimentItem extends Component {
   constructor(props) {
     super(props)
+    this.handleView = this.handleView.bind(this)
   }
 
+  handleView() {}
+
   render() {
-    const { title, creationDate, status } = this.props
+    const { title, creationDate, status, handleEdit, handleDelete } = this.props
     return (
       <div className = "experimentItem">
         <label>{title}</label>
         <div>
           <label>{creationDate}</label>
           <label>{status}</label>
-          <button>View</button>
-          <button>Edit</button>
+          <button onClick={this.handleView}>View</button>
+          <button onClick={handleEdit}>Edit</button>
+          <button onClick={handleDelete}>Delete</button>
         </div>
       </div>
     )
@@ -36,6 +42,8 @@ ExperimentItem.propTypes = {
   status: PropTypes.string,
   details: PropTypes.string,
   gameSettings: PropTypes.string
+  handleEdit: PropTypes.func
+  handleDelete: PropTypes.func
 };
 
 export default connect(mapStateToProps, ...ExperimentsActions)(ExperimentItem)

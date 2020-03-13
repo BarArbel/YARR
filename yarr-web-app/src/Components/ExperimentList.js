@@ -5,8 +5,10 @@ import PropTypes from "prop-types"
 import actions from "../Actions/ExperimentsActions"
 import ConnectedExperimentItem from "./ExperimentItem"
 
-const mapStateToProps = ({}) => {
-  return {}
+const mapStateToProps = ({ study }) => {
+  return {
+    experimentList: study.experimentList
+  }
 }
 
 function mapDispatchToProps(dispatch) {
@@ -20,6 +22,35 @@ export class ExperimentList extends Component {
     super(props)
     this.eachResult = this.eachResult.bind(this)
     this.renderList = this.renderList.bind(this)
+    this.handleCreate = this.handleCreate(this)
+  }
+
+  handleCreate() {
+    //move to create experiment form
+  }
+
+  handleEdit() {
+    //move to edit page
+  }
+
+  handleDelete() {
+    const url = `http://localhost:3001/deleteExperiment?${this.props.experimentId}`
+    const { handleDeleteExperiment } = this.props
+
+    fetch(url, {
+      method: "DELETE",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json"
+      }
+    }).then(res => res.json())
+        .then(json => {
+          console.log(json)
+          if (json.result === "Success") {
+            handleDeleteExperiment(this.props.experimentId)
+          }
+        })
+    .catch(err => console.log(err))
   }
 
   eachResult(result) {
@@ -33,6 +64,8 @@ export class ExperimentList extends Component {
         status={result.Status}
         details={result.Details}
         gameSettings={result.GameSettings}
+        handleEdit={this.handleEdit}
+        handleDelete={this.handleDelete}
       />
     )
   }
@@ -55,6 +88,7 @@ export class ExperimentList extends Component {
     return (
       <div>
         <div>{this.renderList}</div>
+        <button onClick={this.handleCreate}>Create Experiment</button>
       </div>
     )
   }
