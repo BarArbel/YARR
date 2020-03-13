@@ -5,6 +5,9 @@ import thunk from 'redux-thunk'
 import * as serviceWorker from './serviceWorker'
 import { applyMiddleware, createStore, compose } from 'redux'
 import rootReducer from './Reducers/rootReducer'
+import '@fortawesome/fontawesome-free/css/all.min.css'
+import 'bootstrap-css-only/css/bootstrap.min.css'
+import 'mdbreact/dist/css/mdb.css'
 import './index.css'
 
 const middleware = applyMiddleware(thunk)

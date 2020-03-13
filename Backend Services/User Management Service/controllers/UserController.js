@@ -134,7 +134,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
       }
       else if(!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
+        res.status(400).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`); 
       }
       else{
         const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
@@ -150,7 +150,7 @@ module.exports = {
           const bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
           res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}", "userInfo": ${JSON.stringify(userInfo)}}`);
         }
-        else res.status(400).send(`{"result": "Failure", "error": "wrongPassword"}`);
+        else res.status(400).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`);
 
       }
     });

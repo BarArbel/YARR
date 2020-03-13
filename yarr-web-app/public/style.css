@@ -23,10 +23,6 @@
 	margin: 0;
 }
 
-.header-login-signup .header-limiter h1 span {
-	color: #5383d3;
-}
-
 /* The navigation links */
 
 .header-login-signup .header-limiter a {
@@ -123,6 +119,31 @@
 
 }
 
+.signIn {
+  position: relative;
+  left: 50%;
+  margin-top: 60px;
+  transform: translate(-50%);
+  width: 30%;
+}
+
+.login-btn {
+  box-shadow: none !important;
+}
+
+.FormMargins {
+  margin-bottom: 30px;
+}
+
+.changeFormButton {
+  background:none;
+  border:none;
+  text-decoration: underline;
+  cursor: pointer;
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+}
 /* For the headers to look good, be sure to reset the margin and padding of the body */
 
 body {

@@ -6,7 +6,6 @@ const setBearerKey = bearerKey => ({type: SET_BEARER_KEY, data: bearerKey})
 const removeBearerKey = () => ({type: REMOVE_BEARER_KEY})
 
 const handleSetUser = userInfo => async dispatch => {
-  console.log(userInfo)
   localStorage.setItem("userInfo", JSON.stringify(userInfo))
   localStorage.setItem("isLogged", true)
   dispatch(setUser(userInfo))
