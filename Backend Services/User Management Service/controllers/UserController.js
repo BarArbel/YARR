@@ -3,11 +3,13 @@ var mysql      = require('mysql'),
     Validator  = require('validator'),
     lodash     = require('lodash');
 
+const { HOST, USER, PASSWORD, DATABASE } = process.env
+
 var connection = mysql.createConnection({
-  host     : 'localhost',
-  user     : 'root',
-  password : 'root',
-  database : 'yarr!'
+  host: HOST,
+  user: USER,
+  password : PASSWORD,
+  database : DATABASE
 });
 
 connection.connect();
@@ -15,7 +17,6 @@ connection.connect();
 function validateInput(data){
     let errors = {}
     const { userName, password, confirmedPassword, firstName, lastName, email } = data;
-    console.log(password, confirmedPassword)
     if(lodash.isUndefined(userName)){
      errors.userName = "User name is required";   
     }

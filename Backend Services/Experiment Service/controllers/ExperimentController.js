@@ -1,10 +1,12 @@
 var mysql = require("mysql");
 
+const { HOST, USER, PASSWORD, DATABASE } = process.env
+
 var connection = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "yarr"
+  host: HOST,
+  user: USER,
+  password: PASSWORD,
+  database: DATABASE
 });
 
 connection.connect();

@@ -1,10 +1,12 @@
-var mysql  = require('mysql');
+var mysql = require('mysql');
+
+const { HOST, USER, PASSWORD, DATABASE } = process.env
 
 var connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'yarr'
+  host: HOST,
+  user: USER,
+  password: PASSWORD,
+  database: DATABASE
 });
 
 connection.connect();
@@ -64,9 +66,9 @@ module.exports = {
   },
 
   addStudy: async(req, res) => {
-    const { StudyId, UserName, Title, StudyQuestions, Description } = req.body;
+    const { UserName, Title, StudyQuestions, Description } = req.body;
 
-    if(!StudyId || !UserName || !Title || !StudyQuestions || !Description) {
+    if(!UserName || !Title || !StudyQuestions || !Description) {
       res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}", "UserName": "${UserName}",
         "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"},
         "msg": "A parameter is missing."}`);
@@ -74,13 +76,13 @@ module.exports = {
     }
 
     connection.query(`SELECT * FROM researchers WHERE UserName = "${UserName}"`, (error, results) => {
-      if(error) {
+      if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "User does not exist."}');
         return;
       }
     });
 
-    connection.query(`INSERT INTO studies (StudyId, UserName, Title, StudyQuestions, Description) VALUES ("${StudyId}",
+    connection.query(`INSERT INTO studies (UserName, Title, StudyQuestions, Description) VALUES ("${StudyId}",
       "${UserName}", "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
