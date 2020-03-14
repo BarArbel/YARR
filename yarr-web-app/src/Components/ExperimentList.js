@@ -1,19 +1,12 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
-import { bindActionCreators } from "redux"
 import PropTypes from "prop-types"
-import actions from "../Actions/ExperimentsActions"
-import ConnectedExperimentItem from "./ExperimentItem"
+import ExperimentsActions from "../Actions/ExperimentsActions"
+import ExperimentItem from "./ExperimentItem"
 
 const mapStateToProps = ({ study }) => {
   return {
     experimentList: study.experimentList
-  }
-}
-
-function mapDispatchToProps(dispatch) {
-  return {
-    actions: {}
   }
 }
 
@@ -56,7 +49,7 @@ export class ExperimentList extends Component {
   eachResult(result) {
     const { studyId } = this.props
     return (
-      <ConnectedExperimentItem
+      <ExperimentItem
         experimentId={result.ExperimentId}
         studyId={studyId}
         title={result.Title}
@@ -100,4 +93,4 @@ ExperimentList.propTypes = {
   actions: PropTypes.objectOf(PropTypes.object)
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ExperimentList)
+export default connect(mapStateToProps, ...ExperimentsActions)(ExperimentList)

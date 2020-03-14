@@ -1,13 +1,13 @@
 import {
-  ADD_EXPERIEMNT,
+  ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
 
 const addExperiment = (experimentId, studyId, title, creationDate, status, details, gameSettings) => ({
-  type: ADD_EXPERIEMNT,
-  data: {  experimentId, studyId, title, creationDate, status, details, gameSettings }
+  type: ADD_EXPERIMENT,
+  data: { experimentId, studyId, title, creationDate, status, details, gameSettings }
 })
 
 const updateExperiment = (experimentId, title, details) => ({
