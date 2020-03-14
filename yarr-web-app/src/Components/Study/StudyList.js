@@ -29,7 +29,6 @@ class StudyList extends Component {
     fetch(getAllUrl).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
-          console.log(json)
           this.setState({studies: json.studies})
         }
         else {

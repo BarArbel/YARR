@@ -22,7 +22,7 @@ class ExperimentBuilder extends Component {
       title: "",
       details: "",
       characterType: "Type 1",
-      colorSettings: "Color blind",
+      colorSettings: "Full spectrum",
       roundsNumber: 1,
       roundsSettings: [{ "Mode": "Mode 1", "Difficulty": "Dynamic" }],
       isMsg: false,
@@ -85,7 +85,7 @@ class ExperimentBuilder extends Component {
   handleRoundNumberChange(event) {
     const { value } = event.target
     const { roundsNumber, roundsSettings } = this.state
-    console.log(roundsSettings)
+
     /* Minimum reached */
     if (value < 1) {
       return
