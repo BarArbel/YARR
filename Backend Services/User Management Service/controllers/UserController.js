@@ -141,14 +141,17 @@ module.exports = {
         const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
         
         if(hashedPassword === results[0].HashedPassword){
-          const { UserName, FirstName, LastName, Email } = results[0];
+          const { ResearcherId, UserName, FirstName, LastName, Email } = results[0];
           const userInfo = {
+            researcherId: ResearcherId,
             userName: UserName,
             firstName: FirstName,
             lastName: LastName,
-            email: Email
+            email: Email,
           }
-          const bearerKey = crypto.createHash('md5').update(toString(results[0].ResearcherId)).digest('hex');
+
+          const tempStr = `${Email}${ResearcherId}${LastName}`
+          const bearerKey = crypto.createHash('md5').update(tempStr).digest('hex');
           res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}", "userInfo": ${JSON.stringify(userInfo)}}`);
         }
         else res.status(400).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`);

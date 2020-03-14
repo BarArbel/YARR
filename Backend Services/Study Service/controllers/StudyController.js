@@ -42,8 +42,7 @@ module.exports = {
       res.status(400).send('{"result": "Faliure", "error": "ResearcherId is required."}');
       return;
     }
-
-    connection.query(`SELECT * FROM studies WHERE ResearcherId = "${ResearcherId}"`, (error, results) => {
+    connection.query(`SELECT * FROM studies WHERE ResearcherId = ${ResearcherId}`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -54,9 +53,9 @@ module.exports = {
         let resultsStr = '{"result": "Success", "studies": ['
         let i;
         for(i = 0; i < results.length; ++i) {
-          let { res_studyId, res_ResearcherId, res_title, res_studyQuestions, res_description } = results[i];
-          resultsStr = resultsStr.concat(`{"StudyId": "${res_studyId}", "ResearcherId": "${res_ResearcherId}", "Title": "${res_title}",
-            "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}, `);
+          let { StudyId, ResearcherId, Title, StudyQuestions, Description } = results[i];
+          resultsStr = resultsStr.concat(`{"StudyId": "${StudyId}", "ResearcherId": "${ResearcherId}", "Title": "${Title}",
+            "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"}, `);
         }
         resultsStr = resultsStr.slice(0, -2);
         resultsStr = resultsStr.concat("]}");

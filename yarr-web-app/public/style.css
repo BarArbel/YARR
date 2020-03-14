@@ -135,6 +135,10 @@
   margin-bottom: 30px;
 }
 
+.card{
+  margin-bottom: 10px;
+}
+
 .changeFormButton {
   background:none;
   border:none;

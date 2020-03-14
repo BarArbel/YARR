@@ -18,7 +18,7 @@ export default (state = initialState, action) => {
       }
     }
     case UPDATE_EXPERIMENT: {
-      const newList = state.experimentList.filter(i => i.experimentId != action.data.experimentId)
+      const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
       let toUpdate = state.experimentList.filter(i => i.experimentId === action.data.experimentId)
       toUpdate.title = action.data.title
       toUpdate.details = action.data.details
@@ -28,15 +28,15 @@ export default (state = initialState, action) => {
       }
     }
     case DELETE_EXPERIMENT: {
-      const newList = state.experimentList.filter(i => i.experimentId != action.data.experimentId)
+      const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
       return {
         ...state,
         experimentList: newList
       }
     }
     case CHANGE_EXPERIMENT_STATUS: {
-      const newList = state.experimentList.filter(i => i.experimentId != action.data.experimentId)
-      let toUpdate = state.experimentList.filter(i => i.experimentId == action.data.experimentId)
+      const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
+      let toUpdate = state.experimentList.filter(i => i.experimentId === action.data.experimentId)
       toUpdate.status = action.data.status
       return {
         ...state,

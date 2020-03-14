@@ -55,13 +55,13 @@ class HomePage extends Component {
 
     return mountFinish ? (isLogged ? (
       <div className="homePage">
-        <Header />
+        <Header/>
         <div className="container">
           <label>{`Hello ${userInfo.firstName} ${userInfo.lastName}`}</label>
           <StudyList/>
         </div>
       </div>
-    ) : (<Redirect to='/' />)) : (null)
+    ) : (<Redirect to='/'/>)) : (null)
   }
 }
 
