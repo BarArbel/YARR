@@ -55,6 +55,9 @@ class HomePage extends Component {
     return mountFinish ? (isLogged ? (
       <div className="homePage">
         <Header />
+        <div className="container">
+          
+        </div>
       </div>
     ) : (<Redirect to='/' />)) : (null)
   }
