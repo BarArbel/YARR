@@ -26,10 +26,10 @@ module.exports = {
       } else if (!results.length) {
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
-        let {res_experimentId, res_studyId, res_creationDate, res_status, res_details, res_gameSettings} = results[0];
+        let {res_experimentId, res_studyId, res_creationDate, res_status, res_title, res_details, res_gameSettings} = results[0];
         res.status(200).send(`{"result": "Success", "experiment": {"ExperimentId": "${res_experimentId}",
                               "StudyId": "${res_studyId}", "CreationDate": "${res_creationDate}", "Status": "${res_status}",
-                              "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}}`);
+                              "Title": "${res_title}", "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}}`);
       }
     });
   },
@@ -51,10 +51,11 @@ module.exports = {
         let resultsStr = '{"result": "Success", "experiments": [';
         let i;
         for (i = 0; i < results.length; ++i) {
-          let {res_experimentId, res_studyId, res_creationDate, res_status, res_details, res_gameSettings } = results[i];
+          let {res_experimentId, res_studyId, res_creationDate, res_status, res_title, res_details, res_gameSettings } = results[i];
           resultsStr = resultsStr.concat(`{"ExperimentId": "${res_experimentId}", "StudyId": "${res_studyId}",
                                           "CreationDate": "${res_creationDate}", "Status": "${res_status}",
-                                          "Details": "${res_details}", "GameSettings": "${res_gameSettings}"}, `);
+                                          "Title": "${res_title}", "Details": "${res_details}",
+                                          "GameSettings": "${res_gameSettings}"}, `);
         }
         resultsStr = resultsStr.slice(0, -2);
         resultsStr = resultsStr.concat("]}");
@@ -64,11 +65,11 @@ module.exports = {
   },
 
   addExperiment: async (req, res) => {
-    const { StudyId, Details, GameSettings } = req.body;
+    const { StudyId, Title, Details, GameSettings } = req.body;
 
-    if (!StudyId || !Details || !GameSettings) {
-      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}",
-        "Details": "${Details}", "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
+    if (!StudyId || !Title || !Details || !GameSettings) {
+      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}", "Title": "${Title}", "Details": "${Details}",
+                            "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
       return;
     }
 
@@ -83,8 +84,8 @@ module.exports = {
     let CreationDate = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
     let Status = "Ready";
 
-    connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Details, GameSettings) VALUES
-                      ("${StudyId}", "${CreationDate}", "${Status}", "${Details}", "${GameSettings}")`,
+    connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Title, Details, GameSettings) VALUES
+                      ("${StudyId}", "${CreationDate}", "${Status}", "${Title}, "${Details}", "${GameSettings}")`,
                       (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -95,13 +96,13 @@ module.exports = {
   },
 
   updateExperiment: async (req, res) => {
-    const { ExperimentId, Status, Details, GameSettings } = req.body;
+    const { ExperimentId, Status, Title, Details, GameSettings } = req.body;
 
     if (!ExperimentId) {
       res.status(400).send('{"result": "Faliure", "error": "Experiment ID is required."}');
       return;
     }
-    if (!Status && !Details && !GameSettings) {
+    if (!Status && !Title && !Details && !GameSettings) {
       res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}');
       return;
     }
@@ -109,6 +110,9 @@ module.exports = {
     let setStr = "";
     if (Status) {
       setStr = `Status = "${Status}"`;
+    }
+    if (Title) {
+      setStr = setStr.concat(`, Title = "${Title}"`);
     }
     if (Details) {
       setStr = setStr.concat(`, Details = "${Details}"`);
