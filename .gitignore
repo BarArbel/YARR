@@ -6,3 +6,4 @@ node_modules/
 /YARR_Game/Logs/*
 /YARR_Game/obj/*
 /YARR_Game/Packages/*
+/YARR_Game/Temp/*
