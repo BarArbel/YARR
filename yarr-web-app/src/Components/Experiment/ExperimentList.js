@@ -4,9 +4,9 @@ import PropTypes from "prop-types"
 import ExperimentsActions from "../../Actions/ExperimentsActions"
 import ExperimentItem from "./ExperimentItem"
 
-const mapStateToProps = ({ study }) => {
+const mapStateToProps = ({ experiment }) => {
   return {
-    experimentList: study.experimentList
+    experimentList: experiment.experimentList
   }
 }
 

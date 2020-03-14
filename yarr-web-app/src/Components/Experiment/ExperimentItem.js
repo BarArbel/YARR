@@ -3,9 +3,9 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import ExperimentsActions from "../../Actions/ExperimentsActions"
 
-const mapStateToProps = ({ study }) => {
+const mapStateToProps = ({ experiment }) => {
   return {
-    experimentList: study.experimentList
+    experimentList: experiment.experimentList
   }
 }
 

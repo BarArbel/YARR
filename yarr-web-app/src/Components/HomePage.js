@@ -1,8 +1,9 @@
+import Header from './Header'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
+import StudyList from './Study/StudyList'
 import { Redirect } from 'react-router-dom'
 import UserActions from '../Actions/UserActions'
-import Header from './Header'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -49,14 +50,15 @@ class HomePage extends Component {
   }
 
   render() {
-    const { isLogged } = this.props
+    const { isLogged, userInfo } = this.props
     const { mountFinish } = this.state
 
     return mountFinish ? (isLogged ? (
       <div className="homePage">
         <Header />
         <div className="container">
-          
+          <label>{`Hello ${userInfo.firstName} ${userInfo.lastName}`}</label>
+          <StudyList/>
         </div>
       </div>
     ) : (<Redirect to='/' />)) : (null)
