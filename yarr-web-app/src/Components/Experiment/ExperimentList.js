@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import ExperimentsActions from "../Actions/ExperimentsActions"
+import ExperimentsActions from "../../Actions/ExperimentsActions"
 import ExperimentItem from "./ExperimentItem"
 
 const mapStateToProps = ({ study }) => {

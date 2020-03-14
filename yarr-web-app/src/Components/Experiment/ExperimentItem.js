@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import ExperimentsActions from "../Actions/ExperimentsActions"
+import ExperimentsActions from "../../Actions/ExperimentsActions"
 
 const mapStateToProps = ({ study }) => {
   return {
@@ -41,8 +41,8 @@ ExperimentItem.propTypes = {
   creationDate: PropTypes.string,
   status: PropTypes.string,
   details: PropTypes.string,
-  gameSettings: PropTypes.string
-  handleEdit: PropTypes.func
+  gameSettings: PropTypes.string,
+  handleEdit: PropTypes.func,
   handleDelete: PropTypes.func
 };
 
