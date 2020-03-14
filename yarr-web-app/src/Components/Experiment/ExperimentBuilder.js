@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import { Redirect } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
-import Header from '../Header'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 
@@ -26,7 +24,7 @@ class ExperimentBuilder extends Component {
       characterType: "Type 1",
       colorSettings: "Color blind",
       roundsNumber: 1,
-      roundsSettings: [],
+      roundsSettings: [{ "Mode": "Mode 1", "Difficulty": "Dynamic" }],
       isMsg: false,
       error: false,
       msg: ""
@@ -34,12 +32,10 @@ class ExperimentBuilder extends Component {
 
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleRoundSettings = this.handleRoundSettings.bind(this)
+    this.handleChangeMode = this.handleChangeMode.bind(this)
     this.renderRoundSettings = this.renderRoundSettings.bind(this)
-  }
-
-  componentDidMount() {
-    this.handleRoundSettings();
+    this.handleChangeDifficulty = this.handleChangeDifficulty.bind(this)
+    this.handleRoundNumberChange = this.handleRoundNumberChange.bind(this)
   }
 
   handleSubmit(event){
@@ -82,44 +78,59 @@ class ExperimentBuilder extends Component {
 
   handleChange(event) {
     const { name, value } = event.target
-    if(name === "roundsNumber" && value < 1) {
-      return
-    }
-    this.setState({ [name]: value });
+
+    this.setState({ [name] : value });
   }
 
-  handleRoundSettings() {
+  handleRoundNumberChange(event) {
+    const { value } = event.target
     const { roundsNumber, roundsSettings } = this.state
+    console.log(roundsSettings)
+    /* Minimum reached */
+    if (value < 1) {
+      return
+    }   
 
-    if (roundsNumber > roundsSettings.length) {
-      let newRounds = []
-      for(let i = 0; i < roundsNumber - roundsSettings.length; ++i) {
-        newRounds = [...newRounds, { "Mode": "Mode 1", "Difficulty": "Dynamic" }]
-      }
-      this.setState({ roundsSettings: [...roundsSettings, newRounds] })
-    } else if (roundsNumber < roundsSettings.length) {
-      let newList = roundsSettings.splice(roundsNumber - roundsSettings.length, roundsSettings.length - roundsNumber)
-      this.setState({ roundsSettings: newList })
+    /* Add one */
+    if (value > roundsNumber && value > roundsSettings.length) {
+      this.setState({ roundsNumber: value, roundsSettings: [...roundsSettings, { "Mode": "Mode 1", "Difficulty": "Dynamic" }] })
     }
+    /* Remove last */ 
+    else if (value < roundsNumber && value < roundsSettings.length) {
+      let tempList = roundsSettings
+      tempList.splice(tempList.length - 1, 1)
+      this.setState({ roundsNumber: value, roundsSettings: tempList })
+    }
+  }
+
+  handleChangeMode(value, index){
+    const { roundsSettings } = this.state
+    roundsSettings[index].Mode = value
+    this.setState({roundsSettings: roundsSettings})
+  }
+
+  handleChangeDifficulty(value, index){
+    const { roundsSettings } = this.state
+    roundsSettings[index].Difficulty = value
+    this.setState({ roundsSettings: roundsSettings })
   }
 
   renderRoundSettings() {
     const { roundsSettings } = this.state
 
-    this.handleRoundSettings()
     return (
       <div>
         <ul>
           {roundsSettings.map((value, index) => {
             return (
-              <div key={index}>
-                <label className="grey-text">Round {index + 1}</label>
-                <label htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
+              <div key={`round${index}`}>
+                <p className="grey-text"><b>Round {index + 1}</b></p>
+                <p htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
                   Game Mode
-                </label>
+                </p>
                 <select
                   value={value.Mode}
-                  onChange={this.handleChange}
+                  onChange={ event => { this.handleChangeMode(event.target.value, index)}}
                   id={`defaultFormExperimentMode${index}`}
                   className="form-control FormMargins"
                   name={`mode${index}`}
@@ -133,7 +144,7 @@ class ExperimentBuilder extends Component {
                 </label>
                 <select
                   value={value.Difficulty}
-                  onChange={this.handleChange}
+                  onChange={event => { this.handleChangeDifficulty(event.target.value, index) }}
                   id={`defaultFormExperimentDifficulty${index}`}
                   className="form-control FormMargins"
                   name={`difficulty${index}`}
@@ -156,81 +167,83 @@ class ExperimentBuilder extends Component {
   }
 
   render() {
-    const { title, details, characterType, roundsNumber, roundsSettings, colorSettings } = this.state
+    const { title, details, characterType, roundsNumber, colorSettings } = this.state
     
     return(
-      <form onSubmit={this.handleSubmit}>
-        <p className="h4 text-center mb-4">Create Experiment</p>
-        <label htmlFor="defaultFormExperimentTitle" className="grey-text">
-          Experiment Title
-        </label>
-        <input
-          value={title}
-          onChange={this.handleChange}
-          id="defaultFormExperimentTitle"
-          className="form-control FormMargins"
-          name="title"
-          required
-        />
-        <label htmlFor="defaultFormExperimentDetails" className="grey-text">
-          Experiment Details
-        </label>
-        <input
-          value={details}
-          onChange={this.handleChange}
-          id="defaultFormExperimentDetails"
-          className="form-control FormMargins"
-          name="details"
-          required
-        />
-        <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
-          Character Type
-        </label>
-        <select
-          value={characterType}
-          onChange={this.handleChange}
-          id="defaultFormExperimentCharacter"
-          className="form-control FormMargins"
-          name="characterType"
-          required
-        >
-          <option value="Type 1">Type 1</option>
-          <option value="Type 2">Type 2</option>
-          <option value="Type 3">Type 3</option>
-        </select>
-        <label htmlFor="defaultFormExperimentColor" className="grey-text">
-          Color Settings
-        </label>
-        <select
-          value={colorSettings}
-          onChange={this.handleChange}
-          id="defaultFormExperimentColor"
-          className="form-control FormMargins"
-          name="colorSettings"
-          required
-        >
-          <option value="Full spectrum">Full spectrum</option>
-          <option value="Color blind 1">Color blind 1</option>
-          <option value="Color blind 2">Color blind 2</option>
-        </select>
-        <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
-          Number of Rounds
-        </label>
-        <input
-          value={roundsNumber}
-          onChange={this.handleChange}
-          id="defaultFormExperimentRoundsNumber"
-          className="form-control FormMargins"
-          name="roundsNumber"
-          type="number"
-          required
-        />
-        <label className="grey-text">Rounds Settings</label>
-        {this.renderRoundSettings()}
-        <div className="text-center mt-4">
-          <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
-        </div>
-      </form>
+      <div className="experimentBuilder">
+        <form onSubmit={this.handleSubmit}>
+          <p className="h4 text-center mb-4">Create Experiment</p>
+          <label htmlFor="defaultFormExperimentTitle" className="grey-text">
+            Experiment Title
+          </label>
+          <input
+            value={title}
+            onChange={this.handleChange}
+            id="defaultFormExperimentTitle"
+            className="form-control FormMargins"
+            name="title"
+            required
+          />
+          <label htmlFor="defaultFormExperimentDetails" className="grey-text">
+            Experiment Details
+          </label>
+          <input
+            value={details}
+            onChange={this.handleChange}
+            id="defaultFormExperimentDetails"
+            className="form-control FormMargins"
+            name="details"
+            required
+          />
+          <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
+            Character Type
+          </label>
+          <select
+            value={characterType}
+            onChange={this.handleChange}
+            id="defaultFormExperimentCharacter"
+            className="form-control FormMargins"
+            name="characterType"
+            required
+          >
+            <option value="Type 1">Type 1</option>
+            <option value="Type 2">Type 2</option>
+            <option value="Type 3">Type 3</option>
+          </select>
+          <label htmlFor="defaultFormExperimentColor" className="grey-text">
+            Color Settings
+          </label>
+          <select
+            value={colorSettings}
+            onChange={this.handleChange}
+            id="defaultFormExperimentColor"
+            className="form-control FormMargins"
+            name="colorSettings"
+            required
+          >
+            <option value="Full spectrum">Full spectrum</option>
+            <option value="Color blind 1">Color blind 1</option>
+            <option value="Color blind 2">Color blind 2</option>
+          </select>
+          <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
+            Number of Rounds
+          </label>
+          <input
+            value={roundsNumber}
+            onChange={this.handleRoundNumberChange}
+            id="defaultFormExperimentRoundsNumber"
+            className="form-control FormMargins"
+            name="roundsNumber"
+            type="number"
+            required
+          />
+          <label className="grey-text">Rounds Settings</label>
+          {this.renderRoundSettings()}
+          <div className="text-center mt-4">
+            <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
+          </div>
+        </form>
+      </div>
     )
   }
 }

@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route  } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import Login from '../Components/Login'
 import HomePage from '../Components/HomePage'
-import ExperimentBuilder from '../Components/Experiment/ExperimentBuilder'
+import ExperimentPage from '../Components/Experiment/ExperimentPage'
 
 // const path = window.location.pathname
 
@@ -13,7 +13,7 @@ const ReactRouter = ({ store }) => (
             {/* <Route exact path = {path} component = {App}/> */}
             <Route exact path = "/" component = {Login}/>
             <Route exact path = "/homePage" component = {HomePage}/>
-            <Route exact path = "/experimentBuilder" component = {ExperimentBuilder}/>
+            <Route exact path = "/experimentPage" component = {ExperimentPage}/>
         </Router>
     </Provider>
 )
