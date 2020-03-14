@@ -1,5 +1,5 @@
 import {
-  ADD_EXPERIEMNT,
+  ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
@@ -11,7 +11,7 @@ const initialState = {
 
 export default (state = initialState, action) => {
   switch(action.type) {
-    case ADD_EXPERIEMNT: {
+    case ADD_EXPERIMENT: {
       return {
         ...state,
         experimentList: [...state.experimentList, action.data]
