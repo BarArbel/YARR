@@ -64,11 +64,11 @@ module.exports = {
   },
 
   addExperiment: async (req, res) => {
-    const { ExperimentId, StudyId, Details, GameSettings } = req.body;
+    const { StudyId, Details, GameSettings } = req.body;
 
     if (!ExperimentId || !StudyId || !Details || !GameSettings) {
-      res.status(400).send(`{"result": "Failure", "params": {"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
-                            "Details": "${Details}", "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
+      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}",
+        "Details": "${Details}", "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
       return;
     }
 
@@ -83,8 +83,8 @@ module.exports = {
     let CreationDate = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
     let Status = "Ready";
 
-    connection.query(`INSERT INTO experiments (ExperimentId, StudyId, CreationDate, Status, Details, GameSettings) VALUES
-                      ("${ExperimentId}", "${StudyId}", "${CreationDate}", "${Status}", "${Details}", "${GameSettings}")`,
+    connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Details, GameSettings) VALUES
+                      ("${StudyId}", "${CreationDate}", "${Status}", "${Details}", "${GameSettings}")`,
                       (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -124,7 +124,7 @@ module.exports = {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
+        res.status(400).send(`{"result": "Failure", "error": "No experiments found or there was nothing to update."}`);
       } else {
         res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
       }

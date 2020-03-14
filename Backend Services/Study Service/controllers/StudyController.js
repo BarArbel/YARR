@@ -69,7 +69,7 @@ module.exports = {
     const { UserName, Title, StudyQuestions, Description } = req.body;
 
     if(!UserName || !Title || !StudyQuestions || !Description) {
-      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}", "UserName": "${UserName}",
+      res.status(400).send(`{"result": "Failure", "params": {"UserName": "${UserName}",
         "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"},
         "msg": "A parameter is missing."}`);
       return;
@@ -82,8 +82,8 @@ module.exports = {
       }
     });
 
-    connection.query(`INSERT INTO studies (UserName, Title, StudyQuestions, Description) VALUES ("${StudyId}",
-      "${UserName}", "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
+    connection.query(`INSERT INTO studies (UserName, Title, StudyQuestions, Description) VALUES ("${UserName}", 
+      "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -124,7 +124,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
       else if(results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+        res.status(400).send(`{"result": "Failure", "error": "No studies found or there was nothing to update."}`);
       }
       else {
         res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
