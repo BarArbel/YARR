@@ -66,7 +66,7 @@ module.exports = {
   addExperiment: async (req, res) => {
     const { StudyId, Details, GameSettings } = req.body;
 
-    if (!ExperimentId || !StudyId || !Details || !GameSettings) {
+    if (!StudyId || !Details || !GameSettings) {
       res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}",
         "Details": "${Details}", "GameSettings": "${GameSettings}"}, "msg": "A parameter is missing."}`);
       return;
