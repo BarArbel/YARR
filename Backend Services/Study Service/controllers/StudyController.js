@@ -28,22 +28,22 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
       }
       else {
-        let { res_studyId, res_userName, res_title, res_studyQuestions, res_description } = results[0];
-        res.status(200).send(`{"result": "Success", "study": {"StudyId": "${res_studyId}", "UserName": "${res_userName}",
+        let { res_studyId, res_ResearcherId, res_title, res_studyQuestions, res_description } = results[0];
+        res.status(200).send(`{"result": "Success", "study": {"StudyId": "${res_studyId}", "ResearcherId": "${res_ResearcherId}",
           "Title": "${res_title}", "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}}`);
       }
     });
   },
 
   getAllResearcherStudies: async(req, res) => {
-    const { UserName } = req.query;
+    const { ResearcherId } = req.query;
 
-    if(!UserName) {
-      res.status(400).send('{"result": "Faliure", "error": "User name is required."}');
+    if(!ResearcherId) {
+      res.status(400).send('{"result": "Faliure", "error": "ResearcherId is required."}');
       return;
     }
 
-    connection.query(`SELECT * FROM studies WHERE UserName = "${UserName}"`, (error, results) => {
+    connection.query(`SELECT * FROM studies WHERE ResearcherId = "${ResearcherId}"`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -54,8 +54,8 @@ module.exports = {
         let resultsStr = '{"result": "Success", "studies": ['
         let i;
         for(i = 0; i < results.length; ++i) {
-          let { res_studyId, res_userName, res_title, res_studyQuestions, res_description } = results[i];
-          resultsStr = resultsStr.concat(`{"StudyId": "${res_studyId}", "UserName": "${res_userName}", "Title": "${res_title}",
+          let { res_studyId, res_ResearcherId, res_title, res_studyQuestions, res_description } = results[i];
+          resultsStr = resultsStr.concat(`{"StudyId": "${res_studyId}", "ResearcherId": "${res_ResearcherId}", "Title": "${res_title}",
             "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}, `);
         }
         resultsStr = resultsStr.slice(0, -2);
@@ -66,23 +66,23 @@ module.exports = {
   },
 
   addStudy: async(req, res) => {
-    const { UserName, Title, StudyQuestions, Description } = req.body;
+    const { ResearcherId, Title, StudyQuestions, Description } = req.body;
 
-    if(!UserName || !Title || !StudyQuestions || !Description) {
-      res.status(400).send(`{"result": "Failure", "params": {"UserName": "${UserName}",
+    if(!ResearcherId || !Title || !StudyQuestions || !Description) {
+      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${ResearcherId}",
         "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"},
         "msg": "A parameter is missing."}`);
       return;
     }
 
-    connection.query(`SELECT * FROM researchers WHERE UserName = "${UserName}"`, (error, results) => {
+    connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${ResearcherId}"`, (error, results) => {
       if(error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "User does not exist."}');
+        res.status(400).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
         return;
       }
     });
 
-    connection.query(`INSERT INTO studies (UserName, Title, StudyQuestions, Description) VALUES ("${UserName}", 
+    connection.query(`INSERT INTO studies (ResearcherId, Title, StudyQuestions, Description) VALUES ("${ResearcherId}", 
       "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
