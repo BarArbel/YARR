@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import ExperimentsActions from "../../Actions/ExperimentsActions"
+import ExperimentActions from "../../Actions/ExperimentActions"
 import ExperimentItem from "./ExperimentItem"
 
 const mapStateToProps = ({ experiment }) => {
@@ -27,8 +27,8 @@ export class ExperimentList extends Component {
   }
 
   handleDelete() {
-    const url = `http://localhost:3001/deleteExperiment?${this.props.experimentId}`
-    const { handleDeleteExperiment } = this.props
+    const { handleDeleteExperiment, experimentId } = this.props
+    const url = `http://localhost:3001/deleteExperiment?${experimentId}`
 
     fetch(url, {
       method: "DELETE",
@@ -66,10 +66,10 @@ export class ExperimentList extends Component {
   renderList() {
     const { results } = this.props
     if (results) {
-      if (results["result"] == "Success") {
+      if (results["result"] === "Success") {
         return results["experiments"].map(this.eachResult)
-      } else if (results["result"] == "Failure") {
-        if (results["error"] == "No experiments found.") {
+      } else if (results["result"] === "Failure") {
+        if (results["error"] === "No experiments found.") {
           return <label>There are no experiments related to this study.</label>
         }
       }
@@ -93,4 +93,4 @@ ExperimentList.propTypes = {
   actions: PropTypes.objectOf(PropTypes.object)
 }
 
-export default connect(mapStateToProps, ...ExperimentsActions)(ExperimentList)
+export default connect(mapStateToProps, { ...ExperimentActions })(ExperimentList)

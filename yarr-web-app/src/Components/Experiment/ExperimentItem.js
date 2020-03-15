@@ -1,7 +1,7 @@
 import React, { Component } from "react"
 import { connect } from "react-redux"
 import PropTypes from "prop-types"
-import ExperimentsActions from "../../Actions/ExperimentsActions"
+import ExperimentActions from "../../Actions/ExperimentActions"
 
 const mapStateToProps = ({ experiment }) => {
   return {
@@ -46,4 +46,4 @@ ExperimentItem.propTypes = {
   handleDelete: PropTypes.func
 };
 
-export default connect(mapStateToProps, ...ExperimentsActions)(ExperimentItem)
+export default connect(mapStateToProps, { ...ExperimentActions })(ExperimentItem)

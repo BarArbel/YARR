@@ -25,7 +25,6 @@ class HomePage extends Component {
       mountFinish: false
     }
 
-    this.handleLogout = this.handleLogout.bind(this)
     this.handleToggleBuild = this.handleToggleBuild.bind(this)
   }
 
@@ -51,12 +50,6 @@ class HomePage extends Component {
   handleToggleBuild() {
     const { handleToggleBuildStudy } = this.props
     handleToggleBuildStudy()
-  }
-
-  handleLogout() {
-    const { handleRemoveUser, handleRemoveBearerKey } = this.props
-    handleRemoveUser()
-    handleRemoveBearerKey()
   }
 
   render() {

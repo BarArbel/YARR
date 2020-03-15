@@ -1,1 +1,2 @@
+export const ADD_STUDIES = 'ADD_STUDIES'
 export const TOGGLE_BUILD_STUDY = 'TOGGLE_BUILD_STUDY'

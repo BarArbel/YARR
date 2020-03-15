@@ -9,7 +9,7 @@ const mapStateToProps = ({ user }) => {
   return {
     userInfo: user.userInfo,
     isLogged: user.isLogged,
-    bearerKey: user.bearerKey,
+    bearerKey: user.bearerKey
   }
 }
 

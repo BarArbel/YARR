@@ -23,7 +23,7 @@ class ExperimentBuilder extends Component {
       characterType: "Type 1",
       colorSettings: "Full spectrum",
       roundsNumber: 1,
-      roundsSettings: [{ "Mode": "Mode 1", "Difficulty": "Dynamic" }],
+      roundsSettings: [{ "Mode": 1, "Difficulty": 0 }],
       isMsg: false,
       error: false,
       msg: ""
@@ -92,7 +92,7 @@ class ExperimentBuilder extends Component {
 
     /* Add one */
     if (value > roundsNumber && value > roundsSettings.length) {
-      this.setState({ roundsNumber: value, roundsSettings: [...roundsSettings, { "Mode": "Mode 1", "Difficulty": "Dynamic" }] })
+      this.setState({ roundsNumber: value, roundsSettings: [...roundsSettings, { "Mode": 1, "Difficulty": 0 }] })
     }
     /* Remove last */ 
     else if (value < roundsNumber && value < roundsSettings.length) {
@@ -129,14 +129,14 @@ class ExperimentBuilder extends Component {
                 </p>
                 <select
                   value={value.Mode}
-                  onChange={ event => { this.handleChangeMode(event.target.value, index)}}
+                  onChange={ event => { this.handleChangeMode(event.target.value, index) }}
                   id={`defaultFormExperimentMode${index}`}
                   className="form-control FormMargins"
                   name={`mode${index}`}
                   required
                 >
-                  <option value="Mode 1">Mode 1</option>
-                  <option value="Mode 2">Mode 2</option>
+                  <option value={1}>Mode 1</option>
+                  <option value={2}>Mode 2</option>
                 </select>
                 <label htmlFor={`defaultFormExperimentDifficulty${index}`} className="grey-text">
                   Difficulty
@@ -149,13 +149,13 @@ class ExperimentBuilder extends Component {
                   name={`difficulty${index}`}
                   required
                 >
-                  <option value="Dynamic">Dynamic</option>
-                  <option value="Level 1">Level 1</option>
-                  <option value="Level 2">Level 2</option>
-                  <option value="Level 3">Level 3</option>
-                  <option value="Level 4">Level 4</option>
-                  <option value="Level 5">Level 5</option>
-                  <option value="Level 6">Level 6</option>
+                  <option value={0}>Dynamic</option>
+                  <option value={1}>Level 1</option>
+                  <option value={2}>Level 2</option>
+                  <option value={3}>Level 3</option>
+                  <option value={4}>Level 4</option>
+                  <option value={5}>Level 5</option>
+                  <option value={6}>Level 6</option>
                 </select>
               </div>
             )

@@ -1,9 +1,12 @@
 import {
+  SET_EXPERIMENTS,
   ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
+
+const setExperiments = experiments => ({ type: SET_EXPERIMENTS, data: experiments })
 
 const addExperiment = (experimentId, studyId, title, creationDate, status, details, gameSettings) => ({
   type: ADD_EXPERIMENT,
@@ -25,6 +28,10 @@ const changeExperimentStatus = (experimentId, status) => ({
   data: { experimentId, status }
 })
 
+const handleSetExperiments = experiments => async dispatch => {
+  dispatch(setExperiments(experiments))
+}
+
 const handleAddExperiment = (experimentId, studyId, title, creationDate, status, details, gameSettings ) => async dispatch => {
   dispatch(addExperiment(experimentId, studyId, title, creationDate, status, details, gameSettings))
 }
@@ -43,6 +50,7 @@ const handleChangeExperimentStatus = (experimentId, status) => async dispatch =>
 
 export default {
   handleAddExperiment,
+  handleSetExperiments,
   handleUpdateExperiment,
   handleDeleteExperiment,
   handleChangeExperimentStatus,

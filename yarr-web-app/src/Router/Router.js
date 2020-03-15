@@ -4,18 +4,17 @@ import { Provider } from 'react-redux'
 import Login from '../Components/Login'
 import HomePage from '../Components/HomePage'
 import ExperimentPage from '../Components/Experiment/ExperimentPage'
-import StudyBuilder from '../Components/Study/StudyBuilder'
+import StudyPage from '../Components/Study/StudyPage'
 // const path = window.location.pathname
 
 const ReactRouter = ({ store }) => (
   <Provider store = {store}>
-      <Router>
-        {/* <Route exact path = {path} component = {App}/> */}
-        <Route exact path = "/" component = {Login}/>
-        <Route exact path = "/homePage" component = {HomePage}/>
-        <Route exact path = "/experimentPage" component = {ExperimentPage}/>
-        <Route exact path="/studyBuilder" component={StudyBuilder}/>
-      </Router>
+    <Router>
+      <Route exact path = "/" component = {Login}/>
+      <Route exact path = "/homePage" component = {HomePage}/>
+      <Route exact path = "/experimentPage" component = {ExperimentPage}/>
+      <Route exact path = "/study/:id" component={StudyPage}/>
+    </Router>
   </Provider>
 )
 

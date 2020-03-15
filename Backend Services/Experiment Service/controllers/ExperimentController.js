@@ -228,7 +228,7 @@ module.exports = {
     if (ColorSettings) {
       setStr = setStr.concat(`, colorSettings = "${colorSettings}"`);
     }
-    if (setStr.charAt(0) == ",") {
+    if (setStr.charAt(0) === ",") {
       setStr = setStr.slice(2, setStr.length);
     }
 
