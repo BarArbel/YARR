@@ -158,5 +158,36 @@ module.exports = {
 
       }
     });
+  },
+
+  verifyRequest: async (req, res) => {
+    const { userInfo, bearerKey } = req.body;
+
+    if (!userInfo || !bearerKey || !userInfo.researcherId) {
+      res.status(400).send(`{"result": "Failure", "params": {"userInfo":"${JSON.stringify(userInfo)}", "bearerKey": "${bearerKey}"}, 
+      "msg": "A Parameter is missing."}`);
+      return;
+    }
+
+    const { researcherId } = userInfo
+
+    connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${researcherId}"`, (error, results) => {
+      if (error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      }
+      else if (!results.length) {
+        res.status(400).send(`{"result": "Failure", "error": "NO SUCH USER"}`);
+      }
+      else {
+        const { ResearcherId, LastName, Email } = results[0];
+
+          const tempStr = `${Email}${ResearcherId}${LastName}`
+          const dbBearerKey = crypto.createHash('md5').update(tempStr).digest('hex');
+          if(bearerKey === dbBearerKey){
+            res.status(200).send(`{"result": "Success"}`);
+          }
+          else res.status(400).send(`{"result": "Failure", "error": "BAD BEARER KEY"}`);
+        }
+    });
   }
 }

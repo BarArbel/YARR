@@ -24,6 +24,7 @@ app.get('/getResearcher', UserCtl.getResearcher);
 app.post('/addResearcher', UserCtl.addResearcher);
 // app.put('/updateResearcher', UserCtl.updateResearcher);
 // app.delete('/deleteResearcher', UserCtl.deleteResearcher);
+app.post('/verifyRequest', UserCtl.verifyRequest);
 app.post('/verifyResearcher', UserCtl.verifyResearcher);
 
 app.all('*', (req, res) => {

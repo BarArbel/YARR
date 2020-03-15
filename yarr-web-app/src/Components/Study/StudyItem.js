@@ -1,25 +1,14 @@
 import React, { Component } from "react";
 
 class StudyItem extends Component {
-  constructor(props) {
-    super(props);
-
-    this.renderRegular = this.renderRegular.bind(this);
-  }
-
-  renderRegular() {
-    return (
-      <span>
-        {/* <button onClick={this.addToFav} className="btn btn-primary addToFav nonFav"><MdFavoriteBorder className="Heart" />Add To Favorites</button> */}
-      </span>
-    )
-  }
-
   render() {
+    const { index, study } = this.props
+    console.log(study)
     return (
       <div className="studyItem">
-        {this.props.children}
-        {/* {this.renderRegular()} */}
+        <a className="linkHolder" href={`/study?id=${index}`}>
+          {this.props.children}
+        </a>
       </div>
     )
   }

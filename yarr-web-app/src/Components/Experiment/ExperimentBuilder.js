@@ -5,12 +5,11 @@ import PropTypes from 'prop-types'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 
-const mapStateToProps = ({ user, experiment }) => {
+const mapStateToProps = ({ user }) => {
   return {
     userInfo: user.userInfo,
     isLogged: user.isLogged,
     bearerKey: user.bearerKey,
-    experimentList: experiment.experimentList
   }
 }
 
@@ -249,7 +248,10 @@ class ExperimentBuilder extends Component {
 }
 
 ExperimentBuilder.propTypes = {
-  studyId: PropTypes.number
+  studyId: PropTypes.number,
+  userInfo: PropTypes.object,
+  isLogged: PropTypes.bool,
+  bearerKey: PropTypes.string,
 };
 
 export default connect(mapStateToProps, { ...UserActions, ...ExperimentActions })(ExperimentBuilder)

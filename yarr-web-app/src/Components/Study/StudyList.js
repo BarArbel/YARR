@@ -24,7 +24,7 @@ class StudyList extends Component {
   componentDidMount() {
     const { userInfo } = this.props
 
-    const getAllUrl = `http://localhost:3001/getAllResearcherStudies?ResearcherId=${userInfo.researcherId}`;
+    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?ResearcherId=${userInfo.researcherId}`;
 
     fetch(getAllUrl).then(res => res.json())
       .then(json => {
@@ -41,7 +41,7 @@ class StudyList extends Component {
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
-          <StudyItem key={`study${i}`} index={study.studyId}>
+          <StudyItem key={`study${i}`} index={study.StudyId} study={study}>
             <h5 className="card-title">{study.Title}</h5>
             <h6 className="card-title">Study Questions</h6>
             <p className="card-text">{study.StudyQuestions}</p>
@@ -56,7 +56,7 @@ class StudyList extends Component {
   render() {
     return(
       <div className="studyList">
-        <label>Your Studies</label>
+        <h1 className="h4 text-center mb-4">My Studies</h1>
         {this.state.studies.map(this.eachStudy)}
       </div>
     )

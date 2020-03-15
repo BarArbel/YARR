@@ -1,15 +1,19 @@
 import Header from './Header'
+import { MDBBtn } from 'mdbreact'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import StudyList from './Study/StudyList'
 import { Redirect } from 'react-router-dom'
+import StudyBuilder from './Study/StudyBuilder'
 import UserActions from '../Actions/UserActions'
+import StudyActions from '../Actions/StudyActions'
 
-const mapStateToProps = ({ user }) => {
+const mapStateToProps = ({ user, study }) => {
   return {
     userInfo: user.userInfo,
     isLogged: user.isLogged,
-    bearerKey: user.bearerKey
+    bearerKey: user.bearerKey,
+    buildStudy: study.buildStudy
   }
 }
 
@@ -22,6 +26,7 @@ class HomePage extends Component {
     }
 
     this.handleLogout = this.handleLogout.bind(this)
+    this.handleToggleBuild = this.handleToggleBuild.bind(this)
   }
 
   async componentDidMount() {
@@ -43,6 +48,11 @@ class HomePage extends Component {
     this.setState({ mountFinish: true })
   }
 
+  handleToggleBuild() {
+    const { handleToggleBuildStudy } = this.props
+    handleToggleBuildStudy()
+  }
+
   handleLogout() {
     const { handleRemoveUser, handleRemoveBearerKey } = this.props
     handleRemoveUser()
@@ -50,19 +60,21 @@ class HomePage extends Component {
   }
 
   render() {
-    const { isLogged, userInfo } = this.props
+    const { isLogged, userInfo, buildStudy } = this.props
     const { mountFinish } = this.state
-
+    const toggleButtonText = buildStudy ? "Return" : "Create Study"
+    const buttonColor = buildStudy ? "blue-grey" : "light-green"
     return mountFinish ? (isLogged ? (
       <div className="homePage">
         <Header/>
         <div className="container">
           <label>{`Hello ${userInfo.firstName} ${userInfo.lastName}`}</label>
-          <StudyList/>
+          <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
+          {buildStudy ? <StudyBuilder /> : <StudyList />}
         </div>
       </div>
     ) : (<Redirect to='/'/>)) : (null)
   }
 }
 
-export default connect(mapStateToProps, { ...UserActions })(HomePage);
+export default connect(mapStateToProps, { ...UserActions, ...StudyActions })(HomePage);

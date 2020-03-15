@@ -1,0 +1,1 @@
+export const TOGGLE_BUILD_STUDY = 'TOGGLE_BUILD_STUDY'

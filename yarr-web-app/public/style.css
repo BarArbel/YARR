@@ -131,6 +131,36 @@
   box-shadow: none !important;
 }
 
+textarea {
+  resize: none !important;
+}
+
+.studyList{
+  margin-top: 35px;
+}
+
+a.linkHolder,
+a.linkHolder:hover {
+  color: inherit;
+}
+
+.studyBuilder{
+  margin-top: 35px;
+}
+
+.addStudy{
+  position: relative;
+  float: right;
+  background-color: #62c462 !important;
+}
+
+.input-limit {
+  position: relative;
+  float: right;
+  font-size: 12px;
+  font-weight: bold;
+}
+
 .FormMargins {
   margin-bottom: 30px;
 }

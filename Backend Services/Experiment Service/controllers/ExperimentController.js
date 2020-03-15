@@ -11,44 +11,72 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+async function verifyRequest(userInfo, bearerKey) {
+  let retVal = false;
+  const json = {
+    userInfo: userInfo,
+    bearerKey: bearerKey
+  }
+
+  await fetch('http://localhost:3001/verifyRequest', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(json)
+  }).theמ(res => res.json())
+    .then(json => {
+      if (json.result === "Success") {
+        retVal = true;
+      }
+      else {
+        retVal = false;
+      }
+    })
+    .catch(err => { retVal = false });
+
+  return retVal;
+}
+
 module.exports = {
   getExperiment: async (req, res) => {
-    const { ExperimentId } = req.query;
+    const { experimentId } = req.query;
 
-    if (!ExperimentId) {
+    if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
 
-    connection.query(`SELECT * FROM experiments WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
+    connection.query(`SELECT * FROM experiments WHERE ExperimentId = "${experimentId}"`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (!results.length) {
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
         let {
-          res_experimentId,
-          res_studyId,
-          res_creationDate,
-          res_status,
-          res_title,
-          res_details,
-          res_characterType,
-          res_colorSettings,
-          res_roundsNumber
+          ExperimentId,
+          StudyId,
+          CreationDate,
+          Status,
+          Title,
+          Details,
+          CharacterType,
+          ColorSettings,
+          RoundsNumber
         } = results[0];
         connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
           if (error) {
             res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
           } else {
-            let resStr = `{"result": "Success", "experiment": {"ExperimentId": "${res_experiemntId}", "StudyId": "${res_studyId}",
-                          "CreationDate": "${res_creationDate}", "Status": "${res_status}", "Title": "${res_title}",
-                          "Details": "${res_details}", "CharacterType": "${res_characterType}",
-                          "ColorSettings": "${res_colorSettings}", "RoundsNumber": "${res_roundsNumber}", "Rounds": [`;
+            let resStr = `{"result": "Success", "experiment": {"ExperimentId": "${ExperiemntId}", "StudyId": "${StudyId}",
+                          "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
+                          "Details": "${Details}", "CharacterType": "${CharacterType}",
+                          "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`;
             for (let i = 0; i < results.length; ++i) {
-              let { res_roundId, res_roundNumber, res_gameMode, res_difficulty } = results[i];
-              resStr = resStr.concat(`{"RoundId": "${res_roundId}", "RoundNumber": "${res_roundNumber}",
-                                      "GameMode": "${res_gameMode}", "Difficulty": "${res_difficulty}"}, `);
+              let { RoundId, RoundNumber, GameMode, Difficulty } = results[i];
+              resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
+                                      "GameMode": "${GameMode}", "Difficulty": "${Difficulty}"}, `);
             }
             resStr = resStr.slice(0, -2);
             resStr = resStr.concat("]}}");
@@ -60,14 +88,14 @@ module.exports = {
   },
   
   getAllStudyExperiments: async (req, res) => {
-    const { StudyId } = req.query;
+    const { studyId } = req.query;
 
-    if (!StudyId) {
+    if (!studyId) {
       res.status(400).send('{"result": "Failure", "error": "Study ID is required."}');
       return;
     }
 
-    connection.query(`SELECT * FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM experiments WHERE StudyId = "${studyId}"`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (!results.length) {
@@ -76,28 +104,28 @@ module.exports = {
         let resStr = `{"result": "Success", "experiments": [`;
         for(let i = 0; i < results.length; ++i) {
           let {
-            res_experimentId,
-            res_studyId,
-            res_creationDate,
-            res_status,
-            res_title,
-            res_details,
-            res_characterType,
-            res_colorSettings,
-            res_roundsNumber
+            ExperimentId,
+            StudyId,
+            CreationDate,
+            Status,
+            Title,
+            Details,
+            CharacterType,
+            ColorSettings,
+            RoundsNumber
           } = results[i];
-          connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${res_experimentId}"`, (roundsError, roundsResults) => {
+          connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`, (roundsError, roundsResults) => {
             if(roundsError) {
               res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`);
             } else {
-              resStr = resStr.concat(`{"ExperimentId": "${res_experiemntId}", "StudyId": "${res_studyId}",
-                                      "CreationDate": "${res_creationDate}", "Status": "${res_status}", "Title": "${res_title}",
-                                      "Details": "${res_details}", "CharacterType": "${res_characterType}",
-                                      "ColorSettings": "${res_colorSettings}", "RoundsNumber": "${res_roundsNumber}", "Rounds": [`);
+              resStr = resStr.concat(`{"ExperimentId": "${ExperiemntId}", "StudyId": "${StudyId}",
+                                      "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
+                                      "Details": "${Details}", "CharacterType": "${CharacterType}",
+                                      "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`);
               for(let j = 0; j < roundsResults.length; ++j) {
-                let { res_roundId, res_roundNumber, res_gameMode, res_difficulty } = roundsResults[j];
-                resStr = resStr.concat(`{"RoundId": "${res_roundId}", "RoundNumber": "${res_roundNumber}",
-                                        "GameMode": "${res_gameMode}", "Difficulty": "${res_difficulty}"}, `)
+                let { RoundId, RoundNumber, GameMode, Difficulty } = roundsResults[j];
+                resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
+                                        "GameMode": "${GameMode}", "Difficulty": "${Difficulty}"}, `)
               }
               resStr = resStr.slice(0, -2);
               resStr = resStr.concat("]}, ");
@@ -113,43 +141,43 @@ module.exports = {
 
   addExperiment: async (req, res) => {
     const {
-      StudyId,
-      Title,
-      Details,
-      CharacterType,
-      ColorSettings,
-      RoundsNumber,
-      RoundsSettings
+      studyId,
+      title,
+      details,
+      characterType,
+      colorSettings,
+      roundsNumber,
+      roundsSettings
     } = req.body;
 
-    if (!StudyId || !Title || !Details || !CharacterType || !ColorSettings || !RoundsNumber || !RoundsSettings) {
-      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${StudyId}", "Title": "${Title}", "Details": "${Details}",
-                            "CharacterType": "${CharacterType}", "ColorSettings": "${ColorSettings}",
-                            "RoundsNumber": "${RoundsNumber}", "RoundsSettings": "${RoundsSettings}"},
+    if (!studyId || !title || !details || !characterType || !colorSettings || !roundsNumber || !roundsSettings) {
+      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
+                            "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
+                            "RoundsNumber": "${roundsNumber}", "RoundsSettings": "${roundsSettings}"},
                             "msg": "A parameter is missing."}`);
       return;
     }
 
-    connection.query(`SELECT * FROM studies WHERE studyId = "${StudyId}"`, (error, results) => {
-      if (error || !result.length) {
+    connection.query(`SELECT * FROM studies WHERE studyId = "${studyId}"`, (error, results) => {
+      if (error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "Study does not exist."}');
         return;
       }
     });
 
     let date = new Date();
-    let CreationDate = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
-    let Status = "Ready";
+    let creationDate = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
+    let status = "Ready";
 
     connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Title, Details, CharacterType, ColorSettings,
-                      RoundsNumber) VALUES ("${StudyId}", "${CreationDate}", "${Status}", "${Title}, "${Details}",
-                      "${CharacterType}", "${ColorSettings}", "${RoundsNumber}")`, (error, results) => {
+                      RoundsNumber) VALUES ("${studyId}", "${creationDate}", "${status}", "${title}, "${details}",
+                      "${characterType}", "${colorSettings}", "${roundsNumber}")`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else {
         for(let i = 0; i < RoundsSettings.length; ++i) {
           connection.query(`INSERT INTO rounds (ExperimentId, RoundNumber, GameMode, Difficulty) VALUES (
-                            "${results.insertId}", "${i}", "${RoundsSettings[i].GameMode}", "${RoundsSettings[i].Difficulty}")`,
+                            "${results.insertId}", "${i}", "${roundsSettings[i].GameMode}", "${roundsSettings[i].Difficulty}")`,
                             (roundsError, roundsResults) => {
             if(roundsError) {
               res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -163,48 +191,48 @@ module.exports = {
 
   updateExperiment: async (req, res) => {
     const {
-      ExperimentId,
-      Status,
-      Title,
-      Details,
-      CharacterType,
-      ColorSettings
+      experimentId,
+      status,
+      title,
+      details,
+      characterType,
+      colorSettings
     } = req.body;
 
-    if (!ExperimentId) {
+    if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
-    if (!Status && !Title && !Details && !CharacterType && !ColorSettings) {
+    if (!status && !title && !details && !characterType && !colorSettings) {
       res.status(400).send('{"result": "Failure", "error": "No parameters to update."}');
       return;
     }
-    if (Status !== "Ready" && (CharacterType || ColorSettings)) {
+    if (status !== "Ready" && (characterType || colorSettings)) {
       res.status(400).send('{"result": "Failure", "error": "Game settings cannot be changed after an experiment as started"}');
       return;
     }
 
     let setStr = "";
-    if (Status) {
-      setStr = `Status = "${Status}"`;
+    if (status) {
+      setStr = `Status = "${status}"`;
     }
-    if (Title) {
-      setStr = setStr.concat(`, Title = "${Title}"`);
+    if (title) {
+      setStr = setStr.concat(`, title = "${Title}"`);
     }
     if (Details) {
-      setStr = setStr.concat(`, Details = "${Details}"`);
+      setStr = setStr.concat(`, details = "${details}"`);
     }
     if (CharacterType) {
-      setStr = setStr.concat(`, CharacterType = "${CharacterType}"`);
+      setStr = setStr.concat(`, characterType = "${characterType}"`);
     }
     if (ColorSettings) {
-      setStr = setStr.concat(`, ColorSettings = "${ColorSettings}"`);
+      setStr = setStr.concat(`, colorSettings = "${colorSettings}"`);
     }
     if (setStr.charAt(0) == ",") {
       setStr = setStr.slice(2, setStr.length);
     }
 
-    connection.query(`UPDATE experiments SET ${setStr} WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
+    connection.query(`UPDATE experiments SET ${setStr} WHERE ExperimentId = "${experimentId}"`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (results.affectedRows <= 0) {
@@ -216,20 +244,20 @@ module.exports = {
   },
 
   deleteExperiment: async (req, res) => {
-    const { ExperimentId } = req.query;
+    const { experimentId } = req.query;
 
-    if (!ExperimentId) {
+    if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
 
-    connection.query(`DELETE FROM experiments WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
+    connection.query(`DELETE FROM experiments WHERE ExperimentId = "${experimentId}"`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (results.affectedRows <= 0) {
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
-        res.status(200).send(`{"result": "Success", "msg": "Experiment: ${ExperimentId} was deleted"}`);
+        res.status(200).send(`{"result": "Success", "msg": "Experiment: ${experimentId} was deleted"}`);
       }
     });
   }

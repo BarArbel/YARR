@@ -11,6 +11,34 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+async function verifyRequest(userInfo, bearerKey){
+  let retVal = false;
+  const json = {
+    userInfo: userInfo,
+    bearerKey: bearerKey
+  }
+
+  await fetch('http://localhost:3001/verifyRequest', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(json)
+  }).theמ(res => res.json())
+    .then(json => {
+      if (json.result === "Success") {
+        retVal = true;
+      }
+      else {
+        retVal = false;
+      }
+    })
+    .catch(err => { retVal = false });
+
+    return retVal;
+}
+
 module.exports = {
   getStudy: async(req, res) => {
     const { StudyId } = req.query;
