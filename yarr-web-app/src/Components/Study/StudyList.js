@@ -24,7 +24,7 @@ class StudyList extends Component {
   componentDidMount() {
     const { userInfo } = this.props
 
-    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?ResearcherId=${userInfo.researcherId}`;
+    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`;
 
     fetch(getAllUrl).then(res => res.json())
       .then(json => {

@@ -41,14 +41,14 @@ async function verifyRequest(userInfo, bearerKey){
 
 module.exports = {
   getStudy: async(req, res) => {
-    const { StudyId } = req.query;
+    const { studyId } = req.query;
 
-    if(!StudyId) {
+    if (!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
 
-    connection.query(`SELECT * FROM studies WHERE StudyId = "${StudyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM studies WHERE StudyId = "${studyId}"`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -56,21 +56,21 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
       }
       else {
-        let { res_studyId, res_ResearcherId, res_title, res_studyQuestions, res_description } = results[0];
-        res.status(200).send(`{"result": "Success", "study": {"StudyId": "${res_studyId}", "ResearcherId": "${res_ResearcherId}",
-          "Title": "${res_title}", "StudyQuestions": "${res_studyQuestions}", "Description": "${res_description}"}}`);
+        let { StudyId, ResearcherId, Title, StudyQuestions, Description } = results[0];
+        res.status(200).send(`{"result": "Success", "study": {"StudyId": "${StudyId}", "ResearcherId": "${ResearcherId}",
+          "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"}}`);
       }
     });
   },
 
   getAllResearcherStudies: async(req, res) => {
-    const { ResearcherId } = req.query;
+    const { researcherId } = req.query;
 
-    if(!ResearcherId) {
+    if (!researcherId) {
       res.status(400).send('{"result": "Faliure", "error": "ResearcherId is required."}');
       return;
     }
-    connection.query(`SELECT * FROM studies WHERE ResearcherId = ${ResearcherId}`, (error, results) => {
+    connection.query(`SELECT * FROM studies WHERE ResearcherId = ${researcherId}`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -93,24 +93,24 @@ module.exports = {
   },
 
   addStudy: async(req, res) => {
-    const { ResearcherId, Title, StudyQuestions, Description } = req.body;
+    const { researcherId, title, studyQuestions, description } = req.body;
 
-    if(!ResearcherId || !Title || !StudyQuestions || !Description) {
-      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${ResearcherId}",
-        "Title": "${Title}", "StudyQuestions": "${StudyQuestions}", "Description": "${Description}"},
+    if (!researcherId || !title || !studyQuestions || !description) {
+      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+        "Title": "${title}", "StudyQuestions": "${studyQuestions}", "Description": "${description}"},
         "msg": "A parameter is missing."}`);
       return;
     }
 
-    connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${ResearcherId}"`, (error, results) => {
+    connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${researcherId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
         return;
       }
     });
 
-    connection.query(`INSERT INTO studies (ResearcherId, Title, StudyQuestions, Description) VALUES ("${ResearcherId}", 
-      "${Title}", "${StudyQuestions}", "${Description}")`, (error, results) => {
+    connection.query(`INSERT INTO studies (ResearcherId, Title, StudyQuestions, Description) VALUES ("${researcherId}", 
+      "${title}", "${studyQuestions}", "${description}")`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -121,32 +121,32 @@ module.exports = {
   },
 
   updateStudy: async(req, res) => {
-    const { StudyId, Title, StudyQuestions, Description } = req.body;
+    const { studyId, title, studyQuestions, description } = req.body;
 
-    if(!StudyId) {
+    if(!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
-    if(!Title && !StudyQuestions && !Description) {
+    if(!title && !studyQuestions && !description) {
       res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}')
       return;
     }
 
     let setStr = "";
-    if(Title) {
-      setStr = `Title = "${Title}"`;
+    if(title) {
+      setStr = `Title = "${title}"`;
     }
-    if(StudyQuestions) {
-      setStr = setStr.concat(`, StudyQuestions = "${StudyQuestions}"`);
+    if(studyQuestions) {
+      setStr = setStr.concat(`, StudyQuestions = "${studyQuestions}"`);
     }
-    if(Description) {
-      setStr = setStr.concat(`, Description = "${Description}"`);
+    if(description) {
+      setStr = setStr.concat(`, Description = "${description}"`);
     }
     if(setStr.charAt(0) == ',') {
       setStr = setStr.slice(2, setStr.length);
     }
 
-    connection.query(`UPDATE studies SET ${setStr} WHERE StudyId = "${StudyId}"`, (error, results) => {
+    connection.query(`UPDATE studies SET ${setStr} WHERE StudyId = "${studyId}"`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
@@ -160,14 +160,14 @@ module.exports = {
   },
 
   deleteStudy: async(req, res) => {
-    const { StudiesId } = req.query;
+    const { studiesId } = req.query;
 
-    if(!StudiesId) {
+    if (!studiesId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
 
-    connection.query(`DELETE FROM studies WHERE StudyId = "${StudyId}"`, (error, results) => {
+    connection.query(`DELETE FROM studies WHERE StudyId = "${studiesId}"`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
         return;
@@ -177,17 +177,15 @@ module.exports = {
         return;
       }
       else {
-        connection.query(`DELETE FROM experiments WHERE StudyId = "${StudyId}"`, (error, results) => {
+        connection.query(`DELETE FROM experiments WHERE StudyId = "${studiesId}"`, (error, results) => {
           if(error) {
             res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
           }
           else {
-            res.status(200).send(`{"result": "Success", "msg": "Study: ${StudyId} experiments were deleted"}`);
+            res.status(200).send(`{"result": "Success", "msg": "Study: ${studiesId} experiments were deleted"}`);
           }
         });
       }
     });
-
-    
   }
 }

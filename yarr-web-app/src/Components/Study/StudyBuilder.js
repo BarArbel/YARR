@@ -37,10 +37,10 @@ class StudyBuilder extends Component {
     const url = 'http://localhost:3002/addStudy'
     /* fetch request to add Study */
     const json = {
-      ResearcherId: userInfo.researcherId,
-      Title: title,
-      Description: description,
-      StudyQuestions: studyQuestions
+      researcherId: userInfo.researcherId,
+      title: title,
+      description: description,
+      studyQuestions: studyQuestions
     }
 
     event.preventDefault()
