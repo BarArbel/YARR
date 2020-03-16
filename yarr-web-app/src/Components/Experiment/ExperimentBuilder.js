@@ -23,7 +23,7 @@ class ExperimentBuilder extends Component {
       characterType: "Type 1",
       colorSettings: "Full spectrum",
       roundsNumber: 1,
-      roundsSettings: [{ "Mode": 1, "Difficulty": 0 }],
+      roundsSettings: [{ GameMode: 1, Difficulty: 0 }],
       isMsg: false,
       error: false,
       msg: ""
@@ -41,17 +41,18 @@ class ExperimentBuilder extends Component {
     const { title, details, characterType, colorSettings, roundsNumber, roundsSettings } = this.state
     const { studyId } = this.props
 
-    const url = 'http://localhost:3001/addExperiment'
+    const url = 'http://localhost:3003/addExperiment'
     /* fetch request to add experiment */
     const json = {
-      StudyId: studyId,
-      Title: title,
-      Details: details,
-      CharacterType: characterType,
-      ColorSettings: colorSettings,
-      RoundsNumber: roundsNumber,
-      RoundsSettings: roundsSettings
+      studyId: 1,
+      title: title,
+      details: details,
+      characterType: characterType,
+      colorSettings: colorSettings,
+      roundsNumber: roundsNumber,
+      roundsSettings: roundsSettings
     }
+
     console.log(json)
     fetch(url, {
       method: 'POST',
@@ -82,7 +83,7 @@ class ExperimentBuilder extends Component {
   }
 
   handleRoundNumberChange(event) {
-    const { value } = event.target
+    const value = parseInt(event.target.value)
     const { roundsNumber, roundsSettings } = this.state
 
     /* Minimum reached */
@@ -92,7 +93,7 @@ class ExperimentBuilder extends Component {
 
     /* Add one */
     if (value > roundsNumber && value > roundsSettings.length) {
-      this.setState({ roundsNumber: value, roundsSettings: [...roundsSettings, { "Mode": 1, "Difficulty": 0 }] })
+      this.setState({ roundsNumber: value, roundsSettings: [...roundsSettings, { GameMode: 1, Difficulty: 0 }] })
     }
     /* Remove last */ 
     else if (value < roundsNumber && value < roundsSettings.length) {
@@ -104,13 +105,13 @@ class ExperimentBuilder extends Component {
 
   handleChangeMode(value, index){
     const { roundsSettings } = this.state
-    roundsSettings[index].Mode = value
+    roundsSettings[index].GameMode = parseInt(value)
     this.setState({roundsSettings: roundsSettings})
   }
 
   handleChangeDifficulty(value, index){
     const { roundsSettings } = this.state
-    roundsSettings[index].Difficulty = value
+    roundsSettings[index].Difficulty = parseInt(value)
     this.setState({ roundsSettings: roundsSettings })
   }
 
@@ -128,7 +129,7 @@ class ExperimentBuilder extends Component {
                   Game Mode
                 </p>
                 <select
-                  value={value.Mode}
+                  value={value.GameMode}
                   onChange={ event => { this.handleChangeMode(event.target.value, index) }}
                   id={`defaultFormExperimentMode${index}`}
                   className="form-control FormMargins"

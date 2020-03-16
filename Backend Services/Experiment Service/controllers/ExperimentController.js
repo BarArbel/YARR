@@ -89,7 +89,6 @@ module.exports = {
   
   getAllStudyExperiments: async (req, res) => {
     const { studyId } = req.query;
-
     if (!studyId) {
       res.status(400).send('{"result": "Failure", "error": "Study ID is required."}');
       return;
@@ -102,6 +101,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
         let resStr = `{"result": "Success", "experiments": [`;
+        console.log(results)
         for(let i = 0; i < results.length; ++i) {
           let {
             ExperimentId,
@@ -118,7 +118,7 @@ module.exports = {
             if(roundsError) {
               res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`);
             } else {
-              resStr = resStr.concat(`{"ExperimentId": "${ExperiemntId}", "StudyId": "${StudyId}",
+              resStr = resStr.concat(`{"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                                       "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
                                       "Details": "${Details}", "CharacterType": "${CharacterType}",
                                       "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`);
@@ -150,6 +150,8 @@ module.exports = {
       roundsSettings
     } = req.body;
 
+    let errorMsg = false
+
     if (!studyId || !title || !details || !characterType || !colorSettings || !roundsNumber || !roundsSettings) {
       res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
                             "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
@@ -166,25 +168,28 @@ module.exports = {
     });
 
     let date = new Date();
-    let creationDate = date.getDay() + "/" + date.getMonth() + "/" + date.getFullYear();
+    let creationDate = `${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`;
     let status = "Ready";
 
     connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Title, Details, CharacterType, ColorSettings,
-                      RoundsNumber) VALUES ("${studyId}", "${creationDate}", "${status}", "${title}, "${details}",
-                      "${characterType}", "${colorSettings}", "${roundsNumber}")`, (error, results) => {
+                      RoundsNumber) VALUES (${studyId}, "${creationDate}", "${status}", "${title}", "${details}",
+                      "${characterType}", "${colorSettings}", ${roundsNumber})`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-      } else {
-        for(let i = 0; i < RoundsSettings.length; ++i) {
+        return;
+      } 
+      else {
+        for (let i = 0; i < roundsSettings.length && !errorMsg; ++i) {
           connection.query(`INSERT INTO rounds (ExperimentId, RoundNumber, GameMode, Difficulty) VALUES (
-                            "${results.insertId}", "${i}", "${roundsSettings[i].GameMode}", "${roundsSettings[i].Difficulty}")`,
-                            (roundsError, roundsResults) => {
+                          "${results.insertId}", "${i}", "${roundsSettings[i].GameMode}", "${roundsSettings[i].Difficulty}")`,
+                            (roundsError, results) => {
             if(roundsError) {
-              res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+              console.log(roundsError)
+              errorMsg = true;
             }
           });
         }
-        res.status(200).send(`{"result": "Success"}`);
+        errorMsg ? res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`) : res.status(200).send(`{"result": "Success"}`);
       }
     });
   },
