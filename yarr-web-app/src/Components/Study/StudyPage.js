@@ -56,14 +56,18 @@ class StudyPage extends Component {
   handleCreate() {
     const { handleToggleBuildExperiment, buildExperiment, handleSetRoutes } = this.props
     const index = this.props.match.params.id
+    let tempBuild = !buildExperiment
 
-    const routes = buildExperiment ? [
+    const routes = tempBuild ? 
+    [
       { name: 'Home', redirect: '/homePage', isActive: true },
-      { name: 'Study', redirect: `/Study/${index}`, isActive: true },
-      { name: 'Create Experiment', redirect: `/Study/${index}`, isActive: false }
-    ] : [
+      { name: 'Study', redirect: `/study/${index}`, isActive: true },
+      { name: 'Create Experiment', redirect: `/study/${index}`, isActive: false }
+    ] 
+    : 
+    [
         { name: 'Home', redirect: '/homePage', isActive: true },
-        { name: 'Study', redirect: `/Study/${index}`, isActive: false }
+        { name: 'Study', redirect: `/study/${index}`, isActive: false }
     ]
 
     handleSetRoutes(routes)
@@ -81,9 +85,9 @@ class StudyPage extends Component {
         <Header />
         <Breadcrumbs/>
         <div className="container">
-          <label>{`Hello ${userInfo.firstName} ${userInfo.lastName}`}</label>
+          <label/>
           <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
-          {buildExperiment ? (<ExperimentBuilder />) : (<ExperimentList studyId={studyId} />)}
+          {buildExperiment ? (<ExperimentBuilder studyId={studyId}/>) : (<ExperimentList studyId={studyId} />)}
         </div>
       </div>
     )

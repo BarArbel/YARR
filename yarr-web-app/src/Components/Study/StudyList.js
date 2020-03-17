@@ -40,7 +40,7 @@ class StudyList extends Component {
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
-          <StudyItem key={`study${i}`} index={study.StudyId}>
+          <StudyItem key={`study${i}`} studyId={study.StudyId}>
             <h5 className="card-title">{study.Title}</h5>
             <h6 className="card-title">Study Questions</h6>
             <p className="card-text">{study.StudyQuestions}</p>

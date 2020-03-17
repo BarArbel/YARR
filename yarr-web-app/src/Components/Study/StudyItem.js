@@ -3,10 +3,10 @@ import { NavLink } from 'react-router-dom'
 
 class StudyItem extends Component {
   render() {
-    const { index } = this.props
+    const { studyId } = this.props
     return (
       <div className="studyItem">
-        <NavLink to={`/study/${index}`} className="linkHolder">
+        <NavLink to={`/study/${studyId}`} className="linkHolder">
           {this.props.children}
         </NavLink>
       </div>

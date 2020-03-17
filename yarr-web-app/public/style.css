@@ -135,7 +135,7 @@ textarea {
   resize: none !important;
 }
 
-.studyList, .studyBuilder, .experimentBuilder {
+.studyList, .studyBuilder, .experimentBuilder, .experimentList {
   margin-top: 35px;
 }
 

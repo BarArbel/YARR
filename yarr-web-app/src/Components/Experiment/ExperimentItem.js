@@ -1,6 +1,7 @@
-import React, { Component } from "react"
-import { connect } from "react-redux"
 import PropTypes from "prop-types"
+import { connect } from "react-redux"
+import React, { Component } from "react"
+import { NavLink } from 'react-router-dom'
 import ExperimentActions from "../../Actions/ExperimentActions"
 
 const mapStateToProps = ({ experiment }) => {
@@ -12,22 +13,30 @@ const mapStateToProps = ({ experiment }) => {
 export class ExperimentItem extends Component {
   constructor(props) {
     super(props)
-    this.handleView = this.handleView.bind(this)
+    this.handleEdit = this.handleEdit.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
   }
 
-  handleView() {}
+  handleEdit() {
+
+  }
+
+  handleDelete() {
+
+  }
+
 
   render() {
-    const { title, creationDate, status, handleEdit, handleDelete } = this.props
+    const { handleDelete, experimentId, studyId } = this.props
     return (
       <div className = "experimentItem">
-        <label>{title}</label>
+        <NavLink to={`study/${studyId}/experiment/${experimentId}`} className="linkHolder">
+        {this.props.children}
+        {/* <label>{title}</label> */}
+        </NavLink>
         <div>
-          <label>{creationDate}</label>
-          <label>{status}</label>
-          <button onClick={this.handleView}>View</button>
-          <button onClick={handleEdit}>Edit</button>
-          <button onClick={handleDelete}>Delete</button>
+          <button onClick={this.handleEdit}>Edit</button>
+          <button onClick={this.handleDelete}>Delete</button>
         </div>
       </div>
     )

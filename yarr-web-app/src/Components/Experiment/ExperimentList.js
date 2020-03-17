@@ -17,6 +17,7 @@ export class ExperimentList extends Component {
     this.renderList = this.renderList.bind(this)
     this.eachExperiment = this.eachExperiment.bind(this)
     this.handlehandleDelete = this.handleDelete.bind(this)
+    
   }
 
   handleEdit() {
@@ -37,7 +38,7 @@ export class ExperimentList extends Component {
         .then(json => {
           console.log(json)
           if (json.result === "Success") {
-            handleDeleteExperiment(this.props.experimentId)
+            handleDeleteExperiment(experimentId)
           }
         })
     .catch(err => console.log(err))
@@ -45,20 +46,32 @@ export class ExperimentList extends Component {
 
   eachExperiment(experiment, i) {
     const { studyId } = this.props
+    const { Title, ExperimentId, CreationDate, Status, Details, GameSetting } = experiment
     
     return (
-      <ExperimentItem
-        key={`experiment${i}`}
-        experimentId={parseInt(experiment.ExperimentId)}
-        studyId={parseInt(studyId)}
-        title={experiment.Title}
-        creationDate={experiment.CreationDate}
-        status={experiment.Status}
-        details={experiment.Details}
-        gameSettings={experiment.GameSettings}
-        handleEdit={this.handleEdit}
-        handleDelete={this.handleDelete}
-      />
+      <div className="card" key={`container${i}`}>
+        <div className="card-body">
+          <ExperimentItem key={`experiment${i}`} experimentId={parseInt(experiment.ExperimentId)}
+            onDelete={this.handleDelete} studyId={studyId}
+          >
+            <h5 className="card-title">Title}</h5>
+            <h6 className="card-title">{CreationDate}</h6>
+            <p className="card-text">{Status}</p>
+          </ExperimentItem>
+        </div>
+      </div>
+      // <ExperimentItem
+      //   key={`experiment${i}`}
+      //   experimentId={parseInt(experiment.ExperimentId)}
+      //   studyId={parseInt(studyId)}
+      //   title={experiment.Title}
+      //   creationDate={experiment.CreationDate}
+      //   status={experiment.Status}
+      //   details={experiment.Details}
+      //   gameSettings={experiment.GameSettings}
+      //   handleEdit={this.handleEdit}
+      //   handleDelete={this.handleDelete}
+      // />
     )
   }
 
@@ -72,8 +85,9 @@ export class ExperimentList extends Component {
 
   render() {
     return (
-      <div>
-        <div>{this.renderList()}</div>
+      <div className="experimentList">
+        <h1 className="h4 text-center mb-4">Study Experiments</h1>
+        {this.renderList()}
       </div>
     )
   }
