@@ -13,13 +13,10 @@ const mapStateToProps = ({ experiment }) => {
 export class ExperimentList extends Component {
   constructor(props) {
     super(props)
-    this.eachResult = this.eachResult.bind(this)
-    this.renderList = this.renderList.bind(this)
-    this.handleCreate = this.handleCreate(this)
-  }
 
-  handleCreate() {
-    //move to create experiment form
+    this.renderList = this.renderList.bind(this)
+    this.eachExperiment = this.eachExperiment.bind(this)
+    this.handlehandleDelete = this.handleDelete.bind(this)
   }
 
   handleEdit() {
@@ -46,17 +43,19 @@ export class ExperimentList extends Component {
     .catch(err => console.log(err))
   }
 
-  eachResult(result) {
+  eachExperiment(experiment, i) {
     const { studyId } = this.props
+    
     return (
       <ExperimentItem
-        experimentId={result.ExperimentId}
-        studyId={studyId}
-        title={result.Title}
-        creationDate={result.CreationDate}
-        status={result.Status}
-        details={result.Details}
-        gameSettings={result.GameSettings}
+        key={`experiment${i}`}
+        experimentId={parseInt(experiment.ExperimentId)}
+        studyId={parseInt(studyId)}
+        title={experiment.Title}
+        creationDate={experiment.CreationDate}
+        status={experiment.Status}
+        details={experiment.Details}
+        gameSettings={experiment.GameSettings}
         handleEdit={this.handleEdit}
         handleDelete={this.handleDelete}
       />
@@ -64,15 +63,9 @@ export class ExperimentList extends Component {
   }
 
   renderList() {
-    const { results } = this.props
-    if (results) {
-      if (results["result"] === "Success") {
-        return results["experiments"].map(this.eachResult)
-      } else if (results["result"] === "Failure") {
-        if (results["error"] === "No experiments found.") {
-          return <label>There are no experiments related to this study.</label>
-        }
-      }
+    const { experimentList } = this.props
+    if (experimentList.length) {
+      return experimentList.map(this.eachExperiment)
     }
     return <label>Something went wrong, please try again.</label>
   }
@@ -80,8 +73,7 @@ export class ExperimentList extends Component {
   render() {
     return (
       <div>
-        <div>{this.renderList}</div>
-        <button onClick={this.handleCreate}>Create Experiment</button>
+        <div>{this.renderList()}</div>
       </div>
     )
   }

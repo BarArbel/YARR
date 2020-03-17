@@ -1,4 +1,5 @@
 var mysql = require("mysql");
+const util = require('util');
 
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
@@ -10,6 +11,7 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
+const query = util.promisify(connection.query).bind(connection);
 
 async function verifyRequest(userInfo, bearerKey) {
   let retVal = false;
@@ -89,54 +91,55 @@ module.exports = {
   
   getAllStudyExperiments: async (req, res) => {
     const { studyId } = req.query;
+    let resStr;
+
     if (!studyId) {
       res.status(400).send('{"result": "Failure", "error": "Study ID is required."}');
       return;
     }
 
-    connection.query(`SELECT * FROM experiments WHERE StudyId = "${studyId}"`, (error, results) => {
-      if (error) {
-        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-      } else if (!results.length) {
+    try {
+      const results = await query(`SELECT * FROM experiments WHERE StudyId = "${studyId}"`);
+      if (!results.length){
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
-      } else {
-        let resStr = `{"result": "Success", "experiments": [`;
-        console.log(results)
-        for(let i = 0; i < results.length; ++i) {
-          let {
-            ExperimentId,
-            StudyId,
-            CreationDate,
-            Status,
-            Title,
-            Details,
-            CharacterType,
-            ColorSettings,
-            RoundsNumber
-          } = results[i];
-          connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`, (roundsError, roundsResults) => {
-            if(roundsError) {
-              res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`);
-            } else {
-              resStr = resStr.concat(`{"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
+        return;
+      }
+
+      resStr = `{"result": "Success", "experiments": [`;
+      for (let i = 0; i < results.length; ++i) {
+        let {
+          ExperimentId,
+          StudyId,
+          CreationDate,
+          Status,
+          Title,
+          Details,
+          CharacterType,
+          ColorSettings,
+          RoundsNumber
+        } = results[i];
+        const roundsResults = await query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`);
+        resStr = resStr.concat(`{"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                                       "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
                                       "Details": "${Details}", "CharacterType": "${CharacterType}",
                                       "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`);
-              for(let j = 0; j < roundsResults.length; ++j) {
-                let { RoundId, RoundNumber, GameMode, Difficulty } = roundsResults[j];
-                resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
-                                        "GameMode": "${GameMode}", "Difficulty": "${Difficulty}"}, `)
-              }
-              resStr = resStr.slice(0, -2);
-              resStr = resStr.concat("]}, ");
-            }
-          });
+        for (let j = 0; j < roundsResults.length; ++j) {
+          let { RoundId, RoundNumber, GameMode, Difficulty } = roundsResults[j];
+          resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
+                  "GameMode": "${GameMode}", "Difficulty": "${Difficulty}"}, `);
         }
         resStr = resStr.slice(0, -2);
-        resStr = resStr.concat("]}");
-        res.status(200).send(resStr);
+        resStr = resStr.concat("]}, ");
       }
-    });
+    }
+    catch(err){
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`);
+      return;
+    }
+
+    resStr = resStr.slice(0, -2);
+    resStr = resStr.concat("]}");
+    res.status(200).send(resStr);
   },
 
   addExperiment: async (req, res) => {
@@ -222,7 +225,7 @@ module.exports = {
       setStr = `Status = "${status}"`;
     }
     if (title) {
-      setStr = setStr.concat(`, title = "${Title}"`);
+      setStr = setStr.concat(`, title = "${title}"`);
     }
     if (Details) {
       setStr = setStr.concat(`, details = "${details}"`);

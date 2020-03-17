@@ -50,7 +50,6 @@ class ExperimentPage extends Component {
       <div className="experimentPage">
         <Header />
         <div className="container">
-          <ExperimentBuilder />
         </div>
       </div>
     ) : (<Redirect to='/' />)) : (null)

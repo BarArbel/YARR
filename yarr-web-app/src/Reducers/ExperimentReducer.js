@@ -1,13 +1,15 @@
 import {
-  SET_EXPERIMENTS,
   ADD_EXPERIMENT,
+  SET_EXPERIMENTS,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
+  TOGGLE_BUILD_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
 
 const initialState = {
-  experimentList: []
+  experimentList: [],
+  buildExperiment: false
 }
 
 export default (state = initialState, action) => {
@@ -25,6 +27,7 @@ export default (state = initialState, action) => {
         experimentList: [...state.experimentList, action.data]
       }
     }
+    
     case UPDATE_EXPERIMENT: {
       const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
       let toUpdate = state.experimentList.filter(i => i.experimentId === action.data.experimentId)
@@ -35,6 +38,7 @@ export default (state = initialState, action) => {
         experimentList: [...newList, toUpdate]
       }
     }
+
     case DELETE_EXPERIMENT: {
       const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
       return {
@@ -42,6 +46,7 @@ export default (state = initialState, action) => {
         experimentList: newList
       }
     }
+
     case CHANGE_EXPERIMENT_STATUS: {
       const newList = state.experimentList.filter(i => i.experimentId !== action.data.experimentId)
       let toUpdate = state.experimentList.filter(i => i.experimentId === action.data.experimentId)
@@ -51,6 +56,14 @@ export default (state = initialState, action) => {
         experimentList: [...newList, toUpdate]
       }
     }
+
+    case TOGGLE_BUILD_EXPERIMENT: {
+      return {
+        ...state,
+        buildExperiment: !state.buildExperiment
+      }
+    }
+
     default: {
       return state
     }

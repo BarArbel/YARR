@@ -1,31 +1,14 @@
 import React, { Component } from "react";
-import { Redirect } from 'react-router-dom'
+import { NavLink } from 'react-router-dom'
 
 class StudyItem extends Component {
-  constructor(props){
-    super(props)
-
-    this.state = {
-      clicked: false
-    }
-
-    this.handleClicked = this.handleClicked.bind(this)
-  }
-  
-  handleClicked(event){
-    event.preventDefault()
-    this.setState({ clicked: true })
-  }
-
   render() {
     const { index } = this.props
-    const { clicked } = this.state
-
-    return clicked ? (< Redirect to={`/study/${index}`} />) : (
+    return (
       <div className="studyItem">
-        <a href="/" className="linkHolder" onClick={this.handleClicked}>
+        <NavLink to={`/study/${index}`} className="linkHolder">
           {this.props.children}
-        </a>
+        </NavLink>
       </div>
     )
   }

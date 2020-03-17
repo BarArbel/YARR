@@ -4,7 +4,9 @@ import UserActions from '../Actions/UserActions'
 
 const mapStateToProps = ({ user }) => {
   return {
+    userInfo: user.userInfo,
     isLogged: user.isLogged,
+    bearerKey: user.bearerKey,
   }
 }
 
@@ -23,15 +25,15 @@ class Header extends Component {
   render() {
     const { isLogged } = this.props
 
-    return (
-      <div className="homePage">
+    return  (
+      <div className="header">
         <header className="header-login-signup">
           <div className="header-limiter">
             <h1><a href="/">YARR!</a></h1>
             {/* <nav>
               <a href="/" className="selected">Home</a>
             </nav> */}
-            {isLogged ? (<ul><li><button onClick={this.handleLogout}>Logout</button></li></ul>) : (null)}
+            {isLogged ? <ul><li><button onClick={this.handleLogout}>Logout</button></li></ul>: null}
           </div>
         </header>
       </div>

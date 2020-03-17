@@ -44,7 +44,7 @@ class ExperimentBuilder extends Component {
     const url = 'http://localhost:3003/addExperiment'
     /* fetch request to add experiment */
     const json = {
-      studyId: 1,
+      studyId: 1, //should be studyId
       title: title,
       details: details,
       characterType: characterType,

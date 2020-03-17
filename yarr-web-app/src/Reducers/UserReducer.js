@@ -1,9 +1,9 @@
 import { USER_LOGIN, USER_LOGOUT, SET_BEARER_KEY, REMOVE_BEARER_KEY } from '../ActionsTypes/UserActionTypes'
 
 const initialState = {
-  userInfo: undefined,
-  isLogged: false,
-  bearerKey: undefined
+  userInfo: localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : undefined,
+  isLogged: localStorage.getItem("isLogged") ? JSON.parse(localStorage.getItem("isLogged")) : false,
+  bearerKey: localStorage.getItem("bearerKey") ? localStorage.getItem("bearerKey") : undefined
 }
 
 

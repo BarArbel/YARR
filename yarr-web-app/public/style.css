@@ -135,7 +135,7 @@ textarea {
   resize: none !important;
 }
 
-.studyList{
+.studyList, .studyBuilder, .experimentBuilder {
   margin-top: 35px;
 }
 
@@ -144,11 +144,11 @@ a.linkHolder:hover {
   color: inherit;
 }
 
-.studyBuilder{
-  margin-top: 35px;
+.breadcrumb {
+  background-color: #ffffff !important;
 }
 
-.addStudy{
+.addStudy {
   position: relative;
   float: right;
   background-color: #62c462 !important;
