@@ -54,7 +54,7 @@ export class ExperimentList extends Component {
           <ExperimentItem key={`experiment${i}`} experimentId={parseInt(experiment.ExperimentId)}
             onDelete={this.handleDelete} studyId={studyId}
           >
-            <h5 className="card-title">Title}</h5>
+            <h5 className="card-title">{Title}</h5>
             <h6 className="card-title">{CreationDate}</h6>
             <p className="card-text">{Status}</p>
           </ExperimentItem>

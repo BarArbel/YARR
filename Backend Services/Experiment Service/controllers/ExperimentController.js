@@ -171,7 +171,9 @@ module.exports = {
     });
 
     let date = new Date();
-    let creationDate = `${date.getDay()}/${date.getMonth()}/${date.getFullYear()}`;
+    let day = date.getDate() < 10 ? `0${date.getDate()}` : `${date.getDate()}`;
+    let month = date.getMonth() + 1 < 10 ? `0${date.getMonth() + 1}` : `${date.getMonth() + 1}`;
+    let creationDate = `${day}/${month}/${date.getFullYear()}`;
     let status = "Ready";
 
     connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Title, Details, CharacterType, ColorSettings,
