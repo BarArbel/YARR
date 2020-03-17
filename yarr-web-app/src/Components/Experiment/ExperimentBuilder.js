@@ -53,7 +53,6 @@ class ExperimentBuilder extends Component {
       roundsSettings: roundsSettings
     }
 
-    console.log(json)
     fetch(url, {
       method: 'POST',
       headers: {
@@ -71,9 +70,7 @@ class ExperimentBuilder extends Component {
           console.log(json)
         }
       })
-      .catch(err => console.log(err));
-    
-    event.preventDefault();
+      .catch(err => console.log(err));   
   }
 
   handleChange(event) {

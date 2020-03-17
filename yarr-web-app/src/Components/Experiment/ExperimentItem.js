@@ -1,7 +1,8 @@
 import PropTypes from "prop-types"
 import { connect } from "react-redux"
 import React, { Component } from "react"
-import { NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { MDBIcon } from 'mdbreact'
 import ExperimentActions from "../../Actions/ExperimentActions"
 
 const mapStateToProps = ({ experiment }) => {
@@ -14,30 +15,23 @@ export class ExperimentItem extends Component {
   constructor(props) {
     super(props)
     this.handleEdit = this.handleEdit.bind(this)
-    this.handleDelete = this.handleDelete.bind(this)
   }
 
   handleEdit() {
 
   }
 
-  handleDelete() {
-
-  }
-
-
   render() {
-    const { handleDelete, experimentId, studyId } = this.props
+    const { onDelete, experimentId, studyId } = this.props
     return (
       <div className = "experimentItem">
-        <NavLink to={`study/${studyId}/experiment/${experimentId}`} className="linkHolder">
-        {this.props.children}
-        {/* <label>{title}</label> */}
-        </NavLink>
         <div>
-          <button onClick={this.handleEdit}>Edit</button>
-          <button onClick={this.handleDelete}>Delete</button>
+          <button onClick={() => { onDelete(experimentId) }} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
+          <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>
         </div>
+        <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
+          {this.props.children}
+        </Link>
       </div>
     )
   }

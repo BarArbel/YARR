@@ -16,7 +16,7 @@ export class ExperimentList extends Component {
 
     this.renderList = this.renderList.bind(this)
     this.eachExperiment = this.eachExperiment.bind(this)
-    this.handlehandleDelete = this.handleDelete.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
     
   }
 
@@ -24,9 +24,9 @@ export class ExperimentList extends Component {
     //move to edit page
   }
 
-  handleDelete() {
-    const { handleDeleteExperiment, experimentId } = this.props
-    const url = `http://localhost:3001/deleteExperiment?${experimentId}`
+  handleDelete(experimentId) {
+    const { handleDeleteExperiment } = this.props
+    const url = `http://localhost:3003/deleteExperiment?experimentId=${experimentId}`
 
     fetch(url, {
       method: "DELETE",
@@ -47,16 +47,23 @@ export class ExperimentList extends Component {
   eachExperiment(experiment, i) {
     const { studyId } = this.props
     const { Title, ExperimentId, CreationDate, Status, Details, GameSetting } = experiment
-    
+    const statusStyle = Status === "Running" ? ({ color: "#4BB543", paddingLeft: 10 + 'px' }) : ({ paddingLeft: 10 + 'px' })
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
           <ExperimentItem key={`experiment${i}`} experimentId={parseInt(experiment.ExperimentId)}
             onDelete={this.handleDelete} studyId={studyId}
           >
-            <h5 className="card-title">{Title}</h5>
-            <h6 className="card-title">{CreationDate}</h6>
-            <p className="card-text">{Status}</p>
+            <h4 className="card-title cardTitle">{Title}</h4>
+            <p className="card-text">{Details}</p>
+            <div className="cardInfoHolder">
+              <label className="card-text cardInlineText">Creation Date:</label>
+              <label className="card-title cardInlineText">{CreationDate}</label>
+              <div className="cardInlineText">
+                <label className="card-text">Status:</label>
+                <label className="card-title" style={statusStyle}>{Status}</label>
+              </div>
+            </div>
           </ExperimentItem>
         </div>
       </div>

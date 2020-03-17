@@ -21,7 +21,7 @@ const updateExperiment = (experimentId, title, details) => ({
 
 const deleteExperiment = experimentId => ({
   type: DELETE_EXPERIMENT,
-  data: { experimentId }
+  data: experimentId
 })
 
 const changeExperimentStatus = (experimentId, status) => ({

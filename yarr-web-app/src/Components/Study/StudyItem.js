@@ -1,14 +1,14 @@
 import React, { Component } from "react";
-import { NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 class StudyItem extends Component {
   render() {
     const { studyId } = this.props
     return (
       <div className="studyItem">
-        <NavLink to={`/study/${studyId}`} className="linkHolder">
+        <Link to={`/study/${studyId}`} className="linkHolder">
           {this.props.children}
-        </NavLink>
+        </Link>
       </div>
     )
   }

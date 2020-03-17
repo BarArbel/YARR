@@ -139,6 +139,18 @@ textarea {
   margin-top: 35px;
 }
 
+.trashIcon {
+  color: #B33A3A;
+}
+
+.editIcon {
+  color: rgb(95, 95, 95);
+}
+
+.editIcon, .trashIcon {
+  font-size: 18px;
+}
+
 a.linkHolder,
 a.linkHolder:hover {
   color: inherit;
@@ -161,11 +173,45 @@ a.linkHolder:hover {
   font-weight: bold;
 }
 
+.invisButton {
+  border: none;
+  background-color: white;
+  float: right;
+  position: relative;
+  width: 30px;
+  margin-left: 15px;
+}
+
+.cardTitle {
+  margin-bottom: 20px !important;
+}
+
+.cardInfoHolder{
+  position: relative;
+  margin-top: 25px;
+}
+
+.cardInlineText{
+  display: inline-block;
+  position: relative;
+  margin-right: 10px;
+}
+
+hr { 
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 0.5px;
+} 
+
 .FormMargins {
   margin-bottom: 30px;
 }
 
-.card{
+.card {
   margin-bottom: 10px;
 }
 

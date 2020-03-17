@@ -41,7 +41,7 @@ class HomePage extends Component {
   }
 
   renderLogged(){
-    const { userInfo, buildStudy } = this.props
+    const { buildStudy } = this.props
     const toggleButtonText = buildStudy ? "Return" : "Create Study"
     const buttonColor = buildStudy ? "blue-grey" : "light-green"
 

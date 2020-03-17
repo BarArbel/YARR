@@ -12,8 +12,8 @@ const ReactRouter = ({ store }) => (
     <Router>
       <Route exact path = "/" component = {Login}/>
       <Route exact path = "/homePage" component = {HomePage}/>
-      <Route exact path = "/experimentPage" component = {ExperimentPage}/>
-      <Route path = "/study/:id" component={StudyPage}/>
+      <Route exact path= "/study/:studyId" component={StudyPage}/>
+      <Route exact path= "/study/:studyId/experiment/:experimentId" component={ExperimentPage} />
     </Router>
   </Provider>
 )

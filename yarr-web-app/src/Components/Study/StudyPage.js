@@ -31,7 +31,7 @@ class StudyPage extends Component {
 
   async componentDidMount() {
     const { handleSetExperiments, handleSetRoutes, buildExperiment, handleToggleBuildExperiment } = this.props
-    const index = this.props.match.params.id
+    const index = this.props.match.params.studyId
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
       { name: 'Study', redirect: `/Study/${index}`, isActive: false }
@@ -55,7 +55,7 @@ class StudyPage extends Component {
 
   handleCreate() {
     const { handleToggleBuildExperiment, buildExperiment, handleSetRoutes } = this.props
-    const index = this.props.match.params.id
+    const index = this.props.match.params.studyId
     let tempBuild = !buildExperiment
 
     const routes = tempBuild ? 
@@ -76,7 +76,7 @@ class StudyPage extends Component {
 
   renderLogged(){
     const { userInfo, buildExperiment } = this.props
-    const studyId = parseInt(this.props.match.params.id);
+    const studyId = parseInt(this.props.match.params.studyId);
     const toggleButtonText = buildExperiment ? "Return" : "Create Experiment"
     const buttonColor = buildExperiment ? "blue-grey" : "light-green"
 

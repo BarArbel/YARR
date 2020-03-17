@@ -1,6 +1,6 @@
 import { connect } from 'react-redux'
 import React, { Component } from "react";
-import { NavLink } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const mapStateToProps = ({ breadcrumbs }) => {
   return {
@@ -21,9 +21,9 @@ class Breadcrumbs extends Component {
 
     return (
       <li className="breadcrumb-item" key={`route${index}`}>
-        <NavLink to={redirect}>
+        <Link to={redirect}>
           {name}
-        </NavLink>
+        </Link>
       </li>
     )
   }
