@@ -9,14 +9,14 @@ import {
 
 const setExperiments = experiments => ({ type: SET_EXPERIMENTS, data: experiments })
 
-const addExperiment = (experimentId, studyId, title, creationDate, status, details, gameSettings) => ({
+const addExperiment = (experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings) => ({
   type: ADD_EXPERIMENT,
-  data: { experimentId, studyId, title, creationDate, status, details, gameSettings }
+  data: { experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings }
 })
 
-const updateExperiment = (experimentId, title, details) => ({
+const updateExperiment = (experimentId, title, details, characterType, colorSettings) => ({
   type: UPDATE_EXPERIMENT,
-  data: { experimentId, title, details }
+  data: { experimentId, title, details, characterType, colorSettings }
 })
 
 const deleteExperiment = experimentId => ({
@@ -39,12 +39,12 @@ const handleSetExperiments = experiments => async dispatch => {
   dispatch(setExperiments(experiments))
 }
 
-const handleAddExperiment = (experimentId, studyId, title, creationDate, status, details, gameSettings ) => async dispatch => {
-  dispatch(addExperiment(experimentId, studyId, title, creationDate, status, details, gameSettings))
+const handleAddExperiment = (experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings ) => async dispatch => {
+  dispatch(addExperiment(experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings))
 }
 
-const handleUpdateExperiment = (experimentId, title, details) => async dispatch => {
-  dispatch(updateExperiment(experimentId, title, details));
+const handleUpdateExperiment = (experimentId, title, details, characterType, colorSettings) => async dispatch => {
+  dispatch(updateExperiment(experimentId, title, details, characterType, colorSettings));
 }
 
 const handleDeleteExperiment = experimentId => async dispatch => {

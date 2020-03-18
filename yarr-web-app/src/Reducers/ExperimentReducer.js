@@ -30,9 +30,11 @@ export default (state = initialState, action) => {
     
     case UPDATE_EXPERIMENT: {
       const newList = state.experimentList.filter(i => i.ExperimentId !== action.data.experimentId)
-      let toUpdate = state.experimentList.filter(i => i.ExperimentId === action.data.experimentId)
-      toUpdate.title = action.data.title
-      toUpdate.details = action.data.details
+      let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
+      toUpdate.Title = action.data.title
+      toUpdate.Details = action.data.details
+      toUpdate.CharacterType = action.data.characterType
+      toUpdate.ColorSettings = action.data.colorSettings
       return {
         ...state,
         experimentList: [...newList, toUpdate]
@@ -49,8 +51,8 @@ export default (state = initialState, action) => {
 
     case CHANGE_EXPERIMENT_STATUS: {
       const newList = state.experimentList.filter(i => i.ExperimentId !== action.data.experimentId)
-      let toUpdate = state.experimentList.filter(i => i.ExperimentId === action.data.experimentId)
-      toUpdate.status = action.data.status
+      let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
+      toUpdate.Status = action.data.status
       return {
         ...state,
         experimentList: [...newList, toUpdate]
