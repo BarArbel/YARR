@@ -23,7 +23,7 @@ class Header extends Component {
   }
 
   render() {
-    const { isLogged } = this.props
+    const { userInfo, isLogged } = this.props
 
     return  (
       <div className="header">
@@ -33,7 +33,13 @@ class Header extends Component {
             {/* <nav>
               <a href="/" className="selected">Home</a>
             </nav> */}
-            {isLogged ? <ul><li><button onClick={this.handleLogout}>Logout</button></li></ul>: null}
+            {isLogged ? 
+              <ul>
+                <li>Hello {userInfo.firstName} {userInfo.lastName}</li>
+                <li><button onClick={this.handleLogout}>Logout</button></li>
+              </ul> 
+              : null
+            }
           </div>
         </header>
       </div>

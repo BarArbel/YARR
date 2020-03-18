@@ -42,13 +42,10 @@ class StudyPage extends Component {
     handleSetRoutes(routes)
     await fetch(url).then(res => res.json()).then(json => {
       if (json.result === "Success") {
-        console.log(json)
         handleSetExperiments(json.experiments)
       }
       else {
         handleSetExperiments([])
-        /* add error handeling */
-        console.log(json)
       }
     })
     .catch(err => console.log(err));
