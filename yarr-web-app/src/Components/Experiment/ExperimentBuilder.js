@@ -20,8 +20,8 @@ class ExperimentBuilder extends Component {
     this.state = {
       title: "",
       details: "",
-      characterType: 0,
-      colorSettings: 0,
+      characterType: 1,
+      colorSettings: 1,
       roundsNumber: 1,
       roundsSettings: [{ GameMode: 1, Difficulty: 0 }],
       isMsg: false,
@@ -203,9 +203,9 @@ class ExperimentBuilder extends Component {
             name="characterType"
             required
           >
-            <option value={0}>Type 1</option>
-            <option value={1}>Type 2</option>
-            <option value={2}>Type 3</option>
+            <option value={1}>Type 1</option>
+            <option value={2}>Type 2</option>
+            <option value={3}>Type 3</option>
           </select>
           <label htmlFor="defaultFormExperimentColor" className="grey-text">
             Color Settings
@@ -218,9 +218,9 @@ class ExperimentBuilder extends Component {
             name="colorSettings"
             required
           >
-            <option value={0}>Full spectrum</option>
-            <option value={1}>Color blind 1</option>
-            <option value={2}>Color blind 2</option>
+            <option value={1}>Full spectrum</option>
+            <option value={2}>Color blind 1</option>
+            <option value={3}>Color blind 2</option>
           </select>
           <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
             Number of Rounds
