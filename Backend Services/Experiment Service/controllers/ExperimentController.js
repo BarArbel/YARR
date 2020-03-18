@@ -155,7 +155,8 @@ module.exports = {
 
     let errorMsg = false
 
-    if (!studyId || !title || !details || !characterType || !colorSettings || !roundsNumber || !roundsSettings) {
+    if (studyId === undefined || !title || !details || characterType === undefined || !colorSettings === undefined
+        || !roundsNumber || !roundsSettings) {
       res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
                             "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
                             "RoundsNumber": "${roundsNumber}", "RoundsSettings": "${roundsSettings}"},

@@ -47,6 +47,7 @@ export class ExperimentList extends Component {
   eachExperiment(experiment, i) {
     const { studyId } = this.props
     const { Title, ExperimentId, CreationDate, Status, Details } = experiment
+    const limitedDetails = Details.length > 265 ? Details.substring(0, 265) + '...' : Details
     const statusStyle = Status === "Running" ? ({ color: "#4BB543", paddingLeft: 10 + 'px' }) : ({ paddingLeft: 10 + 'px' })
     return (
       <div className="card" key={`container${i}`}>
@@ -55,7 +56,7 @@ export class ExperimentList extends Component {
             onDelete={this.handleDelete} studyId={studyId}
           >
             <h4 className="card-title cardTitle">{Title}</h4>
-            <p className="card-text">{Details}</p>
+            <p className="card-text">{limitedDetails}</p>
             <div className="cardInfoHolder">
               <label className="card-text cardInlineText">Creation Date:</label>
               <label className="card-title cardInlineText">{CreationDate}</label>

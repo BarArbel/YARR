@@ -62,10 +62,10 @@ class StudyPage extends Component {
       { name: 'Study', redirect: `/study/${index}`, isActive: true },
       { name: 'Create Experiment', redirect: `/study/${index}`, isActive: false }
     ] 
-    : 
+    :
     [
-        { name: 'Home', redirect: '/homePage', isActive: true },
-        { name: 'Study', redirect: `/study/${index}`, isActive: false }
+      { name: 'Home', redirect: '/homePage', isActive: true },
+      { name: 'Study', redirect: `/study/${index}`, isActive: false }
     ]
 
     handleSetRoutes(routes)
@@ -83,9 +83,31 @@ class StudyPage extends Component {
         <Header />
         <Breadcrumbs/>
         <div className="container">
-          <label/>
-          <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
-          {buildExperiment ? (<ExperimentBuilder studyId={studyId}/>) : (<ExperimentList studyId={studyId} />)}
+          <ul className="nav nav-tabs" id="myTab" role="tablist">
+            <li className="nav-item">
+              <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" id="profile-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="profile" aria-selected="false">Experiments</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="contact" aria-selected="false">Insights</a>
+            </li>
+            <li className="nav-item">
+              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#review" role="tab" aria-controls="contact" aria-selected="false">Review & Export</a>
+            </li>
+
+          </ul>
+          <div className="tab-content" id="myTabContent">
+            <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">test1</div>
+            <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
+              <label/>
+              <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
+              {buildExperiment ? (<ExperimentBuilder studyId={studyId} />) : (<ExperimentList studyId={studyId} />)}
+            </div>
+            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
+            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
+          </div>
         </div>
       </div>
     )
