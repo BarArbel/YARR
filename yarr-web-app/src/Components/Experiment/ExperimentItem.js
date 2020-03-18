@@ -40,11 +40,6 @@ export class ExperimentItem extends Component {
 ExperimentItem.propTypes = {
   experimentId: PropTypes.number,
   studyId: PropTypes.number,
-  title: PropTypes.string,
-  creationDate: PropTypes.string,
-  status: PropTypes.string,
-  details: PropTypes.string,
-  gameSettings: PropTypes.string,
   handleEdit: PropTypes.func,
   handleDelete: PropTypes.func
 };

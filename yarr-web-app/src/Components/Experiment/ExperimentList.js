@@ -46,7 +46,7 @@ export class ExperimentList extends Component {
 
   eachExperiment(experiment, i) {
     const { studyId } = this.props
-    const { Title, ExperimentId, CreationDate, Status, Details, GameSetting } = experiment
+    const { Title, ExperimentId, CreationDate, Status, Details } = experiment
     const statusStyle = Status === "Running" ? ({ color: "#4BB543", paddingLeft: 10 + 'px' }) : ({ paddingLeft: 10 + 'px' })
     return (
       <div className="card" key={`container${i}`}>
@@ -102,7 +102,6 @@ export class ExperimentList extends Component {
 
 ExperimentList.propTypes = {
   studyId: PropTypes.number,
-  results: PropTypes.object,
   actions: PropTypes.objectOf(PropTypes.object)
 }
 
