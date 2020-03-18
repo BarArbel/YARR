@@ -22,14 +22,19 @@ export class ExperimentItem extends Component {
   }
 
   render() {
-    const { onDelete, experimentId, studyId } = this.props
+    const { onDelete, experimentId, studyId, handleSelectExperiment, experimentList } = this.props
+    const experiment = experimentList.find(i => parseInt(i.ExperimentId) === experimentId)
     return (
       <div className = "experimentItem">
         <div>
           <button onClick={() => { onDelete(experimentId) }} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
           <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>
         </div>
-        <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
+        <Link
+          onClick={() => {handleSelectExperiment(experiment)}}
+          to={`/study/${studyId}/experiment/${experimentId}`}
+          className="linkHolder"
+        >
           {this.props.children}
         </Link>
       </div>

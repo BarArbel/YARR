@@ -1,14 +1,17 @@
 import {
-  ADD_EXPERIMENT,
   SET_EXPERIMENTS,
+  ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   TOGGLE_BUILD_EXPERIMENT,
+  SELECT_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
+import BreadcrumbsActions from "../Actions/BreadcrumbsActions"
 
 const initialState = {
   experimentList: [],
+  experiment: null,
   buildExperiment: false
 }
 
@@ -29,8 +32,8 @@ export default (state = initialState, action) => {
     }
     
     case UPDATE_EXPERIMENT: {
-      const newList = state.experimentList.filter(i => i.ExperimentId !== action.data.experimentId)
-      let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
+      const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data.experimentId)
+      let toUpdate = state.experimentList.find(i => parseInt(i.ExperimentId) === action.data.experimentId)
       toUpdate.Title = action.data.title
       toUpdate.Details = action.data.details
       toUpdate.CharacterType = action.data.characterType
@@ -49,9 +52,16 @@ export default (state = initialState, action) => {
       }
     }
 
+    case TOGGLE_BUILD_EXPERIMENT: {
+      return {
+        ...state,
+        buildExperiment: !state.buildExperiment
+      }
+    }
+
     case CHANGE_EXPERIMENT_STATUS: {
-      const newList = state.experimentList.filter(i => i.ExperimentId !== action.data.experimentId)
-      let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
+      const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data.experimentId)
+      let toUpdate = state.experimentList.find(i => parseInt(i.ExperimentId) === action.data.experimentId)
       toUpdate.Status = action.data.status
       return {
         ...state,
@@ -59,10 +69,10 @@ export default (state = initialState, action) => {
       }
     }
 
-    case TOGGLE_BUILD_EXPERIMENT: {
+    case SELECT_EXPERIMENT: {
       return {
         ...state,
-        buildExperiment: !state.buildExperiment
+        experiment: action.data
       }
     }
 
