@@ -46,6 +46,7 @@ class StudyPage extends Component {
         handleSetExperiments(json.experiments)
       }
       else {
+        handleSetExperiments([])
         /* add error handeling */
         console.log(json)
       }
