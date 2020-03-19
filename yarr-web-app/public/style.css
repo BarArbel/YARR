@@ -215,6 +215,12 @@ hr {
   margin-bottom: 10px;
 }
 
+.cardSmall {
+  width: fit-content;
+  float: left;
+  margin-right: 10px;
+}
+
 .changeFormButton {
   background:none;
   border:none;

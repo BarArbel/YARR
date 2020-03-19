@@ -55,14 +55,20 @@ class ExperimentPage extends Component {
 
   renderRounds() {
     const { Rounds } = this.props.experiment
+    const gameMode = ["Mode 1", "Mode 2"]
+    const difficulty = ["Dynamic", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6"]
 
     return (
       <div>
         <ul>
           {Rounds.map((value, index) => {
             return (
-              <div key={`round${index}`}>
-                
+              <div className="card cardSmall" key={`round${index}`}>
+                <div className="card-body">
+                  <p className="card-text">Round Number: {parseInt(value.RoundNumber) + 1}</p>
+                  <p className="card-text">Game Mode: {gameMode[value.GameMode - 1]}</p>
+                  <p className="card-text">Difficulty: {difficulty[value.Difficulty]}</p>
+                </div>
               </div>
             )
           })}
@@ -116,6 +122,7 @@ class ExperimentPage extends Component {
               <p>Character type: {characterType[CharacterType - 1]}</p>
               <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
               <p>Number of rounds: {RoundsNumber}</p>
+              <p>Rounds:</p>
               {this.renderRounds()}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
@@ -128,7 +135,6 @@ class ExperimentPage extends Component {
 
   render() {
     const { isLogged, experiment } = this.props
-    const studyId = this.props.match.params.studyId
 
     return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
   }
