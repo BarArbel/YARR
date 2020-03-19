@@ -88,7 +88,7 @@ export class ExperimentList extends Component {
     if (experimentList.length) {
       return experimentList.map(this.eachExperiment)
     }
-    return <label>Something went wrong, please try again.</label>
+    return <label>No experiments found</label>
   }
 
   render() {

@@ -49,7 +49,7 @@ class StudyPage extends Component {
         handleSetExperiments([])
       }
     })
-    .catch(err => console.log(err));
+    .catch(err => handleSetExperiments([]));
   }
 
   handleCreate() {

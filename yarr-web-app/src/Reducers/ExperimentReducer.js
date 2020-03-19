@@ -7,7 +7,6 @@ import {
   SELECT_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
-import BreadcrumbsActions from "../Actions/BreadcrumbsActions"
 
 const initialState = {
   experimentList: [],

@@ -182,6 +182,24 @@ a.linkHolder:hover {
   margin-left: 15px;
 }
 
+.difficultyPic {
+  height: 45px;
+  width: 40px;
+  float: left;
+  margin-right: 5px;
+}
+
+.difficultyText {
+  padding-top: 5px;
+}
+
+.roundNumber {
+  position: relative;
+  font-size: 10px;
+  margin-top: 5px;
+  left: 5%;
+}
+
 .cardTitle {
   margin-bottom: 20px !important;
 }
@@ -216,9 +234,15 @@ hr {
 }
 
 .cardSmall {
+  min-width: 175px !important;
   width: fit-content;
   float: left;
   margin-right: 10px;
+}
+
+.difficultyHolder {
+  position: relative;
+  left: 15%;
 }
 
 .changeFormButton {

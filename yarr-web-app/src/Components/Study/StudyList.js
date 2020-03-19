@@ -63,6 +63,10 @@ class StudyList extends Component {
   }
 
   eachStudy(study, i) {
+    const { Description, StudyQuestions, Title } = study
+    const limitedQuestions = StudyQuestions.length > 265 ? StudyQuestions.substring(0, 265) + '...' : StudyQuestions
+    const limitedDescription = Description.length > 265 ? Description.substring(0, 265) + '...' : Description
+
     return (
       <StudyItem 
       key={`study${i}`} 
@@ -71,11 +75,11 @@ class StudyList extends Component {
       onEdit={this.handleEdit}
       study={study}
       >
-        <h5 className="card-title">{study.Title}</h5>
+        <h5 className="card-title">{Title}</h5>
         <h6 className="card-title">Study Questions</h6>
-        <p className="card-text">{study.StudyQuestions}</p>
+        <p className="card-text">{limitedQuestions}</p>
         <h6 className="card-title">Description</h6>
-        <p className="card-text">{study.Description}</p>
+        <p className="card-text">{limitedDescription}</p>
       </StudyItem>
     )
   }

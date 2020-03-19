@@ -7,7 +7,7 @@ import { Redirect } from 'react-router-dom'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
-
+import DifficultyImg from '../../difficulty.png'
 const mapStateToProps = ({ user, experiment }) => {
   return {
     userInfo: user.userInfo,
@@ -55,19 +55,34 @@ class ExperimentPage extends Component {
 
   renderRounds() {
     const { Rounds } = this.props.experiment
-    const gameMode = ["Mode 1", "Mode 2"]
+    const gameMode = ["Cooperative", "Competitive"]
     const difficulty = ["Dynamic", "Level 1", "Level 2", "Level 3", "Level 4", "Level 5", "Level 6"]
 
     return (
       <div>
         <ul>
           {Rounds.map((value, index) => {
+            const { Difficulty } = value
+            let difficultyColor = null
+            if(Difficulty > 0) {
+              if(Difficulty > 4) {
+                difficultyColor = { fontWeight: "bold", color: "#B33A3A" }
+              }
+              else if (Difficulty > 2) {
+                difficultyColor = { fontWeight: "bold", color: "#ffae42" }
+              }
+              else difficultyColor = { fontWeight: "bold", color: "#4BB543"}
+            }
+            else difficultyColor = { fontWeight: "bold" }
             return (
               <div className="card cardSmall" key={`round${index}`}>
+              <p className="roundNumber">Round {parseInt(value.RoundNumber) + 1}</p>
                 <div className="card-body">
-                  <p className="card-text">Round Number: {parseInt(value.RoundNumber) + 1}</p>
-                  <p className="card-text">Game Mode: {gameMode[value.GameMode - 1]}</p>
-                  <p className="card-text">Difficulty: {difficulty[value.Difficulty]}</p>
+                  <p className="card-text" style={{ textAlign: 'center'}}>{gameMode[value.GameMode - 1]}</p>
+                  <div className="difficultyHolder">
+                    <img src={DifficultyImg} className="difficultyPic"/>
+                    <p className="card-text difficultyText" style={difficultyColor}>{difficulty[value.Difficulty]}</p>
+                  </div>
                 </div>
               </div>
             )
