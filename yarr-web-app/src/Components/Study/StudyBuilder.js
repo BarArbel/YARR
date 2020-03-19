@@ -30,23 +30,41 @@ class StudyBuilder extends Component {
     this.handleChange = this.handleChange.bind(this)
   }
 
+  componentDidMount() {
+    const { editForm, currStudy } = this.props
+
+    editForm && this.setState({ 
+      title: currStudy.Title, 
+      studyQuestions: currStudy.StudyQuestions, 
+      description: currStudy.Description
+    })
+  }
+
   handleSubmit(event) {
     const { title, studyQuestions, description } = this.state
-    const { userInfo, handleToggleBuildStudy } = this.props
+    const { 
+      userInfo, 
+      handleToggleBuildStudy, 
+      editForm, 
+      currStudy, 
+      onSubmit,
+      handleUpdateStudy,
+      handleAddStudy
+    } = this.props
 
-    const url = 'http://localhost:3002/addStudy'
+    const url = editForm ? 'http://localhost:3002/updateStudy' : 'http://localhost:3002/addStudy'
     /* fetch request to add Study */
     const json = {
       researcherId: userInfo.researcherId,
       title: title,
       description: description,
-      studyQuestions: studyQuestions
+      studyQuestions: studyQuestions,
+      studyId: editForm ? currStudy.StudyId : undefined
     }
-
     event.preventDefault()
 
     fetch(url, {
-      method: 'POST',
+      method: editForm ? 'PUT' : 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -56,7 +74,17 @@ class StudyBuilder extends Component {
       .then(json => {
         if (json.result === "Success") {
           this.setState({ msg: "success", isMsg: true, error: false })
-          handleToggleBuildStudy()
+          if(editForm) {
+            currStudy.Title = title
+            currStudy.Description = description
+            currStudy.StudyQuestions = studyQuestions
+            onSubmit(currStudy)
+            handleUpdateStudy(currStudy)
+          }
+          else {
+            handleToggleBuildStudy()
+            handleAddStudy()
+          }
         }
         else {
           this.setState({ msg: "failed", isMsg: true, error: true })
@@ -75,14 +103,15 @@ class StudyBuilder extends Component {
   }
 
   render() {
-    const { title, studyQuestions, description} = this.state
+    const { title, studyQuestions, description } = this.state
+    const { editForm } = this.props
     const highCount = { color: "black" }
     const averageCount = { color: "#ffae42" }
     const lowCount = { color: "red" }
     const titleRemaining = 1024 - this.state.title.length
     const questionsRemaining = 4096 - this.state.studyQuestions.length
     const descriptionRemaining = 4096 - this.state.description.length
-
+    const titleText = editForm ? "" : "Create Study"
     const titleStyle = titleRemaining < 512 ? (titleRemaining < 128 ? lowCount : averageCount) : (highCount)
     const questionsStyle = questionsRemaining < 2048 ? (questionsRemaining < 128 ? lowCount : averageCount) : (highCount)
     const descriptionStyle = descriptionRemaining < 2048 ? (descriptionRemaining < 128 ? lowCount : averageCount) : (highCount)
@@ -90,7 +119,7 @@ class StudyBuilder extends Component {
     return (
       <div className="studyBuilder">
         <form onSubmit={this.handleSubmit}>
-          <p className="h4 text-center mb-4">Create Study</p>
+          <p className="h4 text-center mb-4">{titleText}</p>
           <div className="form-group FormMargins">
             <label htmlFor="defaultFormStudyTitle" className="grey-text">
               Study Title
@@ -105,22 +134,6 @@ class StudyBuilder extends Component {
               required
             />
             <p style={titleStyle} className="input-limit">{titleRemaining}</p>
-          </div>
-          <div className="form-group FormMargins">
-            <label htmlFor="defaultFormStudyDetails" className="grey-text">
-              Study Description
-            </label>
-            <textarea
-              value={description}
-              onChange={this.handleChange}
-              id="defaultFormStudyDetails"
-              className="form-control"
-              name="description"
-              rows="5"
-              maxLength="4096"
-              required
-            />
-            <p style={descriptionStyle} className="input-limit">{descriptionRemaining}</p>
           </div>
           <div className="form-group FormMargins">
             <label htmlFor="defaultFormStudyQuestions" className="grey-text">
@@ -138,7 +151,22 @@ class StudyBuilder extends Component {
             />
             <p style={questionsStyle} className="input-limit">{questionsRemaining}</p>
           </div>
-
+          <div className="form-group FormMargins">
+            <label htmlFor="defaultFormStudyDetails" className="grey-text">
+              Study Description
+            </label>
+            <textarea
+              value={description}
+              onChange={this.handleChange}
+              id="defaultFormStudyDetails"
+              className="form-control"
+              name="description"
+              rows="5"
+              maxLength="4096"
+              required
+            />
+            <p style={descriptionStyle} className="input-limit">{descriptionRemaining}</p>
+          </div>
           <div className="text-center mt-4">
             <MDBBtn color="elegant" type="submit" className="login-btn">Save Study</MDBBtn>
           </div>

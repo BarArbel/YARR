@@ -1,3 +1,5 @@
+export const ADD_STUDY = 'ADD_STUDY'
 export const ADD_STUDIES = 'ADD_STUDIES'
+export const UPDATE_STUDY = 'UPDATE_STUDY'
 export const DELETE_STUDY = 'DELETE_STUDY'
 export const TOGGLE_BUILD_STUDY = 'TOGGLE_BUILD_STUDY'

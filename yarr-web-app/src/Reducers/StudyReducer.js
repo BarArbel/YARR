@@ -1,8 +1,14 @@
-import { TOGGLE_BUILD_STUDY, ADD_STUDIES, DELETE_STUDY } from '../ActionsTypes/StudyActionTypes'
+import { 
+  ADD_STUDY,
+  ADD_STUDIES, 
+  DELETE_STUDY, 
+  UPDATE_STUDY,
+  TOGGLE_BUILD_STUDY
+} from '../ActionsTypes/StudyActionTypes'
 
 const initialState = {
-  buildStudy: false,
-  studies: []
+  studies: [],
+  buildStudy: false
 }
 
 export default (state = initialState, action) => {
@@ -15,14 +21,36 @@ export default (state = initialState, action) => {
     }
 
     case ADD_STUDIES: {
+      action.data.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
       return {
         ...state,
         studies: action.data
       }
     }
 
+    case ADD_STUDY: {
+      let tempStudies = state.studies
+      tempStudies.push(action.data)
+      tempStudies.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
+      return {
+        ...state,
+        studies: tempStudies
+      }
+    }
+
     case DELETE_STUDY: {
       const newList = state.studies.filter(i => parseInt(i.StudyId) !== action.data)
+      newList.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
+      return {
+        ...state,
+        studies: newList
+      }
+    }
+
+    case UPDATE_STUDY: {
+      let newList = state.studies.filter(i => parseInt(i.StudyId) !== parseInt(action.data.StudyId))
+      newList.push(action.data)
+      newList.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
       return {
         ...state,
         studies: newList
