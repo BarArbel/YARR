@@ -184,12 +184,14 @@ class ExperimentBuilder extends Component {
           <label htmlFor="defaultFormExperimentDetails" className="grey-text">
             Experiment Details
           </label>
-          <input
+          <textarea
             value={details}
             onChange={this.handleChange}
             id="defaultFormExperimentDetails"
             className="form-control FormMargins"
             name="details"
+            rows="5"
+            maxLength="4096"
             required
           />
           <label htmlFor="defaultFormExperimentCharacter" className="grey-text">

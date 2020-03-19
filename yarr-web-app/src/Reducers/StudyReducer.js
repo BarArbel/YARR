@@ -1,4 +1,4 @@
-import { TOGGLE_BUILD_STUDY, ADD_STUDIES } from '../ActionsTypes/StudyActionTypes'
+import { TOGGLE_BUILD_STUDY, ADD_STUDIES, DELETE_STUDY } from '../ActionsTypes/StudyActionTypes'
 
 const initialState = {
   buildStudy: false,
@@ -18,6 +18,14 @@ export default (state = initialState, action) => {
       return {
         ...state,
         studies: action.data
+      }
+    }
+
+    case DELETE_STUDY: {
+      const newList = state.studies.filter(i => parseInt(i.StudyId) !== action.data)
+      return {
+        ...state,
+        studies: newList
       }
     }
 

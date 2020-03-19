@@ -160,14 +160,14 @@ module.exports = {
   },
 
   deleteStudy: async(req, res) => {
-    const { studiesId } = req.query;
+    const { studyId } = req.query;
 
-    if (!studiesId) {
+    if (!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
 
-    connection.query(`DELETE FROM studies WHERE StudyId = "${studiesId}"`, (error, results) => {
+    connection.query(`DELETE FROM studies WHERE StudyId = "${studyId}"`, (error, results) => {
       if(error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
         return;
@@ -177,14 +177,7 @@ module.exports = {
         return;
       }
       else {
-        connection.query(`DELETE FROM experiments WHERE StudyId = "${studiesId}"`, (error, results) => {
-          if(error) {
-            res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-          }
-          else {
-            res.status(200).send(`{"result": "Success", "msg": "Study: ${studiesId} experiments were deleted"}`);
-          }
-        });
+        res.status(200).send(`{"result": "Success", "msg": "Study: ${studyId} was deleted"}`);
       }
     });
   }

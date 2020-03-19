@@ -27,6 +27,7 @@ class StudyPage extends Component {
 
     this.handleCreate = this.handleCreate.bind(this)
     this.renderLogged = this.renderLogged.bind(this)
+    this.renderStudyInfo = this.renderStudyInfo.bind(this)
   }
 
   async componentDidMount() {
@@ -34,7 +35,7 @@ class StudyPage extends Component {
     const index = this.props.match.params.studyId
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
-      { name: 'Study', redirect: `/Study/${index}`, isActive: false }
+      { name: 'Study', redirect: `/study/${index}`, isActive: false }
     ]
     const url = `http://localhost:3003/getAllStudyExperiments?studyId=${index}`
 
@@ -72,7 +73,11 @@ class StudyPage extends Component {
     handleToggleBuildExperiment()
   }
 
-  renderLogged(){
+  renderStudyInfo() {
+
+  }
+
+  renderLogged() {
     const { userInfo, buildExperiment } = this.props
     const studyId = parseInt(this.props.match.params.studyId);
     const toggleButtonText = buildExperiment ? "Return" : "Create Experiment"
@@ -88,13 +93,13 @@ class StudyPage extends Component {
               <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="profile-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="profile" aria-selected="false">Experiments</a>
+              <a className="nav-link" id="profile-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="experiments" aria-selected="false">Experiments</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="contact" aria-selected="false">Insights</a>
+              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="insights" aria-selected="false">Insights</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#review" role="tab" aria-controls="contact" aria-selected="false">Review & Export</a>
+              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review & Export</a>
             </li>
 
           </ul>
