@@ -71,7 +71,7 @@ module.exports = {
           if (error) {
             res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
           } else {
-            let resStr = `{"result": "Success", "experiment": {"ExperimentId": "${ExperiemntId}", "StudyId": "${StudyId}",
+            let resStr = `{"result": "Success", "experiment": {"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                           "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
                           "Details": "${Details}", "CharacterType": "${CharacterType}",
                           "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`;

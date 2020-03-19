@@ -30,12 +30,24 @@ class ExperimentPage extends Component {
     const { handleSetRoutes, handleSelectExperiment, experimentList } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
-    const experiment = experimentList.find(i => parseInt(i.ExperimentId) === parseInt(experimentId))
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
       { name: 'Study', redirect: `/Study/${studyId}`, isActive: true },
       { name: 'Experiment', redirect: `/Study/${studyId}/Experiment/${experimentId}`, isActive: false }
     ]
+    let experiment = null
+    if(experimentList.length === 0) {
+      const url = `http://localhost:3003/getExperiment?experimentId=${experimentId}`
+
+      await fetch(url).then(res => res.json()).then(json => {
+        if (json.result === "Success") {
+          experiment = json.experiment
+        }
+      })
+      .catch(err => console.log(err));
+    } else {
+      experiment = experimentList.find(i => parseInt(i.ExperimentId) === parseInt(experimentId))
+    }
     
     handleSetRoutes(routes)
     handleSelectExperiment(experiment)
