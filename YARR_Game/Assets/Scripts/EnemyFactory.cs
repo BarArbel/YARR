@@ -14,7 +14,7 @@ public class EnemyFactory : ObjectFactory
         // Calculate a random side to spawn at
         float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
         Vector3 position = new Vector3(spawnX, 5, 0);
-        Instantiate(Spawnee, position, transform.rotation);
+        //Instantiate(Spawnee, position, transform.rotation);
     }
 
     // Start is called before the first frame update

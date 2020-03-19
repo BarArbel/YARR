@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using SocketIO;
+using Project.Networking;
 
 public class Player : MonoBehaviour
 {
@@ -15,6 +17,10 @@ public class Player : MonoBehaviour
     private Item[] MyItemInventory;
     private Item[] OthersItemInventory;
     private List<Item> TotalItemInventory;
+
+    //Networking
+    private SocketIOComponent socket;
+    private SendCooperativeData sendCooperativeData;
 
     // Game input
     public KeyCode MoveRightButton;
@@ -32,7 +38,7 @@ public class Player : MonoBehaviour
     public int  GetID()                     { return ID; }
     public int  GetHealth()                 { return Health; }
     public bool GetIsSpriteDirectionRight() { return IsSpriteDirectionRight; }
-
+    public SocketIOComponent GetSocket()    { return socket; }
     public Item[] GetMyItemInventory()
     {
         Item[] inventory = new Item[MyItemInventory.Length];
@@ -85,7 +91,9 @@ public class Player : MonoBehaviour
         int myItemsAmount,
         int othersItemsAmount,
         bool isSpriteDirectionRight, 
-        float heldItemHeight )
+        float heldItemHeight, 
+        SendCooperativeData cooperativeData,
+        SocketIOComponent socketIO)
     {
         // TODO: nullify inventory and total inventory
         ID = id;
@@ -104,7 +112,10 @@ public class Player : MonoBehaviour
         // Should be 1 for coop and 0 for comp
         OthersItemInventory = new Item[othersItemsAmount];
         TotalItemInventory = new List<Item>();
-}
+        //Networking
+        sendCooperativeData = cooperativeData;
+        socket = socketIO;
+    }
 
     // Food ID = -1
     public bool HoldItem( Item item )
@@ -311,7 +322,6 @@ public class Player : MonoBehaviour
         // Jump
         if (IsJumping && IsGrounded(boxCollider2D, MapLayer))
         {
-
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
         }
     }

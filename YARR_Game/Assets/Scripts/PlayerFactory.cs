@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using SocketIO;
+using Project.Networking;
 
 public class PlayerFactory : ObjectFactory
 {
@@ -23,6 +25,8 @@ public class PlayerFactory : ObjectFactory
 
     public GameObject PlayerPrefab;
 
+    private SendCooperativeData sendCooperativeData;
+    private SocketIOComponent socketIO; 
 
     private void PlayerFactoryInit()
     {
@@ -51,6 +55,9 @@ public class PlayerFactory : ObjectFactory
 
         JumpMovement.Add(KeyCode.Space);
         JumpMovement.Add(KeyCode.W);
+
+        sendCooperativeData = new SendCooperativeData();
+        socketIO = GameObject.Find("[Network Container]").GetComponent<NetworkClient>();
     }
 
     protected override void Spawn()
@@ -63,9 +70,9 @@ public class PlayerFactory : ObjectFactory
 
             // TODO: Init player sprite, transform, rotation, etc.
             //playerObj.GetComponent<SpriteRenderer>().sprite = Resources.Load("path") as Sprite;
-            playerObj.
+            //playerObj.
             // Init player properties
-            player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+            player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight,sendCooperativeData,socketIO);
         }
     }
 
