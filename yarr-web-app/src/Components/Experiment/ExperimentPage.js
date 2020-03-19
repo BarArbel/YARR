@@ -23,12 +23,14 @@ class ExperimentPage extends Component {
     super(props)
 
     this.renderLogged = this.renderLogged.bind(this)
+    this.renderRounds = this.renderRounds.bind(this)
   }
 
   async componentDidMount() {
-    const { handleSetRoutes } = this.props
+    const { handleSetRoutes, handleSelectExperiment, experimentList } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
+    const experiment = experimentList.find(i => parseInt(i.ExperimentId) === parseInt(experimentId))
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
       { name: 'Study', redirect: `/Study/${studyId}`, isActive: true },
@@ -36,21 +38,40 @@ class ExperimentPage extends Component {
     ]
     
     handleSetRoutes(routes)
+    handleSelectExperiment(experiment)
+  }
+
+  renderRounds() {
+    const { Rounds } = this.props.experiment
+
+    return (
+      <div>
+        <ul>
+          {Rounds.map((value, index) => {
+            return (
+              <div key={`round${index}`}>
+                
+              </div>
+            )
+          })}
+        </ul>
+      </div>
+    )
   }
 
   renderLogged(){
     const { userInfo, experiment } = this.props
-    const {
+    const characterType = ["Type 1", "Type 2", "Type 3"]
+    const colorSettings = ["Full spectrum", "Color blind 1", "Color blind 2"]
+    let {
       CreationDate,
       Status,
       Title,
       Details,
       CharacterType,
       ColorSettings,
-      RoundsNumber,
-      Rounds
+      RoundsNumber
     } = experiment
-    console.log(experiment)
 
     return (
       <div className="studyPage">
@@ -74,17 +95,16 @@ class ExperimentPage extends Component {
 
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
-              
+              <h2>{Title}</h2>
+              <p>Created: {CreationDate}</p>
+              <p>Status: {Status}</p>
+              <p>Details: {Details}</p>
             </div>
             <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="profile-tab">
-              <p>{CreationDate}</p>
-              <p>{Status}</p>
-              <p>{Title}</p>
-              <p>{Details}</p>
-              <p>{CharacterType}</p>
-              <p>{ColorSettings}</p>
-              <p>{RoundsNumber}</p>
-              {/*<p>{Rounds}</p>*/}
+              <p>Character type: {characterType[CharacterType - 1]}</p>
+              <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
+              <p>Number of rounds: {RoundsNumber}</p>
+              {this.renderRounds()}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
@@ -95,9 +115,10 @@ class ExperimentPage extends Component {
   } 
 
   render() {
-    const { isLogged } = this.props
+    const { isLogged, experiment } = this.props
+    const studyId = this.props.match.params.studyId
 
-    return isLogged ? (this.renderLogged()) : (<Redirect to='/' />)
+    return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
   }
 }
 
