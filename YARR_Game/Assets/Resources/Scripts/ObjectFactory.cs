@@ -47,7 +47,6 @@ public abstract class ObjectFactory : MonoBehaviour
 
     public IEnumerator StartSpawner()
     {
-        Debug.Log("Hi");
         while (SpawnRateRange.x != -1)
         {
             int randomNumber = UnityEngine.Random.Range(SpawnRateRange.x, SpawnRateRange.y);

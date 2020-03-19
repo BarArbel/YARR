@@ -76,7 +76,7 @@ public class Player : MonoBehaviour
         {
             return false;
         }
-
+        Debug.Log("Got hit!!"+Health);
         Health-=enemy.GetDamage();
         return true;
     }
@@ -254,7 +254,11 @@ public class Player : MonoBehaviour
                 break;
             // Check collistion with enemies
             case enemyLayer:
-                print("Hello and good day!");
+                if (collider.gameObject.GetComponent<Enemy>().GetID() == ID)
+                {
+                    Debug.Log("My dearest enemy");
+                    SetEnemyHit(collider.gameObject.GetComponent<Enemy>());
+                }
                 break;           
             default:                
                 break;
@@ -330,6 +334,8 @@ public class Player : MonoBehaviour
 
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
         }
+
+        if (Health <= 0) { rigidbody2D.gravityScale = 400; }
     }
 
     void FixBoat(Player player)

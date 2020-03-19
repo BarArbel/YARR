@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Mathematics;
 
 public class ItemFactory : ObjectFactory
 {
@@ -8,23 +9,62 @@ public class ItemFactory : ObjectFactory
     bool Enabled;
     public GameObject[] Spawnee;
 
+
     protected override void ModifyLevelSettings()
-    { }
+    {
+        int level = GetLevel();
+        Damage = 0;
+        Speed = 0;
+        SpawnRateRange = new int2(10, 20);
+        switch (level)
+        {
+            case 0:
+
+            case 1:
+                DestroyTimer = -1f;
+                SpawnHeightRange = new float2(-3, -2);
+                break;
+            case 2:
+                DestroyTimer = 10f;
+                SpawnHeightRange = new float2(-3, 0);
+                break;
+            case 3:
+                DestroyTimer = 7f;
+                SpawnHeightRange = new float2(-3, 2);
+                break;
+            case 4:
+                DestroyTimer = 5f;
+                SpawnHeightRange = new float2(0, 2);
+                break;
+            case 5:
+                DestroyTimer = 5f;
+                SpawnHeightRange = new float2(0, 3.5f);
+                break;
+            case 6:
+                DestroyTimer = 5f;
+                SpawnHeightRange = new float2(1, 3.5f);
+                break;
+            default:
+                break;
+        }
+    }
 
     protected override void Spawn()
     {
-        // Create a random item in a random position 
-        Vector3 randomPosition = new Vector3(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(-4,4), 0);
-        int itemIndex = UnityEngine.Random.Range(0, Spawnee.Length);
-        Instantiate(Spawnee[itemIndex], randomPosition, transform.rotation);
+        const int itemLayer = 10;
+        // Calculate a random location to spawn at
+        Vector3 position = new Vector3(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(SpawnHeightRange.x, SpawnHeightRange.y), 0);
+
+        // Create an item
+        GameObject itemObj = Instantiate(GetPrefab(), position, transform.rotation);
+        itemObj.layer = itemLayer;
+        itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        // Invoke the spawning routine from SpawnTimer every SpawnRate
-        Debug.Log("Start Spawning");
-        //InvokeRepeating("Spawn", SpawnTimer, SpawnRate);
+        StartCoroutine(StartSpawner());
     }
 
     // Update is called once per frame

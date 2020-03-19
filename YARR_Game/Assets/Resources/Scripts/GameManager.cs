@@ -39,7 +39,7 @@ public class GameManager : MonoBehaviour
     private float HeldItemHeight;
 
     private PlayerFactory PlayerFactory;
-    //private List<ObjectFactory> ItemFactories;
+    private List<ObjectFactory> ItemFactories;
     private List<ObjectFactory> EnemyFactories;
 
     void InitGameManager(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
 
         // Initialize object factories lists
         EnemyFactories = new List<ObjectFactory>();
-        //ItemFactories = new List<ObjectFactory>();
+        ItemFactories = new List<ObjectFactory>();
 
         // Load ALL possible sprites
         // Player sprites
@@ -166,6 +166,7 @@ public class GameManager : MonoBehaviour
 
     void InitMode()
     {
+        OthersItemsAmount = 1;
         if (DestroyFactoryMadeObjects() && DestroyFactories())
         {
             // Initialize sink
@@ -203,23 +204,28 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            // Initialize Items
+            // Initialize Items         
+            if (Mode == GameMode.Competitive)
+            {
+                GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                ItemFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[NumberOfPlayers]);
+            }
+            else
+            {
+                for (int i = 0; i < NumberOfPlayers; i++)
+                {
+                    GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                    ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                    ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i]);
+                }
+            }
         }
     }
 
     void InitItemSink()
     {
         GameObject sink = GameObject.Find("ItemSink");
-    }
-
-    void InitSpawner(ObjectFactory objectFactory)
-    {
-
-    }
-
-    void SetSpawner(ObjectFactory objectFactory, int level)
-    {
-
     }
 
     private bool DestroyFactoryMadeObjects()

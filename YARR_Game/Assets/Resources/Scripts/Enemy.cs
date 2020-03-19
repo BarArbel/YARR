@@ -7,7 +7,6 @@ public class Enemy : MonoBehaviour
     private int ID;
     private int Damage;
     private float Speed;
-    //public double TurnRate; // TODO: need to think about how using it
     private Transform TargetTransform;
     private double TimeBetweenPathRecalculation;
     private double TimeLeft;
@@ -31,7 +30,7 @@ public class Enemy : MonoBehaviour
             TargetTransform = playerObj.GetComponent<Transform>();
 
             // Calculate the direction to the player
-            direction = (TargetTransform.position - transform.position).normalized;
+            setDirection();
 
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
@@ -42,13 +41,13 @@ public class Enemy : MonoBehaviour
     }
 
     public int GetDamage() { return Damage; }
+    public int GetID() { return ID; }
     public int GetAmountOfPlayers() { return GameObject.FindGameObjectsWithTag("Player").Length; }
 
     public GameObject GetPlayerByID(int ID)
-
     {
         GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Player");
-        for (int i=0; i<gameObjects.Length; i++)
+        for (int i = 0; i < gameObjects.Length; i++)
         {
             if (gameObjects[i].GetComponent<Player>().GetID() == ID)
             {
@@ -58,6 +57,18 @@ public class Enemy : MonoBehaviour
         return null;
     }
 
+    private void setDirection()
+    {
+        direction = (TargetTransform.position - transform.position).normalized;
+        if (direction.x < 0)
+        {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * -1.0f, transform.localScale.y, transform.localScale.z);
+        }
+        else if (direction.x > 0)
+        {
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
+        }
+    }
 
     public void Movement()
     {
@@ -70,8 +81,7 @@ public class Enemy : MonoBehaviour
             if (TimeLeft <= 0)
             {
                 // Update the direction, turns and reset the turn timer
-                // TODO: turn sprite
-                direction = (TargetTransform.position - transform.position).normalized;
+                setDirection();
                 RecalculationsAvailable--;
                 TimeLeft = TimeBetweenPathRecalculation;
             }

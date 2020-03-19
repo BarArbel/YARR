@@ -12,7 +12,6 @@ public class EnemyFactory : ObjectFactory
     {
         // Is this Legit or is this recursion 
         int level = GetLevel();
-        // TODO: Make sure it's actually seconds
         DestroyTimer = 10f;
         Damage = 1;
         //SpawnHeightRange = 0f,4.5f
@@ -66,11 +65,13 @@ public class EnemyFactory : ObjectFactory
     protected override void Spawn()
     {
         // Calculate a random side to spawn at
+        const int enemyLayer = 11;
         float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
         Vector3 position = new Vector3(spawnX, 5, 0);
 
         // Create an enemy
         GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);
+        enemyObj.layer = enemyLayer;
         enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
         enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
     }
