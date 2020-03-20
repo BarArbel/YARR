@@ -1,5 +1,4 @@
 import Header from '../Header'
-import { MDBBtn } from 'mdbreact'
 import { connect } from 'react-redux'
 import Breadcrumbs from '../Breadcrumbs'
 import React, { Component } from 'react'
@@ -8,6 +7,7 @@ import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import DifficultyImg from '../../difficulty.png'
+
 const mapStateToProps = ({ user, experiment }) => {
   return {
     userInfo: user.userInfo,
@@ -80,7 +80,7 @@ class ExperimentPage extends Component {
                 <div className="card-body">
                   <p className="card-text" style={{ textAlign: 'center'}}>{gameMode[value.GameMode - 1]}</p>
                   <div className="difficultyHolder">
-                    <img src={DifficultyImg} className="difficultyPic"/>
+                    <img alt="Difficulty Level: " src={DifficultyImg} className="difficultyPic"/>
                     <p className="card-text difficultyText" style={difficultyColor}>{difficulty[value.Difficulty]}</p>
                   </div>
                 </div>
@@ -93,7 +93,7 @@ class ExperimentPage extends Component {
   }
 
   renderLogged(){
-    const { userInfo, experiment } = this.props
+    const { experiment } = this.props
     const characterType = ["Type 1", "Type 2", "Type 3"]
     const colorSettings = ["Full spectrum", "Color blind 1", "Color blind 2"]
     let {

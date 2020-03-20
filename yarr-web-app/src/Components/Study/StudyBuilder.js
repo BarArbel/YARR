@@ -20,10 +20,7 @@ class StudyBuilder extends Component {
     this.state = {
       title: "",
       studyQuestions: "",
-      description: "",
-      isMsg: false,
-      error: false,
-      msg: ""
+      description: ""
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -57,8 +54,8 @@ class StudyBuilder extends Component {
     const json = {
       researcherId: userInfo.researcherId,
       title: title,
-      description: description,
-      studyQuestions: studyQuestions,
+      description: description.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
+      studyQuestions: studyQuestions.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
       studyId: editForm ? currStudy.StudyId : undefined
     }
     event.preventDefault()
@@ -73,7 +70,6 @@ class StudyBuilder extends Component {
     }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
-          this.setState({ msg: "success", isMsg: true, error: false })
           if(editForm) {
             currStudy.Title = title
             currStudy.Description = description
@@ -87,19 +83,19 @@ class StudyBuilder extends Component {
           }
         }
         else {
-          this.setState({ msg: "failed", isMsg: true, error: true })
+          // do something
         }
       })
       .catch(err => {
         console.log(err)
-        this.setState({ msg: "failed", isMsg: true, error: true })
-      });
+          // do something
+      })
   }
 
   handleChange(event) {
     const { name, value } = event.target
 
-    this.setState({ [name]: value });
+    this.setState({ [name]: value })
   }
 
   render() {

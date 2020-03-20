@@ -31,17 +31,26 @@ class StudyPage extends Component {
   }
 
   async componentDidMount() {
-    const { handleSetExperiments, handleSetRoutes, buildExperiment, handleToggleBuildExperiment } = this.props
-    const index = this.props.match.params.studyId
+    const { 
+      studies,
+      userInfo,
+      handleSetRoutes, 
+      buildExperiment, 
+      handleAddStudies,
+      handleSetExperiments, 
+      handleToggleBuildExperiment
+    } = this.props
+    const studyId = this.props.match.params.studyId
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
-      { name: 'Study', redirect: `/study/${index}`, isActive: false }
+      { name: 'Study', redirect: `/study/${studyId}`, isActive: false }
     ]
-    const url = `http://localhost:3003/getAllStudyExperiments?studyId=${index}`
+    const studiesUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
+    const experimentsUrl = `http://localhost:3003/getAllStudyExperiments?studyId=${studyId}`
 
     buildExperiment && handleToggleBuildExperiment()
     handleSetRoutes(routes)
-    await fetch(url).then(res => res.json()).then(json => {
+    fetch(experimentsUrl).then(res => res.json()).then(json => {
       if (json.result === "Success") {
         handleSetExperiments(json.experiments)
       }
@@ -49,7 +58,18 @@ class StudyPage extends Component {
         handleSetExperiments([])
       }
     })
-    .catch(err => handleSetExperiments([]));
+    .catch(err => handleSetExperiments([]))
+
+    !studies.length && fetch(studiesUrl).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          handleAddStudies(json.studies)
+        }
+        else {
+          handleAddStudies([])
+        }
+      })
+      .catch(err => handleAddStudies([]))
   }
 
   handleCreate() {
@@ -74,12 +94,15 @@ class StudyPage extends Component {
   }
 
   renderStudyInfo() {
+    const { studies } = this.props
+    const studyId = this.props.match.params.studyId
 
+    const currStudy = studies.find(i => parseInt(i.StudyId) === parseInt(studyId))
   }
 
   renderLogged() {
-    const { userInfo, buildExperiment } = this.props
-    const studyId = parseInt(this.props.match.params.studyId);
+    const { buildExperiment } = this.props
+    const studyId = parseInt(this.props.match.params.studyId)
     const toggleButtonText = buildExperiment ? "Return" : "Create Experiment"
     const buttonColor = buildExperiment ? "blue-grey" : "light-green"
 
@@ -104,7 +127,9 @@ class StudyPage extends Component {
 
           </ul>
           <div className="tab-content" id="myTabContent">
-            <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">test1</div>
+            <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+              {this.renderStudyInfo()}
+            </div>
             <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
               <label/>
               <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>

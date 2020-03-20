@@ -38,15 +38,15 @@ class ExperimentBuilder extends Component {
   }
 
   handleSubmit(event){
-    const { title, details, characterType, colorSettings, roundsNumber, roundsSettings } = this.state
+    let { title, details, characterType, colorSettings, roundsNumber, roundsSettings } = this.state
     const { studyId } = this.props
-
     const url = 'http://localhost:3003/addExperiment'
+
     /* fetch request to add experiment */
     const json = {
       studyId: studyId,
       title: title,
-      details: details,
+      details: details.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
       characterType: characterType,
       colorSettings: colorSettings,
       roundsNumber: roundsNumber,

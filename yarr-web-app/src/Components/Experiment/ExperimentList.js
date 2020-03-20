@@ -17,7 +17,6 @@ export class ExperimentList extends Component {
     this.renderList = this.renderList.bind(this)
     this.eachExperiment = this.eachExperiment.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
-    
   }
 
   handleEdit() {
@@ -52,7 +51,7 @@ export class ExperimentList extends Component {
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
-          <ExperimentItem key={`experiment${i}`} experimentId={parseInt(experiment.ExperimentId)}
+          <ExperimentItem key={`experiment${i}`} experimentId={parseInt(ExperimentId)}
             onDelete={this.handleDelete} studyId={studyId}
           >
             <h4 className="card-title cardTitle">{Title}</h4>

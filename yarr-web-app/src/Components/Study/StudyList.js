@@ -24,18 +24,18 @@ class StudyList extends Component {
   componentDidMount() {
     const { userInfo, handleAddStudies } = this.props
 
-    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`;
+    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
 
     fetch(getAllUrl).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)
-          this.setState({studies: json.studies})
         }
         else {
+          handleAddStudies([])
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => handleAddStudies([]))
   }
 
   handleDelete(studyId) {
@@ -50,7 +50,6 @@ class StudyList extends Component {
       }
     }).then(res => res.json())
       .then(json => {
-        console.log(json)
         if (json.result === "Success") {
           handleDeleteStudy(parseInt(studyId))
         }
