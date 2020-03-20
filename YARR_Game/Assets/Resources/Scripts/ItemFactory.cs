@@ -5,11 +5,6 @@ using Unity.Mathematics;
 
 public class ItemFactory : ObjectFactory
 {
-    public float SpawnTimer;
-    bool Enabled;
-    public GameObject[] Spawnee;
-
-
     protected override void ModifyLevelSettings()
     {
         int level = GetLevel();
@@ -59,6 +54,7 @@ public class ItemFactory : ObjectFactory
         GameObject itemObj = Instantiate(GetPrefab(), position, transform.rotation);
         itemObj.layer = itemLayer;
         itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+        itemObj.GetComponent<Treasure>().TreasureInit(GetID(), DestroyTimer);
     }
 
     // Start is called before the first frame update
