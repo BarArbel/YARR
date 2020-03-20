@@ -7,7 +7,8 @@ import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import DifficultyImg from '../../difficulty.png'
-
+import CoopImg from '../../cooperative.png'
+import CompImg from '../../competitive.png'
 const mapStateToProps = ({ user, experiment }) => {
   return {
     userInfo: user.userInfo,
@@ -79,7 +80,10 @@ class ExperimentPage extends Component {
               <div className="card cardSmall" key={`round${index}`}>
               <p className="roundNumber">Round {parseInt(value.RoundNumber) + 1}</p>
                 <div className="card-body">
-                  <p className="card-text" style={{ textAlign: 'center'}}>{gameMode[value.GameMode - 1]}</p>
+                  <div>
+                    <img src={value.GameMode > 1 ? CompImg : CoopImg} alt="Game Mode" className="modePic"/>
+                    <p className="card-text" style={{ textAlign: 'center'}}>{gameMode[value.GameMode - 1]}</p>
+                  </div>
                   <div className="difficultyHolder">
                     <img alt="Difficulty Level: " src={DifficultyImg} className="difficultyPic"/>
                     <p className="card-text difficultyText" style={difficultyColor}>{difficulty[value.Difficulty]}</p>

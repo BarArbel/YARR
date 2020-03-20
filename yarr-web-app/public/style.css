@@ -189,6 +189,13 @@ a.linkHolder:hover {
   margin-right: 5px;
 }
 
+.modePic {
+  height: 45px;
+  width: 40px;
+  float: left;
+  margin-right: 5px;
+}
+
 .difficultyText {
   padding-top: 5px;
 }
