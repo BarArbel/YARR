@@ -1,5 +1,4 @@
 import { 
-  ADD_STUDY,
   ADD_STUDIES, 
   DELETE_STUDY, 
   UPDATE_STUDY,
@@ -25,16 +24,6 @@ export default (state = initialState, action) => {
       return {
         ...state,
         studies: action.data
-      }
-    }
-
-    case ADD_STUDY: {
-      let tempStudies = state.studies
-      tempStudies.push(action.data)
-      tempStudies.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
-      return {
-        ...state,
-        studies: tempStudies
       }
     }
 

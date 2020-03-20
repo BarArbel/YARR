@@ -45,8 +45,7 @@ class StudyBuilder extends Component {
       editForm, 
       currStudy, 
       onSubmit,
-      handleUpdateStudy,
-      handleAddStudy
+      handleUpdateStudy
     } = this.props
 
     const url = editForm ? 'http://localhost:3002/updateStudy' : 'http://localhost:3002/addStudy'
@@ -79,7 +78,6 @@ class StudyBuilder extends Component {
           }
           else {
             handleToggleBuildStudy()
-            handleAddStudy()
           }
         }
         else {
