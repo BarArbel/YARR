@@ -133,8 +133,8 @@ class ExperimentBuilder extends Component {
                   name={`mode${index}`}
                   required
                 >
-                  <option value={1}>Mode 1</option>
-                  <option value={2}>Mode 2</option>
+                  <option value={1}>Cooperative</option>
+                  <option value={2}>Competitive</option>
                 </select>
                 <label htmlFor={`defaultFormExperimentDifficulty${index}`} className="grey-text">
                   Difficulty
