@@ -46,7 +46,8 @@ class ExperimentPage extends Component {
       })
       .catch(err => console.log(err));
     } else {
-      experiment = experimentList.find(i => parseInt(i.ExperimentId) === parseInt(experimentId))
+      const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
+      experiment = experimentList.find(idCompare)
     }
     
     handleSetRoutes(routes)
@@ -116,13 +117,13 @@ class ExperimentPage extends Component {
               <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="profile-tab" data-toggle="tab" href="#gameSettings" role="tab" aria-controls="profile" aria-selected="false">Game Settings</a>
+              <a className="nav-link" id="gameSettings-tab" data-toggle="tab" href="#gameSettings" role="tab" aria-controls="gameSettings" aria-selected="false">Game Settings</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="contact" aria-selected="false">Insights</a>
+              <a className="nav-link" id="insights-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="insights" aria-selected="false">Insights</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#review" role="tab" aria-controls="contact" aria-selected="false">Review & Export</a>
+              <a className="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review & Export</a>
             </li>
           </ul>
 
@@ -133,15 +134,15 @@ class ExperimentPage extends Component {
               <p>Status: {Status}</p>
               <p>Details: {Details}</p>
             </div>
-            <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="profile-tab">
+            <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="gameSettings-tab">
               <p>Character type: {characterType[CharacterType - 1]}</p>
               <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
               <p>Number of rounds: {RoundsNumber}</p>
               <p>Rounds:</p>
               {this.renderRounds()}
             </div>
-            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
-            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
+            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">Placeholder 3</div>
+            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">Placeholder 4</div>
           </div>
         </div>
       </div>

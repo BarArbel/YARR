@@ -96,8 +96,16 @@ class StudyPage extends Component {
   renderStudyInfo() {
     const { studies } = this.props
     const studyId = this.props.match.params.studyId
-
-    const currStudy = studies.find(i => parseInt(i.StudyId) === parseInt(studyId))
+    const idCompare = i => parseInt(i.StudyId) === parseInt(studyId)
+    const currStudy = studies.find(idCompare)
+    
+    return currStudy ? (
+      <div>
+        <h2>{currStudy.Title}</h2>
+        <p><b>Study Questions:</b> <br/>{currStudy.StudyQuestions}</p>
+        <p><b>Description:</b> <br/> {currStudy.Description}</p>
+      </div>
+    ) : (null)
   }
 
   renderLogged() {
@@ -116,13 +124,13 @@ class StudyPage extends Component {
               <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="profile-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="experiments" aria-selected="false">Experiments</a>
+              <a className="nav-link" id="experiments-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="experiments" aria-selected="false">Experiments</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="insights" aria-selected="false">Insights</a>
+              <a className="nav-link" id="insights-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="insights" aria-selected="false">Insights</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="contact-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review & Export</a>
+              <a className="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review & Export</a>
             </li>
 
           </ul>
