@@ -4,21 +4,23 @@ using UnityEngine;
 
 public class Item : MonoBehaviour
 {
-    private int ID;
-    public bool IsPickedUp;
-    double DestroyTimer;
+    protected int ID;
+    protected bool IsPickedUp;
+    protected float DestroyTimer;
 
-    public int GetID() { return ID; }
+    public int  GetID()         { return ID; }
+    public bool GetIsPickedUp() { return IsPickedUp; }
 
     virtual public void SetPickedUp(bool isPickedUp)
     {
         IsPickedUp = isPickedUp;
     }
 
-    /*public bool FallToSink()
+    public bool FallToSink()
     {
-        if ()
-    }*/
+        Destroy(gameObject);
+        return true;
+    }
 
     public void DestroyBlink()
     {

@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure1"));
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure2"));
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure3"));
-        ItemSprites.Add(Resources.Load<Sprite>("Sprites/TreasureFood"));
+        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
 
         // Item sink sprites
         ItemSinkSprites.Add(Resources.Load<Sprite>("Sprites/Gold"));
@@ -169,16 +169,8 @@ public class GameManager : MonoBehaviour
         OthersItemsAmount = 1;
         if (DestroyFactoryMadeObjects() && DestroyFactories())
         {
-            // Initialize sink
-            GameObject sink = GameObject.Find("ItemSink");
-            if (sink.GetComponent<ItemSink>().SinkInit())
-            {
-                sink.GetComponent<BoxCollider2D>().size = GetItemSinkCollider();
-                sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
-            }
-
             //  Initialize player factory
-            PlayerFactory PlayerFactory = gameObject.AddComponent(typeof(PlayerFactory)) as PlayerFactory;
+            PlayerFactory = gameObject.AddComponent(typeof(PlayerFactory)) as PlayerFactory;
             if (Mode == GameMode.Competitive)
             {
                 OthersItemsAmount = 0;
@@ -190,18 +182,28 @@ public class GameManager : MonoBehaviour
             // Initialize Enemy factories            
             GameObject enemyObj = Resources.Load<GameObject>("Prefabs/Enemy");
 
-            if (Mode == GameMode.Competitive)
+
+            for (int i = 0; i < NumberOfPlayers; i++)
             {
                 EnemyFactories.Add(gameObject.AddComponent(typeof(EnemyFactory)) as EnemyFactory);
-                EnemyFactories[0].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[NumberOfPlayers]);
-            }
-            else
-            {
-                for (int i = 0; i < NumberOfPlayers; i++)
+
+                if (Mode == GameMode.Competitive)
                 {
-                    EnemyFactories.Add(gameObject.AddComponent(typeof(EnemyFactory)) as EnemyFactory);
-                    EnemyFactories[i].FactoryInit(i+1, (int)Difficulty, enemyObj, EnemySprites[i]);
+                    EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1]);
                 }
+                else
+                {
+                    EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i]);
+                }
+             }
+            
+
+            // Initialize sink
+            GameObject sink = GameObject.Find("ItemSink");
+            if (sink.GetComponent<ItemSink>().SinkInit(NumberOfPlayers))
+            {
+                sink.GetComponent<BoxCollider2D>().size = GetItemSinkCollider();
+                sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
             }
 
             // Initialize Items         
@@ -209,7 +211,7 @@ public class GameManager : MonoBehaviour
             {
                 GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                 ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                ItemFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[NumberOfPlayers]);
+                ItemFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count-1]);
             }
             else
             {
@@ -260,7 +262,7 @@ public class GameManager : MonoBehaviour
     {
         Destroy(PlayerFactory);
         DestroyObjectFactory(EnemyFactories);
-        //DestroyObjectFactory(ItemFactories);
+        DestroyObjectFactory(ItemFactories);
         return true;
     }
 
@@ -277,7 +279,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(2, GameMode.Cooperative, Skin.Color, Level.Static4);
+        InitGameManager(2, GameMode.Cooperative, Skin.Color, Level.Static6);
     }
 
     // Update is called once per frame

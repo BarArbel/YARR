@@ -23,6 +23,7 @@ public abstract class ObjectFactory : MonoBehaviour
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
+        Debug.Log(sprite.name);
         SetLevel(level);
 
     }
@@ -50,7 +51,6 @@ public abstract class ObjectFactory : MonoBehaviour
         while (SpawnRateRange.x != -1)
         {
             int randomNumber = UnityEngine.Random.Range(SpawnRateRange.x, SpawnRateRange.y);
-            Debug.Log(randomNumber);
             Invoke("Spawn", randomNumber);
             yield return new WaitForSeconds(randomNumber);
         }

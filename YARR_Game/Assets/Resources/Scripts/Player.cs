@@ -76,8 +76,8 @@ public class Player : MonoBehaviour
         {
             return false;
         }
-        Debug.Log("Got hit!!"+Health);
         Health-=enemy.GetDamage();
+        Debug.Log(Health);
         return true;
     }
 
@@ -124,10 +124,6 @@ public class Player : MonoBehaviour
         Item[] inventory;
         bool freeSlot = false;
 
-        Debug.Log("Before item is added");
-        Debug.Log(OthersItemInventory.ToString());
-        Debug.Log(MyItemInventory.ToString());
-
         if (itemID != ID && itemID != -1)
         {
             inventory = OthersItemInventory;
@@ -160,12 +156,8 @@ public class Player : MonoBehaviour
     public bool RemoveItem( Item item )
     {
 
-        Debug.Log("Before item is removed");
-        Debug.Log(OthersItemInventory.ToString());
-        Debug.Log(MyItemInventory.ToString());
-        Debug.Log(TotalItemInventory.ToString());
-
         Item[] inventory;
+        bool shouldDestroyItem = false;
         int itemID = item.GetID();
         if (itemID != ID && itemID != -1)
         {
@@ -174,6 +166,7 @@ public class Player : MonoBehaviour
         else
         {
             inventory = MyItemInventory;
+            shouldDestroyItem = true;
         }
 
         if (inventory.Length <= 0)
@@ -187,11 +180,11 @@ public class Player : MonoBehaviour
             {
                 inventory[i] = null;
                 TotalItemInventory.RemoveAt(TotalItemInventory.IndexOf(item));
-
-                Debug.Log("After item is removed");
-                Debug.Log(OthersItemInventory.ToString());
-                Debug.Log(MyItemInventory.ToString());
-                Debug.Log(TotalItemInventory.ToString());
+                Debug.Log("Player id: " + ID + " treasure id: " + item.GetID());
+                if (shouldDestroyItem)
+                {
+                    item.FallToSink();
+                }
                 return true;
             }
         }
@@ -242,24 +235,38 @@ public class Player : MonoBehaviour
     {
         const int itemLayer = 10;
         const int enemyLayer = 11;
-
+        const int sinkLayer = 12;
         switch (collider.gameObject.layer)
         {
             // Check collistion with treasures
             case itemLayer:
-                if (!collider.gameObject.GetComponent<Treasure>().IsPickedUp)
+                if (!collider.gameObject.GetComponent<Treasure>().GetIsPickedUp())
                 {
                     TakeTreasure(collider.gameObject);
                 }
                 break;
             // Check collistion with enemies
             case enemyLayer:
-                if (collider.gameObject.GetComponent<Enemy>().GetID() == ID)
+                int enemyID = collider.gameObject.GetComponent<Enemy>().GetID();
+                if (enemyID == ID || enemyID == -1)
                 {
-                    Debug.Log("My dearest enemy");
                     SetEnemyHit(collider.gameObject.GetComponent<Enemy>());
                 }
-                break;           
+                break;
+            case sinkLayer:
+                if (!IsInventoryEmpty(MyItemInventory))
+                {
+                    for (int i=0; i<MyItemInventory.Length; i++)
+                    {
+                        if (RemoveItem(MyItemInventory[i]))
+                        {
+                            collider.GetComponent<ItemSink>().SetScore(gameObject.GetComponent<Player>());
+                            break;
+                        }
+                    }
+                }
+                
+                break;
             default:                
                 break;
         }
@@ -335,7 +342,7 @@ public class Player : MonoBehaviour
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
         }
 
-        if (Health <= 0) { rigidbody2D.gravityScale = 400; }
+       // if (Health <= 0) { rigidbody2D.velocity = new Vector2(0, 0); }
     }
 
     void FixBoat(Player player)

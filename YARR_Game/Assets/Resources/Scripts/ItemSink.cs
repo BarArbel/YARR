@@ -23,16 +23,15 @@ public class ItemSink : Singleton
         return ScoreSum;
     }
 
-    public bool SinkInit ()
+    public bool SinkInit (int numberOfPlayers)
     {
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Player");
-        if (gameObjects == null)
+        if (numberOfPlayers <= 0)
         {
             return false;
         }
 
         SingleScoreValue = 5;
-        PlayerScores = new int[gameObjects.Length+1];
+        PlayerScores = new int[numberOfPlayers + 1];
         return true;
     }
 
@@ -45,6 +44,7 @@ public class ItemSink : Singleton
         }
 
         PlayerScores[player.GetID()] += SingleScoreValue;
+        Debug.Log("Score of " +  player.GetID() +" is: "+ PlayerScores[player.GetID()]);
         return true;
     }
 
@@ -74,7 +74,7 @@ public class ItemSink : Singleton
     // Start is called before the first frame update
     void Start()
     {
-        SinkInit();
+
     }
 
     // Update is called once per frame

@@ -4,24 +4,23 @@ using UnityEngine;
 
 public class Treasure : Item
 {
-    private int ID;
     private GameObject Carrier;
-
 
     virtual public void SetPickedUp(bool isPickedUp, GameObject carrier)
     {
-        if (isPickedUp == true)
+        if (isPickedUp == true && IsPickedUp == false)
         {
             IsPickedUp = isPickedUp;
-            this.Carrier = carrier;
+            Carrier = carrier;
             transform.localScale *= 0.5f;
         }
     }
 
-    public void TreasureInit(int id)
+    public void TreasureInit(int id, float destroyTimer)
     {
-        // TODO
-        ID = 1;
+        ID = id;
+        DestroyTimer = destroyTimer;
+        IsPickedUp = false;
     }
 
     void Update()

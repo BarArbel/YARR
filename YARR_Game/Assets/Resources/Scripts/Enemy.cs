@@ -15,18 +15,19 @@ public class Enemy : MonoBehaviour
 
     public bool EnemyInit(int id, int damage, float speed, double recalculationsAvailable, double timeBetweenPathRecalculation)
     {
+        int target;
         int amountOfPlayers = GetAmountOfPlayers();
         if (amountOfPlayers > 0)
         {
-            ID = (id <= 0) ? Random.Range(1, amountOfPlayers) : id;
-
+            target = (id <= 0) ? Random.Range(1, amountOfPlayers+1) : id;
+            ID = id;
             Damage = damage;
             Speed = speed;
             TimeBetweenPathRecalculation = timeBetweenPathRecalculation;
             RecalculationsAvailable = recalculationsAvailable;
 
             // Find the target
-            GameObject playerObj = GetPlayerByID(ID);
+            GameObject playerObj = GetPlayerByID(target);
             TargetTransform = playerObj.GetComponent<Transform>();
 
             // Calculate the direction to the player
@@ -34,6 +35,7 @@ public class Enemy : MonoBehaviour
 
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
+            Debug.Log("Enemy id: " + GetID());
             return true;
         }
         Destroy(gameObject);
@@ -91,8 +93,17 @@ public class Enemy : MonoBehaviour
         transform.position += direction * Speed * Time.deltaTime;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    void OnTriggerEnter2D(Collider2D collider)
+    {
+        const int playerLayer = 9;
+        if (collider.gameObject.layer == playerLayer)
+        {
+            Destroy(gameObject);
+        }
+    }
+
+        // Start is called before the first frame update
+        void Start()
     {
 
     }
