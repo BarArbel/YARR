@@ -80,10 +80,8 @@ class ExperimentPage extends Component {
               <div className="card cardSmall" key={`round${index}`}>
               <p className="roundNumber">Round {parseInt(value.RoundNumber) + 1}</p>
                 <div className="card-body">
-                  <div>
-                    <img src={value.GameMode > 1 ? CompImg : CoopImg} alt="Game Mode" className="modePic"/>
-                    <p className="card-text" style={{ textAlign: 'center'}}>{gameMode[value.GameMode - 1]}</p>
-                  </div>
+                  <img src={value.GameMode > 1 ? CompImg : CoopImg} alt="Game Mode" className="modePic"/>
+                  <p className="card-text" style={{ textAlign: 'center', paddingTop: '13px'}}>{gameMode[value.GameMode - 1]}</p>
                   <div className="difficultyHolder">
                     <img alt="Difficulty Level: " src={DifficultyImg} className="difficultyPic"/>
                     <p className="card-text difficultyText" style={difficultyColor}>{difficulty[value.Difficulty]}</p>

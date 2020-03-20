@@ -250,6 +250,7 @@ hr {
 .difficultyHolder {
   position: relative;
   left: 15%;
+  margin-top: 35px;
 }
 
 .changeFormButton {
