@@ -23,7 +23,6 @@ public abstract class ObjectFactory : MonoBehaviour
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
-        Debug.Log(sprite.name);
         SetLevel(level);
 
     }

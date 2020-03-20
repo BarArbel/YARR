@@ -103,16 +103,22 @@ public class GameManager : MonoBehaviour
         RightMovement.Add(KeyCode.RightArrow);
         // Player 2
         RightMovement.Add(KeyCode.D);
+        // Player 3
+        RightMovement.Add(KeyCode.L);
 
         // Player 1
         LeftMovement.Add(KeyCode.LeftArrow);
         // Player 2
         LeftMovement.Add(KeyCode.A);
+        // Player 3
+        LeftMovement.Add(KeyCode.K);
 
         // Player 1
         JumpMovement.Add(KeyCode.Space);
         // Player 2
         JumpMovement.Add(KeyCode.W);
+        // Player 3
+        JumpMovement.Add(KeyCode.O);
 
         // TODO: Add keys dynamically according to input from user
 
@@ -279,7 +285,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(2, GameMode.Cooperative, Skin.Color, Level.Static6);
+        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static4);
     }
 
     // Update is called once per frame

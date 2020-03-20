@@ -15,6 +15,7 @@ public class Player : MonoBehaviour
     private Item[] MyItemInventory;
     private Item[] OthersItemInventory;
     private List<Item> TotalItemInventory;
+    private float FixBoatTime;
 
     // Game input
     public KeyCode MoveRightButton;
@@ -77,7 +78,6 @@ public class Player : MonoBehaviour
             return false;
         }
         Health-=enemy.GetDamage();
-        Debug.Log(Health);
         return true;
     }
 
@@ -106,9 +106,7 @@ public class Player : MonoBehaviour
         JumpButton = jump;
 
         // Initialize inventories
-        // Should be 1
         MyItemInventory = new Item[myItemsAmount];
-        // Should be 1 for coop and 0 for comp
         OthersItemInventory = new Item[othersItemsAmount];
         TotalItemInventory = new List<Item>();
 
@@ -143,7 +141,6 @@ public class Player : MonoBehaviour
             if (inventory[i] == null)
             {
                 freeSlot = true;
-                // NOTE: does this work as I want it to
                 inventory[i] = item;
                 TotalItemInventory.Add(item);
                 break;
@@ -180,7 +177,6 @@ public class Player : MonoBehaviour
             {
                 inventory[i] = null;
                 TotalItemInventory.RemoveAt(TotalItemInventory.IndexOf(item));
-                Debug.Log("Player id: " + ID + " treasure id: " + item.GetID());
                 if (shouldDestroyItem)
                 {
                     item.FallToSink();
@@ -210,12 +206,30 @@ public class Player : MonoBehaviour
         return true;
     }
 
+    private bool IsInventoryFull(Item[] inventory)
+    {
+        if (inventory.Length == 0)
+        {
+            return true;
+        }
+
+        for (int i = 0; i < inventory.Length; i++)
+        {
+            if (inventory[i] == null)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     private void TakeTreasure(GameObject gameObject)
     {
         Treasure treasure = gameObject.GetComponent<Treasure>();        
         if(HoldItem(treasure))
         {           
-            treasure.SetPickedUp(true, this.gameObject);
+            treasure.SetPickedUp(this.gameObject);
         }
     }
 
@@ -236,21 +250,25 @@ public class Player : MonoBehaviour
         const int itemLayer = 10;
         const int enemyLayer = 11;
         const int sinkLayer = 12;
+        const int playerCollisionLayer = 13;
+
         switch (collider.gameObject.layer)
         {
             // Check collistion with treasures
             case itemLayer:
-                if (!collider.gameObject.GetComponent<Treasure>().GetIsPickedUp())
+                Treasure treasure = collider.GetComponent<Treasure>();
+                // Untaken treasure
+                if (!treasure.GetIsPickedUp())
                 {
                     TakeTreasure(collider.gameObject);
                 }
                 break;
             // Check collistion with enemies
             case enemyLayer:
-                int enemyID = collider.gameObject.GetComponent<Enemy>().GetID();
+                int enemyID = collider.GetComponent<Enemy>().GetID();
                 if (enemyID == ID || enemyID == -1)
                 {
-                    SetEnemyHit(collider.gameObject.GetComponent<Enemy>());
+                    SetEnemyHit(collider.GetComponent<Enemy>());
                 }
                 break;
             case sinkLayer:
@@ -264,11 +282,55 @@ public class Player : MonoBehaviour
                             break;
                         }
                     }
+                }  
+                break;
+            case playerCollisionLayer:
+                Player otherPlayer = collider.transform.parent.gameObject.GetComponent<Player>();
+                if (!IsInventoryEmpty(OthersItemInventory))
+                {
+                    if (!otherPlayer.IsInventoryFull(otherPlayer.GetMyItemInventory()))
+                    {
+                        for (int i = 0; i < OthersItemInventory.Length; i++)
+                        {
+                            if (OthersItemInventory[i].GetID() == otherPlayer.GetID())
+                            {
+                                // Give item to other player
+                                OthersItemInventory[i].SetDisown();
+                                OrderCarriedItems();
+                                otherPlayer.TakeTreasure(OthersItemInventory[i].gameObject);
+                                RemoveItem(OthersItemInventory[i]);
+                            }
+                        }
+                    }
                 }
-                
+                // If it's a cooperative mode AND if the other player needs revival 
+                if (OthersItemInventory.Length != 0 && otherPlayer.GetComponent<Player>().GetHealth() == 0)
+                {
+                    FixBoatTime = 0;
+                    
+                }
                 break;
             default:                
                 break;
+        }
+    }
+
+    void OnTriggerStay2D(Collider2D collider)
+    {
+        const int playerCollisionLayer = 13;
+        if (collider != null && collider.gameObject.layer == playerCollisionLayer)
+        {
+            Player otherPlayer = collider.transform.parent.gameObject.GetComponent<Player>();
+            Debug.Log(otherPlayer.ID);
+            if (OthersItemInventory.Length != 0 && otherPlayer.GetComponent<Player>().GetHealth() == 0)
+            {
+                FixBoatTime += Time.deltaTime;
+                Debug.Log("Time spent: " + FixBoatTime);
+            }
+            if (FixBoatTime >= 3f)
+            {
+                FixBoat(otherPlayer.GetComponent<Player>());
+            }
         }
     }
 
@@ -342,18 +404,21 @@ public class Player : MonoBehaviour
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
         }
 
-       // if (Health <= 0) { rigidbody2D.velocity = new Vector2(0, 0); }
+        if (Health <= 0 && IsGrounded(boxCollider2D, MapLayer)) { rigidbody2D.velocity = new Vector2(0, 0); }
     }
 
     void FixBoat(Player player)
     {
-        // TODO
+        FixBoatTime = 0;
+        player.SetHealth();
+ 
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        // TODO
+        const int playerLayer = 9;
+        Physics2D.IgnoreLayerCollision(playerLayer, playerLayer, true);
     }
 
     // Update is called once per frame

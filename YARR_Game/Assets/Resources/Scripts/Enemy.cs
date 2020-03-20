@@ -35,7 +35,6 @@ public class Enemy : MonoBehaviour
 
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
-            Debug.Log("Enemy id: " + GetID());
             return true;
         }
         Destroy(gameObject);

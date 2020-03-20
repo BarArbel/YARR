@@ -11,9 +11,14 @@ public class Item : MonoBehaviour
     public int  GetID()         { return ID; }
     public bool GetIsPickedUp() { return IsPickedUp; }
 
-    virtual public void SetPickedUp(bool isPickedUp)
+    virtual public void SetPickedUp()
     {
-        IsPickedUp = isPickedUp;
+        IsPickedUp = true;
+    }
+
+    virtual public void SetDisown()
+    {
+        IsPickedUp = false;
     }
 
     public bool FallToSink()
@@ -22,10 +27,6 @@ public class Item : MonoBehaviour
         return true;
     }
 
-    public void DestroyBlink()
-    {
-        // TODO
-    }
 
     // Start is called before the first frame update
     void Start()
