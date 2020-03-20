@@ -141,7 +141,7 @@ class StudyPage extends Component {
             <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
               <label/>
               <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
-              {buildExperiment ? (<ExperimentBuilder studyId={studyId} />) : (<ExperimentList studyId={studyId} />)}
+              {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} />)}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>

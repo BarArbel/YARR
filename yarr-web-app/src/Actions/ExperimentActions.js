@@ -1,6 +1,5 @@
 import {
   SET_EXPERIMENTS,
-  ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   TOGGLE_BUILD_EXPERIMENT,
@@ -9,11 +8,6 @@ import {
 } from "../ActionsTypes/ExperimentActionTypes"
 
 const setExperiments = experiments => ({ type: SET_EXPERIMENTS, data: experiments })
-
-const addExperiment = (experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings) => ({
-  type: ADD_EXPERIMENT,
-  data: { experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings }
-})
 
 const updateExperiment = (experimentId, title, details, characterType, colorSettings) => ({
   type: UPDATE_EXPERIMENT,
@@ -41,10 +35,6 @@ const handleSetExperiments = experiments => async dispatch => {
   dispatch(setExperiments(experiments))
 }
 
-const handleAddExperiment = (experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings ) => async dispatch => {
-  dispatch(addExperiment(experimentId, studyId, title, creationDate, status, details, characterType, colorSettings, roundsNumber, roundsSettings))
-}
-
 const handleUpdateExperiment = (experimentId, title, details, characterType, colorSettings) => async dispatch => {
   dispatch(updateExperiment(experimentId, title, details, characterType, colorSettings));
 }
@@ -67,14 +57,12 @@ const handleChangeExperimentStatus = (experimentId, status) => async dispatch =>
 
 export default {
   handleSetExperiments,
-  handleAddExperiment,
   handleUpdateExperiment,
   handleDeleteExperiment,
   handleToggleBuildExperiment,
   handleSelectExperiment,
   handleChangeExperimentStatus,
   setExperiments,
-  addExperiment,
   updateExperiment,
   deleteExperiment,
   toggleBuildExperiment,

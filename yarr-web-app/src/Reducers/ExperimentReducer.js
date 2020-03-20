@@ -1,6 +1,5 @@
 import {
   SET_EXPERIMENTS,
-  ADD_EXPERIMENT,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
   TOGGLE_BUILD_EXPERIMENT,
@@ -17,34 +16,31 @@ const initialState = {
 export default (state = initialState, action) => {
   switch(action.type) {
     case SET_EXPERIMENTS: {
+      action.data.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,
         experimentList: action.data
       }
     }
-
-    case ADD_EXPERIMENT: {
-      return {
-        ...state,
-        experimentList: [...state.experimentList, action.data]
-      }
-    }
     
     case UPDATE_EXPERIMENT: {
-      const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data.experimentId)
-      let toUpdate = state.experimentList.find(i => parseInt(i.ExperimentId) === action.data.experimentId)
+      let newList = state.experimentList.filter(i => i.ExperimentId !== action.data.experimentId)
+      let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
       toUpdate.Title = action.data.title
       toUpdate.Details = action.data.details
       toUpdate.CharacterType = action.data.characterType
       toUpdate.ColorSettings = action.data.colorSettings
+      newList.push(toUpdate)
+      newList.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,
-        experimentList: [...newList, toUpdate]
+        experimentList: newList
       }
     }
 
     case DELETE_EXPERIMENT: {
       const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data)
+      newList.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,
         experimentList: newList

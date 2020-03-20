@@ -19,8 +19,21 @@ export class ExperimentList extends Component {
     this.handleDelete = this.handleDelete.bind(this)
   }
 
-  handleEdit() {
-    //move to edit page
+  componentDidMount() {
+    const { studyId, handleSetExperiments } = this.props
+
+    const getAllUrl = `http://localhost:3003/getAllStudyExperiments?studyId=${studyId}`
+
+    fetch(getAllUrl).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          handleSetExperiments(json.experiments)
+        }
+        else {
+          handleSetExperiments([])
+        }
+      })
+      .catch(err => handleSetExperiments([]))
   }
 
   handleDelete(experimentId) {
@@ -51,8 +64,12 @@ export class ExperimentList extends Component {
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
-          <ExperimentItem key={`experiment${i}`} experimentId={parseInt(ExperimentId)}
-            onDelete={this.handleDelete} studyId={studyId}
+          <ExperimentItem
+            key={`experiment${i}`}
+            experimentId={parseInt(ExperimentId)}
+            onDelete={this.handleDelete}
+            studyId={studyId}
+            thisExperiment = {experiment}
           >
             <h4 className="card-title cardTitle">{Title}</h4>
             <p className="card-text">{limitedDetails}</p>

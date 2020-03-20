@@ -218,26 +218,22 @@ module.exports = {
       res.status(400).send('{"result": "Failure", "error": "No parameters to update."}');
       return;
     }
-    if (status !== "Ready" && (characterType || colorSettings)) {
-      res.status(400).send('{"result": "Failure", "error": "Game settings cannot be changed after an experiment as started"}');
-      return;
-    }
 
     let setStr = "";
     if (status) {
       setStr = `Status = "${status}"`;
     }
     if (title) {
-      setStr = setStr.concat(`, title = "${title}"`);
+      setStr = setStr.concat(`, Title = "${title}"`);
     }
-    if (Details) {
-      setStr = setStr.concat(`, details = "${details}"`);
+    if (details) {
+      setStr = setStr.concat(`, Details = "${details}"`);
     }
-    if (CharacterType) {
-      setStr = setStr.concat(`, characterType = "${characterType}"`);
+    if (characterType) {
+      setStr = setStr.concat(`, CharacterType = "${characterType}"`);
     }
-    if (ColorSettings) {
-      setStr = setStr.concat(`, colorSettings = "${colorSettings}"`);
+    if (colorSettings) {
+      setStr = setStr.concat(`, ColorSettings = "${colorSettings}"`);
     }
     if (setStr.charAt(0) === ",") {
       setStr = setStr.slice(2, setStr.length);

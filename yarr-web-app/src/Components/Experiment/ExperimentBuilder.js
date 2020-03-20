@@ -23,10 +23,7 @@ class ExperimentBuilder extends Component {
       characterType: 1,
       colorSettings: 1,
       roundsNumber: 1,
-      roundsSettings: [{ GameMode: 1, Difficulty: 0 }],
-      isMsg: false,
-      error: false,
-      msg: ""
+      roundsSettings: [{ GameMode: 1, Difficulty: 0 }]
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -37,10 +34,30 @@ class ExperimentBuilder extends Component {
     this.handleRoundNumberChange = this.handleRoundNumberChange.bind(this)
   }
 
+  componentDidMount() {
+    const { editForm, currExperiment } = this.props
+
+    editForm && this.setState({ 
+      title: currExperiment.Title,
+      details: currExperiment.Details,
+      characterType: currExperiment.CharacterType,
+      colorSettings: currExperiment.ColorSettings,
+      roundsNumber: currExperiment.RoundsNumber,
+      roundsSettings: currExperiment.RoundsSettings
+    })
+  }
+
   handleSubmit(event){
     let { title, details, characterType, colorSettings, roundsNumber, roundsSettings } = this.state
-    const { studyId } = this.props
-    const url = 'http://localhost:3003/addExperiment'
+    const {
+      studyId,
+      editForm,
+      currExperiment,
+      onSubmit,
+      handleUpdateExperiment,
+      handleToggleBuildExperiment
+    } = this.props
+    const url = editForm ? 'http://localhost:3003/updateExperiment' : 'http://localhost:3003/addExperiment'
 
     /* fetch request to add experiment */
     const json = {
@@ -50,11 +67,13 @@ class ExperimentBuilder extends Component {
       characterType: characterType,
       colorSettings: colorSettings,
       roundsNumber: roundsNumber,
-      roundsSettings: roundsSettings
+      roundsSettings: roundsSettings,
+      experimentId: editForm ? currExperiment.ExperimentId : undefined
     }
+    event.preventDefault()
 
     fetch(url, {
-      method: 'POST',
+      method: editForm ? 'PUT' : 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json',
@@ -63,14 +82,32 @@ class ExperimentBuilder extends Component {
     }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
-          console.log(json)
-          this.setState({msg: "success", isMsg: true, error: false})
+          if(editForm) {
+            currExperiment.Title = title
+            currExperiment.Details = details
+            currExperiment.CharacterType = characterType
+            currExperiment.ColorSettings = colorSettings
+            onSubmit(currExperiment)
+            handleUpdateExperiment(
+              currExperiment.ExperimentId,
+              currExperiment.Title,
+              currExperiment.Details,
+              currExperiment.CharacterType,
+              currExperiment.ColorSettings
+            )
+          }
+          else {
+            handleToggleBuildExperiment()
+          }
         }
         else {
-          console.log(json)
+          // do something
         }
       })
-      .catch(err => console.log(err));   
+      .catch(err => {
+        console.log(err)
+          // do something
+      })
   }
 
   handleChange(event) {
@@ -165,6 +202,7 @@ class ExperimentBuilder extends Component {
 
   render() {
     const { title, details, characterType, roundsNumber, colorSettings } = this.state
+    const { status, editForm } = this.props
     
     return(
       <div className="experimentBuilder">
@@ -194,50 +232,58 @@ class ExperimentBuilder extends Component {
             maxLength="4096"
             required
           />
-          <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
-            Character Type
-          </label>
-          <select
-            value={characterType}
-            onChange={this.handleChange}
-            id="defaultFormExperimentCharacter"
-            className="form-control FormMargins"
-            name="characterType"
-            required
-          >
-            <option value={1}>Type 1</option>
-            <option value={2}>Type 2</option>
-            <option value={3}>Type 3</option>
-          </select>
-          <label htmlFor="defaultFormExperimentColor" className="grey-text">
-            Color Settings
-          </label>
-          <select
-            value={colorSettings}
-            onChange={this.handleChange}
-            id="defaultFormExperimentColor"
-            className="form-control FormMargins"
-            name="colorSettings"
-            required
-          >
-            <option value={1}>Full spectrum</option>
-            <option value={2}>Color blind 1</option>
-            <option value={3}>Color blind 2</option>
-          </select>
-          <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
-            Number of Rounds
-          </label>
-          <input
-            value={roundsNumber}
-            onChange={this.handleRoundNumberChange}
-            id="defaultFormExperimentRoundsNumber"
-            className="form-control FormMargins"
-            name="roundsNumber"
-            type="number"
-            required
-          />
-          <label className="grey-text">Rounds Settings</label>
-          {this.renderRoundSettings()}
+          {(editForm === false || status === "Ready") ?
+            <div>
+              <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
+                Character Type
+              </label>
+              <select
+                value={characterType}
+                onChange={this.handleChange}
+                id="defaultFormExperimentCharacter"
+                className="form-control FormMargins"
+                name="characterType"
+                required
+              >
+                <option value={1}>Type 1</option>
+                <option value={2}>Type 2</option>
+                <option value={3}>Type 3</option>
+              </select>
+              <label htmlFor="defaultFormExperimentColor" className="grey-text">
+                Color Settings
+              </label>
+              <select
+                value={colorSettings}
+                onChange={this.handleChange}
+                id="defaultFormExperimentColor"
+                className="form-control FormMargins"
+                name="colorSettings"
+                required
+              >
+                <option value={1}>Full spectrum</option>
+                <option value={2}>Color blind 1</option>
+                <option value={3}>Color blind 2</option>
+              </select>
+              {(editForm === false) ?
+                <div>
+                  <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
+                    Number of Rounds
+                  </label>
+                  <input
+                    value={roundsNumber}
+                    onChange={this.handleRoundNumberChange}
+                    id="defaultFormExperimentRoundsNumber"
+                    className="form-control FormMargins"
+                    name="roundsNumber"
+                    type="number"
+                    required
+                  />
+                  <label className="grey-text">Rounds Settings</label>
+                  {this.renderRoundSettings()}
+                </div> : (null)
+              }
+            </div> : (null)
+          }
           <div className="text-center mt-4">
             <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
           </div>
