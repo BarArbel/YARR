@@ -1,11 +1,14 @@
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { MDBIcon } from 'mdbreact'
-import { MDBBtn } from 'mdbreact'
+import React, { Component } from 'react'
+import { MDBIcon, MDBBtn } from 'mdbreact'
+import { confirmAlert } from 'react-confirm-alert'
 import ExperimentBuilder from './ExperimentBuilder'
+import DeleteConfirmation from '../DeleteConfirmation'
+import 'react-confirm-alert/src/react-confirm-alert.css'
 import ExperimentActions from "../../Actions/ExperimentActions"
+
 
 const mapStateToProps = ({ experiment }) => {
   return {
@@ -28,6 +31,7 @@ export class ExperimentItem extends Component {
 
     this.handleEdit = this.handleEdit.bind(this)
     this.renderCard = this.renderCard.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
     this.renderEditForm = this.renderEditForm.bind(this)
     this.handleSubmitEdit = this.handleSubmitEdit.bind(this)
   }
@@ -36,6 +40,25 @@ export class ExperimentItem extends Component {
     const { thisExperiment } = this.props
     const { Status, Title, Details, CharacterType, ColorSettings } = thisExperiment
     this.setState({ status: Status, title: Title, details: Details, characterType: CharacterType, colorSettings: ColorSettings })
+  }
+
+  handleDelete() {
+    const { onDelete, thisExperiment } = this.props
+    const { Title, ExperimentId } = thisExperiment
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <DeleteConfirmation
+            onClose={onClose}
+            onDelete={onDelete}
+            objectId={ExperimentId}
+            objectType="experiment"
+            subType="rounds"
+            objectTitle={Title}
+          />
+        )
+      }
+    })
   }
 
   handleEdit() {
@@ -50,12 +73,12 @@ export class ExperimentItem extends Component {
   }
 
   renderCard() {
-    const { onDelete, experimentId, studyId } = this.props
+    const { experimentId, studyId } = this.props
 
     return (
       <div className = "experimentItem">
         <div>
-          <button onClick={() => { onDelete(experimentId) }} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
+          <button onClick={this.handleDelete} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
           <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>
         </div>
         <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
