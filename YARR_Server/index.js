@@ -26,11 +26,11 @@ io.on('connection',function(socket){
     });
     
     socket.on('competitive', function(data){
-       //var sql = "INSERT INTO yarrserver.cooperativemode(Player,Pickups,GiveItemToPlayer,RevivePlayer,TemporaryLose,Revived,Lose,DropItemScore,GetDamaged,FailPickup,BlockDamage,ItemSpawn,EnemySpawn) VALUES(Participant,Pickups,GiveItemToPlayer,RevivePlayer,TemporaryLose,Revived,Lose,DropItemScore,GetDamaged,FailPickup,BlockDamage,ItemSpawn,EnemySpawn);";
-        var sql = "INSERT INTO yarrserver.competitive(Player,Pickups) VALUES('Yuval','2');";
+        var sql = `INSERT INTO yarrserver.competitive(TimeStamp,Player,Pickups,DropItemScore,FailPickup,GetDamaged,IndividualLoss,ItemSpawn,EnemySpawn)
+                                            VALUES('${Date()}','${data.Player}','${data.Pickups}','${data.DropItemScore}','${data.FailPickup}','${data.GetDamaged}','${data.IndividualLoss}','${data.ItemSpawn}','${data.EnemySpawn}');`;
         mysqlConnection.query(sql,(err,rows) => {
-                if(err) throw err;
-                console.log("data was added");
+            if(err) throw err;
+            console.log("data was added");
         })
     });
 
