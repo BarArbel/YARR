@@ -139,8 +139,17 @@ textarea {
   margin-top: 35px;
 }
 
-.trashIcon {
+.trashIcon, .warningText {
   color: #B33A3A;
+}
+
+.warningText {
+  text-align: center;
+}
+
+.popUpButton {
+  position: relative;
+  float: right;
 }
 
 .editIcon {

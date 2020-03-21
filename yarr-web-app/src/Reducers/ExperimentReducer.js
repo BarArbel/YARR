@@ -39,7 +39,7 @@ export default (state = initialState, action) => {
     }
 
     case DELETE_EXPERIMENT: {
-      const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data)
+      const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== parseInt(action.data))
       newList.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,

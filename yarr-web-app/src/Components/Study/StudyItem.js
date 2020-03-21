@@ -4,7 +4,10 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import React, { Component } from "react"
 import StudyBuilder from './StudyBuilder'
+import { confirmAlert } from 'react-confirm-alert'
 import StudyActions from '../../Actions/StudyActions'
+import 'react-confirm-alert/src/react-confirm-alert.css'
+import DeleteConfirmation from '../DeleteConfirmation'
 
 const mapStateToProps = ({ study }) => {
   return {
@@ -20,12 +23,13 @@ class StudyItem extends Component {
     this.state = {
       title: "",
       description: "",
-      studyQuestions: "",
       editStudy: false,
+      studyQuestions: "",
     }
 
     this.handleEdit = this.handleEdit.bind(this)
     this.renderCard = this.renderCard.bind(this)
+    this.handleDelete = this.handleDelete.bind(this)
     this.renderEditForm = this.renderEditForm.bind(this)
     this.handleSubmitEdit = this.handleSubmitEdit.bind(this)
   }
@@ -34,6 +38,25 @@ class StudyItem extends Component {
     const { study } = this.props
     const { Title, StudyQuestions, Description } = study
     this.setState({ title: Title, studyQuestions: StudyQuestions, description: Description })
+  }
+
+  handleDelete() {
+    const { onDelete, study } = this.props
+    const { Title, StudyId } = study
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <DeleteConfirmation 
+            onClose={onClose}
+            onDelete={onDelete}
+            objectId={StudyId}
+            objectType="study"
+            subType="experiments"
+            objectTitle={Title}
+          />
+        )
+      }
+    })
   }
 
   handleEdit() {
@@ -48,12 +71,12 @@ class StudyItem extends Component {
   }
 
   renderCard() {
-    const { studyId, onDelete } = this.props
+    const { studyId } = this.props
 
     return (
       <div className="card">
         <div className="card-body">
-          <button onClick={() => onDelete(studyId)} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
+          <button onClick={this.handleDelete} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
           <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>
           <Link to={`/study/${studyId}`} className="linkHolder">
             {this.props.children}
