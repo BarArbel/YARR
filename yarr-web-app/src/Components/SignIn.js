@@ -140,7 +140,7 @@ class SignIn extends Component {
       <form onSubmit={this.handleSignUpSubmit}>
         <p className="h4 text-center mb-4">Sign up</p>
         <label htmlFor="defaultFormSignInUser" className="grey-text">
-          Enter a User Name
+          User Name
         </label>
         <input
           value={userName}
@@ -151,7 +151,7 @@ class SignIn extends Component {
           required
         />
         <label htmlFor="defaultFormSignInFirstName" className="grey-text">
-          Enter Your First Name
+          First Name
         </label>
         <input
           value={firstName}
@@ -162,7 +162,7 @@ class SignIn extends Component {
           required
         />
         <label htmlFor="defaultFormSignInLastName" className="grey-text">
-          Enter Your Last Name
+          Last Name
         </label>
         <input
           value={lastName}
@@ -173,7 +173,7 @@ class SignIn extends Component {
           required
         />
         <label htmlFor="defaultFormSignInEmail" className="grey-text">
-          Enter Your Email
+          Email
         </label>
         <input
           value={email}
@@ -185,7 +185,7 @@ class SignIn extends Component {
           required
         />
         <label htmlFor="defaultFormSignInPassword" className="grey-text">
-          Enter a Password
+          Password
         </label>
         <input
           value={password}
