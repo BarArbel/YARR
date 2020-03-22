@@ -2,6 +2,7 @@ import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
+import CustomSnackbar from './CustomSnackbar'
 
 
 class SignIn extends Component {
@@ -23,6 +24,7 @@ class SignIn extends Component {
     }
 
     this.renderLogin = this.renderLogin.bind(this)
+    this.handleClose = this.handleClose.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleChangeForm = this.handleChangeForm.bind(this)
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this)
@@ -35,7 +37,7 @@ class SignIn extends Component {
 
   handleChange(event) {
     const { name, value } = event.target
-    this.setState({ [name]: value });
+    this.setState({ [name]: value })
   }
 
   handleLoginSubmit(event) {
@@ -43,7 +45,7 @@ class SignIn extends Component {
     const { verifyUser } = this.props
 
     verifyUser(userName, password)
-    event.preventDefault();
+    event.preventDefault()
   }
 
   handleSignUpSubmit(event){
@@ -66,7 +68,7 @@ class SignIn extends Component {
       lastName: lastName,
       email: email
     }
-    console.log(json)
+
     fetch(url, {
       method: 'POST',
       headers: {
@@ -77,27 +79,26 @@ class SignIn extends Component {
     }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
-          console.log(json)
-          this.setState({msg: "success", isMsg: true, error: false, signUp: false})
+          this.setState({msg: "Signup Completed", isMsg: true, signUp: false, error: false})
         }
         else {
-          console.log(json)
+          this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true })
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true }))
     
-    event.preventDefault();
+    event.preventDefault()
   }
 
   renderLogin(){
-    const { userName, password, msg, isMsg } = this.state
+    const { userName, password } = this.state
 
     return (
       <form onSubmit={this.handleLoginSubmit}>
         <p className="h4 text-center mb-4">Log in</p>
         <label htmlFor="defaultFormLoginEmailEx" className="grey-text">
-          Your user name
-          </label>
+          User name
+        </label>
         <input
           value={userName}
           onChange={this.handleChange}
@@ -107,7 +108,7 @@ class SignIn extends Component {
           required
         />
         <label htmlFor="defaultFormLoginPasswordEx" className="grey-text">
-          Your password
+          Password
           </label>
         <input
           value={password}
@@ -121,7 +122,6 @@ class SignIn extends Component {
         <div className="text-center mt-4">
           <MDBBtn color="elegant" type="submit" className="login-btn">Login</MDBBtn>
         </div>
-      {isMsg && <label>{msg}</label>}
       </form>
     )
   }
@@ -214,15 +214,28 @@ class SignIn extends Component {
       </form>
     )
   }
+  
+  handleClose(event, reason) {
+    if (reason === 'clickaway') {
+      return
+    }
+    this.setState({ isMsg: false })
+  }
 
   render() {
-    const { signUp } = this.state
+    const { signUp, msg, isMsg, error } = this.state
     const buttonText = signUp ? "Go back to Login" : "Don't have an account? Sign up here"
 
     return (
       <div className="signIn">
         {signUp ? this.renderSignUp() : this.renderLogin()}
         <button className="changeFormButton" onClick={this.handleChangeForm}>{buttonText}</button>
+        <CustomSnackbar
+          open={isMsg}
+          onClose={this.handleClose}
+          msg={msg}
+          severity={error ? "error" : "success"}
+        />
       </div>
     )
   }
