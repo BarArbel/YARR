@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using SocketIO;
 
 public class Player : MonoBehaviour
 {
@@ -29,15 +28,10 @@ public class Player : MonoBehaviour
 
     public LayerMask MapLayer;  // NOTE: not in the design. // TODO: Should be removed and be used normally
 
-    //Networking
-    private SocketIOComponent socket;
-    private SendCooperativeData sendCooperativeData;
-
     //Getters
     public int  GetID()                     { return ID; }
     public int  GetHealth()                 { return Health; }
     public bool GetIsSpriteDirectionRight() { return IsSpriteDirectionRight; }
-    public SocketIOComponent GetSocket()    { return socket; }
 
     public Item[] GetMyItemInventory()
     {
@@ -90,9 +84,7 @@ public class Player : MonoBehaviour
         int myItemsAmount,
         int othersItemsAmount,
         bool isSpriteDirectionRight, 
-        float heldItemHeight,
-        SendCooperativeData cooperativeData,
-        SocketIOComponent socketIO)
+        float heldItemHeight)
     {
         // TODO: nullify inventory and total inventory
         ID = id;
@@ -109,10 +101,6 @@ public class Player : MonoBehaviour
         MyItemInventory = new Item[myItemsAmount];
         OthersItemInventory = new Item[othersItemsAmount];
         TotalItemInventory = new List<Item>();
-
-        //Networking
-        sendCooperativeData = cooperativeData;
-        socket = socketIO;
     }
 
     // Food ID = -1
@@ -321,7 +309,6 @@ public class Player : MonoBehaviour
         if (collider != null && collider.gameObject.layer == playerCollisionLayer)
         {
             Player otherPlayer = collider.transform.parent.gameObject.GetComponent<Player>();
-            Debug.Log(otherPlayer.ID);
             if (OthersItemInventory.Length != 0 && otherPlayer.GetComponent<Player>().GetHealth() == 0)
             {
                 FixBoatTime += Time.deltaTime;

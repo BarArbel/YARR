@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8291010126059147699}
   - component: {fileID: 738087199727888714}
   - component: {fileID: 7302477166380732641}
-  - component: {fileID: 114920344517931592}
   - component: {fileID: 6298962163376613288}
   - component: {fileID: 1634035409645940791}
   m_Layer: 9
@@ -105,18 +104,6 @@ MonoBehaviour:
   MapLayer:
     serializedVersion: 2
     m_Bits: 256
---- !u!114 &114920344517931592
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4332701445564590208}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca73e9af6bba5e54587fd92d794a9bef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!50 &6298962163376613288
 Rigidbody2D:
   serializedVersion: 4

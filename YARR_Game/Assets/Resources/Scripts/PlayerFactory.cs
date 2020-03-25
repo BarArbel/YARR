@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using SocketIO;
-using Project.Networking;
 
 public class PlayerFactory : MonoBehaviour
 {
@@ -21,9 +19,6 @@ public class PlayerFactory : MonoBehaviour
     private List<KeyCode> RightMovement;
     private List<KeyCode> LeftMovement;
     private List<KeyCode> JumpMovement;
-
-    private SendCooperativeData sendCooperativeData;
-    private SocketIOComponent socketIO;
 
     public void PlayerFactoryInit( 
         Vector2 coords, 
@@ -56,9 +51,6 @@ public class PlayerFactory : MonoBehaviour
         PlayerCounter = 0;
         PlayerPrefab = Resources.Load<GameObject>("Prefabs/Player");
 
-        // Networking
-        sendCooperativeData = new SendCooperativeData();
-        socketIO = GameObject.Find("[Network Container]").GetComponent<NetworkClient>();
     }
 
     protected void Spawn()
@@ -74,7 +66,7 @@ public class PlayerFactory : MonoBehaviour
             playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             // Init player properties
-            player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight, sendCooperativeData, socketIO);
+            player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
         }
     }
 
