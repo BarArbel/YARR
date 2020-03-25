@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Project.Networking;
+using Event = Project.Networking.Event;
 
 public class Enemy : MonoBehaviour
 {
@@ -35,6 +37,8 @@ public class Enemy : MonoBehaviour
 
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
+
+            DataTransformer.sendData(Time.deltaTime, Event.spawn, target, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             return true;
         }
         Destroy(gameObject);
@@ -44,6 +48,7 @@ public class Enemy : MonoBehaviour
     public int GetDamage() { return Damage; }
     public int GetID() { return ID; }
     public int GetAmountOfPlayers() { return GameObject.FindGameObjectsWithTag("Player").Length; }
+    public int GetGameMode()        { return (ID < 0) ? 1 : 0; }
 
     public GameObject GetPlayerByID(int ID)
     {

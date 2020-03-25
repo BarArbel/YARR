@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using Project.Networking;
+using Event = Project.Networking.Event;
 
 public class GameManager : MonoBehaviour
 {
@@ -280,17 +282,38 @@ public class GameManager : MonoBehaviour
             Destroy(factory);
         }
     }
+
+    private bool GameLost()
+    {
+        GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+        if (players.Length > 0)
+        {
+            for (int i = 0; i < players.Length; i++)
+            {
+                if (players[i].GetComponent<Player>().GetHealth() > 0)
+                {
+                    return false;
+                }
+            }
+
+            DataTransformer.sendData(Time.deltaTime, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
+            return true;
+        }
+
+        return false;
+    }
         
 
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static4);
+        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static1);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        GameLost();
     }
 }

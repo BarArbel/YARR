@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Project.Networking;
+using Event = Project.Networking.Event;
 
 public class Treasure : Item
 {
@@ -15,6 +17,8 @@ public class Treasure : Item
         }
         return Carrier.GetComponent<Player>().GetID();
     } 
+
+    public int GetGameMode() { return GetID() == -1 ? 1 : 0; }
 
     virtual public void SetPickedUp(GameObject carrier)
     {
@@ -39,11 +43,14 @@ public class Treasure : Item
 
     private void SetDestroy()
     {
+        int playerID = GetID() == -1 ? 0 : GetID();
         Destroy(gameObject);
+        DataTransformer.sendData(Time.deltaTime, Event.failPickup, playerID, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
     }
 
     public void TreasureInit(int id, float destroyTimer)
     {
+        int playerID = GetID() == -1 ? 0 : GetID();
         ID = id;
         DestroyTimer = destroyTimer;
         IsPickedUp = false;
@@ -53,7 +60,9 @@ public class Treasure : Item
         {
             Invoke("SetDestroy", DestroyTimer);
         }
-        
+
+
+        DataTransformer.sendData(Time.deltaTime, Event.spawn, playerID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
     }
 
     void Update()

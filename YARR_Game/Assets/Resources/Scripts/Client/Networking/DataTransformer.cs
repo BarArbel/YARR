@@ -26,6 +26,20 @@ namespace Project.Networking
 
             socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
+
+        public static void sendData(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
+        {
+            data.Time = time;
+            data.Event = eventOccurred;
+            data.PlayerID = PlayerID;
+            data.CoordX = (CoordX * 1000) / 1000;
+            data.CoordY = (CoordX * 1000) / 1000;
+            data.Item = item;
+            data.Enemy = enemy;
+            data.GameMode = gameMode;
+
+            socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
+        }
     }
 
 

@@ -27,10 +27,10 @@ public class EnemyFactory : ObjectFactory
         // Static
         if (level != 0)
         {
-            SpawnRateRange = LevelsOf_SpawnRateRange[level];
-            Speed = LevelsOf_Speed[level];
-            TurnsAvailable = LevelsOf_TurnsAvailable[level];
-            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[level];
+            SpawnRateRange = LevelsOf_SpawnRateRange[level-1];
+            Speed = LevelsOf_Speed[level - 1];
+            TurnsAvailable = LevelsOf_TurnsAvailable[level - 1];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[level - 1];
 
         }
         // Adaptive
@@ -53,6 +53,7 @@ public class EnemyFactory : ObjectFactory
         enemyObj.layer = enemyLayer;
         enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
         enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+
     }
 
     // Start is called before the first frame update

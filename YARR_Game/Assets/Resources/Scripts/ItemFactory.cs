@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using Project.Networking;
+using Event = Project.Networking.Event;
 
 public class ItemFactory : ObjectFactory
 {
@@ -22,8 +24,8 @@ public class ItemFactory : ObjectFactory
         // Static
         if (level != 0)
         {
-            DestroyTimer = LevelsOf_DestroyTimer[level];
-            SpawnHeightRange = LevelsOf_SpawnHeightRange[level];
+            DestroyTimer = LevelsOf_DestroyTimer[level - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[level - 1];
         }
         // Adaptive
         else

@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Project.Networking;
+using Event = Project.Networking.Event;
 
 public class Player : MonoBehaviour
 {
@@ -32,6 +34,7 @@ public class Player : MonoBehaviour
     public int  GetID()                     { return ID; }
     public int  GetHealth()                 { return Health; }
     public bool GetIsSpriteDirectionRight() { return IsSpriteDirectionRight; }
+    public int  GetGameMode()               { return OthersItemInventory.Length == 0 ? 1 : 0;  }
 
     public Item[] GetMyItemInventory()
     {
@@ -67,11 +70,25 @@ public class Player : MonoBehaviour
 
     public bool SetEnemyHit( Enemy enemy)
     {
+        Player player = gameObject.GetComponent<Player>();
         if (Health <= 0)
         {
             return false;
         }
         Health-=enemy.GetDamage();
+        DataTransformer.sendData(Time.deltaTime, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
+
+        if (Health == 0)
+        {
+            if (GetGameMode() == 0)
+            {
+                DataTransformer.sendData(Time.deltaTime, Event.temporaryLose, player, 0, 0, GetGameMode());
+            }
+            else
+            {            
+                DataTransformer.sendData(Time.deltaTime, Event.individualLoss, player, 0, 0, GetGameMode());
+            }
+        }
         return true;
     }
 
@@ -239,7 +256,7 @@ public class Player : MonoBehaviour
         const int enemyLayer = 11;
         const int sinkLayer = 12;
         const int playerCollisionLayer = 13;
-
+        Player playerObj = gameObject.GetComponent<Player>();
         switch (collider.gameObject.layer)
         {
             // Check collistion with treasures
@@ -249,6 +266,8 @@ public class Player : MonoBehaviour
                 if (!treasure.GetIsPickedUp())
                 {
                     TakeTreasure(collider.gameObject);
+                    // Cooperative = 0                    
+                    DataTransformer.sendData(Time.deltaTime, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
                 }
                 break;
             // Check collistion with enemies
@@ -258,15 +277,21 @@ public class Player : MonoBehaviour
                 {
                     SetEnemyHit(collider.GetComponent<Enemy>());
                 }
+                else
+                {
+                    DataTransformer.sendData(Time.deltaTime, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
+                }
                 break;
             case sinkLayer:
                 if (!IsInventoryEmpty(MyItemInventory))
                 {
                     for (int i=0; i<MyItemInventory.Length; i++)
                     {
+                        int itemID = MyItemInventory[i].GetID();
                         if (RemoveItem(MyItemInventory[i]))
                         {
                             collider.GetComponent<ItemSink>().SetScore(gameObject.GetComponent<Player>());
+                            DataTransformer.sendData(Time.deltaTime, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
                             break;
                         }
                     }
@@ -287,6 +312,7 @@ public class Player : MonoBehaviour
                                 OrderCarriedItems();
                                 otherPlayer.TakeTreasure(OthersItemInventory[i].gameObject);
                                 RemoveItem(OthersItemInventory[i]);
+                                DataTransformer.sendData(Time.deltaTime, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
                             }
                         }
                     }
@@ -398,7 +424,24 @@ public class Player : MonoBehaviour
     {
         FixBoatTime = 0;
         player.SetHealth();
- 
+        DataTransformer.sendData(Time.deltaTime, Event.revived, player, 0, 0, GetGameMode());
+        DataTransformer.sendData(Time.deltaTime, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+
+    }
+
+    bool IdentifyFall()
+    {
+        if (gameObject.GetComponent<Rigidbody2D>().velocity.y < -9.1 && !IsJumping)
+        {
+            // TODO: Gotta tweak this with closeness to other items or farness from enemies
+            Debug.Log("ACCIDENTAL FALL EVENT");
+            DataTransformer.sendData(Time.deltaTime, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     // Start is called before the first frame update
@@ -414,5 +457,6 @@ public class Player : MonoBehaviour
         HandleInput();
         Movement();
         OrderCarriedItems();
+        IdentifyFall();
     }
 }
