@@ -17,12 +17,18 @@ class DB_connection:
     def create_DDA_table (self):
         query = ("CREATE TABLE `"+self.db +"`.`"+self.DDAtb+"` ("
       "`Index` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+      "`PlayerID` INT UNSIGNED NOT NULL,"
       "`Threshold` FLOAT NOT NULL,"
-      "`I_SpawnHeight` BOOLEAN NOT NULL,"
-      "`I_DestroyTimer` BOOLEAN NOT NULL,"
-      "`E_Precision` BOOLEAN NOT NULL,"
-      "`E_Speed` BOOLEAN NOT NULL,"
-      "`E_SpawnRate` BOOLEAN NOT NULL,"
+      "`I_SpawnHeight_level` INT UNSIGNED NOT NULL,"
+      "`I_SpawnHeight_skill` BOOLEAN NOT NULL,"
+      "`I_DestroyTimer_level` INT UNSIGNED NOT NULL,"
+      "`I_DestroyTimer_skill` BOOLEAN NOT NULL,"
+      "`E_Precision_level` INT UNSIGNED NOT NULL,"
+      "`E_Precision_skill` BOOLEAN NOT NULL,"
+      "`E_Speed_level` INT UNSIGNED NOT NULL,"
+      "`E_Speed_skill` BOOLEAN NOT NULL,"
+      "`E_SpawnRate_level` INT UNSIGNED NOT NULL,"
+      "`E_SpawnRate_skill` BOOLEAN NOT NULL,"
       "PRIMARY KEY (`Index`))"
        "DEFAULT CHARACTER SET = utf8;")
             
@@ -36,8 +42,7 @@ class DB_connection:
         self.remove_DDA_table()
         self.cursor.close()
         self.cnx.close()
-            
-    
+                
     def count_total_player_events( self, event, player_id ):
         query = ("SELECT count("+event+") FROM `"+self.tb+"` WHERE Event = "+event+" AND PlayerID = "+player_id)
         self.cursor.execute(query)
