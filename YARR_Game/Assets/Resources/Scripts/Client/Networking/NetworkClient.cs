@@ -30,39 +30,10 @@ namespace Project.Networking
                 Debug.Log("disconected");
             });
 
+            On("ExperimentID", (E) => {
+                Debug.Log("My table number is: " + E.data);
+            });
+
         }
-    }
-
-    [Serializable]
-    public class Cooperative
-    {
-        public string TimeStamp;
-        public int Player;
-        public string Pickups;
-        public int GiveItemToPlayer;
-        public int RevivePlayer;
-        public int TemporaryLose;
-        public int Revived;
-        public int Lose;
-        public int DropItemScore;
-        public int GetDamaged;
-        public int FailPickup;
-        public int BlockDamage;
-        public int ItemSpawn;
-        public int EnemySpawn;
-    }
-
-    [Serializable]
-    public class Competitive
-    {
-        public string TimeStamp;
-        public int Player;
-        public string Pickups;
-        public int DropItemScore;
-        public int FailPickup;
-        public int GetDamaged;
-        public int IndividualLoss;
-        public int ItemSpawn;
-        public int EnemySpawn;
     }
 }
