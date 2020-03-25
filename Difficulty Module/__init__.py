@@ -1,7 +1,9 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Mar 23 08:59:46 2020
+import DB_connection
+import difficulty_calc
 
-@author: miri_
-"""
-
+if __name__ == '__main__':
+    con = DB_connection("game_snapshot")  
+    con.create_DDA_table()
+    
+    for row in con.cursor:
+        print(row)

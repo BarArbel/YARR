@@ -51,10 +51,3 @@ class DB_connection:
         query = ("SELECT count("+value+") FROM `"+self.tb+"` WHERE Event = "+event)
         self.cursor.execute(query)    
 
-#----------------------
-con = DB_connection("game_snapshot")  
-con.create_DDA_table()
-  
-for row in con.cursor:
-    print(row)
-
