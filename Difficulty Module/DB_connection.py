@@ -52,3 +52,22 @@ class DB_connection:
         query = ("SELECT count(" + value + ") FROM `" + self.tb +
                  "` WHERE Event = " + event)
         self.cursor.execute(query)
+
+    def insert_DDA_table(self, PlayerID, Threshold, I_SpawnHeight_level,
+                         I_SpawnHeight_skill, I_DestroyTimer_level,
+                         I_DestroyTimer_skill, E_Precision_level,
+                         E_Precision_skill, E_Speed_level, E_Speed_skill,
+                         E_SpawnRate_level, E_SpawnRate_skill):
+        query = ("INSERT INTO `" + self.db + "`.`" + self.DDAtb + "` (" +
+                 "PlayerID, Threshold, I_SpawnHeight_level, " +
+                 "I_SpawnHeight_skill, I_DestroyTimer_level, " +
+                 "I_DestroyTimer_skill, E_Precision_level, " +
+                 "E_Precision_skill, E_Speed_level, E_Speed_skill, " +
+                 "E_SpawnRate_level, E_SpawnRate_skill)" +
+                 "VALUES (" + PlayerID + ", " + Threshold + ", " +
+                 I_SpawnHeight_level + ", " + I_SpawnHeight_skill + ", " +
+                 I_DestroyTimer_level + ", " + I_DestroyTimer_skill + ", " +
+                 E_Precision_level + ", " + E_Precision_skill + ", " +
+                 E_Speed_level + ", " + E_Speed_skill + ", " +
+                 E_SpawnRate_level + ", " + E_SpawnRate_skill + ")")
+        self.cursor.execute(query)
