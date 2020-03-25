@@ -23,12 +23,12 @@ class DDA_calc:
         rel_skill = abs_skill/player_spawn_item
         return rel_skill
     
-    def calc_precision(self, , player_spawn_item):
-        abs_skill = abs() 
+    def calc_precision(self, player_avoid_damage, player_get_damage, player_pickup_item, player_spawn_item):
+        abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) + (self.coeff_spawn_height_and_timer * (player_avoid_damage - player_get_damage))) 
         rel_skill = abs_skill/player_spawn_item
         return rel_skill
     
-    def calc_speed_and_spawn_rate(self, , player_spawn_item):
-        abs_skill = abs() 
+    def calc_speed_and_spawn_rate(self, player_avoid_damage, player_get_damage, player_block_damage, player_pickup_item, player_spawn_item):
+        abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) + (self.coeff_spawn_height_and_timer *(player_block_damage + (player_avoid_damage/3) -player_get_damage))) 
         rel_skill = abs_skill/player_spawn_item
         return rel_skill
