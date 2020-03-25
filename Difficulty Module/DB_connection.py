@@ -1,5 +1,7 @@
 import mysql.connector
-
+import os
+from dotenv import load_dotenv
+load_dotenv()
 # ----------------------
 
 
@@ -9,8 +11,8 @@ class DB_connection:
         self.db = 'yarr_game1'
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
-        self.cnx = mysql.connector.connect(user='root', password='123456',
-                                           host='localhost', database=self.db)
+        self.cnx = mysql.connector.connect(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
+                                           host=os.getenv('HOST'), database=self.db)
         self.cursor = self.cnx.cursor()
         self.create_DDA_table(self)
 
