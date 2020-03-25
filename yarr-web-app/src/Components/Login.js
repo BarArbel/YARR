@@ -4,6 +4,7 @@ import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import  { Redirect } from 'react-router-dom'
 import UserActions from '../Actions/UserActions'
+import CustomSnackbar from './CustomSnackbar'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -18,27 +19,20 @@ class Login extends Component {
     super(props)
 
     this.state = {
-        mountFinish: false
+      isMsg: false,
+      error: false,
+      msg: ""
     }
 
     this.verifyUser = this.verifyUser.bind(this)
+    this.handleClose = this.handleClose.bind(this)
   }
 
-  componentDidMount(){
-    const { isLogged, handleSetUser, handleSetBearerKey } = this.props
-
-    /* If not in state, check if in local storage */
-    if(!isLogged){
-        /* If in local storage, add it to state */ 
-        if(localStorage.getItem("isLogged")){
-            const userInfo = JSON.parse(localStorage.getItem("userInfo"))
-            const bearerKey = localStorage.getItem("bearerKey")
-            handleSetUser(userInfo)
-            handleSetBearerKey(bearerKey)
-        }
+  handleClose(event, reason) {
+    if (reason === 'clickaway') {
+      return
     }
-
-    this.setState({ mountFinish: true })
+    this.setState({ isMsg: false })
   }
   
   verifyUser(userName, password){
@@ -59,27 +53,35 @@ class Login extends Component {
     }).then(res => res.json())
         .then(json => {
           if(json.result === "Verified"){
-            handleSetUser(json.userInfo)
-            handleSetBearerKey(json.bearerKey)
+            this.setState({ msg: "Logged in successfuly! Redirecting...", isMsg: true, error: false })
+            setTimeout(() => {
+              handleSetUser(json.userInfo)
+              handleSetBearerKey(json.bearerKey)
+            }, 3000);
           }
           else {
-            console.log(json)
+            this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
           }
         })
-    .catch(err => console.log(err));
+      .catch(err => this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true }))
   }
 
   render() {
     const { isLogged } = this.props
-    const { mountFinish } = this.state
-
-    return mountFinish ? (isLogged ? (<Redirect to='/homePage'/>) : (
+    const { msg, isMsg, error } = this.state
+    return isLogged ? (<Redirect to='/homePage'/>) : (
       <div className="loginHeader">
         <Header/>
         <SignIn verifyUser={this.verifyUser}/>
+        <CustomSnackbar
+          open={isMsg}
+          onClose={this.handleClose}
+          msg={msg}
+          severity={error ? "error" : "success"}
+        />
       </div>
-    )) : null
+    )
   }
 }
 
-export default connect(mapStateToProps, {...UserActions})(Login);
+export default connect(mapStateToProps, {...UserActions})(Login)

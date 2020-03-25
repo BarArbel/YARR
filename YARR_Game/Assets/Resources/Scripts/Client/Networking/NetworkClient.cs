@@ -27,9 +27,6 @@ namespace Project.Networking
             });
 
             On("disconected", (E) => {
-                //string id = E.data["id"].ToString().Trim('"');
-                //Destroy(go); //Remove from game
-                //serverObjects.Remove(id); //Remove from memory
                 Debug.Log("disconected");
             });
 
@@ -39,7 +36,6 @@ namespace Project.Networking
     [Serializable]
     public class Cooperative
     {
-        public int IdCoop;
         public string TimeStamp;
         public int Player;
         public string Pickups;
@@ -56,4 +52,17 @@ namespace Project.Networking
         public int EnemySpawn;
     }
 
+    [Serializable]
+    public class Competitive
+    {
+        public string TimeStamp;
+        public int Player;
+        public string Pickups;
+        public int DropItemScore;
+        public int FailPickup;
+        public int GetDamaged;
+        public int IndividualLoss;
+        public int ItemSpawn;
+        public int EnemySpawn;
+    }
 }

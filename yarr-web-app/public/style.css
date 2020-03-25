@@ -275,5 +275,9 @@ hr {
 
 body {
 	margin:0;
-	padding:0;
+  padding:0;
+}
+
+.signIn {
+  min-height: 582px;
 }
