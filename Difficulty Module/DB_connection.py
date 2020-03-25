@@ -13,11 +13,6 @@ class DB_connection:
         self.cursor = self.cnx.cursor()
         
     
-    def close_connection (cursor, cnx):
-        cursor.close()
-        cnx.close()
-        
-    
     def create_DDA_table (self):
         query = ("CREATE TABLE `"+self.db +"`.`"+self.DDAtb+"` ("
       "`Index` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
@@ -31,6 +26,16 @@ class DB_connection:
        "DEFAULT CHARACTER SET = utf8;")
             
         self.cursor.execute(query)
+        
+    def remove_DDA_table(self):
+        query = ("DROP TABLE `"+self.db+"`.`"+self.DDAtb+"`")
+        self.cursor.execute(query)
+        
+    def close_connection (self):
+        remove_DDA_table(self)
+        self.cursor.close()
+        self.cnx.close()
+            
     
     def count_total_player_events( self, event, player_id ):
         query = ("SELECT count("+event+") FROM `"+self.tb+"` WHERE Event = "+event+" AND PlayerID = "+player_id)
