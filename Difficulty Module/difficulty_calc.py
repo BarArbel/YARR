@@ -23,6 +23,7 @@ class DDA_calc:
     def calc_spawn_height_and_timer(self, total_pickup_item, player_fall,
                                     player_pickup_item_fail,
                                     player_pickup_item, player_spawn_item):
+        
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *
                          (total_pickup_item - (player_fall / 2) -
@@ -33,6 +34,7 @@ class DDA_calc:
     def calc_precision(self, player_avoid_damage,
                        player_get_damage, player_pickup_item,
                        player_spawn_item):
+        
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *
                          (player_avoid_damage - player_get_damage)))
@@ -42,6 +44,7 @@ class DDA_calc:
     def calc_speed_and_spawn_rate(self, player_avoid_damage, player_get_damage,
                                   player_block_damage, player_pickup_item,
                                   player_spawn_item):
+        
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *
                          (player_block_damage + (player_avoid_damage / 3) -

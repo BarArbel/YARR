@@ -10,17 +10,26 @@ public class EnemyFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
+        int2[] LevelsOf_SpawnRateRange = new int2[] 
+        {
+            new int2(-1,-1), new int2(8, 10), new int2(6, 8), new int2(4, 6), new int2(2, 4), new int2(2, 3)
+        };
+
+        float[] LevelsOf_Speed = { 0, 1f, 1.5f, 2f, 2.5f, 3f };
+        int[]   LevelsOf_TurnsAvailable = { 0, 3, 4, 5, 6, 6};
+        float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
+
         // Is this Legit or is this recursion 
         int level = GetLevel();
         DestroyTimer = 10f;
         Damage = 1;
-        //SpawnHeightRange = 0f,4.5f
-        // TODO: enemy rotation
-
+        
         switch (level)
         {
+            // Adaptive
             case 0:
 
+            // Static
             case 1:
                 SpawnRateRange = new int2(-1,-1);
                 Speed = 0;
