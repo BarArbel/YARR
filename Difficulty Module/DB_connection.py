@@ -11,6 +11,7 @@ class DB_connection:
                                            host='localhost',
                                            database= self.db)
         self.cursor = self.cnx.cursor()
+        self.create_DDA_table (self)
         
     
     def create_DDA_table (self):
@@ -32,7 +33,7 @@ class DB_connection:
         self.cursor.execute(query)
         
     def close_connection (self):
-        remove_DDA_table(self)
+        self.remove_DDA_table()
         self.cursor.close()
         self.cnx.close()
             
