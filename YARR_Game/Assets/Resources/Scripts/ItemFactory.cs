@@ -11,36 +11,24 @@ public class ItemFactory : ObjectFactory
         Damage = 0;
         Speed = 0;
         SpawnRateRange = new int2(10, 20);
-        switch (level)
-        {
-            case 0:
 
-            case 1:
-                DestroyTimer = -1f;
-                SpawnHeightRange = new float2(-3, -2);
-                break;
-            case 2:
-                DestroyTimer = 10f;
-                SpawnHeightRange = new float2(-3, 0);
-                break;
-            case 3:
-                DestroyTimer = 7f;
-                SpawnHeightRange = new float2(-3, 2);
-                break;
-            case 4:
-                DestroyTimer = 5f;
-                SpawnHeightRange = new float2(0, 2);
-                break;
-            case 5:
-                DestroyTimer = 5f;
-                SpawnHeightRange = new float2(0, 3.5f);
-                break;
-            case 6:
-                DestroyTimer = 5f;
-                SpawnHeightRange = new float2(1, 3.5f);
-                break;
-            default:
-                break;
+        // Level properties initialization 
+        float[] LevelsOf_DestroyTimer = { -1f, 10f, 7f, 5f, 5f, 5f };
+        float2[] LevelsOf_SpawnHeightRange = new float2[]
+        {
+            new float2(-3, -2), new float2(-3, 0), new float2(-3, 2), new float2(0, 2), new float2(0, 3.5f), new float2(1, 3.5f)
+        };
+
+        // Static
+        if (level != 0)
+        {
+            DestroyTimer = LevelsOf_DestroyTimer[level];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[level];
+        }
+        // Adaptive
+        else
+        {
+
         }
     }
 

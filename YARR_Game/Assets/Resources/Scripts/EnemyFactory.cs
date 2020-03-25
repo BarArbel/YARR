@@ -10,6 +10,11 @@ public class EnemyFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
+        int level = GetLevel();
+        DestroyTimer = 10f;
+        Damage = 1;
+
+        // Level properties initialization 
         int2[] LevelsOf_SpawnRateRange = new int2[] 
         {
             new int2(-1,-1), new int2(8, 10), new int2(6, 8), new int2(4, 6), new int2(2, 4), new int2(2, 3)
@@ -19,56 +24,21 @@ public class EnemyFactory : ObjectFactory
         int[]   LevelsOf_TurnsAvailable = { 0, 3, 4, 5, 6, 6};
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
 
-        // Is this Legit or is this recursion 
-        int level = GetLevel();
-        DestroyTimer = 10f;
-        Damage = 1;
-        
-        switch (level)
+        // Static
+        if (level != 0)
         {
-            // Adaptive
-            case 0:
+            SpawnRateRange = LevelsOf_SpawnRateRange[level];
+            Speed = LevelsOf_Speed[level];
+            TurnsAvailable = LevelsOf_TurnsAvailable[level];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[level];
 
-            // Static
-            case 1:
-                SpawnRateRange = new int2(-1,-1);
-                Speed = 0;
-                TurnsAvailable = 0;
-                TimeBetweenPathRecalculation = 0;
-                break;
-            case 2:
-                SpawnRateRange = new int2(8, 10);
-                Speed = 1f;
-                TurnsAvailable = 3;
-                TimeBetweenPathRecalculation = 2.5;
-                break;
-            case 3:
-                SpawnRateRange = new int2(6, 8);
-                Speed = 1f;
-                TurnsAvailable = 4;
-                TimeBetweenPathRecalculation = 2;
-                break;
-            case 4:
-                SpawnRateRange = new int2(4, 6);
-                Speed = 2f;
-                TurnsAvailable = 5;
-                TimeBetweenPathRecalculation = 1.5;
-                break;
-            case 5:
-                SpawnRateRange = new int2(2, 4);
-                Speed = 2.5f;
-                TurnsAvailable = 6;
-                TimeBetweenPathRecalculation = 1;
-                break;
-            case 6:
-                SpawnRateRange = new int2(2, 3);
-                Speed = 3f;
-                TurnsAvailable = 6;
-                TimeBetweenPathRecalculation = 1;
-                break;
-            default:
-                break;
         }
+        // Adaptive
+        else
+        {
+
+        }
+
     }
 
     protected override void Spawn()
