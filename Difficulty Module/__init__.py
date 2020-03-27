@@ -2,7 +2,7 @@ from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
 
 
-def calculate(con, numberOfPlayers):
+def getDataFromDB(con, numberOfPlayers):
 
     total = {
         "pickup": [],
@@ -20,6 +20,16 @@ def calculate(con, numberOfPlayers):
         "individualLoss": [],
         "spawn": []
     }
+
+    for player_id in range(numberOfPlayers):
+        for event in total:
+            total[event].append(con.count_total_player_events(event,
+                                                              player_id))
+    return total
+
+
+def calculate(numberOfPlayers, total):
+
     calcs = {
         "threshold": 0,
         "spawnHeightAndTimer": [],
@@ -28,11 +38,6 @@ def calculate(con, numberOfPlayers):
     }
 
     calc = DDA_calc()
-
-    for player_id in range(numberOfPlayers):
-        for event in total:
-            total[event].append(con.count_total_player_events(event,
-                                                              player_id))
 
     calcs["threshold"] = calc.calc_threshold(total["pickup"], total["spawn"])
 
@@ -54,12 +59,16 @@ def calculate(con, numberOfPlayers):
     return calcs
 
 
+def insertCalculationsToDB(con, calcs):
+    return
+
+
 if __name__ == '__main__':
 
+    numberOfPlayers = 3
     con = DB_connection("game_snapshot")
     con.create_DDA_table()
 
-    for row in con.cursor:
-        print(row)
-
-    calcs = calculate(con, 3)
+    total = getDataFromDB(con, numberOfPlayers)
+    calcs = calculate(numberOfPlayers, total)
+    insertCalculationsToDB(con, calcs)
