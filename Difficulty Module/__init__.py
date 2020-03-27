@@ -1,8 +1,10 @@
 from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
+import socket
+import json
 
 
-def getDataFromDB(con, numberOfPlayers):
+def getDataFromDB(con, number_of_players):
 
     total = {
         "pickup": [],
@@ -21,25 +23,25 @@ def getDataFromDB(con, numberOfPlayers):
         "spawn": []
     }
 
-    lastSkills = {
+    last_skills = {
         "I_SpawnHeight_skill": [],
         "E_Precision_skill": [],
         "E_Speed_skill": []
     }
 
-    for player_id in range(numberOfPlayers):
+    for player_id in range(number_of_players):
         for event in total:
             total[event].append(con.count_total_player_events(
                 event, player_id + 1))
 
-        for skill in lastSkills:
+        for skill in last_skills:
             lastSkills[skill].append(con.get_DDA_last_player_skill(
                 skill, player_id + 1))
 
-    return total, lastSkills
+    return total, last_skills
 
 
-def calculate(numberOfPlayers, total, lastSkills):
+def calculate(number_of_players, total, last_skills):
 
     calcs = {
         "threshold": 0,
@@ -67,7 +69,7 @@ def calculate(numberOfPlayers, total, lastSkills):
 
     calcs["threshold"] = calc.calc_threshold(total["pickup"], total["spawn"])
 
-    for player_id in range(numberOfPlayers):
+    for player_id in range(number_of_players):
         calcs["spawnHeightAndTimer"]["skill"].append(
             calc.calc_spawn_height_and_timer(
                 sum(total["pickup"]), total["fallAccidently"][player_id],
@@ -94,8 +96,8 @@ def calculate(numberOfPlayers, total, lastSkills):
         )
 
         for pair in key_pairs:
-            rangeMax = lastSkills[pair[1]] + calcs["threshold"]
-            rangeMin = lastSkills[pair[1]] - calcs["threshold"]
+            rangeMax = last_skills[pair[1]] + calcs["threshold"]
+            rangeMin = last_skills[pair[1]] - calcs["threshold"]
             skill = calcs[pair[0]]["skill"][-1]
 
             calcs[pair[0]]["level"].append(1 if skill > rangeMax else (
@@ -104,9 +106,9 @@ def calculate(numberOfPlayers, total, lastSkills):
     return calcs
 
 
-def insertCalculationsToDB(con, calcs):
+def insertCalculationsToDB(con, number_of_players, calcs):
 
-    for player_id in range(numberOfPlayers):
+    for player_id in range(number_of_players):
         con.insert_DDA_table(player_id + 1, calcs["threshold"],
                              calcs["spawnHeightAndTimer"]["level"][player_id],
                              calcs["spawnHeightAndTimer"]["skill"][player_id],
@@ -123,10 +125,46 @@ def insertCalculationsToDB(con, calcs):
 
 if __name__ == '__main__':
 
-    numberOfPlayers = 3
-    con = DB_connection("game_snapshot", numberOfPlayers)
+    number_of_players = 3
+    recv_port = 3004
+    send_port = 3005
+    buff_size = 1024
+    listen_queue = 1
+
+    con = DB_connection("game_snapshot", number_of_players)
     con.create_DDA_table()
 
-    total, lastSkills = getDataFromDB(con, numberOfPlayers)
-    calcs = calculate(numberOfPlayers, total, lastSkills)
-    insertCalculationsToDB(con, calcs)
+    data_collector_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    data_collector_socket.connect((socket.gethostname(), recv_port))
+
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((socket.gethostname(), send_port))
+    server_socket.listen(listen_queue)
+
+    game_socket, address = server_socket.accept()
+
+    while True:
+        msg = data_collector_socket.recv(buff_size)
+        decoded_msg = msg.decode("utf-8")
+
+        if decoded_msg == "DATA_COLLECTOR_PING":
+            total, lastSkills = getDataFromDB(con, number_of_players)
+            calcs = calculate(number_of_players, total, lastSkills)
+            insertCalculationsToDB(con, number_of_players, calcs)
+
+            game_json = {
+                "message": "DIFFICULTY_MODULE_VARIABLES",
+                "data": calcs
+            }
+            game_socket.send(json.dump(game_json))
+
+        elif decoded_msg == "EXPERIMENT_END":
+            # transfer data from temporary tables to permanent experiment table
+            game_json = {
+                "message": "EXPERIMENT_END"
+            }
+            game_socket.send(json.dump(game_json))
+            server_socket.close()
+            data_collector_socket.close()
+            con.close_connection()
+            exit(0)

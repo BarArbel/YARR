@@ -7,7 +7,7 @@ load_dotenv()
 
 class DB_connection:
 
-    def __init__(self, table_name, numberOfPlayers):
+    def __init__(self, table_name, number_of_players):
         self.db = 'yarr_game1'
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
@@ -17,7 +17,7 @@ class DB_connection:
                                            database=self.db)
         self.cursor = self.cnx.cursor()
         self.create_DDA_table(self)
-        self.initialize_DDA_table(self, numberOfPlayers)
+        self.initialize_DDA_table(self, number_of_players)
 
     def create_DDA_table(self):
         query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
@@ -39,7 +39,7 @@ class DB_connection:
 
         self.cursor.execute(query)
 
-    def initialize_DDA_table(self, numberOfPlayers):
+    def initialize_DDA_table(self, number_of_players):
 
         initial_SpawnHeight_skill = "3"
         initial_DestroyTimer_skill = "3"
@@ -47,7 +47,7 @@ class DB_connection:
         initial_Speed_skill = "2"
         initial_SpawnRate_skill = "2"
 
-        for i in range(numberOfPlayers):
+        for i in range(number_of_players):
             query = ("INSERT INTO `" + self.db + "`.`" + self.DDAtb + "` (" +
                      "PlayerID, Threshold, I_SpawnHeight_level, " +
                      "I_SpawnHeight_skill, I_DestroyTimer_level, " +
