@@ -35,7 +35,7 @@ def getDataFromDB(con, number_of_players):
                 event, player_id + 1))
 
         for skill in last_skills:
-            lastSkills[skill].append(con.get_DDA_last_player_skill(
+            last_skills[skill].append(con.get_DDA_last_player_skill(
                 skill, player_id + 1))
 
     return total, last_skills
@@ -165,8 +165,8 @@ if __name__ == '__main__':
         decoded_msg = msg.decode("utf-8")
 
         if decoded_msg == "DATA_COLLECTOR_PING":
-            total, lastSkills = getDataFromDB(con, number_of_players)
-            calcs = calculate(number_of_players, total, lastSkills)
+            total, last_skills = getDataFromDB(con, number_of_players)
+            calcs = calculate(number_of_players, total, last_skills)
             insertCalculationsToDB(con, number_of_players, calcs)
 
             game_json = {
