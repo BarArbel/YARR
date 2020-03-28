@@ -50,6 +50,7 @@ public class EnemyFactory : ObjectFactory
 
         // Create an enemy
         GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);
+        enemyObj.transform.SetParent(GameObject.Find("Map").transform);
         enemyObj.layer = enemyLayer;
         enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
         enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();

@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - Treasure
+  - HealthText
   layers:
   - Default
   - TransparentFX
@@ -20,7 +21,7 @@ TagManager:
   - Enemy
   - Sink
   - pCollision
-  - 
+  - dontCollide
   - 
   - 
   - 

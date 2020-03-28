@@ -60,6 +60,7 @@ public class PlayerFactory : MonoBehaviour
             PlayerCounter++;
             GameObject playerObj = Instantiate(PlayerPrefab);
             Player player = playerObj.GetComponent<Player>();
+            player.transform.SetParent(GameObject.Find("Map").transform);
 
             // TODO: Init player sprite, transform, rotation, etc.            
             playerObj.tag = "Player";

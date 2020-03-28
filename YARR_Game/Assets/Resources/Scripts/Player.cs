@@ -65,24 +65,31 @@ public class Player : MonoBehaviour
         }
 
         Health = MaxHealth;
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+        this.GetComponent<Transform>().Rotate(0, 0, -180, Space.Self);
         return true;
     }
 
     public bool SetEnemyHit( Enemy enemy)
     {
+        float spriteBrightness;        
         Player player = gameObject.GetComponent<Player>();
         if (Health <= 0)
         {
             return false;
         }
         Health-=enemy.GetDamage();
+        spriteBrightness = (float)Health / (float)MaxHealth;
+        Debug.Log(Health);
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
         DataTransformer.sendData(Time.deltaTime, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
 
         if (Health == 0)
         {
             if (GetGameMode() == 0)
             {
-                DataTransformer.sendData(Time.deltaTime, Event.temporaryLose, player, 0, 0, GetGameMode());
+                this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
+                DataTransformer.sendData(Time.deltaTime, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
             else
             {            
@@ -256,6 +263,7 @@ public class Player : MonoBehaviour
         const int enemyLayer = 11;
         const int sinkLayer = 12;
         const int playerCollisionLayer = 13;
+        const int dontCollideLayer = 14;
         Player playerObj = gameObject.GetComponent<Player>();
         switch (collider.gameObject.layer)
         {
@@ -275,6 +283,8 @@ public class Player : MonoBehaviour
                 int enemyID = collider.GetComponent<Enemy>().GetID();
                 if (enemyID == ID || enemyID == -1)
                 {
+                    Debug.Log("Player "+ID+" got hit");
+                    collider.gameObject.layer = dontCollideLayer;
                     SetEnemyHit(collider.GetComponent<Enemy>());
                 }
                 else
@@ -423,7 +433,7 @@ public class Player : MonoBehaviour
     void FixBoat(Player player)
     {
         FixBoatTime = 0;
-        player.SetHealth();
+        player.SetHealth();        
         DataTransformer.sendData(Time.deltaTime, Event.revived, player, 0, 0, GetGameMode());
         DataTransformer.sendData(Time.deltaTime, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
 

@@ -126,7 +126,7 @@ public class GameManager : MonoBehaviour
 
         // Player factory settings
         SpawnLocation = new Vector2(0f, -3f);
-        InitialHealth = 4;
+        InitialHealth = 3;
         MyItemsAmount = 1;
         OthersItemsAmount = 1;
         IsSpriteDirectionRight = false;
@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour
     void InitMode()
     {
         OthersItemsAmount = 1;
-        if (DestroyFactoryMadeObjects() && DestroyFactories())
+        if (DestroyFactoryMadeObjects() && DestroyFactories() && DestroyUI())
         {
             //  Initialize player factory
             PlayerFactory = gameObject.AddComponent(typeof(PlayerFactory)) as PlayerFactory;
@@ -230,6 +230,11 @@ public class GameManager : MonoBehaviour
                     ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i]);
                 }
             }
+
+            // Initialize UI
+            GameObject canvas = GameObject.Find("Canvas");
+            canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, GetPlayerSprites(), NumberOfPlayers);
+
         }
     }
 
@@ -274,6 +279,16 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
+    private bool DestroyUI()
+    {
+       GameObject canvas = GameObject.Find("Canvas");
+       foreach (Transform child in canvas.transform)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        return true;
+    }
+
     private void DestroyObjectFactory(List<ObjectFactory> objFactories)
     {
         foreach (ObjectFactory factory in objFactories)
@@ -308,7 +323,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static1);
+        InitGameManager(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame

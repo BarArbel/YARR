@@ -42,6 +42,7 @@ public class ItemFactory : ObjectFactory
 
         // Create an item
         GameObject itemObj = Instantiate(GetPrefab(), position, transform.rotation);
+        itemObj.transform.SetParent(GameObject.Find("Map").transform);
         itemObj.layer = itemLayer;
         itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
         itemObj.GetComponent<Treasure>().TreasureInit(GetID(), DestroyTimer);
