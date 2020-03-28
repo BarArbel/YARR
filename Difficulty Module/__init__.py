@@ -131,17 +131,34 @@ if __name__ == '__main__':
     buff_size = 1024
     listen_queue = 1
 
+    connected_to_data_collector = False
+    connected_to_game = False
+
     con = DB_connection("game_snapshot", number_of_players)
     con.create_DDA_table()
 
     data_collector_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    data_collector_socket.connect((socket.gethostname(), recv_port))
+    while not connected_to_data_collector:
+        try:
+            data_collector_socket.connect((socket.gethostname(), recv_port))
+        except:
+            print("Failed to connect to data collector, trying again")
+        else:
+            connected_to_data_collector = True
+            print("Connected successfuly to data collector")
 
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((socket.gethostname(), send_port))
     server_socket.listen(listen_queue)
 
-    game_socket, address = server_socket.accept()
+    while not connected_to_game:
+        try:
+            game_socket, address = server_socket.accept()
+        except:
+            print("Failed to connect to game, trying again")
+        else:
+            connected_to_game = True
+            print("Connected successfuly to game")
 
     while True:
         msg = data_collector_socket.recv(buff_size)
