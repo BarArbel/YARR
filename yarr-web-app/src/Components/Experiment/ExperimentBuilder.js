@@ -232,10 +232,28 @@ class ExperimentBuilder extends Component {
             maxLength="4096"
             required
           />
+          {editForm === false ?
+            <div>
+              <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
+                Number of Rounds
+              </label>
+              <input
+                value={roundsNumber}
+                onChange={this.handleRoundNumberChange}
+                id="defaultFormExperimentRoundsNumber"
+                className="form-control FormMargins"
+                name="roundsNumber"
+                type="number"
+                required
+              />
+              <label className="grey-text">Rounds Settings</label>
+              {this.renderRoundSettings()}
+            </div> : (null)
+          }
           {(editForm === false || status === "Ready") ?
             <div>
               <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
-                Character Type
+                Character Skin
               </label>
               <select
                 value={characterType}
@@ -245,9 +263,9 @@ class ExperimentBuilder extends Component {
                 name="characterType"
                 required
               >
-                <option value={1}>Type 1</option>
-                <option value={2}>Type 2</option>
-                <option value={3}>Type 3</option>
+                <option value={1}>Characters differentiated by color</option>
+                <option value={2}>Characters differentiated by shapes</option>
+                <option value={3}>Characters differentiated by design</option>
               </select>
               <label htmlFor="defaultFormExperimentColor" className="grey-text">
                 Color Settings
@@ -260,28 +278,10 @@ class ExperimentBuilder extends Component {
                 name="colorSettings"
                 required
               >
-                <option value={1}>Full spectrum</option>
-                <option value={2}>Color blind 1</option>
-                <option value={3}>Color blind 2</option>
+                <option value={1}>Full spectrum vision</option>
+                <option value={2}>Red-green color blindness</option>
+                <option value={3}>Blue-yellow color blindness</option>
               </select>
-              {(editForm === false) ?
-                <div>
-                  <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
-                    Number of Rounds
-                  </label>
-                  <input
-                    value={roundsNumber}
-                    onChange={this.handleRoundNumberChange}
-                    id="defaultFormExperimentRoundsNumber"
-                    className="form-control FormMargins"
-                    name="roundsNumber"
-                    type="number"
-                    required
-                  />
-                  <label className="grey-text">Rounds Settings</label>
-                  {this.renderRoundSettings()}
-                </div> : (null)
-              }
             </div> : (null)
           }
           <div className="text-center mt-4">

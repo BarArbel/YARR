@@ -97,8 +97,8 @@ class ExperimentPage extends Component {
 
   renderLogged(){
     const { experiment } = this.props
-    const characterType = ["Type 1", "Type 2", "Type 3"]
-    const colorSettings = ["Full spectrum", "Color blind 1", "Color blind 2"]
+    const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
+    const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
     let {
       CreationDate,
       Status,
@@ -116,7 +116,7 @@ class ExperimentPage extends Component {
         <div className="container">
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
-              <a className="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+              <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
             </li>
             <li className="nav-item">
               <a className="nav-link" id="gameSettings-tab" data-toggle="tab" href="#gameSettings" role="tab" aria-controls="gameSettings" aria-selected="false">Game Settings</a>
@@ -130,7 +130,7 @@ class ExperimentPage extends Component {
           </ul>
 
           <div className="tab-content" id="myTabContent">
-            <div className="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
               <h2>{Title}</h2>
               <p>Created: {CreationDate}</p>
               <p>Status: {Status}</p>
