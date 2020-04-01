@@ -38,7 +38,7 @@ public class Enemy : MonoBehaviour
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
 
-            DataTransformer.sendData(Time.deltaTime, Event.spawn, target, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
+            DataTransformer.sendData(Time.realtimeSinceStartup, Event.spawn, target, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             return true;
         }
         Destroy(gameObject);

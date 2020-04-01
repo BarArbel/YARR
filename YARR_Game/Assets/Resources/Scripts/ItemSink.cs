@@ -44,7 +44,6 @@ public class ItemSink : Singleton
         }
 
         PlayerScores[player.GetID()] += SingleScoreValue;
-        Debug.Log("Score of " +  player.GetID() +" is: "+ PlayerScores[player.GetID()]);
         return true;
     }
 

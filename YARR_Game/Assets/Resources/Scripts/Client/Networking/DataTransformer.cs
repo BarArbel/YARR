@@ -18,11 +18,11 @@ namespace Project.Networking
             data.Time = time;
             data.Event = eventOccurred;
             data.PlayerID = player.GetID();
-            data.CoordX = (int)(player.transform.position.x * 1000)/1000;
-            data.CoordY = (int)(player.transform.position.x * 1000)/1000;
+            data.CoordX = player.transform.position.x;
+            data.CoordY = player.transform.position.y;
             data.Item = item;
             data.Enemy = enemy;
-            data.GameMode = gameMode;
+            data.GameMode = (GameManager.GameMode)gameMode;
 
             socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
@@ -32,11 +32,11 @@ namespace Project.Networking
             data.Time = time;
             data.Event = eventOccurred;
             data.PlayerID = PlayerID;
-            data.CoordX = (CoordX * 1000) / 1000;
-            data.CoordY = (CoordX * 1000) / 1000;
+            data.CoordX = CoordX;
+            data.CoordY = CoordY;
             data.Item = item;
             data.Enemy = enemy;
-            data.GameMode = gameMode;
+            data.GameMode = (GameManager.GameMode)gameMode;
 
             socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
@@ -53,7 +53,7 @@ namespace Project.Networking
         public float CoordY;
         public int Item;
         public int Enemy;
-        public int GameMode;
+        public GameManager.GameMode GameMode;
     }
 
     public enum Event

@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections;
+﻿using System.Linq;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Project.Networking;
@@ -18,17 +18,24 @@ public class Player : MonoBehaviour
     private List<Item> TotalItemInventory;
     private float FixBoatTime;
 
+    // Identify accidental fall
+    private bool FallSamplesReady;
+    private Dictionary<int, float> EnemiesDistance1st;
+    private Dictionary<int, float> EnemiesDistance2nd;
+    private Dictionary<int, float> ItemsDistance1st;
+    private Dictionary<int, float> ItemsDistance2nd;
+
     // Game input
     public KeyCode MoveRightButton;
     public KeyCode MoveLeftButton;
     public KeyCode JumpButton;
 
     // Movement
-    public Vector2 Speed; // NOTE: not in the design
-    public Vector2 Direction; // NOTE: not in the design
-    public bool IsJumping;     // NOTE: not in the design
+    public Vector2 Speed; 
+    public Vector2 Direction; 
+    public bool IsJumping;     
+    public LayerMask MapLayer;
 
-    public LayerMask MapLayer;  // NOTE: not in the design. // TODO: Should be removed and be used normally
 
     //Getters
     public int  GetID()                     { return ID; }
@@ -80,20 +87,19 @@ public class Player : MonoBehaviour
         }
         Health-=enemy.GetDamage();
         spriteBrightness = (float)Health / (float)MaxHealth;
-        Debug.Log(Health);
         gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
-        DataTransformer.sendData(Time.deltaTime, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
 
         if (Health == 0)
         {
             if (GetGameMode() == 0)
             {
                 this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
-                DataTransformer.sendData(Time.deltaTime, Event.temporaryLose, player, 0, 0, GetGameMode());   
+                DataTransformer.sendData(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
             else
             {            
-                DataTransformer.sendData(Time.deltaTime, Event.individualLoss, player, 0, 0, GetGameMode());
+                DataTransformer.sendData(Time.realtimeSinceStartup, Event.individualLoss, player, 0, 0, GetGameMode());
             }
         }
         return true;
@@ -125,6 +131,13 @@ public class Player : MonoBehaviour
         MyItemInventory = new Item[myItemsAmount];
         OthersItemInventory = new Item[othersItemsAmount];
         TotalItemInventory = new List<Item>();
+
+        // Initialize accidental fall parameters
+        FallSamplesReady = false;
+        EnemiesDistance1st = new Dictionary<int, float>();
+        EnemiesDistance2nd = new Dictionary<int, float>();
+        ItemsDistance1st = new Dictionary<int, float>();
+        ItemsDistance2nd = new Dictionary<int, float>();
     }
 
     // Food ID = -1
@@ -275,7 +288,7 @@ public class Player : MonoBehaviour
                 {
                     TakeTreasure(collider.gameObject);
                     // Cooperative = 0                    
-                    DataTransformer.sendData(Time.deltaTime, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
+                    DataTransformer.sendData(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
                 }
                 break;
             // Check collistion with enemies
@@ -283,13 +296,12 @@ public class Player : MonoBehaviour
                 int enemyID = collider.GetComponent<Enemy>().GetID();
                 if (enemyID == ID || enemyID == -1)
                 {
-                    Debug.Log("Player "+ID+" got hit");
                     collider.gameObject.layer = dontCollideLayer;
                     SetEnemyHit(collider.GetComponent<Enemy>());
                 }
                 else
                 {
-                    DataTransformer.sendData(Time.deltaTime, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
+                    DataTransformer.sendData(Time.realtimeSinceStartup, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
                 }
                 break;
             case sinkLayer:
@@ -301,7 +313,7 @@ public class Player : MonoBehaviour
                         if (RemoveItem(MyItemInventory[i]))
                         {
                             collider.GetComponent<ItemSink>().SetScore(gameObject.GetComponent<Player>());
-                            DataTransformer.sendData(Time.deltaTime, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
+                            DataTransformer.sendData(Time.realtimeSinceStartup, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
                             break;
                         }
                     }
@@ -322,7 +334,7 @@ public class Player : MonoBehaviour
                                 OrderCarriedItems();
                                 otherPlayer.TakeTreasure(OthersItemInventory[i].gameObject);
                                 RemoveItem(OthersItemInventory[i]);
-                                DataTransformer.sendData(Time.deltaTime, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
+                                DataTransformer.sendData(Time.realtimeSinceStartup, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
                             }
                         }
                     }
@@ -348,7 +360,6 @@ public class Player : MonoBehaviour
             if (OthersItemInventory.Length != 0 && otherPlayer.GetComponent<Player>().GetHealth() == 0)
             {
                 FixBoatTime += Time.deltaTime;
-                Debug.Log("Time spent: " + FixBoatTime);
             }
             if (FixBoatTime >= 3f)
             {
@@ -433,25 +444,132 @@ public class Player : MonoBehaviour
     void FixBoat(Player player)
     {
         FixBoatTime = 0;
-        player.SetHealth();        
-        DataTransformer.sendData(Time.deltaTime, Event.revived, player, 0, 0, GetGameMode());
-        DataTransformer.sendData(Time.deltaTime, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+        player.SetHealth();
+        Debug.Log("Time: " + Time.deltaTime);
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player, 0, 0, GetGameMode());
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
 
     }
 
+    void AccidentalFallIdentified()
+    {
+        Debug.Log("ACCIDENTAL FALL EVENT");
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+        // Clear lists for future identifications
+        EnemiesDistance1st.Clear();
+        EnemiesDistance2nd.Clear();
+        ItemsDistance1st.Clear();
+        ItemsDistance2nd.Clear();
+        FallSamplesReady = false;
+    }
+
+    // If get closer to enemy - it's accidental
+    // If get further from item - it's accidental 
     bool IdentifyFall()
     {
-        if (gameObject.GetComponent<Rigidbody2D>().velocity.y < -9.1 && !IsJumping)
+
+        // Identify first falling samples
+        if (gameObject.GetComponent<Rigidbody2D>().velocity.y < -9.1 && !IsJumping && EnemiesDistance1st.Count == 0 && ItemsDistance1st.Count == 0)
         {
-            // TODO: Gotta tweak this with closeness to other items or farness from enemies
-            Debug.Log("ACCIDENTAL FALL EVENT");
-            DataTransformer.sendData(Time.deltaTime, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
-            return true;
-        }
-        else
-        {
+            GameObject[] gameObjs = FindObjectsOfType<GameObject>();
+            for (int i = 0; i < gameObjs.Length; i++)
+            {
+                Enemy enemyObj = gameObjs[i].GetComponent<Enemy>();
+                Item itemObj = gameObjs[i].GetComponent<Item>();
+
+                // An enemy that can deal damage to player
+                if (enemyObj != null && (enemyObj.GetID() == ID || enemyObj.GetID() == -1) )
+                {
+                    EnemiesDistance1st.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                }
+
+                // An Item that should be obtained by player
+                if (gameObjs[i].GetComponent<Item>() != null && 
+                    ((itemObj.GetID() == ID || itemObj.GetID() == -1) && IsInventoryEmpty(MyItemInventory) || 
+                        ((itemObj.GetID() != ID && itemObj.GetID() != -1) && IsInventoryEmpty(OthersItemInventory)) ) )
+                {
+                    ItemsDistance1st.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                }
+            }
+
             return false;
         }
+
+        // Identify second falling samples
+        if (gameObject.GetComponent<Rigidbody2D>().velocity.y < -9.2 && !IsJumping && EnemiesDistance1st.Count > 0 && ItemsDistance1st.Count > 0 && EnemiesDistance2nd.Count == 0 && ItemsDistance2nd.Count == 0)
+        {
+            GameObject[] gameObjs = FindObjectsOfType<GameObject>();
+            for (int i = 0; i < gameObjs.Length; i++)
+            {
+                Enemy enemyObj = gameObjs[i].GetComponent<Enemy>();
+                Item itemObj = gameObjs[i].GetComponent<Item>();
+
+                // Check if object was sampled in the first sampling process
+                if (EnemiesDistance1st.ContainsKey(gameObjs[i].GetInstanceID()) || ItemsDistance1st.ContainsKey(gameObjs[i].GetInstanceID()))
+                {
+                    // An enemy that can deal damage to player
+                    if (enemyObj != null && (enemyObj.GetID() == ID || enemyObj.GetID() == -1))
+                    {
+                        EnemiesDistance2nd.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                    }
+
+                    // An Item that should be obtained by player
+                    if (gameObjs[i].GetComponent<Item>() != null &&
+                        ((itemObj.GetID() == ID || itemObj.GetID() == -1) && IsInventoryEmpty(MyItemInventory) ||
+                            ((itemObj.GetID() != ID && itemObj.GetID() != -1) && IsInventoryEmpty(OthersItemInventory))))
+                    {
+                        ItemsDistance2nd.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                    }
+                }
+            }
+
+            if (EnemiesDistance2nd.Count != 0 || ItemsDistance2nd.Count != 0)
+            {
+                FallSamplesReady = true;
+            }
+            else if (EnemiesDistance2nd.Count == 0 && ItemsDistance2nd.Count == 0)
+            {
+                EnemiesDistance1st.Clear();
+                ItemsDistance1st.Clear();
+                FallSamplesReady = false;
+
+                return false;
+            }
+            
+        }
+
+        // There are two samples to compare
+        if (FallSamplesReady)
+        {
+            for (int i=0; i< EnemiesDistance2nd.Count; i++)
+            {
+                int enemyInstanceID = EnemiesDistance2nd.Keys.ElementAt(i);
+                float enemy1stDistance = -1f;
+                if (EnemiesDistance1st.TryGetValue(enemyInstanceID, out enemy1stDistance) && enemy1stDistance > EnemiesDistance2nd[enemyInstanceID])
+                {
+                    AccidentalFallIdentified();
+                    return true;
+                }                 
+            }
+
+            for (int i = 0; i < ItemsDistance2nd.Count; i++)
+            {
+                int itemInstanceID = ItemsDistance2nd.Keys.ElementAt(i);
+                float item1stDistance = -1f;
+                if (EnemiesDistance1st.TryGetValue(itemInstanceID, out item1stDistance) && item1stDistance < EnemiesDistance2nd[itemInstanceID])
+                {
+                    AccidentalFallIdentified();
+                    return true;
+                }
+            }
+        }
+
+        EnemiesDistance1st.Clear();
+        EnemiesDistance2nd.Clear();
+        ItemsDistance1st.Clear();
+        ItemsDistance2nd.Clear();
+        FallSamplesReady = false;
+        return false;
     }
 
     // Start is called before the first frame update

@@ -312,7 +312,7 @@ public class GameManager : MonoBehaviour
                 }
             }
 
-            DataTransformer.sendData(Time.deltaTime, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
+            DataTransformer.sendData(Time.realtimeSinceStartup, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
             return true;
         }
 
@@ -323,7 +323,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static3);
+        //InitGameManager(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame
