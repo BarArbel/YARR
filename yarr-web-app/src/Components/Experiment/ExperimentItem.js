@@ -24,6 +24,7 @@ export class ExperimentItem extends Component {
       status: "",
       title: "",
       details: "",
+      disability: 0,
       characterType: 0,
       colorSettings: 0,
       editExperiment: false,
@@ -38,8 +39,15 @@ export class ExperimentItem extends Component {
 
   componentDidMount() {
     const { thisExperiment } = this.props
-    const { Status, Title, Details, CharacterType, ColorSettings } = thisExperiment
-    this.setState({ status: Status, title: Title, details: Details, characterType: CharacterType, colorSettings: ColorSettings })
+    const { Status, Title, Details, Disability, CharacterType, ColorSettings } = thisExperiment
+    this.setState({
+      status: Status,
+      title: Title,
+      details: Details,
+      disability: Disability,
+      characterType: CharacterType,
+      colorSettings: ColorSettings
+    })
   }
 
   handleDelete() {
@@ -67,8 +75,14 @@ export class ExperimentItem extends Component {
   }
 
   handleSubmitEdit(updatedExperiment) {
-    const { Title, Details, CharacterType, ColorSettings } = updatedExperiment
-    this.setState({ title: Title, details: Details, characterType: CharacterType, colorSettings: ColorSettings })
+    const { Title, Details, Disability, CharacterType, ColorSettings } = updatedExperiment
+    this.setState({
+      title: Title,
+      details: Details,
+      disability: Disability,
+      characterType: CharacterType,
+      colorSettings: ColorSettings
+    })
     this.handleEdit()
   }
 

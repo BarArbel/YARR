@@ -28,6 +28,7 @@ export default (state = initialState, action) => {
       let toUpdate = state.experimentList.find(i => i.ExperimentId === action.data.experimentId)
       toUpdate.Title = action.data.title
       toUpdate.Details = action.data.details
+      toUpdate.Disability = action.data.disability
       toUpdate.CharacterType = action.data.characterType
       toUpdate.ColorSettings = action.data.colorSettings
       newList.push(toUpdate)

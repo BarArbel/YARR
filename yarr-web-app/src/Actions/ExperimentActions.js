@@ -9,9 +9,9 @@ import {
 
 const setExperiments = experiments => ({ type: SET_EXPERIMENTS, data: experiments })
 
-const updateExperiment = (experimentId, title, details, characterType, colorSettings) => ({
+const updateExperiment = (experimentId, title, details, disability, characterType, colorSettings) => ({
   type: UPDATE_EXPERIMENT,
-  data: { experimentId, title, details, characterType, colorSettings }
+  data: { experimentId, title, details, disability, characterType, colorSettings }
 })
 
 const deleteExperiment = experimentId => ({
@@ -35,8 +35,8 @@ const handleSetExperiments = experiments => async dispatch => {
   dispatch(setExperiments(experiments))
 }
 
-const handleUpdateExperiment = (experimentId, title, details, characterType, colorSettings) => async dispatch => {
-  dispatch(updateExperiment(experimentId, title, details, characterType, colorSettings));
+const handleUpdateExperiment = (experimentId, title, details, disability, characterType, colorSettings) => async dispatch => {
+  dispatch(updateExperiment(experimentId, title, details, disability, characterType, colorSettings));
 }
 
 const handleDeleteExperiment = experimentId => async dispatch => {

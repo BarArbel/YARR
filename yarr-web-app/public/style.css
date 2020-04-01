@@ -245,6 +245,15 @@ hr {
   margin-bottom: 30px;
 }
 
+.form-row {
+  justify-content: flex-end;
+}
+
+.builderImage {
+  height: 50%;
+  width: 50%;
+}
+
 .card {
   margin-bottom: 10px;
 }

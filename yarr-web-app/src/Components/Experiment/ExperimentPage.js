@@ -97,6 +97,7 @@ class ExperimentPage extends Component {
 
   renderLogged(){
     const { experiment } = this.props
+    const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
     let {
@@ -104,9 +105,11 @@ class ExperimentPage extends Component {
       Status,
       Title,
       Details,
+      RoundsNumber,
+      RoundDuration,
+      Disability,
       CharacterType,
-      ColorSettings,
-      RoundsNumber
+      ColorSettings
     } = experiment
 
     return (
@@ -135,10 +138,12 @@ class ExperimentPage extends Component {
               <p>Created: {CreationDate}</p>
               <p>Status: {Status}</p>
               <p>Details: {Details}</p>
+              <p>Disability: {disability[Disability - 1]}</p>
             </div>
             <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="gameSettings-tab">
-              <p>Character type: {characterType[CharacterType - 1]}</p>
+              <p>Character skin: {characterType[CharacterType - 1]}</p>
               <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
+              <p>Round Duration: {RoundDuration} seconds</p>
               <p>Number of rounds: {RoundsNumber}</p>
               <p>Rounds:</p>
               {this.renderRounds()}
