@@ -29,7 +29,7 @@ CREATE TABLE `yarr`.`experiments` (
   `CreationDate` VARCHAR(45) NOT NULL,
   `Status` VARCHAR(45) NOT NULL,
   `Title` VARCHAR(45) NOT NULL,
-  `Detils` VARCHAR(4096) NOT NULL,
+  `Details` VARCHAR(4096) NOT NULL,
   `RoundsNumber` INT UNSIGNED NOT NULL,
   `RoundDuration` INT UNSIGNED NOT NULL,
   `Disability` INT UNSIGNED NOT NULL,
