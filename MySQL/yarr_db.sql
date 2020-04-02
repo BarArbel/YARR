@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXIST `yarr`.`researchers` (
 CREATE TABLE IF NOT EXIST `yarr`.`studies` (
   `StudyId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `ResearcherId` INT UNSIGNED NOT NULL,
-  `Tilte` VARCHAR(1024) NOT NULL,
+  `Title` VARCHAR(1024) NOT NULL,
   `StudyQuestions` VARCHAR(4096) NOT NULL,
   `Description` VARCHAR(4096) NOT NULL,
   PRIMARY KEY (`StudyId`),
