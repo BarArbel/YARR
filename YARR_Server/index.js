@@ -36,6 +36,7 @@ io.on('connection',function(socket){
     mysqlConnection.query(sql,(err,rows,fields) => {
         if(err) throw err;
         console.log("data was added");
+        socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} was created`);
     })
 
 
@@ -47,12 +48,14 @@ io.on('connection',function(socket){
             if(err) throw err;
             console.log("data was added");
         })
+        socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} updated`);
     });
 
     socket.on('disconnect', function(){
         console.log('A player has disconnected');
         delete tables[thisTableID];
         delete sockets[thisTableID];
+        socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} finished the game`);
     });
 });
 
