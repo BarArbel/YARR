@@ -18,20 +18,27 @@ class ExperimentBuilder extends Component {
     super(props)
 
     this.state = {
+      wizardIndex: 0,
       title: "",
       details: "",
-      characterType: 1,
-      colorSettings: 1,
       roundsNumber: 1,
-      roundsSettings: [{ GameMode: 1, Difficulty: 0 }]
+      roundDuration: 180,
+      roundsSettings: [{ GameMode: 1, Difficulty: 0 }],
+      disability: 1,
+      characterType: 1,
+      colorSettings: 1
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleChangeMode = this.handleChangeMode.bind(this)
-    this.renderRoundSettings = this.renderRoundSettings.bind(this)
-    this.handleChangeDifficulty = this.handleChangeDifficulty.bind(this)
     this.handleRoundNumberChange = this.handleRoundNumberChange.bind(this)
+    this.handleChangeMode = this.handleChangeMode.bind(this)
+    this.handleChangeDifficulty = this.handleChangeDifficulty.bind(this)
+    this.handleChangeSection = this.handleChangeSection.bind(this)
+    this.renderInfo = this.renderInfo.bind(this)
+    this.renderRoundSettings = this.renderRoundSettings.bind(this)
+    this.renderDisability = this.renderDisability.bind(this)
+    this.renderVisualSettings = this.renderVisualSettings.bind(this)
   }
 
   componentDidMount() {
@@ -40,15 +47,26 @@ class ExperimentBuilder extends Component {
     editForm && this.setState({ 
       title: currExperiment.Title,
       details: currExperiment.Details,
-      characterType: currExperiment.CharacterType,
-      colorSettings: currExperiment.ColorSettings,
       roundsNumber: currExperiment.RoundsNumber,
-      roundsSettings: currExperiment.RoundsSettings
+      roundDuration: currExperiment.RoundDuration,
+      roundsSettings: currExperiment.RoundsSettings,
+      disability: currExperiment.Disability,
+      characterType: currExperiment.CharacterType,
+      colorSettings: currExperiment.ColorSettings
     })
   }
 
   handleSubmit(event){
-    let { title, details, characterType, colorSettings, roundsNumber, roundsSettings } = this.state
+    let {
+      title,
+      details,
+      roundsNumber,
+      roundDuration,
+      roundsSettings,
+      disability,
+      characterType,
+      colorSettings
+    } = this.state
     const {
       studyId,
       editForm,
@@ -64,10 +82,12 @@ class ExperimentBuilder extends Component {
       studyId: studyId,
       title: title,
       details: details.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
+      roundsNumber: roundsNumber,
+      roundDuration: roundDuration,
+      roundsSettings: roundsSettings,
+      disability: disability,
       characterType: characterType,
       colorSettings: colorSettings,
-      roundsNumber: roundsNumber,
-      roundsSettings: roundsSettings,
       experimentId: editForm ? currExperiment.ExperimentId : undefined
     }
     event.preventDefault()
@@ -85,6 +105,7 @@ class ExperimentBuilder extends Component {
           if(editForm) {
             currExperiment.Title = title
             currExperiment.Details = details
+            currExperiment.Disability = disability
             currExperiment.CharacterType = characterType
             currExperiment.ColorSettings = colorSettings
             onSubmit(currExperiment)
@@ -92,6 +113,7 @@ class ExperimentBuilder extends Component {
               currExperiment.ExperimentId,
               currExperiment.Title,
               currExperiment.Details,
+              currExperiment.Disability,
               currExperiment.CharacterType,
               currExperiment.ColorSettings
             )
@@ -149,11 +171,89 @@ class ExperimentBuilder extends Component {
     this.setState({ roundsSettings: roundsSettings })
   }
 
+  handleChangeSection(direction) {
+    const { wizardIndex } = this.state
+    const { editForm } = this.props
+    let offset = 1
+
+    if(wizardIndex === 0 && editForm === true) {
+      offset = 2
+    } else if(wizardIndex === 2 && direction === "back" && editForm === true) {
+      offset = 2
+    }
+
+    if(direction === "next"){
+      this.setState({ wizardIndex: wizardIndex + offset })
+    } else if(direction === "back") {
+      this.setState({ wizardIndex: wizardIndex - offset })
+    }
+  }
+
+  renderInfo() {
+    const { title, details } = this.state
+
+    return(
+      <div>
+        <label htmlFor="defaultFormExperimentTitle" className="grey-text">
+          Experiment Title
+        </label>
+        <input
+          value={title}
+          onChange={this.handleChange}
+          id="defaultFormExperimentTitle"
+          className="form-control FormMargins"
+          name="title"
+          required
+        />
+        <label htmlFor="defaultFormExperimentDetails" className="grey-text">
+          Experiment Details
+        </label>
+        <textarea
+          value={details}
+          onChange={this.handleChange}
+          id="defaultFormExperimentDetails"
+          className="form-control FormMargins"
+          name="details"
+          rows="5"
+          maxLength="4096"
+          required
+        />
+      </div>
+    )
+  }
+
   renderRoundSettings() {
-    const { roundsSettings } = this.state
+    const { roundsNumber, roundDuration, roundsSettings } = this.state
 
     return (
       <div>
+        <label htmlFor="defaultFormExperimentRoundDuration" className="grey-text">
+          Round Duration: {roundDuration} seconds
+        </label>
+        <input
+          value={roundDuration}
+          onChange={this.handleChange}
+          id="defaultFormExperimentRoundDuration"
+          className="form-control FormMargins"
+          name="roundDuration"
+          type="range"
+          min="60"
+          max="300"
+          required
+        />
+        <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
+          Number of Rounds
+        </label>
+        <input
+          value={roundsNumber}
+          onChange={this.handleRoundNumberChange}
+          id="defaultFormExperimentRoundsNumber"
+          className="form-control FormMargins"
+          name="roundsNumber"
+          type="number"
+          required
+        />
+        <label className="grey-text">Rounds Settings</label>
         <ul>
           {roundsSettings.map((value, index) => {
             return (
@@ -200,92 +300,220 @@ class ExperimentBuilder extends Component {
     )
   }
 
+  renderDisability() {
+    const { disability } = this.state
+
+    return(
+      <div>
+        <label htmlFor="defaultFormExperimentDisability" className="grey-text">
+          Disability
+        </label>
+        <select
+          value={disability}
+          onChange={this.handleChange}
+          id="defaultFormExperimentDisability"
+          className="form-control FormMargins"
+          name="disability"
+          required
+        >
+          <option value={1}>No disability</option>
+          <option value={2}>Tetraplegia\Quadriplegia</option>
+          <option value={3}>Color blindness</option>
+        </select>
+      </div>
+    )
+  }
+
+  renderVisualSettings() {
+    const { characterType, colorSettings } = this.state
+
+    return(
+      <div>
+        <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
+          Character Skin
+        </label>
+        <div className="form-check FormMargin">
+          <input
+            value={1}
+            onChange={this.handleChange}
+            id="defaultFormExperimentCharacter"
+            className="form-check-input FormMargins"
+            name="characterType"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by color</label>
+        </div>
+        <img
+          src={ require("../../Images/different_colors.png") }
+          alt="Characters differentiated by color"
+          className="builderImage FormMargin"
+        />
+        <div className="form-check FormMargin">
+          <input
+            value={2}
+            onChange={this.handleChange}
+            id="defaultFormExperimentCharacter"
+            className="form-check-input FormMargins"
+            name="characterType"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by shapes</label>
+        </div>
+        <img
+          src={ require("../../Images/different_shapes.png") }
+          alt="Characters differentiated by shapes"
+          className="builderImage FormMargin"
+        />
+        <div className="form-check FormMargin">
+          <input
+            value={3}
+            onChange={this.handleChange}
+            id="defaultFormExperimentCharacter"
+            className="form-check-input FormMargins"
+            name="characterType"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by design</label>
+        </div>
+        <img
+          src={ require("../../Images/different_design.png") }
+          alt="Characters differentiated by design"
+          className="builderImage FormMargin"
+        />
+        {/*<select
+          value={characterType}
+          onChange={this.handleChange}
+          id="defaultFormExperimentCharacter"
+          className="form-control FormMargins"
+          name="characterType"
+          required
+        >
+          <option value={1}>Characters differentiated by color</option>
+          <option value={2}>Characters differentiated by shapes</option>
+          <option value={3}>Characters differentiated by design</option>
+        </select>*/}
+        <br/>
+        <label htmlFor="defaultFormExperimentColor" className="grey-text">
+          Color Settings
+        </label>
+        <div className="form-check FormMargin">
+          <input
+            value={1}
+            onChange={this.handleChange}
+            id="defaultFormExperimentColor"
+            className="form-check-input FormMargins"
+            name="colorSettings"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Full spectrum vision</label>
+        </div>
+        <img
+          src={ require("../../Images/full_spectrum_vision.jpg") }
+          alt="Full spectrum vision"
+          className="builderImage FormMargin"
+        />
+        <div className="form-check FormMargin">
+          <input
+            value={2}
+            onChange={this.handleChange}
+            id="defaultFormExperimentColor"
+            className="form-check-input FormMargins"
+            name="colorSettings"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Red-green color settings</label>
+        </div>
+        <img
+          src={ require("../../Images/red_green_color_blindness.jpg") }
+          alt="Red-green color blindness"
+          className="builderImage FormMargin"
+        />
+        <div className="form-check FormMargin">
+          <input
+            value={3}
+            onChange={this.handleChange}
+            id="defaultFormExperimentColor"
+            className="form-check-input FormMargins"
+            name="colorSettings"
+            type="radio"
+            required
+          />
+          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Blue-yellow color blindness</label>
+        </div>
+        <img
+          src={ require("../../Images/blue_yellow_color_blindness.jpg") }
+          alt="Blue-yellow color blindness"
+          className="builderImage FormMargin"
+        />
+        {/*<select
+          value={colorSettings}
+          onChange={this.handleChange}
+          id="defaultFormExperimentColor"
+          className="form-control FormMargins"
+          name="colorSettings"
+          required
+        >
+          <option value={1}>Full spectrum vision</option>
+          <option value={2}>Red-green color blindness</option>
+          <option value={3}>Blue-yellow color blindness</option>
+        </select>*/}
+      </div>
+    )
+  }
+
   render() {
-    const { title, details, characterType, roundsNumber, colorSettings } = this.state
-    const { status, editForm } = this.props
+    const { wizardIndex } = this.state
+    const { status } = this.props
     
     return(
       <div className="experimentBuilder">
         <form onSubmit={this.handleSubmit}>
           <p className="h4 text-center mb-4">Create Experiment</p>
-          <label htmlFor="defaultFormExperimentTitle" className="grey-text">
-            Experiment Title
-          </label>
-          <input
-            value={title}
-            onChange={this.handleChange}
-            id="defaultFormExperimentTitle"
-            className="form-control FormMargins"
-            name="title"
-            required
-          />
-          <label htmlFor="defaultFormExperimentDetails" className="grey-text">
-            Experiment Details
-          </label>
-          <textarea
-            value={details}
-            onChange={this.handleChange}
-            id="defaultFormExperimentDetails"
-            className="form-control FormMargins"
-            name="details"
-            rows="5"
-            maxLength="4096"
-            required
-          />
-          {editForm === false ?
+          {wizardIndex === 0 ?
             <div>
-              <label htmlFor="defaultFormExperimentRoundsNumber" className="grey-text">
-                Number of Rounds
-              </label>
-              <input
-                value={roundsNumber}
-                onChange={this.handleRoundNumberChange}
-                id="defaultFormExperimentRoundsNumber"
-                className="form-control FormMargins"
-                name="roundsNumber"
-                type="number"
-                required
-              />
-              <label className="grey-text">Rounds Settings</label>
+              <p className="h4 text-center mb-4">Experiment Info</p>
+              {this.renderInfo()}
+            </div> : (null)
+          }
+          {wizardIndex === 1 ?
+            <div>
+              <p className="h4 text-center mb-4">Rounds Settings</p>
               {this.renderRoundSettings()}
             </div> : (null)
           }
-          {(editForm === false || status === "Ready") ?
+          {wizardIndex === 2 ?
             <div>
-              <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
-                Character Skin
-              </label>
-              <select
-                value={characterType}
-                onChange={this.handleChange}
-                id="defaultFormExperimentCharacter"
-                className="form-control FormMargins"
-                name="characterType"
-                required
-              >
-                <option value={1}>Characters differentiated by color</option>
-                <option value={2}>Characters differentiated by shapes</option>
-                <option value={3}>Characters differentiated by design</option>
-              </select>
-              <label htmlFor="defaultFormExperimentColor" className="grey-text">
-                Color Settings
-              </label>
-              <select
-                value={colorSettings}
-                onChange={this.handleChange}
-                id="defaultFormExperimentColor"
-                className="form-control FormMargins"
-                name="colorSettings"
-                required
-              >
-                <option value={1}>Full spectrum vision</option>
-                <option value={2}>Red-green color blindness</option>
-                <option value={3}>Blue-yellow color blindness</option>
-              </select>
+              <p className="h4 text-center mb-4">Disability</p>
+              {this.renderDisability()}
             </div> : (null)
           }
-          <div className="text-center mt-4">
-            <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
+          {wizardIndex === 3 ?
+            <div>
+              <p className="h4 text-center mb-4">Visual Settings</p>
+              {this.renderVisualSettings()}
+            </div> : (null)
+          }
+          <div className="form-row">
+            {wizardIndex !== 0 ?
+              <div className="text-center mt-4">
+                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("back")}>Back</MDBBtn>
+              </div> : (null)
+            }
+            {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
+              <div className="text-center mt-4">
+                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("next")}>Next</MDBBtn>
+              </div> : (null)
+            }
+            {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?
+              <div className="text-center mt-4">
+                <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
+              </div> : (null)
+            }
           </div>
         </form>
       </div>

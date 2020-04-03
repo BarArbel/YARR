@@ -63,9 +63,11 @@ module.exports = {
           Status,
           Title,
           Details,
+          RoundsNumber,
+          RoundDuration,
+          Disability,
           CharacterType,
-          ColorSettings,
-          RoundsNumber
+          ColorSettings
         } = results[0];
         connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
           if (error) {
@@ -73,8 +75,9 @@ module.exports = {
           } else {
             let resStr = `{"result": "Success", "experiment": {"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                           "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
-                          "Details": "${Details}", "CharacterType": "${CharacterType}",
-                          "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`;
+                          "Details": "${Details}", "Disability": "${Disability}", "CharacterType": "${CharacterType}",
+                          "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}",
+                          "RoundDuration": "${RoundDuration}", "Rounds": [`;
             for (let i = 0; i < results.length; ++i) {
               let { RoundId, RoundNumber, GameMode, Difficulty } = results[i];
               resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
@@ -114,15 +117,18 @@ module.exports = {
           Status,
           Title,
           Details,
+          RoundsNumber,
+          RoundDuration,
+          Disability,
           CharacterType,
-          ColorSettings,
-          RoundsNumber
+          ColorSettings
         } = results[i];
         const roundsResults = await query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`);
         resStr = resStr.concat(`{"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                                       "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
-                                      "Details": "${Details}", "CharacterType": "${CharacterType}",
-                                      "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}", "Rounds": [`);
+                                      "Details": "${Details}", "Disability": "${Disability}", "CharacterType": "${CharacterType}",
+                                      "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}",
+                                      "RoundDuration": "${RoundDuration}", "Rounds": [`);
         for (let j = 0; j < roundsResults.length; ++j) {
           let { RoundId, RoundNumber, GameMode, Difficulty } = roundsResults[j];
           resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
@@ -147,19 +153,22 @@ module.exports = {
       studyId,
       title,
       details,
-      characterType,
-      colorSettings,
       roundsNumber,
-      roundsSettings
+      roundDuration,
+      roundsSettings,
+      disability,
+      characterType,
+      colorSettings
     } = req.body;
 
     let errorMsg = false
 
     if (studyId === undefined || !title || !details || characterType === undefined || !colorSettings === undefined
-        || !roundsNumber || !roundsSettings) {
+        || !roundsNumber || !roundsSettings || !roundDuration || disability === undefined) {
       res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
                             "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
                             "RoundsNumber": "${roundsNumber}", "RoundsSettings": "${roundsSettings}"},
+                            "RoundDuration": "${roundDuration}", "Disability": "${disability}",
                             "msg": "A parameter is missing."}`);
       return;
     }
@@ -178,8 +187,9 @@ module.exports = {
     let status = "Ready";
 
     connection.query(`INSERT INTO experiments (StudyId, CreationDate, Status, Title, Details, CharacterType, ColorSettings,
-                      RoundsNumber) VALUES (${studyId}, "${creationDate}", "${status}", "${title}", "${details}",
-                      "${characterType}", "${colorSettings}", ${roundsNumber})`, (error, results) => {
+                      RoundsNumber, RoundDuration, Disability) VALUES (${studyId}, "${creationDate}", "${status}", "${title}",
+                      "${details}", ${characterType}, ${colorSettings}, ${roundsNumber}, ${roundDuration}, ${disability})`,
+                      (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
         return;
@@ -206,6 +216,7 @@ module.exports = {
       status,
       title,
       details,
+      disability,
       characterType,
       colorSettings
     } = req.body;
@@ -214,7 +225,7 @@ module.exports = {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
-    if (!status && !title && !details && !characterType && !colorSettings) {
+    if (!status && !title && !details && !disability && !characterType && !colorSettings) {
       res.status(400).send('{"result": "Failure", "error": "No parameters to update."}');
       return;
     }
@@ -228,6 +239,9 @@ module.exports = {
     }
     if (details) {
       setStr = setStr.concat(`, Details = "${details}"`);
+    }
+    if (disability) {
+      setStr = setStr.concat(`, Disability = "${disability}"`);
     }
     if (characterType) {
       setStr = setStr.concat(`, CharacterType = "${characterType}"`);
