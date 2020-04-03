@@ -1,3 +1,4 @@
+require('dotenv').config()
 var io = require('socket.io')(process.env.PORT || 52300);
 const mysqlConnection = require("./connection");
 var Table = require('./Classes/Table.js');
@@ -58,4 +59,3 @@ io.on('connection',function(socket){
         socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} finished the game`);
     });
 });
-

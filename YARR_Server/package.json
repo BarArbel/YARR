@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.2",
     "shortid": "^2.2.15",
