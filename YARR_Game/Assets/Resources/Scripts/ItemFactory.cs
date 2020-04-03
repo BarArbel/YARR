@@ -7,6 +7,9 @@ using Event = Project.Networking.Event;
 
 public class ItemFactory : ObjectFactory
 {
+
+    private int LevelTimerAndSpawn;
+
     protected override void ModifyLevelSettings()
     {
         int level = GetLevel();
@@ -30,13 +33,16 @@ public class ItemFactory : ObjectFactory
         // Adaptive
         else
         {
+            LevelTimerAndSpawn += calcs.LevelSpawnHeightAndTimer;
 
+            DestroyTimer = LevelsOf_DestroyTimer[LevelTimerAndSpawn - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[LevelTimerAndSpawn - 1];
         }
     }
 
     protected override void Spawn()
     {
-        const int itemLayer = 10;
+        int itemLayer = LayerMask.NameToLayer("Item"); 
         // Calculate a random location to spawn at
         Vector3 position = new Vector3(UnityEngine.Random.Range(-10, 10), UnityEngine.Random.Range(SpawnHeightRange.x, SpawnHeightRange.y), 0);
 

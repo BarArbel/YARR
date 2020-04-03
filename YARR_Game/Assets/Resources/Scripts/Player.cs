@@ -98,7 +98,7 @@ public class Player : MonoBehaviour
                 DataTransformer.sendData(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
             else
-            {            
+            {
                 DataTransformer.sendData(Time.realtimeSinceStartup, Event.individualLoss, player, 0, 0, GetGameMode());
             }
         }
@@ -353,7 +353,7 @@ public class Player : MonoBehaviour
 
     void OnTriggerStay2D(Collider2D collider)
     {
-        const int playerCollisionLayer = 13;
+        int playerCollisionLayer = LayerMask.NameToLayer("pCollision");
         if (collider != null && collider.gameObject.layer == playerCollisionLayer)
         {
             Player otherPlayer = collider.transform.parent.gameObject.GetComponent<Player>();
@@ -445,9 +445,13 @@ public class Player : MonoBehaviour
     {
         FixBoatTime = 0;
         player.SetHealth();
-        Debug.Log("Time: " + Time.deltaTime);
-        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player, 0, 0, GetGameMode());
+        Debug.Log("Revived \n Time: " + Time.deltaTime + " Player: "+ player.GetID() +" loc: " +player.transform.position + " Mode: " + GetGameMode());
+        Debug.Log("Revived \n Time: " + Time.deltaTime + " Player: " + ID + " loc: " + transform.position + " Mode: " + GetGameMode());
+
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player.GetID(), player.transform.position.x, player.transform.position.y, 0, 0, GetGameMode());
+        //DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player, 0, 0, GetGameMode());
         DataTransformer.sendData(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());
 
     }
 
@@ -575,7 +579,7 @@ public class Player : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        const int playerLayer = 9;
+        int playerLayer = LayerMask.NameToLayer("Player"); 
         Physics2D.IgnoreLayerCollision(playerLayer, playerLayer, true);
     }
 

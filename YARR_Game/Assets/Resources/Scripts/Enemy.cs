@@ -99,7 +99,7 @@ public class Enemy : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        const int playerLayer = 9;
+        int playerLayer = LayerMask.NameToLayer("Player"); 
         if (collider.gameObject.layer == playerLayer)
         {
             Destroy(gameObject);

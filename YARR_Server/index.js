@@ -29,7 +29,7 @@ io.on('connection',function(socket){
         CoordY float DEFAULT NULL,
         Item int DEFAULT NULL,
         Enemy int DEFAULT NULL,
-        GameMode enum('cooperative','competitive') NOT NULL,
+        GameMode enum('Cooperative','Competitive') NOT NULL,
         PRIMARY KEY (EventID)
     );`;
 
@@ -43,10 +43,12 @@ io.on('connection',function(socket){
     //Sending Data to the spesific table
     socket.on('gameSnapshot', function(data){
         var sql = `INSERT INTO yarrserver.ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
-                                              VALUES('${data.Time}','${data.Event}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode}');`;
+                                              VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
         mysqlConnection.query(sql,(err,rows,fields) => {
             if(err) throw err;
             console.log("data was added");
+            console.log(data.GameMode);
+            console.log(data.Event);
         })
         socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} updated`);
     });
