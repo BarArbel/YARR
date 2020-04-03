@@ -4,6 +4,8 @@ import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
+import "react-step-progress-bar/styles.css"
+import { ProgressBar, Step } from "react-step-progress-bar"
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -26,19 +28,22 @@ class ExperimentBuilder extends Component {
       roundsSettings: [{ GameMode: 1, Difficulty: 0 }],
       disability: 1,
       characterType: 1,
-      colorSettings: 1
+      colorSettings: 1,
+      nextPressed: false
     }
 
+    this.renderInfo = this.renderInfo.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
     this.handleChange = this.handleChange.bind(this)
-    this.handleRoundNumberChange = this.handleRoundNumberChange.bind(this)
+    this.checkProgress = this.checkProgress.bind(this)
     this.handleChangeMode = this.handleChangeMode.bind(this)
-    this.handleChangeDifficulty = this.handleChangeDifficulty.bind(this)
-    this.handleChangeSection = this.handleChangeSection.bind(this)
-    this.renderInfo = this.renderInfo.bind(this)
-    this.renderRoundSettings = this.renderRoundSettings.bind(this)
     this.renderDisability = this.renderDisability.bind(this)
+    this.renderProgressBar = this.renderProgressBar.bind(this)
+    this.handleChangeSection = this.handleChangeSection.bind(this)
+    this.renderRoundSettings = this.renderRoundSettings.bind(this)
     this.renderVisualSettings = this.renderVisualSettings.bind(this)
+    this.handleChangeDifficulty = this.handleChangeDifficulty.bind(this)
+    this.handleRoundNumberChange = this.handleRoundNumberChange.bind(this)
   }
 
   componentDidMount() {
@@ -54,6 +59,63 @@ class ExperimentBuilder extends Component {
       characterType: currExperiment.CharacterType,
       colorSettings: currExperiment.ColorSettings
     })
+  }
+
+  renderProgressBar() {
+    const { wizardIndex } = this.state
+    const steps = 4
+
+    return (
+      <div style={{ marginBottom: "20px", marginTop: "10px" }} >
+        <ProgressBar percent={(wizardIndex / steps) * 100}>
+          <Step>
+            {({ accomplished, index }) => (
+              <div
+                className={`indexedStep ${accomplished ? "accomplished" : null}`}
+              >
+                {index + 1}
+              </div>
+            )}
+          </Step>
+          <Step>
+            {({ accomplished, index }) => (
+              <div
+                className={`indexedStep ${accomplished ? "accomplished" : null}`}
+              >
+                {index + 1}
+              </div>
+            )}
+          </Step>
+          <Step>
+            {({ accomplished, index }) => (
+              <div
+                className={`indexedStep ${accomplished ? "accomplished" : null}`}
+              >
+                {index + 1}
+              </div>
+            )}
+          </Step>
+          <Step>
+            {({ accomplished, index }) => (
+              <div
+                className={`indexedStep ${accomplished ? "accomplished" : null}`}
+              >
+                {index + 1}
+              </div>
+            )}
+          </Step>
+          <Step>
+            {({ accomplished, index }) => (
+              <div
+                className={`indexedStep ${accomplished ? "accomplished" : null}`}
+              >
+                V
+              </div>
+            )}
+          </Step>
+        </ProgressBar>
+      </div>
+    )
   }
 
   handleSubmit(event){
@@ -159,16 +221,27 @@ class ExperimentBuilder extends Component {
     }
   }
 
-  handleChangeMode(value, index){
+  handleChangeMode(value, index) {
     const { roundsSettings } = this.state
     roundsSettings[index].GameMode = parseInt(value)
     this.setState({roundsSettings: roundsSettings})
   }
 
-  handleChangeDifficulty(value, index){
+  handleChangeDifficulty(value, index) {
     const { roundsSettings } = this.state
     roundsSettings[index].Difficulty = parseInt(value)
     this.setState({ roundsSettings: roundsSettings })
+  }
+
+  checkProgress() {
+    const { wizardIndex } = this.state
+    if(wizardIndex === 0) {
+      const { title, details } = this.state
+      if(!title.length || !details.length) {
+        return false
+      }
+    }
+    return true
   }
 
   handleChangeSection(direction) {
@@ -183,14 +256,20 @@ class ExperimentBuilder extends Component {
     }
 
     if(direction === "next"){
-      this.setState({ wizardIndex: wizardIndex + offset })
+      if(this.checkProgress() === true) {
+        this.setState({ wizardIndex: wizardIndex + offset })
+      }
+      else this.setState({ nextPressed: true })
+
     } else if(direction === "back") {
       this.setState({ wizardIndex: wizardIndex - offset })
     }
   }
 
   renderInfo() {
-    const { title, details } = this.state
+    const { title, details, nextPressed } = this.state
+    const titleClass = nextPressed && !title.length ? "redBorder form-control FormMargins" : "form-control FormMargins"
+    const detailsClass = nextPressed && !details.length ? "redBorder form-control FormMargins" : "form-control FormMargins"
 
     return(
       <div>
@@ -201,7 +280,7 @@ class ExperimentBuilder extends Component {
           value={title}
           onChange={this.handleChange}
           id="defaultFormExperimentTitle"
-          className="form-control FormMargins"
+          className={titleClass}
           name="title"
           required
         />
@@ -212,7 +291,7 @@ class ExperimentBuilder extends Component {
           value={details}
           onChange={this.handleChange}
           id="defaultFormExperimentDetails"
-          className="form-control FormMargins"
+          className={detailsClass}
           name="details"
           rows="5"
           maxLength="4096"
@@ -329,60 +408,65 @@ class ExperimentBuilder extends Component {
 
     return(
       <div>
-        <label htmlFor="defaultFormExperimentCharacter" className="grey-text">
+        <label className="grey-text">
           Character Skin
         </label>
-        <div className="form-check FormMargin">
-          <input
-            value={1}
-            onChange={this.handleChange}
-            id="defaultFormExperimentCharacter"
-            className="form-check-input FormMargins"
-            name="characterType"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by color</label>
+        <div className="inputPicHolder">
+          <label>Characters differentiated by color
+            <br/>
+            <input
+              value={1}
+              onChange={this.handleChange}
+              id="defaultFormExperimentCharacter"
+              name="characterType"
+              type="radio"
+              required
+            />
+            <img
+              src={ require("../../Images/different_colors.png") }
+              alt="Characters differentiated by color"
+              className="builderImage"
+            />
+          </label>
         </div>
-        <img
-          src={ require("../../Images/different_colors.png") }
-          alt="Characters differentiated by color"
-          className="builderImage FormMargin"
-        />
-        <div className="form-check FormMargin">
-          <input
-            value={2}
-            onChange={this.handleChange}
-            id="defaultFormExperimentCharacter"
-            className="form-check-input FormMargins"
-            name="characterType"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by shapes</label>
+        <div className="inputPicHolder">
+          <label>
+            Characters differentiated by shapes
+          <br/>
+            <input
+              value={2}
+              onChange={this.handleChange}
+              id="defaultFormExperimentCharacter"
+              name="characterType"
+              type="radio"
+              required
+            />
+            <img
+              src={ require("../../Images/different_shapes.png") }
+              alt="Characters differentiated by shapes"
+              className="builderImage"
+            />
+          </label>
         </div>
-        <img
-          src={ require("../../Images/different_shapes.png") }
-          alt="Characters differentiated by shapes"
-          className="builderImage FormMargin"
-        />
-        <div className="form-check FormMargin">
-          <input
-            value={3}
-            onChange={this.handleChange}
-            id="defaultFormExperimentCharacter"
-            className="form-check-input FormMargins"
-            name="characterType"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentCharacter">Characters differentiated by design</label>
+        <div className="inputPicHolder">
+          <label>
+            Characters differentiated by design          
+          <br/>
+            <input
+              value={3}
+              onChange={this.handleChange}
+              id="defaultFormExperimentCharacter"
+              name="characterType"
+              type="radio"
+              required
+            />
+            <img
+              src={ require("../../Images/different_design.png") }
+              alt="Characters differentiated by design"
+              className="builderImage"
+            />
+          </label>
         </div>
-        <img
-          src={ require("../../Images/different_design.png") }
-          alt="Characters differentiated by design"
-          className="builderImage FormMargin"
-        />
         {/*<select
           value={characterType}
           onChange={this.handleChange}
@@ -395,7 +479,7 @@ class ExperimentBuilder extends Component {
           <option value={2}>Characters differentiated by shapes</option>
           <option value={3}>Characters differentiated by design</option>
         </select>*/}
-        <br/>
+        {/* <div className="clear"/> */}
         <label htmlFor="defaultFormExperimentColor" className="grey-text">
           Color Settings
         </label>
@@ -474,6 +558,7 @@ class ExperimentBuilder extends Component {
       <div className="experimentBuilder">
         <form onSubmit={this.handleSubmit}>
           <p className="h4 text-center mb-4">Create Experiment</p>
+          {this.renderProgressBar()}
           {wizardIndex === 0 ?
             <div>
               <p className="h4 text-center mb-4">Experiment Info</p>

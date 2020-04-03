@@ -250,8 +250,36 @@ hr {
 }
 
 .builderImage {
-  height: 50%;
-  width: 50%;
+  height: 25%;
+  width: 25%;
+  /* position: relative; */
+  /* left: 20%; */
+}
+
+.inputPicHolder {
+  position: relative;
+}
+
+/* HIDE RADIO */
+[type=radio] { 
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* IMAGE STYLES */
+[type=radio] + img {
+  cursor: pointer;
+}
+
+/* CHECKED STYLES */
+[type=radio]:checked + img {
+  outline: 2px solid #608bd2;
+}
+
+.clear {
+  clear: both;
 }
 
 .card {
@@ -279,6 +307,26 @@ hr {
   position: relative;
   left: 50%;
   transform: translate(-50%);
+}
+
+.indexedStep {
+  color: white;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  background-color: rgba(211, 211, 211, 0.8);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.indexedStep.accomplished {
+  background-color: rgba(0, 116, 217, 1);
+}
+
+.redBorder {
+  border-color: #B33A3A !important;
 }
 /* For the headers to look good, be sure to reset the margin and padding of the body */
 
