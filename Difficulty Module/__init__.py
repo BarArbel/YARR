@@ -2,9 +2,17 @@ from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
 import socket
 import json
+import socketio
+
+first_connection = True
+table_name = ""
+con = None
+number_of_players = 3
+host = "localhost"
+recv_port = "52300"
 
 
-def getDataFromDB(con, number_of_players):
+def getDataFromDB():
 
     total = {
         "pickup": [],
@@ -41,7 +49,7 @@ def getDataFromDB(con, number_of_players):
     return total, last_skills
 
 
-def calculate(number_of_players, total, last_skills):
+def calculate(total, last_skills):
 
     calcs = {
         "threshold": 0,
@@ -106,7 +114,7 @@ def calculate(number_of_players, total, last_skills):
     return calcs
 
 
-def insertCalculationsToDB(con, number_of_players, calcs):
+def insertCalculationsToDB(calcs):
 
     for player_id in range(number_of_players):
         con.insert_DDA_table(player_id + 1, calcs["threshold"],
@@ -123,31 +131,79 @@ def insertCalculationsToDB(con, number_of_players, calcs):
     return
 
 
+data_collector_socket = socketio.Client()
+#game_socket = socketio.Server()
+
+
+@data_collector_socket.event
+def connect():
+    print('Connected successfuly to data collector')
+
+
+@data_collector_socket.on("message")
+def on_message(data):
+    print('message received with ', data)
+    if first_connection == True:
+        table_name = data.split(" ")[1].split(".")[1]
+        con = DB_connection(table_name, number_of_players)
+        first_connection == False
+        print("done first connection")
+
+    elif data == "table yarrserver." + table_name + " updated":
+        total, last_skills = getDataFromDB()
+        calcs = calculate(total, last_skills)
+        insertCalculationsToDB(calcs)
+
+        game_json = {
+            "message": "DIFFICULTY_MODULE_VARIABLES",
+            "data": calcs
+        }
+        #game_socket.emit('message', json.dump(game_json))
+
+    elif data == "table yarrserver." + table_name + " finished the game":
+        # transfer data from temporary tables to permanent experiment table
+        game_json = {
+            "message": "EXPERIMENT_END"
+        }
+        #game_socket.emit('message', json.dump(game_json))
+        con.close_connection()
+        #server_socket.close()
+        data_collector_socket.close()
+        exit(0)
+    #sio.emit('my response', {'response': 'my response'})
+
+
+@data_collector_socket.event
+def disconnect():
+    print('Disconnected from data collector')
+    exit(0)
+
+
+
 if __name__ == '__main__':
 
-    number_of_players = 3
-    recv_port = 3004
+    
     send_port = 3005
     buff_size = 1024
     listen_queue = 1
+    msg = ""
+    tablename = ""
 
     connected_to_data_collector = False
     connected_to_game = False
 
-    con = DB_connection("game_snapshot", number_of_players)
-    con.create_DDA_table()
-
-    data_collector_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     while not connected_to_data_collector:
         try:
-            data_collector_socket.connect((socket.gethostname(), recv_port))
+            data_collector_socket.connect("http://" + host + ":" + recv_port)
         except:
             print("Failed to connect to data collector, trying again")
         else:
-            connected_to_data_collector = True
             print("Connected successfuly to data collector")
+            connected_to_data_collector = True
 
-    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    data_collector_socket.wait()
+
+    """server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((socket.gethostname(), send_port))
     server_socket.listen(listen_queue)
 
@@ -158,7 +214,17 @@ if __name__ == '__main__':
             print("Failed to connect to game, trying again")
         else:
             connected_to_game = True
-            print("Connected successfuly to game")
+            print("Connected successfuly to game")"""
+
+    """print("before recv")
+    msg = data_collector_socket.recv(buff_size)
+    print("after recv")
+    table_name = msg.decode("utf-8")
+    print("table_name '" + table_name + "'")
+    print("msg '" + msg + "'")"""
+    #con = DB_connection("game_snapshot", number_of_players)
+    """con = DB_connection(table_name, number_of_players)
+    con.create_DDA_table()
 
     while True:
         msg = data_collector_socket.recv(buff_size)
@@ -184,4 +250,4 @@ if __name__ == '__main__':
             server_socket.close()
             data_collector_socket.close()
             con.close_connection()
-            exit(0)
+            exit(0)"""

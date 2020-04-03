@@ -8,16 +8,17 @@ load_dotenv()
 class DB_connection:
 
     def __init__(self, table_name, number_of_players):
-        self.db = 'yarr_game1'
+        self.db = os.getenv('DATABASE')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
         self.cnx = mysql.connector.connect(user=os.getenv('USER'),
                                            password=os.getenv('PASSWORD'),
                                            host=os.getenv('HOST'),
-                                           database=self.db)
+                                           database=self.db,
+                                           auth_plugin='mysql_native_password')
         self.cursor = self.cnx.cursor()
-        self.create_DDA_table(self)
-        self.initialize_DDA_table(self, number_of_players)
+        self.create_DDA_table()
+        self.initialize_DDA_table(number_of_players)
 
     def create_DDA_table(self):
         query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
