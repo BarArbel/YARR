@@ -23,7 +23,7 @@ io.on('connection',function(socket){
     var sql = `CREATE TABLE yarrserver.ExperimentID_${table.time}_${table.id} (
         EventID int unsigned NOT NULL AUTO_INCREMENT,
         Timestamp float NOT NULL,
-        Event enum('pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropItem','getDamaged','blockDamage','failPickup','fallAccidently','individualLose','spawn') NOT NULL,
+        Event enum('pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropItem','getDamaged','blockDamage','failPickup','fallAccidently','individualLose','spawn', 'pressR', 'pressL', 'pressJ', 'reactionToSpawn') NOT NULL,
         PlayerID int unsigned DEFAULT NULL,
         CoordX float DEFAULT NULL,
         CoordY float DEFAULT NULL,
@@ -47,8 +47,6 @@ io.on('connection',function(socket){
         mysqlConnection.query(sql,(err,rows,fields) => {
             if(err) throw err;
             console.log("data was added");
-            console.log(data.GameMode);
-            console.log(data.Event);
         })
         socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} updated`);
     });

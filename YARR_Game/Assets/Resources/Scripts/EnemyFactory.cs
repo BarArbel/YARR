@@ -56,7 +56,7 @@ public class EnemyFactory : ObjectFactory
         // Calculate a random side to spawn at
         int enemyLayer = LayerMask.NameToLayer("Enemy"); 
         float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
-        Vector3 position = new Vector3(spawnX, 5, 0);
+        Vector3 position = new Vector3(spawnX, UnityEngine.Random.Range(1f, 5f), 0);
 
         // Create an enemy
         GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);

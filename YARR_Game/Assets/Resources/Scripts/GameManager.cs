@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private GameMode Mode;
     private int NumberOfPlayers;
     private Level Difficulty;
+    private bool IsGameLost;
 
     private Skin SkinType;
     private List<Vector2> ItemSinkColliderSize;
@@ -183,6 +184,7 @@ public class GameManager : MonoBehaviour
 
     void InitMode()
     {
+        IsGameLost = false;
         OthersItemsAmount = 1;
         if (DestroyFactoryMadeObjects() && DestroyFactories() && DestroyUI())
         {
@@ -306,7 +308,7 @@ public class GameManager : MonoBehaviour
     {
         GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
 
-        if (players.Length > 0)
+        if (players.Length > 0 && !IsGameLost)
         {
             for (int i = 0; i < players.Length; i++)
             {
@@ -314,21 +316,25 @@ public class GameManager : MonoBehaviour
                 {
                     return false;
                 }
+                else
+                {
+                    EnemyFactories[players[i].GetComponent<Player>().GetID()].FreezeSpawn(true);
+                }
             }
 
+            IsGameLost = true;
             DataTransformer.sendData(Time.realtimeSinceStartup, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
             return true;
         }
 
         return false;
-    }
-        
+    }  
 
     // Start is called before the first frame update
     void Start()
     {
         InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static3);
-        //SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame

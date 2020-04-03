@@ -57,6 +57,11 @@ public abstract class ObjectFactory : MonoBehaviour
         ModifyLevelSettings();
     }
 
+    protected void SetDDAChanges(string calc)
+    {
+        calcs = JsonUtility.FromJson<DDACalcs>(calc);
+    }
+
     public IEnumerator StartSpawner()
     {
         while (SpawnRateRange.x != -1)
@@ -67,9 +72,17 @@ public abstract class ObjectFactory : MonoBehaviour
         }
     }
 
-    protected void SetDDAChanges(string calc)
+    public void FreezeSpawn (bool trigger)
     {
-        calcs = JsonUtility.FromJson<DDACalcs>(calc);
+        if (trigger)
+        {
+            SpawnRateRange = new int2(-1, -1);
+        }
+        else
+        {
+            SpawnRateRange = new int2(-1, -1);
+        }
+        SpawnRateRange = new int2(-1, -1);
     }
 
     protected abstract void ModifyLevelSettings();

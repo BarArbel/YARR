@@ -294,9 +294,9 @@ public class Player : MonoBehaviour
             // Check collistion with enemies
             case enemyLayer:
                 int enemyID = collider.GetComponent<Enemy>().GetID();
+                collider.gameObject.layer = dontCollideLayer;
                 if (enemyID == ID || enemyID == -1)
                 {
-                    collider.gameObject.layer = dontCollideLayer;
                     SetEnemyHit(collider.GetComponent<Enemy>());
                 }
                 else
@@ -445,11 +445,7 @@ public class Player : MonoBehaviour
     {
         FixBoatTime = 0;
         player.SetHealth();
-        Debug.Log("Revived \n Time: " + Time.deltaTime + " Player: "+ player.GetID() +" loc: " +player.transform.position + " Mode: " + GetGameMode());
-        Debug.Log("Revived \n Time: " + Time.deltaTime + " Player: " + ID + " loc: " + transform.position + " Mode: " + GetGameMode());
 
-        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player.GetID(), player.transform.position.x, player.transform.position.y, 0, 0, GetGameMode());
-        //DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, player, 0, 0, GetGameMode());
         DataTransformer.sendData(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());
 
@@ -457,7 +453,6 @@ public class Player : MonoBehaviour
 
     void AccidentalFallIdentified()
     {
-        Debug.Log("ACCIDENTAL FALL EVENT");
         DataTransformer.sendData(Time.realtimeSinceStartup, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         // Clear lists for future identifications
         EnemiesDistance1st.Clear();

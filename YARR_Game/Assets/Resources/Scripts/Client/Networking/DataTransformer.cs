@@ -24,7 +24,6 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            Debug.Log(data.GameMode);
             socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
 
@@ -39,7 +38,6 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            Debug.Log(data.GameMode);
             socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
     }
