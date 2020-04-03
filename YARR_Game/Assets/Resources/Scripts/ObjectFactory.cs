@@ -2,9 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+using System;
 
 public abstract class ObjectFactory : MonoBehaviour
 {
+    [Serializable]
+    public class DDACalcs
+    {
+        public int LevelSpawnHeightAndTimer;
+        public int LevelPrecision;
+        public int LevelSpeedAndSpawnRate;
+    }
+
     private int ID;
     private int Level;
 
@@ -13,6 +22,9 @@ public abstract class ObjectFactory : MonoBehaviour
     protected float2 SpawnHeightRange;
     protected float Speed;
     protected int Damage;
+
+    protected DDACalcs calcs;
+
 
     private GameObject Prefab;
     private Sprite Sprite;
@@ -53,6 +65,11 @@ public abstract class ObjectFactory : MonoBehaviour
             Invoke("Spawn", randomNumber);
             yield return new WaitForSeconds(randomNumber);
         }
+    }
+
+    protected void SetDDAChanges(string calc)
+    {
+        calcs = JsonUtility.FromJson<DDACalcs>(calc);
     }
 
     protected abstract void ModifyLevelSettings();

@@ -49,7 +49,7 @@ public class ItemSink : Singleton
 
     void OnTriggerEnter2D(Collider2D collider)
     {
-        const int playerLayer = 9;
+        int playerLayer = LayerMask.NameToLayer("Player");
         GameObject gameObj = collider.gameObject;
 
         // If it's the player, take item out and put in item sink

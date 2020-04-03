@@ -172,6 +172,15 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
+    public void SetMode(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
+    {
+        NumberOfPlayers = numberOfPlayers;
+        Mode = mode;
+        SkinType = skin;
+        Difficulty = difficulty;
+        InitMode();
+    }
+
     void InitMode()
     {
         OthersItemsAmount = 1;
@@ -247,25 +256,20 @@ public class GameManager : MonoBehaviour
     {
         int itemLayer = LayerMask.NameToLayer("Item");
         int enemyLayer = LayerMask.NameToLayer("Enemy");
+        int playerLayer = LayerMask.NameToLayer("Player");
 
-        if (itemLayer == -1 || enemyLayer == -1)
+        if (itemLayer == -1 || enemyLayer == -1 || playerLayer == -1)
         {
             return false;
         }
 
-        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Untagged");
+        GameObject[] gameObjects = FindObjectsOfType<GameObject>();
         for (int i = 0; i < gameObjects.Length; i++)
         {
-            if (gameObjects[i].layer == itemLayer || gameObjects[i].layer == enemyLayer)
+            if (gameObjects[i].layer == itemLayer || gameObjects[i].layer == enemyLayer || gameObjects[i].layer == playerLayer)
             {
                 Destroy(gameObjects[i]);
             }
-        }
-
-        gameObjects = GameObject.FindGameObjectsWithTag("Player");
-        for (int i = 0; i < gameObjects.Length; i++)
-        {
-            Destroy(gameObjects[i]);
         }
 
         return true;
@@ -293,9 +297,9 @@ public class GameManager : MonoBehaviour
     {
         foreach (ObjectFactory factory in objFactories)
         {
-            objFactories.RemoveAt(objFactories.IndexOf(factory));
             Destroy(factory);
         }
+        objFactories.Clear();
     }
 
     private bool GameLost()
@@ -324,7 +328,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static3);
-        //InitGameManager(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        //SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame

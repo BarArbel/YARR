@@ -2,11 +2,15 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
+//using System.Text.Json;
+//using System.Text.Json.Serialization;
 
 public class EnemyFactory : ObjectFactory
 {
     private int TurnsAvailable;
     private double TimeBetweenPathRecalculation;
+    private int LevelSpeedAndSpawn;
+    private int LevelPrecision;
 
     protected override void ModifyLevelSettings()
     {
@@ -36,7 +40,13 @@ public class EnemyFactory : ObjectFactory
         // Adaptive
         else
         {
+            LevelSpeedAndSpawn += calcs.LevelSpeedAndSpawnRate;
+            LevelPrecision += calcs.LevelPrecision;
 
+            SpawnRateRange = LevelsOf_SpawnRateRange[LevelSpeedAndSpawn - 1];
+            Speed = LevelsOf_Speed[LevelSpeedAndSpawn - 1];
+            TurnsAvailable = LevelsOf_TurnsAvailable[LevelPrecision - 1];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[LevelPrecision - 1];
         }
 
     }
@@ -44,7 +54,7 @@ public class EnemyFactory : ObjectFactory
     protected override void Spawn()
     {
         // Calculate a random side to spawn at
-        const int enemyLayer = 11;
+        int enemyLayer = LayerMask.NameToLayer("Enemy"); 
         float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
         Vector3 position = new Vector3(spawnX, 5, 0);
 
