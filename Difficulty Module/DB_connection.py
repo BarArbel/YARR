@@ -22,7 +22,7 @@ class DB_connection:
 
     def create_DDA_table(self):
         query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
-                 "`Index` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+                 "`Id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
                  "`PlayerID` INT UNSIGNED NOT NULL,"
                  "`Threshold` FLOAT NOT NULL,"
                  "`I_SpawnHeight_level` INT NOT NULL,"
@@ -35,7 +35,7 @@ class DB_connection:
                  "`E_Speed_skill` FLOAT NOT NULL,"
                  "`E_SpawnRate_level` INT NOT NULL,"
                  "`E_SpawnRate_skill` FLOAT NOT NULL,"
-                 "PRIMARY KEY (`Index`))"
+                 "PRIMARY KEY (`Id`))"
                  "DEFAULT CHARACTER SET = utf8;")
 
         self.cursor.execute(query)
@@ -68,7 +68,7 @@ class DB_connection:
         print("enter last skills")
         query = ("SELECT " + skill + "FROM `" + self.db + "`.`" + self.DDAtb +
                  "` WHERE PlayerID = " + str(player_id) +
-                 " ORDER BY Index ASC LIMIT 1")
+                 " ORDER BY Id ASC LIMIT 1")
         print("before execute")
         self.cursor.execute(query)
         return self.cursor.fetchone()
@@ -83,7 +83,7 @@ class DB_connection:
         self.cnx.close()
 
     def count_total_player_events(self, event, player_id):
-        query = ("SELECT count(Event) FROM `" + self.tb +
+        query = ("SELECT count(Event) FROM `" + self.db + "`.`" + self.tb +
                  "` WHERE Event = '" + event + "' AND PlayerID = " +
                  str(player_id))
         self.cursor.execute(query)
