@@ -13,6 +13,11 @@ namespace Project.Networking
         static DataGameSnapShot data = new DataGameSnapShot();
          
         
+        public static void createTable()
+        {
+            socket.Emit("createTable");
+        }
+
         public static void sendData(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
         {
             data.Time = time;

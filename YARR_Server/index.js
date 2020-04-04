@@ -11,16 +11,15 @@ var sockets = [];
 io.on('connection',function(socket){
     console.log('Connection Made!');
 
-    socket.on('createTable', function(data){
-        var table = new Table();
-        var thisTableID = table.id;
+    var table = new Table();
+    var thisTableID = table.id;
 
-        tables[thisTableID] = table;
-        sockets[thisTableID] = socket;
+    tables[thisTableID] = table;
 
-        tables.push();
-        socket.emit('ExperimentID',table);
-
+    tables.push(table);
+    socket.emit('ExperimentID',table);
+    
+    socket.on('createTable', function(){
         //Creating table for each experiment
         var sql = `CREATE TABLE yarrserver.ExperimentID_${table.time}_${table.id} (
             EventID int unsigned NOT NULL AUTO_INCREMENT,
@@ -56,7 +55,6 @@ io.on('connection',function(socket){
     socket.on('disconnect', function(){
         console.log('A player has disconnected');
         delete tables[thisTableID];
-        delete sockets[thisTableID];
         socket.broadcast.emit('message', `table yarrserver.ExperimentID_${table.time}_${table.id} finished the game`);
     });
 });

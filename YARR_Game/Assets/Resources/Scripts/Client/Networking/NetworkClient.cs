@@ -32,6 +32,7 @@ namespace Project.Networking
 
             On("ExperimentID", (E) => {
                 Debug.Log("My table number is: " + E.data);
+                DataTransformer.createTable();
             });
 
         }
