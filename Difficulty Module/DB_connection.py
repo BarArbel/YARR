@@ -65,9 +65,11 @@ class DB_connection:
             self.cnx.commit()
 
     def get_DDA_last_player_skill(self, skill, player_id):
-        query = ("SELECT " + skill + " WHERE PlayerID = " + str(player_id) +
-                 "FROM `" + self.db + "`.`" + self.DDAtb +
-                 "` ORDER BY Index ASC LIMIT 1")
+        print("enter last skills")
+        query = ("SELECT " + skill + "FROM `" + self.db + "`.`" + self.DDAtb +
+                 "` WHERE PlayerID = " + str(player_id) +
+                 " ORDER BY Index ASC LIMIT 1")
+        print("before execute")
         self.cursor.execute(query)
         return self.cursor.fetchone()
 
@@ -81,15 +83,11 @@ class DB_connection:
         self.cnx.close()
 
     def count_total_player_events(self, event, player_id):
-        try:
-            query = ("SELECT count(Event) FROM `" + self.tb +
-                     "` WHERE Event = " + event + " AND PlayerID = " +
-                     str(player_id))
-            self.cursor.execute(query)
-            print(self.cursor.fetchall())
-            return self.cursor.fetchall()
-        except:
-            return 0
+        query = ("SELECT count(Event) FROM `" + self.tb +
+                 "` WHERE Event = '" + event + "' AND PlayerID = " +
+                 str(player_id))
+        self.cursor.execute(query)
+        return self.cursor.fetchall()
 
     def count_total_team_events(self, value, event):
         query = ("SELECT count(" + value + ") FROM `" + self.tb +

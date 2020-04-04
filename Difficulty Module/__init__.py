@@ -40,11 +40,11 @@ def getDataFromDB():
     for player_id in range(number_of_players):
         for event in total:
             total[event].append(con.count_total_player_events(
-                event, player_id + 1))
+                event, player_id + 1)[0])
 
         for skill in last_skills:
             last_skills[skill].append(con.get_DDA_last_player_skill(
-                skill, player_id + 1))
+                skill, player_id + 1)[0])
 
     return total, last_skills
 
@@ -151,22 +151,27 @@ def on_message(data):
         print("done first connection")
 
     elif data == "table yarrserver." + table_name + " updated":
+        print("before getDataFromDB")
         total, last_skills = getDataFromDB()
+        print(total)
+        print(last_skills)
         calcs = calculate(total, last_skills)
+        print(calcs)
         insertCalculationsToDB(calcs)
+        print("after insertCalculations")
 
         game_json = {
             "message": "DIFFICULTY_MODULE_VARIABLES",
             "data": calcs
         }
-        #game_socket.emit('message', json.dump(game_json))
+        #game_socket.emit('variables', json.dump(game_json))
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
         game_json = {
             "message": "EXPERIMENT_END"
         }
-        #game_socket.emit('message', json.dump(game_json))
+        #game_socket.emit('variables', json.dump(game_json))
         con.close_connection()
         #server_socket.close()
         #data_collector_socket.close()
