@@ -250,33 +250,41 @@ hr {
 }
 
 .builderImage {
-  height: 25%;
-  width: 25%;
-  /* position: relative; */
-  /* left: 20%; */
+  height: 85%;
+  width: 85%;
+  opacity: 0.5;
+  outline: 2px solid #608bd2;
+  padding: 5px;
+}
+
+.builderImage:hover {
+  opacity: 1;
 }
 
 .inputPicHolder {
   position: relative;
+  float: left;
 }
 
-/* HIDE RADIO */
-[type=radio] { 
-  position: absolute;
+.hideRadio {
+  /* position: absolute; */
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-/* IMAGE STYLES */
-[type=radio] + img {
+.inputImage:hover {
   cursor: pointer;
 }
 
-/* CHECKED STYLES */
-[type=radio]:checked + img {
-  outline: 2px solid #608bd2;
+.selectedVisual {
+  opacity: 1;
 }
+
+/* CHECKED STYLES */
+/* [type=radio]:checked + img {
+  outline: 2px solid #608bd2;
+} */
 
 .clear {
   clear: both;
@@ -284,6 +292,12 @@ hr {
 
 .card {
   margin-bottom: 10px;
+}
+
+.imageLableInput {
+  width: 295px;
+  height: 150px;
+  padding-left: 10px;
 }
 
 .cardSmall {

@@ -20,7 +20,7 @@ class ExperimentBuilder extends Component {
     super(props)
 
     this.state = {
-      wizardIndex: 0,
+      wizardIndex: 3,
       title: "",
       details: "",
       roundsNumber: 1,
@@ -404,148 +404,134 @@ class ExperimentBuilder extends Component {
   }
 
   renderVisualSettings() {
-    const { characterType, colorSettings } = this.state
-
+    const { characterType, disability } = this.state
+    const tempType = parseInt(characterType)
     return(
       <div>
         <label className="grey-text">
           Character Skin
         </label>
-        <div className="inputPicHolder">
-          <label>Characters differentiated by color
-            <br/>
+        <ul>
+          <div className="inputPicHolder">
             <input
               value={1}
               onChange={this.handleChange}
-              id="defaultFormExperimentCharacter"
+              id="color"
               name="characterType"
               type="radio"
+              className="hideRadio"
               required
             />
-            <img
-              src={ require("../../Images/different_colors.png") }
-              alt="Characters differentiated by color"
-              className="builderImage"
-            />
-          </label>
-        </div>
-        <div className="inputPicHolder">
-          <label>
-            Characters differentiated by shapes
-          <br/>
+            <label htmlFor="color" className="imageLableInput">
+              Characters differentiated by color
+              <img
+                src={ require("../../Images/different_colors.png") }
+                alt="Characters differentiated by color"
+                className={tempType === 1 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+              />
+            </label>
+          </div>
+          <div className="inputPicHolder">
             <input
               value={2}
               onChange={this.handleChange}
-              id="defaultFormExperimentCharacter"
+              id="shapes"
               name="characterType"
               type="radio"
+              className="hideRadio"
               required
             />
-            <img
-              src={ require("../../Images/different_shapes.png") }
-              alt="Characters differentiated by shapes"
-              className="builderImage"
-            />
-          </label>
-        </div>
-        <div className="inputPicHolder">
-          <label>
-            Characters differentiated by design          
-          <br/>
+            <label htmlFor="shapes" className="imageLableInput">
+              Characters differentiated by shapes
+              <img
+                src={ require("../../Images/different_shapes.png") }
+                alt="Characters differentiated by shapes"
+                className={tempType === 2 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+              />
+            </label>
+          </div>
+          <div className="inputPicHolder">
             <input
               value={3}
               onChange={this.handleChange}
-              id="defaultFormExperimentCharacter"
+              id="design"
               name="characterType"
               type="radio"
+              className="hideRadio"
               required
             />
-            <img
-              src={ require("../../Images/different_design.png") }
-              alt="Characters differentiated by design"
-              className="builderImage"
-            />
+            <label htmlFor="design" className="imageLableInput">
+              Characters differentiated by design          
+              <img
+                src={ require("../../Images/different_design.png") }
+                alt="Characters differentiated by design"
+                className={tempType === 3 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+              />
+              </label>
+          </div>
+        </ul>
+        {disability === "3" ? 
+        (
+        <div>
+          <label htmlFor="defaultFormExperimentColor" className="grey-text">
+            Color Settings
           </label>
+            <ul>
+              <div className="form-check FormMargin">
+                <input
+                  value={1}
+                  onChange={this.handleChange}
+                  id="defaultFormExperimentColor"
+                  className="form-check-input FormMargins"
+                  name="colorSettings"
+                  type="radio"
+                  required
+                />
+                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Full spectrum vision</label>
+              </div>
+              <img
+                src={require("../../Images/full_spectrum_vision.jpg")}
+                alt="Full spectrum vision"
+                className="builderImage FormMargin"
+              />
+              <div className="form-check FormMargin">
+                <input
+                  value={2}
+                  onChange={this.handleChange}
+                  id="defaultFormExperimentColor"
+                  className="form-check-input FormMargins"
+                  name="colorSettings"
+                  type="radio"
+                  required
+                />
+                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Red-green color settings</label>
+              </div>
+              <img
+                src={require("../../Images/red_green_color_blindness.jpg")}
+                alt="Red-green color blindness"
+                className="builderImage FormMargin"
+              />
+              <div className="form-check FormMargin">
+                <input
+                  value={3}
+                  onChange={this.handleChange}
+                  id="defaultFormExperimentColor"
+                  className="form-check-input FormMargins"
+                  name="colorSettings"
+                  type="radio"
+                  required
+                />
+                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Blue-yellow color blindness</label>
+              </div>
+              <img
+                src={require("../../Images/blue_yellow_color_blindness.jpg")}
+                alt="Blue-yellow color blindness"
+                className="builderImage FormMargin"
+              />
+            </ul>
         </div>
-        {/*<select
-          value={characterType}
-          onChange={this.handleChange}
-          id="defaultFormExperimentCharacter"
-          className="form-control FormMargins"
-          name="characterType"
-          required
-        >
-          <option value={1}>Characters differentiated by color</option>
-          <option value={2}>Characters differentiated by shapes</option>
-          <option value={3}>Characters differentiated by design</option>
-        </select>*/}
-        {/* <div className="clear"/> */}
-        <label htmlFor="defaultFormExperimentColor" className="grey-text">
-          Color Settings
-        </label>
-        <div className="form-check FormMargin">
-          <input
-            value={1}
-            onChange={this.handleChange}
-            id="defaultFormExperimentColor"
-            className="form-check-input FormMargins"
-            name="colorSettings"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Full spectrum vision</label>
-        </div>
-        <img
-          src={ require("../../Images/full_spectrum_vision.jpg") }
-          alt="Full spectrum vision"
-          className="builderImage FormMargin"
-        />
-        <div className="form-check FormMargin">
-          <input
-            value={2}
-            onChange={this.handleChange}
-            id="defaultFormExperimentColor"
-            className="form-check-input FormMargins"
-            name="colorSettings"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Red-green color settings</label>
-        </div>
-        <img
-          src={ require("../../Images/red_green_color_blindness.jpg") }
-          alt="Red-green color blindness"
-          className="builderImage FormMargin"
-        />
-        <div className="form-check FormMargin">
-          <input
-            value={3}
-            onChange={this.handleChange}
-            id="defaultFormExperimentColor"
-            className="form-check-input FormMargins"
-            name="colorSettings"
-            type="radio"
-            required
-          />
-          <label className="form-check-label" htmlFor="defaultFormExperimentColor">Blue-yellow color blindness</label>
-        </div>
-        <img
-          src={ require("../../Images/blue_yellow_color_blindness.jpg") }
-          alt="Blue-yellow color blindness"
-          className="builderImage FormMargin"
-        />
-        {/*<select
-          value={colorSettings}
-          onChange={this.handleChange}
-          id="defaultFormExperimentColor"
-          className="form-control FormMargins"
-          name="colorSettings"
-          required
-        >
-          <option value={1}>Full spectrum vision</option>
-          <option value={2}>Red-green color blindness</option>
-          <option value={3}>Blue-yellow color blindness</option>
-        </select>*/}
+        )
+        : null}
       </div>
     )
   }
