@@ -78,7 +78,7 @@ class ExperimentPage extends Component {
             else difficultyColor = { fontWeight: "bold" }
             return (
               <div className="card cardSmall" key={`round${index}`}>
-              <p className="roundNumber">Round {parseInt(value.RoundNumber) + 1}</p>
+                <p className="roundNumber">Round {parseInt(value.RoundNumber) + 1}</p>
                 <div className="card-body">
                   <img src={value.GameMode > 1 ? CompImg : CoopImg} alt="Game Mode" className="modePic"/>
                   <p className="card-text" style={{ textAlign: 'center', paddingTop: '13px'}}>{gameMode[value.GameMode - 1]}</p>

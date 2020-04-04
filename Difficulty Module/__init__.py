@@ -143,10 +143,11 @@ def connect():
 @data_collector_socket.on("message")
 def on_message(data):
     print('message received with ', data)
-    if first_connection == True:
+    global first_connection, table_name, con
+    if first_connection is True:
         table_name = data.split(" ")[1].split(".")[1]
         con = DB_connection(table_name, number_of_players)
-        first_connection == False
+        first_connection = False
         print("done first connection")
 
     elif data == "table yarrserver." + table_name + " updated":
@@ -168,7 +169,7 @@ def on_message(data):
         #game_socket.emit('message', json.dump(game_json))
         con.close_connection()
         #server_socket.close()
-        data_collector_socket.close()
+        #data_collector_socket.close()
         exit(0)
     #sio.emit('my response', {'response': 'my response'})
 
