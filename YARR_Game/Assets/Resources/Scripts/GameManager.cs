@@ -312,13 +312,18 @@ public class GameManager : MonoBehaviour
         {
             for (int i = 0; i < players.Length; i++)
             {
-                if (players[i].GetComponent<Player>().GetHealth() > 0)
+                Player player = players[i].GetComponent<Player>();
+                if (player.GetHealth() > 0)
                 {
+                    EnemyFactories[player.GetID()-1].FreezeSpawn(false);
+                    ItemFactories[player.GetID() - 1].FreezeSpawn(false);
                     return false;
                 }
                 else
                 {
-                    EnemyFactories[players[i].GetComponent<Player>().GetID()].FreezeSpawn(true);
+                    EnemyFactories[player.GetID()-1].FreezeSpawn(true);
+                    ItemFactories[player.GetID() - 1].FreezeSpawn(true);
+                    Debug.Log("froze spawn for player " + i);
                 }
             }
 
@@ -334,7 +339,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static3);
-        SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        //SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame

@@ -16,6 +16,7 @@ public abstract class ObjectFactory : MonoBehaviour
 
     private int ID;
     private int Level;
+    private int2 TempSpawnRate;
 
     protected int2 SpawnRateRange;
     protected float DestroyTimer;
@@ -74,15 +75,17 @@ public abstract class ObjectFactory : MonoBehaviour
 
     public void FreezeSpawn (bool trigger)
     {
-        if (trigger)
+        int2 freeze = new int2(-1, -1);
+        if (trigger && SpawnRateRange.x != freeze.x)
         {
-            SpawnRateRange = new int2(-1, -1);
+            TempSpawnRate = SpawnRateRange;
+            SpawnRateRange = freeze;            
         }
-        else
+        else if (!trigger && SpawnRateRange.x == freeze.x)
         {
-            SpawnRateRange = new int2(-1, -1);
+            SpawnRateRange = TempSpawnRate;
         }
-        SpawnRateRange = new int2(-1, -1);
+
     }
 
     protected abstract void ModifyLevelSettings();
