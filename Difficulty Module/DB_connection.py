@@ -81,11 +81,15 @@ class DB_connection:
         self.cnx.close()
 
     def count_total_player_events(self, event, player_id):
-        query = ("SELECT count(Event) FROM `" + self.tb +
-                 "` WHERE Event = " + event + " AND PlayerID = " +
-                 str(player_id))
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+        try:
+            query = ("SELECT count(Event) FROM `" + self.tb +
+                     "` WHERE Event = " + event + " AND PlayerID = " +
+                     str(player_id))
+            self.cursor.execute(query)
+            print(self.cursor.fetchall())
+            return self.cursor.fetchall()
+        except:
+            return 0
 
     def count_total_team_events(self, value, event):
         query = ("SELECT count(" + value + ") FROM `" + self.tb +
