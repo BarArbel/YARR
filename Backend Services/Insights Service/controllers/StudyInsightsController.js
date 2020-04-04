@@ -24,7 +24,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${researcherId}"`, (error, results) => {
+    connection.query(`SELECT * FROM "${researcherId}"_"${studyId}"_Insights_Mirror WHERE ResearcherId = "${researcherId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
         return;
