@@ -1,0 +1,5 @@
+python-socketio[client]
+dotenv
+mysql-connector
+mysql-connector-python
+dnspython
