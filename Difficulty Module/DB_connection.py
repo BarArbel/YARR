@@ -16,7 +16,7 @@ class DB_connection:
                                            host=os.getenv('HOST'),
                                            database=self.db,
                                            auth_plugin='mysql_native_password')
-        self.cursor = self.cnx.cursor()
+        self.cursor = self.cnx.cursor(buffered=True)
         self.create_DDA_table()
         self.initialize_DDA_table(number_of_players)
 
@@ -65,13 +65,15 @@ class DB_connection:
             self.cnx.commit()
 
     def get_DDA_last_player_skill(self, skill, player_id):
-        print("enter last skills")
-        query = ("SELECT " + skill + "FROM `" + self.db + "`.`" + self.DDAtb +
-                 "` WHERE PlayerID = " + str(player_id) +
-                 " ORDER BY Id ASC LIMIT 1")
-        print("before execute")
-        self.cursor.execute(query)
-        return self.cursor.fetchone()
+        try:
+            query = ("SELECT " + skill + " FROM " + self.db + "."
+                     + self.DDAtb + " WHERE PlayerID = " + str(player_id) +
+                     " ORDER BY Id ASC LIMIT 1")
+            self.cursor.execute(query)
+            return self.cursor.fetchone()
+        except Exception as e:
+            print("last_skill exception: " + str(e))
+            return [0]
 
     def remove_DDA_table(self):
         query = ("DROP TABLE `" + self.db + "`.`" + self.DDAtb + "`")
@@ -83,11 +85,15 @@ class DB_connection:
         self.cnx.close()
 
     def count_total_player_events(self, event, player_id):
-        query = ("SELECT count(Event) FROM `" + self.db + "`.`" + self.tb +
-                 "` WHERE Event = '" + event + "' AND PlayerID = " +
-                 str(player_id))
-        self.cursor.execute(query)
-        return self.cursor.fetchall()
+        try:
+            query = ("SELECT count(Event) FROM " + self.db + "." + self.tb +
+                     " WHERE Event = '" + event + "' AND PlayerID = " +
+                     str(player_id))
+            self.cursor.execute(query)
+            return self.cursor.fetchone()
+        except Exception as e:
+            print("count_total exception: " + str(e))
+            return [0]
 
     def count_total_team_events(self, value, event):
         query = ("SELECT count(" + value + ") FROM `" + self.tb +

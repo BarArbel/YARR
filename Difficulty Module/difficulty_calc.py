@@ -11,18 +11,24 @@ class DDA_calc:
         self.coeff_speed_and_spawn_rate = 0.3
 
     # Avg pickup success rate
-    def calc_threshold(player_pickup_item, player_spawn_item):
+    def calc_threshold(self, player_pickup_item, player_spawn_item):
         pickup_success_rate = 0
         player_count = len(player_pickup_item)
         for i in player_pickup_item:
             for j in player_spawn_item:
-                pickup_success_rate += i/j
+                if j == 0:
+                    pickup_success_rate += i / 0.001
+                else:
+                    pickup_success_rate += i/j
 
         return pickup_success_rate / player_count
 
     def calc_spawn_height_and_timer(self, total_pickup_item, player_fall,
                                     player_pickup_item_fail,
                                     player_pickup_item, player_spawn_item):
+
+        if player_spawn_item == 0:
+            return 3
 
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *
@@ -35,6 +41,9 @@ class DDA_calc:
                        player_get_damage, player_pickup_item,
                        player_spawn_item):
 
+        if player_spawn_item == 0:
+            return 2
+
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *
                          (player_avoid_damage - player_get_damage)))
@@ -44,6 +53,9 @@ class DDA_calc:
     def calc_speed_and_spawn_rate(self, player_avoid_damage, player_get_damage,
                                   player_block_damage, player_pickup_item,
                                   player_spawn_item):
+
+        if player_spawn_item == 0:
+            return 2
 
         abs_skill = abs((self.coeff_player_pickup_item_ * player_pickup_item) +
                         (self.coeff_spawn_height_and_timer *

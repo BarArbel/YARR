@@ -1,9 +1,9 @@
 from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
-import socket
-import json
 import socketio
+import asyncio
 
+sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
 con = None
@@ -12,7 +12,7 @@ host = "localhost"
 recv_port = "52300"
 
 
-def getDataFromDB():
+async def getDataFromDB():
 
     total = {
         "pickup": [],
@@ -49,11 +49,11 @@ def getDataFromDB():
     return total, last_skills
 
 
-def calculate(total, last_skills):
+async def calculate(total, last_skills):
 
     calcs = {
         "threshold": 0,
-        "spawnHeigthAndTimer": {
+        "spawnHeightAndTimer": {
             "skill": [],
             "level": []
         },
@@ -68,7 +68,7 @@ def calculate(total, last_skills):
     }
 
     key_pairs = [
-        ["spawnHeigthAndTimer", "I_SpawnHeight_skill"],
+        ["spawnHeightAndTimer", "I_SpawnHeight_skill"],
         ["precision", "E_Precision_skill"],
         ["speedAndSpawnRate", "E_Speed_skill"]
     ]
@@ -104,8 +104,8 @@ def calculate(total, last_skills):
         )
 
         for pair in key_pairs:
-            rangeMax = last_skills[pair[1]] + calcs["threshold"]
-            rangeMin = last_skills[pair[1]] - calcs["threshold"]
+            rangeMax = last_skills[pair[1]][player_id] + calcs["threshold"]
+            rangeMin = last_skills[pair[1]][player_id] - calcs["threshold"]
             skill = calcs[pair[0]]["skill"][-1]
 
             calcs[pair[0]]["level"].append(1 if skill > rangeMax else (
@@ -114,7 +114,7 @@ def calculate(total, last_skills):
     return calcs
 
 
-def insertCalculationsToDB(calcs):
+async def insertCalculationsToDB(calcs):
 
     for player_id in range(number_of_players):
         con.insert_DDA_table(player_id + 1, calcs["threshold"],
@@ -131,17 +131,13 @@ def insertCalculationsToDB(calcs):
     return
 
 
-data_collector_socket = socketio.Client()
-#game_socket = socketio.Server()
-
-
-@data_collector_socket.event
+@sio.event
 def connect():
     print('Connected successfuly to data collector')
 
 
-@data_collector_socket.on("message")
-def on_message(data):
+@sio.on("message")
+async def on_message(data):
     print('message received with ', data)
     global first_connection, table_name, con
     if first_connection is True:
@@ -151,109 +147,38 @@ def on_message(data):
         print("done first connection")
 
     elif data == "table yarrserver." + table_name + " updated":
-        print("before getDataFromDB")
-        total, last_skills = getDataFromDB()
-        print(total)
-        print(last_skills)
-        calcs = calculate(total, last_skills)
-        print(calcs)
-        insertCalculationsToDB(calcs)
-        print("after insertCalculations")
-
-        game_json = {
-            "message": "DIFFICULTY_MODULE_VARIABLES",
-            "data": calcs
-        }
-        #game_socket.emit('variables', json.dump(game_json))
+        total, last_skills =  await getDataFromDB()
+        calcs = await calculate(total, last_skills)
+        await insertCalculationsToDB(calcs)
+        sio.emit('variables', calcs)
+        print("variables sent to game: " calcs)
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
-        game_json = {
-            "message": "EXPERIMENT_END"
-        }
-        #game_socket.emit('variables', json.dump(game_json))
+
+        sio.emit('end', 'experiment ended')
         con.close_connection()
-        #server_socket.close()
-        #data_collector_socket.close()
-        exit(0)
-    #sio.emit('my response', {'response': 'my response'})
 
 
-@data_collector_socket.event
+@sio.event
 def disconnect():
     print('Disconnected from data collector')
-    exit(0)
 
 
-
-if __name__ == '__main__':
-
-    
-    send_port = 3005
-    buff_size = 1024
-    listen_queue = 1
-    msg = ""
-    tablename = ""
-
+async def start_server():
     connected_to_data_collector = False
-    connected_to_game = False
 
     while not connected_to_data_collector:
         try:
-            data_collector_socket.connect("http://" + host + ":" + recv_port)
+            await sio.connect("http://" + host + ":" + recv_port)
         except:
             print("Failed to connect to data collector, trying again")
         else:
-            print("Connected successfuly to data collector")
             connected_to_data_collector = True
+    await sio.wait()
 
-    data_collector_socket.wait()
+if __name__ == '__main__':
 
-    """server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_socket.bind((socket.gethostname(), send_port))
-    server_socket.listen(listen_queue)
-
-    while not connected_to_game:
-        try:
-            game_socket, address = server_socket.accept()
-        except:
-            print("Failed to connect to game, trying again")
-        else:
-            connected_to_game = True
-            print("Connected successfuly to game")"""
-
-    """print("before recv")
-    msg = data_collector_socket.recv(buff_size)
-    print("after recv")
-    table_name = msg.decode("utf-8")
-    print("table_name '" + table_name + "'")
-    print("msg '" + msg + "'")"""
-    #con = DB_connection("game_snapshot", number_of_players)
-    """con = DB_connection(table_name, number_of_players)
-    con.create_DDA_table()
-
-    while True:
-        msg = data_collector_socket.recv(buff_size)
-        decoded_msg = msg.decode("utf-8")
-
-        if decoded_msg == "DATA_COLLECTOR_PING":
-            total, last_skills = getDataFromDB(con, number_of_players)
-            calcs = calculate(number_of_players, total, last_skills)
-            insertCalculationsToDB(con, number_of_players, calcs)
-
-            game_json = {
-                "message": "DIFFICULTY_MODULE_VARIABLES",
-                "data": calcs
-            }
-            game_socket.send(json.dump(game_json))
-
-        elif decoded_msg == "EXPERIMENT_END":
-            # transfer data from temporary tables to permanent experiment table
-            game_json = {
-                "message": "EXPERIMENT_END"
-            }
-            game_socket.send(json.dump(game_json))
-            server_socket.close()
-            data_collector_socket.close()
-            con.close_connection()
-            exit(0)"""
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(start_server())
+    loop.close()
