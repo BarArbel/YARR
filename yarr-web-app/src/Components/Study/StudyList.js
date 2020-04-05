@@ -65,14 +65,15 @@ class StudyList extends Component {
     const { Description, StudyQuestions, Title } = study
     const limitedQuestions = StudyQuestions.length > 265 ? StudyQuestions.substring(0, 265) + '...' : StudyQuestions
     const limitedDescription = Description.length > 265 ? Description.substring(0, 265) + '...' : Description
-
+    const { toggleEdit } = this.props
     return (
       <StudyItem 
-      key={`study${i}`} 
-      studyId={study.StudyId} 
-      onDelete={this.handleDelete}
-      onEdit={this.handleEdit}
-      study={study}
+        key={`study${i}`} 
+        studyId={study.StudyId} 
+        onDelete={this.handleDelete}
+        onEdit={this.handleEdit}
+        study={study}
+        toggleEdit={toggleEdit}
       >
         <h5 className="card-title">{Title}</h5>
         <h6 className="card-title">Study Questions</h6>

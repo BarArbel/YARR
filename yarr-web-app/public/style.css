@@ -175,6 +175,13 @@ a.linkHolder:hover {
   background-color: #62c462 !important;
 }
 
+.addFirstStudy {
+  position: relative;
+  background-color: #62c462 !important;
+  left: 50%;
+  transform: translate(-50%);
+}
+
 .input-limit {
   position: relative;
   float: right;

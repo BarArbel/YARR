@@ -61,6 +61,8 @@ class StudyItem extends Component {
 
   handleEdit() {
     const { editStudy } = this.state
+    const { toggleEdit } = this.props
+    toggleEdit(!editStudy)
     this.setState({ editStudy: !editStudy })
   }
 

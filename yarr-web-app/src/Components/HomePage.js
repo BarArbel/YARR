@@ -12,6 +12,7 @@ import BreadcrumbsActions from '../Actions/BreadcrumbsActions'
 
 const mapStateToProps = ({ user, study }) => {
   return {
+    studies: study.studies,
     userInfo: user.userInfo,
     isLogged: user.isLogged,
     bearerKey: user.bearerKey,
@@ -21,9 +22,14 @@ const mapStateToProps = ({ user, study }) => {
 
 class HomePage extends Component {
   constructor(props) {
-    super(props)
+    super(props) 
+
+    this.state = {
+      editStudy: false
+    }
 
     this.renderLogged = this.renderLogged.bind(this)
+    this.handleToggleEdit = this.handleToggleEdit.bind(this)
     this.handleToggleBuild = this.handleToggleBuild.bind(this)
   }
 
@@ -40,9 +46,16 @@ class HomePage extends Component {
     handleToggleBuildStudy()
   }
 
+  handleToggleEdit(editStudy) {
+    console.log(editStudy)
+    this.setState({ editStudy: editStudy })
+  }
+
   renderLogged(){
-    const { buildStudy } = this.props
-    const toggleButtonText = buildStudy ? "Return" : "Create Study"
+    const { buildStudy, studies } = this.props
+    const { editStudy } = this.state
+    const toggleButtonText = buildStudy ? "Return" : studies.length ? "Create Study" : "Create First Study"
+    const buttonClassName = studies.length || buildStudy ? "login-btn addStudy" : "login-btn addFirstStudy"
     const buttonColor = buildStudy ? "blue-grey" : "light-green"
 
       return (
@@ -51,8 +64,9 @@ class HomePage extends Component {
           <Breadcrumbs/ >
           <div className="container">
             <label/>
-            <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
-            {buildStudy ? <StudyBuilder/> : <StudyList/>}
+            {(studies.length || buildStudy) && !editStudy ? <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
+            {buildStudy ? <StudyBuilder/> : <StudyList toggleEdit={this.handleToggleEdit}/>}
+            {!studies.length && !buildStudy ? <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
           </div>
         </div>
       )

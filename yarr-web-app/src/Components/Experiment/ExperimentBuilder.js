@@ -341,42 +341,44 @@ class ExperimentBuilder extends Component {
               "Gameplay has a losing condition. A player can either win or lose - to the game environment or to another player."
             ]
             return (
-              <div key={`round${index}`}>
-                <p className="grey-text"><b>Round {index + 1}</b></p>
-                <label htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
-                  Game Mode
-                </label>
-                <select
-                  value={value.GameMode}
-                  onChange={ event => { this.handleChangeMode(event.target.value, index) }}
-                  id={`defaultFormExperimentMode${index}`}
-                  className="form-control"
-                  name={`mode${index}`}
-                  required
-                >
-                  <option value={1}>Cooperative</option>
-                  <option value={2}>Competitive</option>
-                </select>
-                <p className="modeExplanation">{gameModeText[gameMode - 1]}</p>
-                <label htmlFor={`defaultFormExperimentDifficulty${index}`} className="grey-text">
-                  Difficulty
-                </label>
-                <select
-                  value={value.Difficulty}
-                  onChange={event => { this.handleChangeDifficulty(event.target.value, index) }}
-                  id={`defaultFormExperimentDifficulty${index}`}
-                  className="form-control FormMargins"
-                  name={`difficulty${index}`}
-                  required
-                >
-                  <option value={0}>Adaptive</option>
-                  <option value={1}>Level 1</option>
-                  <option value={2}>Level 2</option>
-                  <option value={3}>Level 3</option>
-                  <option value={4}>Level 4</option>
-                  <option value={5}>Level 5</option>
-                  <option value={6}>Level 6</option>
-                </select>
+              <div className="card" key={`round${index}`}>
+                <div className="card-body">
+                  <p className="grey-text"><b>Round {index + 1}</b></p>
+                  <label htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
+                    Game Mode
+                  </label>
+                  <select
+                    value={value.GameMode}
+                    onChange={ event => { this.handleChangeMode(event.target.value, index) }}
+                    id={`defaultFormExperimentMode${index}`}
+                    className="form-control"
+                    name={`mode${index}`}
+                    required
+                  >
+                    <option value={1}>Cooperative</option>
+                    <option value={2}>Competitive</option>
+                  </select>
+                  <p className="modeExplanation">{gameModeText[gameMode - 1]}</p>
+                  <label htmlFor={`defaultFormExperimentDifficulty${index}`} className="grey-text">
+                    Difficulty
+                  </label>
+                  <select
+                    value={value.Difficulty}
+                    onChange={event => { this.handleChangeDifficulty(event.target.value, index) }}
+                    id={`defaultFormExperimentDifficulty${index}`}
+                    className="form-control FormMargins"
+                    name={`difficulty${index}`}
+                    required
+                  >
+                    <option value={0}>Adaptive</option>
+                    <option value={1}>Level 1</option>
+                    <option value={2}>Level 2</option>
+                    <option value={3}>Level 3</option>
+                    <option value={4}>Level 4</option>
+                    <option value={5}>Level 5</option>
+                    <option value={6}>Level 6</option>
+                  </select>
+                </div>
               </div>
             )
           })}
