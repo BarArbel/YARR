@@ -151,7 +151,7 @@ async def on_message(data):
         calcs = await calculate(total, last_skills)
         await insertCalculationsToDB(calcs)
         sio.emit('variables', calcs)
-        print("variables sent to game: " calcs)
+        print("variables sent to game: ", calcs)
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
