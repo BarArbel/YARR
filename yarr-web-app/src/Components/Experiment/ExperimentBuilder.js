@@ -194,6 +194,8 @@ class ExperimentBuilder extends Component {
       colorSettings: colorSettings,
       experimentId: editForm ? currExperiment.ExperimentId : undefined
     }
+
+    console.log(json)
     event.preventDefault()
 
     fetch(url, {
@@ -225,9 +227,9 @@ class ExperimentBuilder extends Component {
           else {
             handleToggleBuildExperiment()
           }
+          console.log(json)
         }
         else {
-          // do something
         }
       })
       .catch(err => {
@@ -641,7 +643,7 @@ class ExperimentBuilder extends Component {
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" type="submit" className="login-btn">Save Experiment</MDBBtn>
+                <MDBBtn color="elegant" onClick={this.handleSubmit} className="login-btn">Save Experiment</MDBBtn>
               </div> : (null)
             }
           </div>
