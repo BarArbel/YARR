@@ -8,6 +8,7 @@ load_dotenv()
 class DB_connection:
 
     def __init__(self, table_name, number_of_players):
+        self.counter = 0
         self.db = os.getenv('DATABASE')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
