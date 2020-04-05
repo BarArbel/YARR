@@ -88,18 +88,18 @@ public class Player : MonoBehaviour
         Health-=enemy.GetDamage();
         spriteBrightness = (float)Health / (float)MaxHealth;
         gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
-        DataTransformer.sendData(Time.realtimeSinceStartup, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
 
         if (Health == 0)
         {
             if (GetGameMode() == 0)
             {
                 this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
-                DataTransformer.sendData(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
+                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
             else
             {
-                DataTransformer.sendData(Time.realtimeSinceStartup, Event.individualLoss, player, 0, 0, GetGameMode());
+                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.individualLoss, player, 0, 0, GetGameMode());
             }
         }
         return true;
@@ -288,7 +288,7 @@ public class Player : MonoBehaviour
                 {
                     TakeTreasure(collider.gameObject);
                     // Cooperative = 0                    
-                    DataTransformer.sendData(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
+                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
                 }
                 break;
             // Check collistion with enemies
@@ -301,7 +301,7 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    DataTransformer.sendData(Time.realtimeSinceStartup, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
+                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
                 }
                 break;
             case sinkLayer:
@@ -313,7 +313,7 @@ public class Player : MonoBehaviour
                         if (RemoveItem(MyItemInventory[i]))
                         {
                             collider.GetComponent<ItemSink>().SetScore(gameObject.GetComponent<Player>());
-                            DataTransformer.sendData(Time.realtimeSinceStartup, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
+                            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
                             break;
                         }
                     }
@@ -334,7 +334,7 @@ public class Player : MonoBehaviour
                                 OrderCarriedItems();
                                 otherPlayer.TakeTreasure(OthersItemInventory[i].gameObject);
                                 RemoveItem(OthersItemInventory[i]);
-                                DataTransformer.sendData(Time.realtimeSinceStartup, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
+                                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
                             }
                         }
                     }
@@ -446,14 +446,14 @@ public class Player : MonoBehaviour
         FixBoatTime = 0;
         player.SetHealth();
 
-        DataTransformer.sendData(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         DataTransformer.sendData(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());
 
     }
 
     void AccidentalFallIdentified()
     {
-        DataTransformer.sendData(Time.realtimeSinceStartup, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         // Clear lists for future identifications
         EnemiesDistance1st.Clear();
         EnemiesDistance2nd.Clear();
