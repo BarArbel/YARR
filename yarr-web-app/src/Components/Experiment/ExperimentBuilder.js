@@ -330,15 +330,15 @@ class ExperimentBuilder extends Component {
           className="form-control FormMargins"
           name="roundsNumber"
           type="number"
+          onKeyPress={event => {event.preventDefault()}}
           required
         />
         <label className="grey-text">Rounds Settings</label>
-        <ul>
           {roundsSettings.map((value, index) => {
             const gameMode = this.state.roundsSettings[index].GameMode
             const gameModeText = [
               "Gameplay that allows players to work together as teammates to achieve a mutual goal.",
-              "Gameplay has a losing condition. A player can either win or lose - to the game environment or to another player."
+              "A player can either win or lose - to the game environment or to another player."
             ]
             return (
               <div className="card" key={`round${index}`}>
@@ -382,7 +382,6 @@ class ExperimentBuilder extends Component {
               </div>
             )
           })}
-        </ul>
       </div>
     )
   }

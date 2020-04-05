@@ -93,7 +93,7 @@ class StudyItem extends Component {
     return (
       <div>
         <label />
-        <MDBBtn color="blue-grey" onClick={() => this.handleEdit(study)} className="login-btn addStudy">Cancel</MDBBtn>
+        <MDBBtn color="blue-grey" onClick={() => this.handleEdit(study)} className="login-btn addStudy">Go Back</MDBBtn>
         <StudyBuilder editForm={true} currStudy={study} onSubmit={this.handleSubmitEdit}/>
       </div>
     )

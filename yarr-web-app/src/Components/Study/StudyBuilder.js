@@ -122,12 +122,12 @@ class StudyBuilder extends Component {
               value={title}
               onChange={this.handleChange}
               id="defaultFormStudyTitle"
-              className="form-control"
+              className={!titleRemaining ? "zeroInputRemaining form-control" : "form-control"}
               maxLength="1024"
               name="title"
               required
             />
-            <p style={titleStyle} className="input-limit">{titleRemaining}</p>
+            {!titleRemaining ? <p style={titleStyle} className="input-limit">Choose a shorter title please</p> : null}
           </div>
           <div className="form-group FormMargins">
             <label htmlFor="defaultFormStudyQuestions" className="grey-text">
@@ -137,7 +137,7 @@ class StudyBuilder extends Component {
               value={studyQuestions}
               onChange={this.handleChange}
               id="defaultFormStudyQuestions"
-              className="form-control"
+              className={!questionsRemaining ? "zeroInputRemaining form-control" : "form-control"}
               name="studyQuestions"
               maxLength="4096"
               rows="5"
@@ -153,7 +153,7 @@ class StudyBuilder extends Component {
               value={description}
               onChange={this.handleChange}
               id="defaultFormStudyDetails"
-              className="form-control"
+              className={!descriptionRemaining ? "zeroInputRemaining form-control" : "form-control"}
               name="description"
               rows="5"
               maxLength="4096"
