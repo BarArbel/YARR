@@ -313,7 +313,7 @@ class ExperimentBuilder extends Component {
           value={roundDuration}
           onChange={this.handleChange}
           id="defaultFormExperimentRoundDuration"
-          className="form-control FormMargins"
+          className="custom-range"
           name="roundDuration"
           type="range"
           min="60"
@@ -335,23 +335,29 @@ class ExperimentBuilder extends Component {
         <label className="grey-text">Rounds Settings</label>
         <ul>
           {roundsSettings.map((value, index) => {
+            const gameMode = this.state.roundsSettings[index].GameMode
+            const gameModeText = [
+              "Gameplay that allows players to work together as teammates to achieve a mutual goal.",
+              "Gameplay has a losing condition. A player can either win or lose - to the game environment or to another player."
+            ]
             return (
               <div key={`round${index}`}>
                 <p className="grey-text"><b>Round {index + 1}</b></p>
-                <p htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
+                <label htmlFor={`defaultFormExperimentMode${index}`} className="grey-text">
                   Game Mode
-                </p>
+                </label>
                 <select
                   value={value.GameMode}
                   onChange={ event => { this.handleChangeMode(event.target.value, index) }}
                   id={`defaultFormExperimentMode${index}`}
-                  className="form-control FormMargins"
+                  className="form-control"
                   name={`mode${index}`}
                   required
                 >
                   <option value={1}>Cooperative</option>
                   <option value={2}>Competitive</option>
                 </select>
+                <p className="modeExplanation">{gameModeText[gameMode - 1]}</p>
                 <label htmlFor={`defaultFormExperimentDifficulty${index}`} className="grey-text">
                   Difficulty
                 </label>
@@ -404,8 +410,10 @@ class ExperimentBuilder extends Component {
   }
 
   renderVisualSettings() {
-    const { characterType, disability } = this.state
+    const { characterType, disability, colorSettings } = this.state
     const tempType = parseInt(characterType)
+    const tempColor = parseInt(colorSettings)
+
     return(
       <div>
         <label className="grey-text">
@@ -472,65 +480,71 @@ class ExperimentBuilder extends Component {
         </ul>
         {disability === "3" ? 
         (
-        <div>
-          <label htmlFor="defaultFormExperimentColor" className="grey-text">
-            Color Settings
-          </label>
-            <ul>
-              <div className="form-check FormMargin">
-                <input
-                  value={1}
-                  onChange={this.handleChange}
-                  id="defaultFormExperimentColor"
-                  className="form-check-input FormMargins"
-                  name="colorSettings"
-                  type="radio"
-                  required
-                />
-                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Full spectrum vision</label>
-              </div>
-              <img
-                src={require("../../Images/full_spectrum_vision.jpg")}
-                alt="Full spectrum vision"
-                className="builderImage FormMargin"
-              />
-              <div className="form-check FormMargin">
-                <input
-                  value={2}
-                  onChange={this.handleChange}
-                  id="defaultFormExperimentColor"
-                  className="form-check-input FormMargins"
-                  name="colorSettings"
-                  type="radio"
-                  required
-                />
-                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Red-green color settings</label>
-              </div>
-              <img
-                src={require("../../Images/red_green_color_blindness.jpg")}
-                alt="Red-green color blindness"
-                className="builderImage FormMargin"
-              />
-              <div className="form-check FormMargin">
-                <input
-                  value={3}
-                  onChange={this.handleChange}
-                  id="defaultFormExperimentColor"
-                  className="form-check-input FormMargins"
-                  name="colorSettings"
-                  type="radio"
-                  required
-                />
-                <label className="form-check-label" htmlFor="defaultFormExperimentColor">Blue-yellow color blindness</label>
-              </div>
-              <img
-                src={require("../../Images/blue_yellow_color_blindness.jpg")}
-                alt="Blue-yellow color blindness"
-                className="builderImage FormMargin"
-              />
-            </ul>
-        </div>
-        )
+            <div>
+              <label className="grey-text">
+                Color Settings
+              </label>
+                <ul>
+                  <div className="inputPicHolder">
+                    <input
+                      value={1}
+                      onChange={this.handleChange}
+                      id="full"
+                      className="hideRadio"
+                      name="colorSettings"
+                      type="radio"
+                      required
+                    />
+                    <label className="imageLableInput" htmlFor="full">
+                      Full spectrum vision
+                      <img
+                        src={require("../../Images/full_spectrum_vision.jpg")}
+                        alt="Full spectrum vision"
+                        className={tempColor === 1 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+                      />
+                    </label>
+                  </div>
+                    <div className="inputPicHolder">
+                    <input
+                      value={2}
+                      onChange={this.handleChange}
+                      id="redGreen"
+                      className="hideRadio"
+                      name="colorSettings"
+                      type="radio"
+                      required
+                    />
+                    <label className="imageLableInput" htmlFor="redGreen">
+                      Red-green color blindness
+                      <img
+                        src={require("../../Images/red_green_color_blindness.jpg")}
+                        alt="Red-green color blindness"
+                        className={tempColor === 2 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+                      />
+                    </label>
+                  </div>
+                  <div className="inputPicHolder">
+                    <input
+                      value={3}
+                      onChange={this.handleChange}
+                      id="blueYellow"
+                      className="hideRadio"
+                      name="colorSettings"
+                      type="radio"
+                      required
+                    />
+                    <label className="imageLableInput" htmlFor="blueYellow">
+                      Blue-yellow color blindness
+                      <img
+                        src={require("../../Images/blue_yellow_color_blindness.jpg")}
+                        alt="Blue-yellow color blindness"
+                        className={tempColor === 3 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+                      />
+                    </label>
+                  </div>
+                </ul>
+            </div>
+          )
         : null}
       </div>
     )
