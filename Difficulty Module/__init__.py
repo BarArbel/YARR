@@ -188,6 +188,7 @@ async def on_message(data):
 
         await sio.emit('end', 'experiment ended')
         con.close_connection()
+        await sio.disconnect()
 
 
 @sio.event
