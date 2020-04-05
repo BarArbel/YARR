@@ -56,3 +56,67 @@ CREATE TABLE `yarr`.`rounds` (
     REFERENCES `yarr`.`experiments` (`ExperimentId`)
     ON DELETE CASCADE
     ON UPDATE NO ACTION);
+
+CREATE TABLE `yarr`.`study_insights_mirror` (
+  `ResearcherId` INT UNSIGNED NOT NULL,
+  `StudyId` INT UNSIGNED NOT NULL,
+  `Axis1` DOUBLE NULL,
+  `Axis2` DOUBLE NULL,
+  `Breakdown` ENUM("mode", "skin", "difficultyType") NULL,
+  `EngagementLine1` DOUBLE NULL,
+  `EngagementLine2` DOUBLE NULL,
+  `EngagementLine3` DOUBLE NULL,
+  `EngagementLine4` DOUBLE NULL,
+  `EngagementLine5` DOUBLE NULL,
+  `EngagementLine6` DOUBLE NULL,
+  `EngagementLine7` DOUBLE NULL);CREATE TABLE `yarr`.`study_insights_mirror` (
+  `ResearcherId` INT UNSIGNED NOT NULL,
+  `StudyId` INT UNSIGNED NOT NULL,
+  `Axis1` DOUBLE NULL,
+  `Axis2` DOUBLE NULL,
+  `Breakdown` ENUM("mode", "skin", "difficultyType") NULL,
+  `EngagementLine1` DOUBLE NULL,
+  `EngagementLine2` DOUBLE NULL,
+  `EngagementLine3` DOUBLE NULL,
+  `EngagementLine4` DOUBLE NULL,
+  `EngagementLine5` DOUBLE NULL,
+  `EngagementLine6` DOUBLE NULL,
+  `EngagementLine7` DOUBLE NULL);
+
+CREATE TABLE `yarr`.`study_insights_radar` (
+  `ResearcherId` INT UNSIGNED NOT NULL,
+  `StudyId` INT UNSIGNED NOT NULL,
+  `ExperimentId` INT UNSIGNED NOT NULL,
+  `ExperimentTitle` VARCHAR(45) NOT NULL,
+  `HighestEngagement` DOUBLE NOT NULL,
+  `MeanEngagement` DOUBLE NOT NULL,
+  `MedianEngagement` DOUBLE NOT NULL,
+  `ModeEngagement` DOUBLE NOT NULL,
+  `RangeEngagement` DOUBLE NOT NULL,
+  `RoundDuration` INT UNSIGNED NULL,
+  `RoundsNumber` INT NULL,
+  `RoundsAmountComp` INT NULL,
+  `RoundsAmountCoop` INT NULL,
+  `CharacterType` INT UNSIGNED NOT NULL,
+  `Disability` INT UNSIGNED NOT NULL,
+  `ColorSettings` INT UNSIGNED NOT NULL);
+
+CREATE TABLE `yarr`.`study_insights_mixed` (
+  `ResearcherId` INT UNSIGNED NOT NULL,
+  `StudyId` INT UNSIGNED NOT NULL,
+  `ExperimentId` INT UNSIGNED NOT NULL,
+  `ExperimentTitle` VARCHAR(45) NOT NULL,
+  `TimeAxis` DOUBLE NULL,
+  `Clicks` INT NOT NULL,
+  `ResponseTime` DOUBLE NOT NULL,
+  `DifficultyChange` INT NOT NULL);
+
+CREATE TABLE `yarr`.`study_insights_pie` (
+  `ResearcherId` INT UNSIGNED NOT NULL,
+  `StudyId` INT UNSIGNED NOT NULL,
+  `Mode` VARCHAR(45) NOT NULL,
+  `PercentItemsTaken` DOUBLE NULL,
+  `PercentItemsMissed` DOUBLE NOT NULL,
+  `PercentEnemiesAvoid` DOUBLE NOT NULL,
+  `PercentEnemiesHit` DOUBLE NOT NULL,
+  `PercentEnemiesBlock` DOUBLE NOT NULL);
