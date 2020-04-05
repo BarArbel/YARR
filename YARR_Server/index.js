@@ -21,6 +21,25 @@ io.on('connection',function(socket){
     
     socket.on('createTables', function(){
         //Creating table for each experiment
+        
+        var sql = `CREATE TABLE yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} (
+          EventID int unsigned NOT NULL AUTO_INCREMENT,
+          Timestamp float NOT NULL,
+          Event enum('pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropItem','getDamaged','blockDamage','failPickup','fallAccidently','individualLose','spawn', 'pressR', 'pressL', 'pressJ', 'reactionToSpawn') NOT NULL,
+          PlayerID int unsigned DEFAULT NULL,
+          CoordX float DEFAULT NULL,
+          CoordY float DEFAULT NULL,
+          Item int DEFAULT NULL,
+          Enemy int DEFAULT NULL,
+          GameMode enum('Cooperative','Competitive') NOT NULL,
+          PRIMARY KEY (EventID)
+      );`;
+
+      mysqlConnection.query(sql,(err,rows,fields) => {
+          if(err) throw err;
+          console.log("data was added");
+          socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
+      })
 
         var sql = `CREATE TABLE yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} (
             EventID int unsigned NOT NULL AUTO_INCREMENT,
@@ -39,25 +58,6 @@ io.on('connection',function(socket){
             if(err) throw err;
             console.log("data was added");
             socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
-        })
-        
-        var sql = `CREATE TABLE yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} (
-            EventID int unsigned NOT NULL AUTO_INCREMENT,
-            Timestamp float NOT NULL,
-            Event enum('pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropItem','getDamaged','blockDamage','failPickup','fallAccidently','individualLose','spawn', 'pressR', 'pressL', 'pressJ', 'reactionToSpawn') NOT NULL,
-            PlayerID int unsigned DEFAULT NULL,
-            CoordX float DEFAULT NULL,
-            CoordY float DEFAULT NULL,
-            Item int DEFAULT NULL,
-            Enemy int DEFAULT NULL,
-            GameMode enum('Cooperative','Competitive') NOT NULL,
-            PRIMARY KEY (EventID)
-        );`;
-
-        mysqlConnection.query(sql,(err,rows,fields) => {
-            if(err) throw err;
-            console.log("data was added");
-            socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
         })
 
 

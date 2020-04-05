@@ -142,6 +142,8 @@ async def on_message(data):
     global first_connection, table_name, con
     if first_connection is True:
         table_name = data.split(" ")[1].split(".")[1]
+        if not table_name.startswith("DDA") and not table_name.startswith("dda"):
+            return
         con = DB_connection(table_name, number_of_players)
         first_connection = False
         print("done first connection")
