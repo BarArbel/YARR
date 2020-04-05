@@ -111,7 +111,7 @@ class StudyPage extends Component {
   renderLogged() {
     const { buildExperiment } = this.props
     const studyId = parseInt(this.props.match.params.studyId)
-    const toggleButtonText = buildExperiment ? "Return" : "Create Experiment"
+    const toggleButtonText = buildExperiment ? "Go Back" : "Create Experiment"
     const buttonColor = buildExperiment ? "blue-grey" : "light-green"
 
     return (
