@@ -13,12 +13,12 @@ namespace Project.Networking
         static DataGameSnapShot data = new DataGameSnapShot();
          
         
-        public static void createTable()
+        public static void createTables()
         {
-            socket.Emit("createTable");
+            socket.Emit("createTables");
         }
 
-        public static void sendData(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
+        public static void sendDDA(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
         {
             data.Time = time;
             data.Event = eventOccurred;
@@ -29,7 +29,21 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
+            socket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
+        }
+
+        public static void sendTracker(float time, Event eventOccurred, Player player, int item, int enemy, int gameMode)
+        {
+            data.Time = time;
+            data.Event = eventOccurred;
+            data.PlayerID = player.GetID();
+            data.CoordX = player.transform.position.x;
+            data.CoordY = player.transform.position.y;
+            data.Item = item;
+            data.Enemy = enemy;
+            data.GameMode = (GameManager.GameMode)gameMode;
+
+            socket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
         public static void sendData(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
