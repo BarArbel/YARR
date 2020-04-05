@@ -24,9 +24,63 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM "${researcherId}"_"${studyId}"_Insights_Mirror WHERE ResearcherId = "${researcherId}"`, (error, results) => {
+    connection.query(`SELECT * FROM Study_Insights_Mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
+        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        return;
+      }
+    });
+  },
+
+  requestInsightRadar: async(req, res) => {
+    const { researcherId, studyId} = req.body;
+
+    if (!researcherId || !studyId ) {
+      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+        "StudyId": "${studyId}"},
+        "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    connection.query(`SELECT * FROM Study_Insights_Radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+      if(error || !results.length) {
+        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        return;
+      }
+    });
+  },
+
+  requestInsightMixed: async(req, res) => {
+    const { researcherId, studyId} = req.body;
+
+    if (!researcherId || !studyId ) {
+      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+        "StudyId": "${studyId}"},
+        "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    connection.query(`SELECT * FROM Study_Insights_Mixed WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+      if(error || !results.length) {
+        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        return;
+      }
+    });
+  },
+
+  requestInsightPie: async(req, res) => {
+    const { researcherId, studyId} = req.body;
+
+    if (!researcherId || !studyId ) {
+      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+        "StudyId": "${studyId}"},
+        "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    connection.query(`SELECT * FROM Study_Insights_Pie WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+      if(error || !results.length) {
+        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
         return;
       }
     });
