@@ -20,7 +20,7 @@ class ExperimentBuilder extends Component {
     super(props)
 
     this.state = {
-      wizardIndex: 3,
+      wizardIndex: 0,
       title: "",
       details: "",
       roundsNumber: 1,
@@ -63,58 +63,100 @@ class ExperimentBuilder extends Component {
 
   renderProgressBar() {
     const { wizardIndex } = this.state
-    const steps = 4
-
+    const { editForm } = this.props
+    const steps = editForm ? 3 : 4
+    const tempIndex = wizardIndex > 1 ? wizardIndex - 1 : wizardIndex
     return (
       <div style={{ marginBottom: "20px", marginTop: "10px" }} >
-        <ProgressBar percent={(wizardIndex / steps) * 100}>
-          <Step>
-            {({ accomplished, index }) => (
-              <div
-                className={`indexedStep ${accomplished ? "accomplished" : null}`}
-              >
-                {index + 1}
-              </div>
-            )}
-          </Step>
-          <Step>
-            {({ accomplished, index }) => (
-              <div
-                className={`indexedStep ${accomplished ? "accomplished" : null}`}
-              >
-                {index + 1}
-              </div>
-            )}
-          </Step>
-          <Step>
-            {({ accomplished, index }) => (
-              <div
-                className={`indexedStep ${accomplished ? "accomplished" : null}`}
-              >
-                {index + 1}
-              </div>
-            )}
-          </Step>
-          <Step>
-            {({ accomplished, index }) => (
-              <div
-                className={`indexedStep ${accomplished ? "accomplished" : null}`}
-              >
-                {index + 1}
-              </div>
-            )}
-          </Step>
-          <Step>
-            {({ accomplished, index }) => (
-              <div
-                className={`indexedStep ${accomplished ? "accomplished" : null}`}
-              >
-                V
-              </div>
-            )}
-          </Step>
-        </ProgressBar>
-      </div>
+      {editForm ? 
+        <ProgressBar percent={(tempIndex) / (steps)* 100 + 1}>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              V
+            </div>
+          )}
+        </Step>
+      </ProgressBar>
+      :
+      <ProgressBar percent={(wizardIndex / steps) * 100}>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              {index + 1}
+            </div>
+          )}
+        </Step>
+        <Step>
+          {({ accomplished, index }) => (
+            <div
+              className={`indexedStep ${accomplished ? "accomplished" : null}`}
+            >
+              V
+            </div>
+          )}
+        </Step>
+      </ProgressBar>
+      }
+    </div>
     )
   }
 
@@ -482,6 +524,7 @@ class ExperimentBuilder extends Component {
         {disability === "3" ? 
         (
             <div>
+              <div className="clear" />
               <label className="grey-text">
                 Color Settings
               </label>
@@ -547,6 +590,7 @@ class ExperimentBuilder extends Component {
             </div>
           )
         : null}
+        <div className="clear"/>
       </div>
     )
   }

@@ -85,6 +85,11 @@ io.on('connection',function(socket){
         socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
     });
 
+    socket.on('variables', function(data){
+      socket.broadcast.emit('variables', data);
+      console.log('variables sent to game');
+    })
+
 
     socket.on('disconnect', function(){
         console.log('A player has disconnected');
