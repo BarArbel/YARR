@@ -33,7 +33,16 @@ public class ItemFactory : ObjectFactory
         // Adaptive
         else
         {
-            LevelTimerAndSpawn += calcs.LevelSpawnHeightAndTimer;
+            if (!IsDDAInitiated)
+            {
+                IsDDAInitiated = true;
+                LevelTimerAndSpawn = 3;
+            }
+
+            if (!(LevelTimerAndSpawn == 1 && DDALevelSpawnHeightAndTimer == -1))
+            {
+                LevelTimerAndSpawn += DDALevelSpawnHeightAndTimer;
+            }
 
             DestroyTimer = LevelsOf_DestroyTimer[LevelTimerAndSpawn - 1];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[LevelTimerAndSpawn - 1];

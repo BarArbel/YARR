@@ -6,13 +6,11 @@ using System;
 
 public abstract class ObjectFactory : MonoBehaviour
 {
-    [Serializable]
-    public class DDACalcs
-    {
-        public int LevelSpawnHeightAndTimer;
-        public int LevelPrecision;
-        public int LevelSpeedAndSpawnRate;
-    }
+    // DDA Properties
+    protected int DDALevelSpawnHeightAndTimer;
+    protected int DDALevelPrecision;
+    protected int DDALevelSpeedAndSpawnRate;
+    protected bool IsDDAInitiated;
 
     private int ID;
     private int Level;
@@ -24,8 +22,6 @@ public abstract class ObjectFactory : MonoBehaviour
     protected float Speed;
     protected int Damage;
 
-    protected DDACalcs calcs;
-
 
     private GameObject Prefab;
     private Sprite Sprite;
@@ -36,6 +32,7 @@ public abstract class ObjectFactory : MonoBehaviour
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
+        IsDDAInitiated = false;
         SetLevel(level);
 
     }
@@ -58,10 +55,13 @@ public abstract class ObjectFactory : MonoBehaviour
         ModifyLevelSettings();
     }
 
-    protected void SetDDAChanges(string calc)
+    public void SetDDAChanges(int heightTimer, int precision, int speedspawn )
     {
-        calcs = JsonUtility.FromJson<DDACalcs>(calc);
-    }
+        DDALevelSpawnHeightAndTimer = heightTimer;
+        DDALevelPrecision = precision;
+        DDALevelSpeedAndSpawnRate = speedspawn;
+        Debug.Log("Player: " + ID + " spawnrate:" + SpawnRateRange );
+}
 
     public IEnumerator StartSpawner()
     {
