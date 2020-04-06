@@ -350,6 +350,7 @@ class ExperimentBuilder extends Component {
 
     return (
       <div>
+        <p style={{ textAlign: "center", color: "#B33A3A" }}><b>Please note that these settings CAN NOT be modified once saved</b></p>
         <label htmlFor="defaultFormExperimentRoundDuration" className="grey-text">
           Round Duration: {roundDuration} seconds
         </label>
@@ -603,7 +604,7 @@ class ExperimentBuilder extends Component {
     
     return(
       <div className="experimentBuilder">
-        <form onSubmit={this.handleSubmit}>
+        <form>
           <p className="h4 text-center mb-4">Create Experiment</p>
           {this.renderProgressBar()}
           {wizardIndex === 0 ?

@@ -71,7 +71,9 @@ export class ExperimentItem extends Component {
 
   handleEdit() {
     const { editExperiment } = this.state
+    const { toggleEdit } = this.props
     this.setState({ editExperiment: !editExperiment })
+    toggleEdit(!editExperiment)
   }
 
   handleSubmitEdit(updatedExperiment) {

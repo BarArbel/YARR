@@ -43,7 +43,7 @@ class DeleteConfirmation extends Component {
               outline={confirmDelete ? false : true}
               className="popUpButton"
             >
-              Delete study
+              Delete {objectType}
               </MDBBtn>
             <MDBBtn color="blue-grey" className="popUpButton" onClick={onClose}>Cancle</MDBBtn>
           </div>

@@ -24,6 +24,7 @@ class HomePage extends Component {
   constructor(props) {
     super(props) 
 
+    this.numberOfEdits = 0
     this.state = {
       editStudy: false
     }
@@ -47,8 +48,9 @@ class HomePage extends Component {
   }
 
   handleToggleEdit(editStudy) {
-    console.log(editStudy)
-    this.setState({ editStudy: editStudy })
+    editStudy ? (this.numberOfEdits += 1) : (this.numberOfEdits -= 1)
+
+    this.numberOfEdits > 0 ? this.setState({ editStudy: true }) : this.setState({ editStudy: false })
   }
 
   renderLogged(){

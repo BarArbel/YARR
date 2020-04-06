@@ -17,7 +17,8 @@ const mapStateToProps = ({ user, study, experiment }) => {
     isLogged: user.isLogged,
     bearerKey: user.bearerKey,
     studies: study.studies,
-    buildExperiment: experiment.buildExperiment
+    buildExperiment: experiment.buildExperiment,
+    experimentList: experiment.experimentList
   }
 }
 
@@ -25,9 +26,15 @@ class StudyPage extends Component {
   constructor(props) {
     super(props)
 
+    this.numberOfEdits = 0
+    this.state = {
+      editExperiment: false
+    }
+
     this.handleCreate = this.handleCreate.bind(this)
     this.renderLogged = this.renderLogged.bind(this)
     this.renderStudyInfo = this.renderStudyInfo.bind(this)
+    this.handleToggleEdit = this.handleToggleEdit.bind(this)
   }
 
   async componentDidMount() {
@@ -72,6 +79,12 @@ class StudyPage extends Component {
       .catch(err => handleAddStudies([]))
   }
 
+  handleToggleEdit(editExperiment) {
+    editExperiment ? (this.numberOfEdits += 1) : (this.numberOfEdits -= 1)
+
+    this.numberOfEdits > 0 ? this.setState({ editExperiment: true }) : this.setState({ editExperiment: false })
+  }
+
   handleCreate() {
     const { handleToggleBuildExperiment, buildExperiment, handleSetRoutes } = this.props
     const index = this.props.match.params.studyId
@@ -109,9 +122,11 @@ class StudyPage extends Component {
   }
 
   renderLogged() {
-    const { buildExperiment } = this.props
+    const { buildExperiment, experimentList } = this.props
+    const { editExperiment } = this.state
     const studyId = parseInt(this.props.match.params.studyId)
-    const toggleButtonText = buildExperiment ? "Go Back" : "Create Experiment"
+    const toggleButtonText = buildExperiment ? "Return" : experimentList.length ? "Create Experiment" : "Create First Experiment"
+    const buttonClassName = experimentList.length || buildExperiment ? "login-btn addStudy" : "login-btn addFirstStudy"
     const buttonColor = buildExperiment ? "blue-grey" : "light-green"
 
     return (
@@ -140,8 +155,9 @@ class StudyPage extends Component {
             </div>
             <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
               <label/>
-              <MDBBtn color={buttonColor} onClick={this.handleCreate} className="login-btn addStudy">{toggleButtonText}</MDBBtn>
-              {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} />)}
+              {(experimentList.length || buildExperiment) && !editExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
+              {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} toggleEdit={this.handleToggleEdit}/>)}
+              {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
