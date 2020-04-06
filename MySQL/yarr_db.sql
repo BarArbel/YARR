@@ -90,6 +90,10 @@ CREATE TABLE `yarr`.`study_insights_radar` (
   `Disability` INT UNSIGNED NOT NULL,
   `ColorSettings` INT UNSIGNED NOT NULL);
 
+INSERT INTO yarr.study_insights_radar 
+VALUES (1,1,1,"Green-Red cBlindness", 9, 3,4,3,8,100,3,3,0,1,1,1),
+ (1,1,2,"Green cBlindness", 10, 2,4,4,9,100,3,0,3,1,1,2);
+
 CREATE TABLE `yarr`.`study_insights_mixed` (
   `ResearcherId` INT UNSIGNED NOT NULL,
   `StudyId` INT UNSIGNED NOT NULL,
@@ -100,6 +104,20 @@ CREATE TABLE `yarr`.`study_insights_mixed` (
   `ResponseTime` DOUBLE NOT NULL,
   `DifficultyChange` INT NOT NULL);
 
+INSERT INTO yarr.study_insights_mixed
+VALUES (1,1,1,"Green-Red cBlindness",9, 20,0.2,0),
+(1,1,1,"Green-Red cBlindness",12, 20,0.2,0 ),
+(1,1,1,"Green-Red cBlindness",15,40,0.2,1 ),
+(1,1,1,"Green-Red cBlindness",18,43,0.2,1 ),
+(1,1,1,"Green-Red cBlindness",21,67,0.2,-1 ),
+(1,1,1,"Green-Red cBlindness",24,65,0.2,0 ),
+(1,1,2,"Green cBlindness",9,15,0.3, 0),
+(1,1,2,"Green cBlindness",12,20,0.3, 0),
+(1,1,2,"Green cBlindness",15,20,0.3, 0),
+(1,1,2,"Green cBlindness",18,35,0.3, 1),
+(1,1,2,"Green cBlindness",21,35,0.3, 1),
+(1,1,2,"Green cBlindness",24,40,0.3, 0);
+
 CREATE TABLE `yarr`.`study_insights_pie` (
   `ResearcherId` INT UNSIGNED NOT NULL,
   `StudyId` INT UNSIGNED NOT NULL,
@@ -109,3 +127,7 @@ CREATE TABLE `yarr`.`study_insights_pie` (
   `PercentEnemiesAvoid` DOUBLE NOT NULL,
   `PercentEnemiesHit` DOUBLE NOT NULL,
   `PercentEnemiesBlock` DOUBLE NOT NULL);
+
+INSERT INTO yarrs.study_insights_pie
+VALUES (1,1,"comp",80,20,80,20,0),
+(1,1,"coop",60,40,70,20,10);
