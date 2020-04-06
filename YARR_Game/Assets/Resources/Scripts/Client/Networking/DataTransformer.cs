@@ -32,6 +32,20 @@ namespace Project.Networking
             socket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
+        public static void sendDDA(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
+        {
+            data.Time = time;
+            data.Event = eventOccurred;
+            data.PlayerID = PlayerID;
+            data.CoordX = CoordX;
+            data.CoordY = CoordY;
+            data.Item = item;
+            data.Enemy = enemy;
+            data.GameMode = (GameManager.GameMode)gameMode;
+
+            socket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
+        }
+
         public static void sendTracker(float time, Event eventOccurred, Player player, int item, int enemy, int gameMode)
         {
             data.Time = time;
@@ -44,20 +58,6 @@ namespace Project.Networking
             data.GameMode = (GameManager.GameMode)gameMode;
 
             socket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
-        }
-
-        public static void sendData(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
-        {
-            data.Time = time;
-            data.Event = eventOccurred;
-            data.PlayerID = PlayerID;
-            data.CoordX = CoordX;
-            data.CoordY = CoordY;
-            data.Item = item;
-            data.Enemy = enemy;
-            data.GameMode = (GameManager.GameMode)gameMode;
-
-            socket.Emit("gameSnapshot", new JSONObject(JsonUtility.ToJson(data)));
         }
     }
 

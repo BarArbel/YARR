@@ -329,7 +329,7 @@ public class GameManager : MonoBehaviour
             }
 
             IsGameLost = true;
-            DataTransformer.sendData(Time.realtimeSinceStartup, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
+            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
             return true;
         }
 

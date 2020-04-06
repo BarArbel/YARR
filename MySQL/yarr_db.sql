@@ -60,28 +60,17 @@ CREATE TABLE `yarr`.`rounds` (
 CREATE TABLE `yarr`.`study_insights_mirror` (
   `ResearcherId` INT UNSIGNED NOT NULL,
   `StudyId` INT UNSIGNED NOT NULL,
-  `Axis1` DOUBLE NULL,
-  `Axis2` DOUBLE NULL,
-  `Breakdown` ENUM("mode", "skin", "difficultyType") NULL,
-  `EngagementLine1` DOUBLE NULL,
-  `EngagementLine2` DOUBLE NULL,
-  `EngagementLine3` DOUBLE NULL,
-  `EngagementLine4` DOUBLE NULL,
-  `EngagementLine5` DOUBLE NULL,
-  `EngagementLine6` DOUBLE NULL,
-  `EngagementLine7` DOUBLE NULL);CREATE TABLE `yarr`.`study_insights_mirror` (
-  `ResearcherId` INT UNSIGNED NOT NULL,
-  `StudyId` INT UNSIGNED NOT NULL,
-  `Axis1` DOUBLE NULL,
-  `Axis2` DOUBLE NULL,
-  `Breakdown` ENUM("mode", "skin", "difficultyType") NULL,
-  `EngagementLine1` DOUBLE NULL,
-  `EngagementLine2` DOUBLE NULL,
-  `EngagementLine3` DOUBLE NULL,
-  `EngagementLine4` DOUBLE NULL,
-  `EngagementLine5` DOUBLE NULL,
-  `EngagementLine6` DOUBLE NULL,
-  `EngagementLine7` DOUBLE NULL);
+  `AxisTime` DOUBLE NULL,
+  `AxisEngagement` DOUBLE NULL,
+  `BreakdownType` ENUM("mode", "skin", "difficultyType") NULL,
+  `BreakdownName` VARCHAR(45) NOT NULL);
+
+INSERT INTO yarrserver.study_insights_mirror (ResearcherId, StudyId, AxisTime, AxisEngagement, BreakdownType,BreakdownName)
+VALUES (1,1,9,3,"mode","comp"),(1,1,12,3,"mode","comp"),(1,1,15,3,"mode","comp"),(1,1,18,5,"mode","comp"),(1,1,21,5,"mode","comp"),(1,1,24,3,"mode","comp"),
+(1,1,9,1,"mode","coop"),(1,1,12,1,"mode","coop"),(1,1,15,1,"mode","coop"),(1,1,18,2,"mode","coop"),(1,1,21,3,"mode","coop"),(1,1,24,4,"mode","coop"),
+(1,1,9,1,"skin","color"),(1,1,12,1,"skin","color"),(1,1,15,1,"skin","color"),(1,1,18,2,"skin","color"),(1,1,21,3,"skin","color"),(1,1,24,4,"skin","color"),
+(1,1,9,1,"skin","shape"),(1,1,12,1,"skin","shape"),(1,1,15,1,"skin","shape"),(1,1,18,2,"skin","shape"),(1,1,21,3,"skin","shape"),(1,1,24,4,"skin","shape");
+
 
 CREATE TABLE `yarr`.`study_insights_radar` (
   `ResearcherId` INT UNSIGNED NOT NULL,

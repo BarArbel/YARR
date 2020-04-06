@@ -65,7 +65,11 @@ public class EnemyFactory : ObjectFactory
 
            
         }
-
+        if (GetID() == 1)
+        {
+            Debug.Log("Player: " + GetID() + " LVLspawnrate:" + LevelSpeedAndSpawn);
+            Debug.Log("Player: " + GetID() + " LVLprec:" + LevelPrecision);
+        }
     }
 
     protected override void Spawn()

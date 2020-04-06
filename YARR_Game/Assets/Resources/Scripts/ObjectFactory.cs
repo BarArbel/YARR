@@ -60,8 +60,7 @@ public abstract class ObjectFactory : MonoBehaviour
         DDALevelSpawnHeightAndTimer = heightTimer;
         DDALevelPrecision = precision;
         DDALevelSpeedAndSpawnRate = speedspawn;
-        Debug.Log("Player: " + ID + " spawnrate:" + SpawnRateRange );
-}
+    }
 
     public IEnumerator StartSpawner()
     {
