@@ -77,6 +77,7 @@ class StudyBuilder extends Component {
             handleUpdateStudy(currStudy)
           }
           else {
+            console.log(json.params.insertId)
             handleToggleBuildStudy()
           }
         }
@@ -102,9 +103,9 @@ class StudyBuilder extends Component {
     const highCount = { color: "black" }
     const averageCount = { color: "#ffae42" }
     const lowCount = { color: "red" }
-    const titleRemaining = 1024 - this.state.title.length
-    const questionsRemaining = 4096 - this.state.studyQuestions.length
-    const descriptionRemaining = 4096 - this.state.description.length
+    const titleRemaining = 1024 - title.length
+    const questionsRemaining = 4096 - studyQuestions.length
+    const descriptionRemaining = 4096 - description.length
     const titleText = editForm ? "" : "Create Study"
     const titleStyle = titleRemaining < 512 ? (titleRemaining < 128 ? lowCount : averageCount) : (highCount)
     const questionsStyle = questionsRemaining < 2048 ? (questionsRemaining < 128 ? lowCount : averageCount) : (highCount)
