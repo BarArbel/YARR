@@ -65,7 +65,7 @@ CREATE TABLE `yarr`.`study_insights_mirror` (
   `BreakdownType` ENUM("mode", "skin", "difficultyType") NULL,
   `BreakdownName` VARCHAR(45) NOT NULL);
 
-INSERT INTO yarrserver.study_insights_mirror (ResearcherId, StudyId, AxisTime, AxisEngagement, BreakdownType,BreakdownName)
+INSERT INTO yarr.study_insights_mirror (ResearcherId, StudyId, AxisTime, AxisEngagement, BreakdownType,BreakdownName)
 VALUES (1,1,9,3,"mode","comp"),(1,1,12,3,"mode","comp"),(1,1,15,3,"mode","comp"),(1,1,18,5,"mode","comp"),(1,1,21,5,"mode","comp"),(1,1,24,3,"mode","comp"),
 (1,1,9,1,"mode","coop"),(1,1,12,1,"mode","coop"),(1,1,15,1,"mode","coop"),(1,1,18,2,"mode","coop"),(1,1,21,3,"mode","coop"),(1,1,24,4,"mode","coop"),
 (1,1,9,1,"skin","color"),(1,1,12,1,"skin","color"),(1,1,15,1,"skin","color"),(1,1,18,2,"skin","color"),(1,1,21,3,"skin","color"),(1,1,24,4,"skin","color"),
