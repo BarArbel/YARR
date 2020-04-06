@@ -104,6 +104,20 @@ CREATE TABLE `yarr`.`study_insights_mixed` (
   `ResponseTime` DOUBLE NOT NULL,
   `DifficultyChange` INT NOT NULL);
 
+INSERT INTO yarr.study_insights_mixed
+VALUES (1,1,1,"Green-Red cBlindness",9, 20,0.2,0),
+(1,1,1,"Green-Red cBlindness",12, 20,0.2,0 ),
+(1,1,1,"Green-Red cBlindness",15,40,0.2,1 ),
+(1,1,1,"Green-Red cBlindness",18,43,0.2,1 ),
+(1,1,1,"Green-Red cBlindness",21,67,0.2,-1 ),
+(1,1,1,"Green-Red cBlindness",24,65,0.2,0 ),
+(1,1,2,"Green cBlindness",9,15,0.3, 0),
+(1,1,2,"Green cBlindness",12,20,0.3, 0),
+(1,1,2,"Green cBlindness",15,20,0.3, 0),
+(1,1,2,"Green cBlindness",18,35,0.3, 1),
+(1,1,2,"Green cBlindness",21,35,0.3, 1),
+(1,1,2,"Green cBlindness",24,40,0.3, 0);
+
 CREATE TABLE `yarr`.`study_insights_pie` (
   `ResearcherId` INT UNSIGNED NOT NULL,
   `StudyId` INT UNSIGNED NOT NULL,
