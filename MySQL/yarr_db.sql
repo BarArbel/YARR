@@ -127,3 +127,7 @@ CREATE TABLE `yarr`.`study_insights_pie` (
   `PercentEnemiesAvoid` DOUBLE NOT NULL,
   `PercentEnemiesHit` DOUBLE NOT NULL,
   `PercentEnemiesBlock` DOUBLE NOT NULL);
+
+INSERT INTO yarrs.study_insights_pie
+VALUES (1,1,"comp",80,20,80,20,0),
+(1,1,"coop",60,40,70,20,10);
