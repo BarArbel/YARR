@@ -53,7 +53,7 @@ class Login extends Component {
     }).then(res => res.json())
         .then(json => {
           if(json.result === "Verified"){
-            this.setState({ msg: "Logged in successfuly! Redirecting...", isMsg: true, error: false })
+            this.setState({ msg: "Logged in successfully! Redirecting...", isMsg: true, error: false })
             setTimeout(() => {
               handleSetUser(json.userInfo)
               handleSetBearerKey(json.bearerKey)

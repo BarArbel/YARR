@@ -57,7 +57,7 @@ export class ExperimentList extends Component {
   }
 
   eachExperiment(experiment, i) {
-    const { studyId } = this.props
+    const { studyId, toggleEdit } = this.props
     const { Title, ExperimentId, CreationDate, Status, Details } = experiment
     const limitedDetails = Details.length > 265 ? Details.substring(0, 265) + '...' : Details
     const statusStyle = Status === "Running" ? ({ color: "#4BB543", paddingLeft: 10 + 'px' }) : ({ paddingLeft: 10 + 'px' })
@@ -70,6 +70,7 @@ export class ExperimentList extends Component {
             onDelete={this.handleDelete}
             studyId={studyId}
             thisExperiment = {experiment}
+            toggleEdit={toggleEdit}
           >
             <h4 className="card-title cardTitle">{Title}</h4>
             <p className="card-text">{limitedDetails}</p>
