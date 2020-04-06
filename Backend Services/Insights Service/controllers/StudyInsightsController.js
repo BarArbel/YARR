@@ -1,5 +1,4 @@
 var mysql = require("mysql");
-const util = require('util');
 
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
@@ -11,11 +10,10 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
-//const query = util.promisify(connection.query).bind(connection);
 
 module.exports = {
   requestInsightMirror: async(req, res) => {
-    const { researcherId, studyId} = req.body;
+    const { researcherId, studyId } = req.query;
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -27,7 +25,18 @@ module.exports = {
     connection.query(`SELECT * FROM Study_Insights_Mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
-        return;
+      }
+      else {
+        let resultsStr = '{"result": "Success", "data": ['
+        let i;
+        for (i = 0; i < results.length; ++i) {
+          let { StudyId, ResearcherId, AxisTime, AxisEngagement, BreakdownType, BreakdownName} = results[i];
+          resultsStr = resultsStr.concat(`{"StudyId": "${StudyId}", "ResearcherId": "${ResearcherId}", "AxisTime": "${AxisTime}",
+            "AxisEngagement": "${AxisEngagement}", "BreakdownType": "${BreakdownType}", "BreakdownName": "${BreakdownName}"}, `);
+        }
+        resultsStr = resultsStr.slice(0, -2);
+        resultsStr = resultsStr.concat("]}");
+        res.status(200).send(resultsStr);
       }
     });
   },

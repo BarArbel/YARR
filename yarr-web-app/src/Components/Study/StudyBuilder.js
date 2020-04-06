@@ -4,6 +4,7 @@ import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
+import { withRouter } from "react-router";
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -37,7 +38,7 @@ class StudyBuilder extends Component {
     })
   }
 
-  handleSubmit(event) {
+  async handleSubmit(event) {
     const { title, studyQuestions, description } = this.state
     const { 
       userInfo, 
@@ -59,7 +60,7 @@ class StudyBuilder extends Component {
     }
     event.preventDefault()
 
-    fetch(url, {
+    await fetch(url, {
       method: editForm ? 'PUT' : 'POST',
       headers: {
         'Accept': 'application/json',
@@ -77,8 +78,8 @@ class StudyBuilder extends Component {
             handleUpdateStudy(currStudy)
           }
           else {
-            console.log(json.params.insertId)
             handleToggleBuildStudy()
+            this.props.history.push(`/study/${json.params.insertId}`)
           }
         }
         else {
@@ -177,4 +178,4 @@ StudyBuilder.propTypes = {
   bearerKey: PropTypes.string,
 }
 
-export default connect(mapStateToProps, { ...UserActions, ...StudyActions })(StudyBuilder)
+export default connect(mapStateToProps, { ...UserActions, ...StudyActions })(withRouter(StudyBuilder))

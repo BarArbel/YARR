@@ -8,6 +8,7 @@ import { confirmAlert } from 'react-confirm-alert'
 import StudyActions from '../../Actions/StudyActions'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import DeleteConfirmation from '../DeleteConfirmation'
+import { withRouter } from "react-router";
 
 const mapStateToProps = ({ study }) => {
   return {
@@ -110,4 +111,4 @@ class StudyItem extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...StudyActions })(StudyItem);
+export default connect(mapStateToProps, { ...StudyActions })(withRouter(StudyItem))
