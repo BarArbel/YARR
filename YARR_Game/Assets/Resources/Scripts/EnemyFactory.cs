@@ -40,13 +40,30 @@ public class EnemyFactory : ObjectFactory
         // Adaptive
         else
         {
-            LevelSpeedAndSpawn += calcs.LevelSpeedAndSpawnRate;
-            LevelPrecision += calcs.LevelPrecision;
+            if (!IsDDAInitiated)
+            {
+                IsDDAInitiated = true;
+                LevelSpeedAndSpawn = 2;
+                LevelPrecision = 2;
+            }
 
-            SpawnRateRange = LevelsOf_SpawnRateRange[LevelSpeedAndSpawn - 1];
-            Speed = LevelsOf_Speed[LevelSpeedAndSpawn - 1];
-            TurnsAvailable = LevelsOf_TurnsAvailable[LevelPrecision - 1];
-            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[LevelPrecision - 1];
+            if (!(LevelSpeedAndSpawn == 1 && DDALevelSpeedAndSpawnRate == -1))
+            {
+                LevelSpeedAndSpawn += DDALevelSpeedAndSpawnRate;
+
+                SpawnRateRange = LevelsOf_SpawnRateRange[LevelSpeedAndSpawn - 1];
+                Speed = LevelsOf_Speed[LevelSpeedAndSpawn - 1];
+            }
+
+            if (!(LevelPrecision == 1 && DDALevelPrecision == -1))
+            {
+                LevelPrecision += DDALevelPrecision;
+
+                TurnsAvailable = LevelsOf_TurnsAvailable[LevelPrecision - 1];
+                TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[LevelPrecision - 1];
+            }    
+
+           
         }
 
     }

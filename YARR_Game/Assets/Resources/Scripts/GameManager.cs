@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour
     private int NumberOfPlayers;
     private Level Difficulty;
     private bool IsGameLost;
-
+    private int DDAIndex;
     private Skin SkinType;
     private List<Vector2> ItemSinkColliderSize;
 
@@ -52,6 +52,7 @@ public class GameManager : MonoBehaviour
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
+        DDAIndex = -1;
 
         // Initialize lists of sprites
         ColorSprites = new List<Sprite>();
@@ -333,18 +334,49 @@ public class GameManager : MonoBehaviour
         }
 
         return false;
-    }  
+    }
+
+    public void NotificationDDAUpdate(JSONObject calcs)
+    {
+        int calcsIndex = (int)calcs.list[0].n;
+        int LevelSpawnHeightAndTimer;
+        int LevelPrecision;
+        int LevelSpeedAndSpawnRate;
+
+        if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
+        {
+            DDAIndex = calcsIndex;
+            for (int i = 0; i < NumberOfPlayers; i++)
+            {
+                if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i+1)
+                {
+                    LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
+                    LevelPrecision = (int)calcs.list[2].list[i].n;
+                    LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+
+                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                }
+            
+            }
+        }
+    }
+
+    public void NotificationPlayerDied()
+    {
+        //GameLost())))))))))));
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Static3);
+        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameLost();
+        
     }
 }

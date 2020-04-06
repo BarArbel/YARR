@@ -35,6 +35,10 @@ namespace Project.Networking
                 DataTransformer.createTables();
             });
 
+            On("variables", (E) => {
+                FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data);
+            });
+
         }
     }
 }

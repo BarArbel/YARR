@@ -2,14 +2,17 @@ from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
 import socketio
 import asyncio
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
 con = None
 number_of_players = 3
-host = "localhost"
-recv_port = "52300"
+host = os.getenv('HOST')
+recv_port = os.getenv('PORT')
 
 
 async def getDataFromDB():
@@ -131,6 +134,30 @@ async def insertCalculationsToDB(calcs):
     return
 
 
+async def createGameJson(calcs):
+    game_json = {
+        "index": 0,
+        "LevelSpawnHeightAndTimer": [],
+        "LevelPrecision": [],
+        "LevelSpeedAndSpawnRate": []
+    }
+
+    game_json["index"] = con.counter
+    con.counter = con.counter + 1
+
+    for player_id in range(number_of_players):
+        game_json["LevelSpawnHeightAndTimer"].append(
+            calcs["spawnHeightAndTimer"]["level"][player_id])
+
+        game_json["LevelPrecision"].append(
+            calcs["precision"]["level"][player_id])
+
+        game_json["LevelSpeedAndSpawnRate"].append(
+            calcs["speedAndSpawnRate"]["level"][player_id])
+
+    return game_json
+
+
 @sio.event
 def connect():
     print('Connected successfuly to data collector')
@@ -149,17 +176,19 @@ async def on_message(data):
         print("done first connection")
 
     elif data == "table yarrserver." + table_name + " updated":
-        total, last_skills =  await getDataFromDB()
+        total, last_skills = await getDataFromDB()
         calcs = await calculate(total, last_skills)
         await insertCalculationsToDB(calcs)
-        await sio.emit('variables', calcs)
-        print("variables sent to game: ", calcs)
+        game_json = await createGameJson(calcs)        
+        await sio.emit('variables', game_json)
+        print("variables sent to game: ", game_json)
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
 
         await sio.emit('end', 'experiment ended')
         con.close_connection()
+        await sio.disconnect()
 
 
 @sio.event
