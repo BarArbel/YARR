@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
     public enum GameMode { Cooperative, Competitive };
     public enum Skin { Color, Shape, Type };
     public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6 };
+    //DEBUG
+    public bool StaticMode = true;
+    public bool CoopMode = true;
 
     // Game settings
     private GameMode Mode;
@@ -428,7 +431,29 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
+        //DEBUG
+        Level lvl;
+        GameMode gm;
+        if (StaticMode)
+        {
+            lvl = Level.Static3;
+        }
+        else
+        {
+            lvl = Level.Adaptive;
+        }
+
+        if (CoopMode)
+        {
+            gm = GameMode.Cooperative;
+        }
+        else
+        {
+            gm = GameMode.Competitive;
+        }
+        //DEBUG//
+        InitGameManager(3, gm, Skin.Color, lvl);
+        //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }
 
