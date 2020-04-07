@@ -159,7 +159,6 @@ class StudyBuilder extends Component {
               name="description"
               rows="5"
               maxLength="4096"
-              required
             />
             <p style={descriptionStyle} className="input-limit">{descriptionRemaining}</p>
           </div>

@@ -9,6 +9,8 @@ import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import DifficultyImg from '../../difficulty.png'
 import CoopImg from '../../cooperative.png'
 import CompImg from '../../competitive.png'
+import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+
 const mapStateToProps = ({ user, experiment }) => {
   return {
     userInfo: user.userInfo,
@@ -111,6 +113,7 @@ class ExperimentPage extends Component {
       CharacterType,
       ColorSettings
     } = experiment
+    const studyId = this.props.match.params.studyId
 
     return (
       <div className="studyPage">
@@ -148,7 +151,12 @@ class ExperimentPage extends Component {
               <p>Rounds:</p>
               {this.renderRounds()}
             </div>
-            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">Placeholder 3</div>
+            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
+              <StudyInsightsMirror studyId={studyId} />
+              <StudyInsightsMirror studyId={studyId} />
+              <StudyInsightsMirror studyId={studyId} />
+              <StudyInsightsMirror studyId={studyId} />
+            </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">Placeholder 4</div>
           </div>
         </div>

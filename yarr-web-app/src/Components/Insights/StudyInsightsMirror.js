@@ -104,7 +104,7 @@ class StudyInsightMirror extends Component {
           <LineChart
             layout="vertical"
             width={500}
-            height={300}
+            height={350}
             data={currData}
             margin={{
               top: 20, right: 30, left: 20, bottom: 5,

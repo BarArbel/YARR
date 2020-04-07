@@ -42,7 +42,7 @@ module.exports = {
   },
 
   requestInsightRadar: async(req, res) => {
-    const { researcherId, studyId} = req.body;
+    const { researcherId, studyId } = req.query;
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -52,9 +52,46 @@ module.exports = {
     }
 
     connection.query(`SELECT * FROM Study_Insights_Radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
-      if(error || !results.length) {
+      if (error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
-        return;
+      }
+      else {
+        let resultsStr = '{"result": "Success", "data": ['
+        for (let i = 0; i < results.length; ++i) {
+          let { 
+            ExperimentTitle,
+            HighestEngagement, 
+            MeanEngagement, 
+            MedianEngagement, 
+            ModeEngagement, 
+            RangeEngagement,
+            RoundDuration,
+            RoundsNumber,
+            RoundsAmountComp,
+            RoundsAmountCoop,
+            CharacterType,
+            Disability,
+            ColorSettings
+          } = results[i];
+          resultsStr = resultsStr.concat(`{
+            "ExperimentTitle": "${ExperimentTitle}",
+            "HighestEngagement": "${HighestEngagement}",
+            "MeanEngagement": "${MeanEngagement}",
+            "MedianEngagement": "${MedianEngagement}",
+            "ModeEngagement": "${ModeEngagement}",
+            "RangeEngagement": "${RangeEngagement}",
+            "RoundDuration": "${RoundDuration}",
+            "RoundsNumber": "${RoundsNumber}",
+            "RoundsAmountComp": "${RoundsAmountComp}",
+            "RoundsAmountCoop": "${RoundsAmountCoop}",
+            "CharacterType": "${CharacterType}",
+            "Disability": "${Disability}",
+            "ColorSettings": "${ColorSettings}"
+          }, `);
+        }
+        resultsStr = resultsStr.slice(0, -2);
+        resultsStr = resultsStr.concat("]}");
+        res.status(200).send(resultsStr);
       }
     });
   },

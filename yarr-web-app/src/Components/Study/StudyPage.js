@@ -158,7 +158,7 @@ class StudyPage extends Component {
               <label/>
               {(experimentList.length || buildExperiment) && !editExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
               {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} toggleEdit={this.handleToggleEdit}/>)}
-              {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}}
+              {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
               <div className="insightHolder">
