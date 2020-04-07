@@ -36,14 +36,7 @@ class StudyInsightRadar extends Component {
     fetch(url).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
-          let tempData = [{
-            experiment: "test",
-            highest: 1,
-            mean: 10,
-            median: 10,
-            mode: 5,
-            range: 9
-          }]
+          let tempData = []
           json.data.map(line => {
             tempData.push({ 
               experiment: line.ExperimentTitle,
@@ -69,10 +62,9 @@ class StudyInsightRadar extends Component {
   render() {
     const { data, names, selectedName } = this.state
 
-    console.log(names[selectedName])
-    return (
+    return data.length ? (
       <div className="insightCard">
-        <div className="">
+        <div>
           <select
             value={selectedName}
             onChange={this.handleTypeChange}
@@ -83,14 +75,14 @@ class StudyInsightRadar extends Component {
             })}
           </select>
         </div>
-        <RadarChart cx={300} cy={250} outerRadius={150} width={600} height={500} data={data}>
+        <RadarChart cx={300} cy={250} outerRadius={150} width={600} height={380} data={data}>
           <PolarGrid />
           <PolarAngleAxis dataKey="experiment" />
           <PolarRadiusAxis domain={[0, 10]}/>
           <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
         </RadarChart>
       </div>
-    )
+    ) : null
   }
 }
 
