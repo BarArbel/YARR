@@ -10,6 +10,7 @@ sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
 con = None
+calc = DDA_calc()
 number_of_players = 3
 host = os.getenv('HOST')
 recv_port = os.getenv('PORT')
@@ -75,8 +76,6 @@ async def calculate(total, last_skills):
         ["precision", "E_Precision_skill"],
         ["speedAndSpawnRate", "E_Speed_skill"]
     ]
-
-    calc = DDA_calc()
 
     calcs["threshold"] = calc.calc_threshold(total["pickup"], total["spawn"])
 
