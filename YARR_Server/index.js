@@ -2,6 +2,7 @@ require('dotenv').config()
 const io = require('socket.io')(process.env.PORT || 52300);
 const mysqlConnection = require("./connection");
 const Table = require('./Classes/Table.js');
+const util = require('util');
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
 
@@ -36,10 +37,14 @@ io.on('connection', async socket =>{
       PRIMARY KEY (EventID)
     );`;
 
-    const { err, rows, fields } = await query(sql);
-    if(err) throw err;
-    console.log("data was added");
-    socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
+    try {
+      await query(sql);
+      console.log("data was added");
+      socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
+    }
+    catch(err) {
+      throw err;
+    }
 
     const sql2 = `CREATE TABLE yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} (
       EventID int unsigned NOT NULL AUTO_INCREMENT,
@@ -54,10 +59,14 @@ io.on('connection', async socket =>{
       PRIMARY KEY (EventID)
     );`;
 
-    const { err, rows, fields } = await query(sql2);
-    if(err) throw err;
-    console.log("data was added");
-    socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
+    try {
+      await query(sql2);
+      console.log("data was added");
+      socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
+    }
+    catch (err) {
+      throw err;
+    }
   });
 
   //Sending Data to the spesific table
