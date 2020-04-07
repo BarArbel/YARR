@@ -90,7 +90,7 @@ class StudyInsightMirror extends Component {
 
     return (
       <div className="insightCard">
-        <div className="">
+        <div>
           <select
             value={selectedType}
             onChange={this.handleTypeChange}
