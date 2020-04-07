@@ -10,7 +10,7 @@ console.log('Server has started');
 const tables = [];
 const sockets = [];
 
-io.on('connection',function(socket){
+io.on('connection', async socket =>{
   console.log('Connection Made!');
 
   const table = new Table();
@@ -21,7 +21,7 @@ io.on('connection',function(socket){
   tables.push(table);
   socket.emit('ExperimentID', table);
   
-  socket.on('createTables', () => {
+  socket.on('createTables', async () => {
     //Creating table for each experiment   
     const sql = `CREATE TABLE yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} (
       EventID int unsigned NOT NULL AUTO_INCREMENT,
@@ -71,7 +71,7 @@ io.on('connection',function(socket){
     socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} updated`);
   });
 
-  socket.on('TrackerInput', data => {
+  socket.on('TrackerInput', async data => {
     const sql = `INSERT INTO yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
       VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     const { err, rows, fields } = await query(sql)
