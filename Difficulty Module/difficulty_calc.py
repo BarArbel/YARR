@@ -21,13 +21,13 @@ class DDA_calc:
                 else:
                     pickup_success_rate += i/j
         #########
-        """if self.coeff_player_pickup_item_ > 0.7:            
-            self.coeff_player_pickup_item_ -= 0.01
+        if self.coeff_player_pickup_item_ > 0.7:            
+            self.coeff_player_pickup_item_ -= 0.05
             
         if self.coeff_spawn_height_and_timer < 0.3:  
             self.coeff_spawn_height_and_timer += 0.01
             self.coeff_precision += 0.01
-            self.coeff_speed_and_spawn_rate += 0.01"""
+            self.coeff_speed_and_spawn_rate += 0.01
         #########    
         print(self.coeff_player_pickup_item_,self.coeff_spawn_height_and_timer)    
         return pickup_success_rate / player_count

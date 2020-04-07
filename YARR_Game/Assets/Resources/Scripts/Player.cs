@@ -287,8 +287,7 @@ public class Player : MonoBehaviour
                 // Untaken treasure
                 if (!treasure.GetIsPickedUp())
                 {
-                    TakeTreasure(collider.gameObject);
-                    // Cooperative = 0                    
+                    TakeTreasure(collider.gameObject);                 
                     DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
                 }
                 break;
