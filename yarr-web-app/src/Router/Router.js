@@ -5,7 +5,7 @@ import Login from '../Components/Login'
 import HomePage from '../Components/HomePage'
 import ExperimentPage from '../Components/Experiment/ExperimentPage'
 import StudyPage from '../Components/Study/StudyPage'
-import Example from '../Components/Insights/StudyInsightsMirror'
+import InsightMirror from '../Components/Insights/StudyInsightsMirror'
 // const path = window.location.pathname
 
 /* todo -> create a 404 component */
@@ -17,7 +17,6 @@ const ReactRouter = ({ store }) => (
         <Route exact path = "/homePage" component = {HomePage}/>
         <Route exact path = "/study/:studyId" component={StudyPage}/>
         <Route exact path = "/study/:studyId/experiment/:experimentId" component={ExperimentPage} />
-        <Route exact path="/example" component={Example} />
         <Route component={Login} />
       </Switch>
     </Router>

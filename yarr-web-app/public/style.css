@@ -169,6 +169,21 @@ a.linkHolder:hover {
   background-color: #ffffff !important;
 }
 
+.insightCard {
+  width: 47%;
+  min-height: 380px;
+  margin-top: 25px;
+  float: left;
+  margin-right: 25px;
+  box-shadow: none !important;
+}
+
+.insightHolder {
+  position: relative;
+  left: 52%;
+  transform: translate(-50%);
+}
+
 .addStudy {
   position: relative;
   float: right;

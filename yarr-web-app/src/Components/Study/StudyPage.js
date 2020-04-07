@@ -10,6 +10,7 @@ import ExperimentList from '../Experiment/ExperimentList'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
+import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
 
 const mapStateToProps = ({ user, study, experiment }) => {
   return {
@@ -159,7 +160,14 @@ class StudyPage extends Component {
               {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} toggleEdit={this.handleToggleEdit}/>)}
               {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleToggleBuild} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}}
             </div>
-            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">Placeholder 3</div>
+            <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
+              <div className="insightHolder">
+                <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightsMirror studyId={studyId} />
+              </div>
+            </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
           </div>
         </div>

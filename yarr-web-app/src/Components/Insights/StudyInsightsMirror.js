@@ -10,28 +10,7 @@ const mapStateToProps = ({ user }) => {
   }
 }
 
-const data = [
-  {
-    name: 'Time: 9', Comp: 3, Coop: 1
-  },
-  {
-    name: 'Time: 12', Comp: 3, Coop: 1
-  },
-  {
-    name: 'Time: 15', Comp: 3, Coop: 1
-  },
-  {
-    name: 'Time: 18', Comp: 5, Coop: 2
-  },
-  {
-    name: 'Time: 21', Comp: 5, Coop: 3
-  },
-  {
-    name: 'Time: 24', Comp: 3, Coop: 4
-  }
-]
-
-class Example extends Component {
+class StudyInsightMirror extends Component {
   constructor(props){
     super(props)
 
@@ -51,7 +30,7 @@ class Example extends Component {
   componentDidMount() {
     const { studyId, userInfo } = this.props
 
-    const url = `http://localhost:3004/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${19}`
+    const url = `http://localhost:3004/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
     fetch(url).then(res => res.json())
       .then(json => {
@@ -59,7 +38,8 @@ class Example extends Component {
           this.data = json.data
           let tempTypes = []
           json.data.map(line => {
-            !tempTypes.find(element => element === line.BreakdownType) && tempTypes.push(line.BreakdownType)
+            !tempTypes.find(element => { return element === line.BreakdownType}) && tempTypes.push(line.BreakdownType)
+            return null
           })
           this.setState({ selectedType: 0, types: tempTypes })
           this.setData(0)
@@ -76,18 +56,19 @@ class Example extends Component {
   setData(index) {
     const data = this.data
     const { types } = this.state
-    const filteredData = data.filter(element => element.BreakdownType === types[index])
+    const filteredData = data.filter(element => {return element.BreakdownType === types[index]})
     const tempData = []
     const tempNames = []
 
     filteredData.map(element => {
       tempData.push({ time: parseInt(element.AxisTime), value: parseInt(element.AxisEngagement), BreakdownName: element.BreakdownName})
       !tempNames.find(name => name === element.BreakdownName) && tempNames.push(element.BreakdownName)
+      return null
     })
-    
+
     let dataSet = []
 
-    for(let i = 3; dataSet.length < tempData.length / 2; i += 3){
+    for (let i = 3; dataSet.length < tempData.length / tempNames.length; i += 3){
       let tempFiltered = tempData.filter(element => parseInt(element.time) === i)
 
       if(!tempFiltered || !tempFiltered.length){
@@ -108,40 +89,41 @@ class Example extends Component {
     const { types, selectedType, currData, names } = this.state
 
     return (
-      <div>
-        <select
-          value={selectedType}
-          onChange={this.handleTypeChange}
-        >
-          {types.map((type, index) => {
-            return <option key={`option${type}`} value={index}>{type}</option>
-          })}
-        </select>
+      <div className="insightCard">
+        <div className="">
+          <select
+            value={selectedType}
+            onChange={this.handleTypeChange}
+            className="form-control selectType"
+          >
+            {types.map((type, index) => {
+              return <option key={`option${type}`} value={index}>{type}</option>
+            })}
+          </select>
 
-        <LineChart
-          layout="vertical"
-          width={500}
-          height={300}
-          data={currData}
-          margin={{
-            top: 20, right: 30, left: 20, bottom: 5,
-          }}
-        >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis type="number" />
-          <YAxis dataKey="name" type="category" />
-          <Tooltip />
-          <Legend />
-          {names.map(name => {
-            let randomcolor =  '#' + Math.random().toString(16).substr(-6);
-            return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
-          })}
-          {/* <Line dataKey={names[0]} stroke="#8884d8" />
-          <Line dataKey={names[1]} stroke="#82ca9d" /> */}
-        </LineChart>
+          <LineChart
+            layout="vertical"
+            width={500}
+            height={300}
+            data={currData}
+            margin={{
+              top: 20, right: 30, left: 20, bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis type="number" />
+            <YAxis dataKey="name" type="category" />
+            <Tooltip />
+            <Legend />
+            {names.map(name => {
+              let randomcolor =  '#' + Math.random().toString(16).substr(-6);
+              return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
+            })}
+          </LineChart>
+        </div>
       </div>
     )
   }
 }
 
-export default connect(mapStateToProps)(Example)
+export default connect(mapStateToProps)(StudyInsightMirror)

@@ -17,9 +17,9 @@ io.on('connection',function(socket){
     tables[thisTableID] = table;
 
     tables.push(table);
-    socket.emit('ExperimentID',table);
+    socket.emit('ExperimentID', table);
     
-    socket.on('createTables', function(){
+    socket.on('createTables', () => {
         //Creating table for each experiment
         
         var sql = `CREATE TABLE yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} (
@@ -39,7 +39,7 @@ io.on('connection',function(socket){
           if(err) throw err;
           console.log("data was added");
           socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
-      })
+      });
 
         var sql = `CREATE TABLE yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} (
             EventID int unsigned NOT NULL AUTO_INCREMENT,
@@ -58,40 +58,36 @@ io.on('connection',function(socket){
             if(err) throw err;
             console.log("data was added");
             socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
-        })
-
-
-
+        });
     });
 
     //Sending Data to the spesific table
-    socket.on('DDAinput', function(data){
+    socket.on('DDAinput', async data => {
         var sql = `INSERT INTO yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
                                               VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
-        mysqlConnection.query(sql,(err,rows,fields) => {
-            if(err) throw err;
-            console.log("data was added");
-        })
+        const { err, rows, fields } = await mysqlConnection.query(sql);
+        if(err) throw err;
+        console.log("data was added");
         socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} updated`);
     });
 
-    socket.on('TrackerInput', function(data){
+    socket.on('TrackerInput', data => {
         var sql = `INSERT INTO yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
                                               VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
         mysqlConnection.query(sql,(err,rows,fields) => {
             if(err) throw err;
             console.log("data was added");
-        })
-        socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
+            socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
+        });
     });
 
-    socket.on('variables', function(data){
+    socket.on('variables', data => {
       socket.broadcast.emit('variables', data);
       console.log('variables sent to game');
-    })
+    });
 
 
-    socket.on('disconnect', function(){
+    socket.on('disconnect', () => {
         console.log('A player has disconnected');
         delete tables[thisTableID];
         socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} finished the game`);
