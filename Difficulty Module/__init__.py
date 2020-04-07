@@ -177,8 +177,8 @@ async def on_message(data):
     elif data == "table yarrserver." + table_name + " updated":
         total, last_skills = await getDataFromDB()
         #####
-        #shouldUpdate = False
-        """for player_id in range(number_of_players):
+        """shouldUpdate = False
+        for player_id in range(number_of_players):
             print(total["pickup"][0])
             print(total["getDamaged"][0])
             if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
