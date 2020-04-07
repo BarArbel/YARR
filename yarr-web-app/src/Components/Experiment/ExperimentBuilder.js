@@ -339,7 +339,6 @@ class ExperimentBuilder extends Component {
           name="details"
           rows="5"
           maxLength="4096"
-          required
         />
       </div>
     )
