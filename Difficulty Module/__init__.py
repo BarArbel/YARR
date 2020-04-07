@@ -2,10 +2,12 @@ from DB_connection import DB_connection
 from difficulty_calc import DDA_calc
 import socketio
 import asyncio
+import time
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+last_time = time.time()
 sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
@@ -165,7 +167,7 @@ def connect():
 @sio.on("message")
 async def on_message(data):
     print('message received with ', data)
-    global first_connection, table_name, con
+    global first_connection, table_name, con, last_time
     if first_connection is True:
         table_name = data.split(" ")[1].split(".")[1]
         if not table_name.startswith("DDA") and not table_name.startswith("dda"):
@@ -176,23 +178,27 @@ async def on_message(data):
 
     elif data == "table yarrserver." + table_name + " updated":
         total, last_skills = await getDataFromDB()
-        #####
-        """shouldUpdate = False
-        for player_id in range(number_of_players):
-            print(total["pickup"][0])
-            print(total["getDamaged"][0])
-            if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
-                #print(total["pickup"][0])
-                #print(total["getDamaged"][0])
-                shouldUpdate = True
-
-        if shouldUpdate == True:"""
-        #####
-        calcs = await calculate(total, last_skills)
-        await insertCalculationsToDB(calcs)
-        game_json = await createGameJson(calcs)        
-        await sio.emit('variables', game_json)
-        print("variables sent to game: ", game_json)
+        current_time = time.time()
+        if current_time > last_time + 5:
+            last_time = current_time
+            total, last_skills = await getDataFromDB()
+            #####
+            """shouldUpdate = False
+            for player_id in range(number_of_players):
+                print(total["pickup"][0])
+                print(total["getDamaged"][0])
+                if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
+                    #print(total["pickup"][0])
+                    #print(total["getDamaged"][0])
+                    shouldUpdate = True
+    
+            if shouldUpdate == True:"""
+            #####
+            calcs = await calculate(total, last_skills)
+            await insertCalculationsToDB(calcs)
+            game_json = await createGameJson(calcs)        
+            await sio.emit('variables', game_json)
+            print("variables sent to game: ", game_json)
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
