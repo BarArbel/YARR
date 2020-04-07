@@ -91,8 +91,12 @@ CREATE TABLE `yarr`.`study_insights_radar` (
   `ColorSettings` INT UNSIGNED NOT NULL);
 
 INSERT INTO yarr.study_insights_radar 
-VALUES (1,1,1,"Green-Red cBlindness", 9, 3,4,3,8,100,3,3,0,1,1,1),
- (1,1,2,"Green cBlindness", 10, 2,4,4,9,100,3,0,3,1,1,2);
+VALUES  (1,2,1,"Cooperative - Quadriplegia",            9,  6,4,6,8,180,3,0,3,1,2,1),
+		(1,2,2,"Competitive - Quadriplegia",   10,  8,5,8,8,180,3,3,0,1,2,1),
+		(1,2,3,"Cooperative - Color Blindness", 7,  4,4,4,4,180,3,0,3,2,3,3),
+		(1,2,4,"Competitive - Color Blindness", 3,  2,2,2,2,180,3,3,0,2,3,3),
+		(1,2,5,"Cooperative - No Disability",   8,  6,4,5,5,180,3,0,3,1,1,1),
+		(1,2,6,"Competitive - No Disability",   10, 8,6,7,6,180,3,3,0,1,1,1);
 
 CREATE TABLE `yarr`.`study_insights_mixed` (
   `ResearcherId` INT UNSIGNED NOT NULL,

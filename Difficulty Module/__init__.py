@@ -177,20 +177,22 @@ async def on_message(data):
     elif data == "table yarrserver." + table_name + " updated":
         total, last_skills = await getDataFromDB()
         #####
-        #shouldUpdate = False
+        shouldUpdate = False
         for player_id in range(number_of_players):
+            print(total["pickup"][0])
+            print(total["getDamaged"][0])
             if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
-                print(total["pickup"][0])
-                print(total["getDamaged"][0])
+                #print(total["pickup"][0])
+                #print(total["getDamaged"][0])
                 shouldUpdate = True
 
-        #if shouldUpdate == True:
+        if shouldUpdate == True:
         #####
-        calcs = await calculate(total, last_skills)
-        await insertCalculationsToDB(calcs)
-        game_json = await createGameJson(calcs)        
-        await sio.emit('variables', game_json)
-        print("variables sent to game: ", game_json)
+            calcs = await calculate(total, last_skills)
+            await insertCalculationsToDB(calcs)
+            game_json = await createGameJson(calcs)        
+            await sio.emit('variables', game_json)
+            print("variables sent to game: ", game_json)
 
     elif data == "table yarrserver." + table_name + " finished the game":
         # transfer data from temporary tables to permanent experiment table
