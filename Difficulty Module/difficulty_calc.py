@@ -5,10 +5,10 @@
 class DDA_calc:
 
     def __init__(self):
-        self.coeff_player_pickup_item_ = 0.7
-        self.coeff_spawn_height_and_timer = 0.3
-        self.coeff_precision = 0.3
-        self.coeff_speed_and_spawn_rate = 0.3
+        self.coeff_player_pickup_item_ = 3
+        self.coeff_spawn_height_and_timer = 0.1
+        self.coeff_precision = 0.1
+        self.coeff_speed_and_spawn_rate = 0.1
 
     # Avg pickup success rate
     def calc_threshold(self, player_pickup_item, player_spawn_item):
@@ -20,7 +20,16 @@ class DDA_calc:
                     pickup_success_rate += i / 0.001
                 else:
                     pickup_success_rate += i/j
-
+        #########
+        """if self.coeff_player_pickup_item_ > 0.7:            
+            self.coeff_player_pickup_item_ -= 0.01
+            
+        if self.coeff_spawn_height_and_timer < 0.3:  
+            self.coeff_spawn_height_and_timer += 0.01
+            self.coeff_precision += 0.01
+            self.coeff_speed_and_spawn_rate += 0.01"""
+        #########    
+        print(self.coeff_player_pickup_item_,self.coeff_spawn_height_and_timer)    
         return pickup_success_rate / player_count
 
     def calc_spawn_height_and_timer(self, total_pickup_item, player_fall,

@@ -50,18 +50,19 @@ public class Treasure : Item
 
     public void TreasureInit(int id, float destroyTimer)
     {
-        int playerID = GetID() == -1 ? 0 : GetID();
+        int playerID;
         ID = id;
         DestroyTimer = destroyTimer;
         IsPickedUp = false;
         Carrier = null;
+        playerID = GetID() == -1 ? 0 : GetID();
 
         if (DestroyTimer != -1)
         {
             Invoke("SetDestroy", DestroyTimer);
         }
 
-        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, playerID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, playerID, transform.position.x, transform.position.y, GetID(),0, GetGameMode());
     }
 
     void Update()

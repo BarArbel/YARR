@@ -10,6 +10,12 @@ public class ItemFactory : ObjectFactory
 
     private int LevelTimerAndSpawn;
 
+    /*DEBUG*/
+    public override System.String GETLEVELSTRING()
+    {
+        return "P:" + GetID().ToString() + " tmr:" + LevelTimerAndSpawn.ToString() + " spn:" + LevelTimerAndSpawn.ToString() +  "\n";
+    }
+
     protected override void ModifyLevelSettings()
     {
         int level = GetLevel();
@@ -39,7 +45,7 @@ public class ItemFactory : ObjectFactory
                 LevelTimerAndSpawn = 3;
             }
 
-            if (!(LevelTimerAndSpawn == 1 && DDALevelSpawnHeightAndTimer == -1))
+            if (!(LevelTimerAndSpawn == 1 && DDALevelSpawnHeightAndTimer == -1) && !(LevelTimerAndSpawn == 6 && DDALevelSpawnHeightAndTimer == 1))
             {
                 LevelTimerAndSpawn += DDALevelSpawnHeightAndTimer;
             }

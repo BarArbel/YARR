@@ -12,6 +12,12 @@ public class EnemyFactory : ObjectFactory
     private int LevelSpeedAndSpawn;
     private int LevelPrecision;
 
+    /*DEBUG*/
+    public override System.String GETLEVELSTRING()
+    {
+        return "P:" + GetID().ToString() + " spd:" + LevelSpeedAndSpawn.ToString() + " spn:" + LevelSpeedAndSpawn.ToString() + " prsn:" + LevelPrecision.ToString() + "\n";
+    }
+
     protected override void ModifyLevelSettings()
     {
         int level = GetLevel();
@@ -47,7 +53,7 @@ public class EnemyFactory : ObjectFactory
                 LevelPrecision = 2;
             }
 
-            if (!(LevelSpeedAndSpawn == 1 && DDALevelSpeedAndSpawnRate == -1))
+            if (!(LevelSpeedAndSpawn == 1 && DDALevelSpeedAndSpawnRate == -1) && !(LevelSpeedAndSpawn == 6 && DDALevelSpeedAndSpawnRate == 1))
             {
                 LevelSpeedAndSpawn += DDALevelSpeedAndSpawnRate;
 
@@ -55,7 +61,7 @@ public class EnemyFactory : ObjectFactory
                 Speed = LevelsOf_Speed[LevelSpeedAndSpawn - 1];
             }
 
-            if (!(LevelPrecision == 1 && DDALevelPrecision == -1))
+            if (!(LevelPrecision == 1 && DDALevelPrecision == -1) && !(LevelPrecision == 6 && DDALevelPrecision == 1))
             {
                 LevelPrecision += DDALevelPrecision;
 
@@ -74,18 +80,20 @@ public class EnemyFactory : ObjectFactory
 
     protected override void Spawn()
     {
-        // Calculate a random side to spawn at
-        int enemyLayer = LayerMask.NameToLayer("Enemy"); 
-        float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
-        Vector3 position = new Vector3(spawnX, UnityEngine.Random.Range(1f, 5f), 0);
+        if (Speed > 0)
+        {
+            // Calculate a random side to spawn at
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            float spawnX = UnityEngine.Random.value > 0.5 ? -10 : 10;
+            Vector3 position = new Vector3(spawnX, UnityEngine.Random.Range(1f, 5f), 0);
 
-        // Create an enemy
-        GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);
-        enemyObj.transform.SetParent(GameObject.Find("Map").transform);
-        enemyObj.layer = enemyLayer;
-        enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
-        enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
-
+            // Create an enemy
+            GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);
+            enemyObj.transform.SetParent(GameObject.Find("Map").transform);
+            enemyObj.layer = enemyLayer;
+            enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
+            enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+        }
     }
 
     // Start is called before the first frame update

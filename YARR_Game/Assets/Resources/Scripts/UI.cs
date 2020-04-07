@@ -14,7 +14,14 @@ public class UI : MonoBehaviour
     private List<GameObject> HealthIdicators;
     private List<GameObject> ScoresIdicators;
 
-    public void UIInit( int initialHealth, GameManager.GameMode mode, List<Sprite> playerSprites, int numberOfPlayers) 
+    // UI Debug
+    public GameObject DebugIndicator;
+    public List<ObjectFactory> EnemyFactories;
+    public List<ObjectFactory> ItemFactories;
+    public Text debugText;
+    public GameManager.Level Difficulty;
+
+    public void UIInit( int initialHealth, GameManager.GameMode mode, /*DEBUG*/GameManager.Level difficulty, /*DEBUG*/List<ObjectFactory> enemyFactories, /*DEBUG*/List<ObjectFactory> itemFactories, List<Sprite> playerSprites, int numberOfPlayers) 
     {
         float BotLeftCorner = -10.2f;
         GameObject canvas = GameObject.Find("Canvas");        
@@ -53,6 +60,23 @@ public class UI : MonoBehaviour
                 ScoresIdicators[i].transform.position = new Vector3(HealthIdicators[i].transform.position.x+0.8f, HealthIdicators[i].transform.position.y-0.2f, 0);
             }
         }
+
+        // UI Debug
+        DebugIndicator = new GameObject("DEBUGMODE");
+        Difficulty = difficulty;
+        DebugIndicator.layer = 5;
+        DebugIndicator.transform.SetParent(canvas.transform);
+        DebugIndicator.transform.position = new Vector3(-8.3f, 2.7f, 0);
+        debugText = DebugIndicator.AddComponent<Text>();
+        RectTransform rt = DebugIndicator.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(200, 200);
+        debugText.fontSize = 12;
+        debugText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
+        debugText.text = "DEBUG \n" + Mode.ToString() + "\n" + Difficulty.ToString();
+        debugText.GetComponent<RectTransform>().localScale = new Vector3(0.8f, 0.8f, 0.8f);
+
+        EnemyFactories = enemyFactories;
+        ItemFactories = itemFactories;
     }
 
     public void InitScoreText( GameObject score)
@@ -62,7 +86,7 @@ public class UI : MonoBehaviour
         score.transform.SetParent(canvas.transform);
 
         Text scoreText = score.AddComponent<Text>();
-        scoreText.fontSize = 20;
+        scoreText.fontSize = 18;
         scoreText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         scoreText.text = "0";
         score.GetComponent<RectTransform>().localScale = new Vector3(0.8f, 0.8f, 0.8f);
@@ -95,6 +119,22 @@ public class UI : MonoBehaviour
             ScoresIdicators[0].GetComponentInChildren<Text>().text = sink.GetScoreSum().ToString();
         }
     }
+    /*DEBUG*/
+    void SETDEBUGLEVELS()
+    {
+        debugText.text = "DEBUG \n" + Mode.ToString() + "\n" + Difficulty.ToString() + "\n";
+
+        for (int i=0; i< EnemyFactories.Count; i++)
+        {
+            debugText.text = debugText.text + EnemyFactories[i].GETLEVELSTRING();
+        }
+
+        for (int i = 0; i < ItemFactories.Count; i++)
+        {
+            debugText.text = debugText.text + ItemFactories[i].GETLEVELSTRING();
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -106,5 +146,11 @@ public class UI : MonoBehaviour
     {
         SetHealth();
         SetScore();
+        /*DEBUG*/
+        if (Difficulty == GameManager.Level.Adaptive)
+        {
+            SETDEBUGLEVELS();
+        }
+        
     }
 }

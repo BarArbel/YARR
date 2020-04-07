@@ -91,7 +91,8 @@ class DB_connection:
                      " WHERE Event = '" + event + "' AND PlayerID = " +
                      str(player_id))
             self.cursor.execute(query)
-            return self.cursor.fetchone()
+            fetch = self.cursor.fetchone()
+            return fetch
         except Exception as e:
             print("count_total exception: " + str(e))
             return [0]

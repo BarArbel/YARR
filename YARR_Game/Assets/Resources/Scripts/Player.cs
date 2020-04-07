@@ -94,6 +94,7 @@ public class Player : MonoBehaviour
         {
             if (GetGameMode() == 0)
             {
+                //FindObjectOfType<GameManager>().NotificationPlayerDied(GetID());
                 this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
                 DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
@@ -446,6 +447,7 @@ public class Player : MonoBehaviour
         FixBoatTime = 0;
         player.SetHealth();
 
+        //FindObjectOfType<GameManager>().NotificationPlayerRevived(GetID());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());
 
