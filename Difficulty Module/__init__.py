@@ -10,6 +10,7 @@ sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
 con = None
+calc = DDA_calc()
 number_of_players = 3
 host = os.getenv('HOST')
 recv_port = os.getenv('PORT')
@@ -75,8 +76,6 @@ async def calculate(total, last_skills):
         ["precision", "E_Precision_skill"],
         ["speedAndSpawnRate", "E_Speed_skill"]
     ]
-
-    calc = DDA_calc()
 
     calcs["threshold"] = calc.calc_threshold(total["pickup"], total["spawn"])
 
@@ -177,6 +176,16 @@ async def on_message(data):
 
     elif data == "table yarrserver." + table_name + " updated":
         total, last_skills = await getDataFromDB()
+        #####
+        #shouldUpdate = False
+        for player_id in range(number_of_players):
+            if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
+                print(total["pickup"][0])
+                print(total["getDamaged"][0])
+                shouldUpdate = True
+
+        #if shouldUpdate == True:
+        #####
         calcs = await calculate(total, last_skills)
         await insertCalculationsToDB(calcs)
         game_json = await createGameJson(calcs)        
