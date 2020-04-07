@@ -7,6 +7,7 @@ import { Redirect } from 'react-router-dom'
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
 import ExperimentList from '../Experiment/ExperimentList'
+import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
@@ -163,9 +164,9 @@ class StudyPage extends Component {
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
               <div className="insightHolder">
                 <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightRadar studyId={studyId} />
                 <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightRadar studyId={studyId} />
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
