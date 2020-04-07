@@ -31,7 +31,7 @@ class StudyInsightRadar extends Component {
   componentDidMount() {
     const { studyId, userInfo } = this.props
 
-    const url = `http://localhost:3004/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${19}`
+    const url = `http://localhost:3004/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
     fetch(url).then(res => res.json())
       .then(json => {
@@ -71,8 +71,8 @@ class StudyInsightRadar extends Component {
 
     console.log(names[selectedName])
     return (
-      <div className="card insightCard">
-        <div className="card-body">
+      <div className="insightCard">
+        <div className="">
           <select
             value={selectedName}
             onChange={this.handleTypeChange}
