@@ -1,5 +1,8 @@
 python-socketio[client]
 python-socketio[asyncio_client]
+aiomysql
+
+mybe still needed bu not sure:
 dotenv
 mysql-connector
 mysql-connector-python

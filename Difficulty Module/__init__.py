@@ -45,12 +45,14 @@ async def getDataFromDB():
 
     for player_id in range(number_of_players):
         for event in total:
-            total[event].append(con.count_total_player_events(
-                event, player_id + 1)[0])
+            fetch = await con.count_total_player_events(event,
+                                                        player_id + 1)
+            total[event].append(fetch[0])
 
         for skill in last_skills:
-            last_skills[skill].append(con.get_DDA_last_player_skill(
-                skill, player_id + 1)[0])
+            fetch = await con.get_DDA_last_player_skill(skill,
+                                                        player_id + 1)
+            last_skills[skill].append(fetch[0])
 
     return total, last_skills
 
@@ -121,17 +123,17 @@ async def calculate(total, last_skills):
 async def insertCalculationsToDB(calcs):
 
     for player_id in range(number_of_players):
-        con.insert_DDA_table(player_id + 1, calcs["threshold"],
-                             calcs["spawnHeightAndTimer"]["level"][player_id],
-                             calcs["spawnHeightAndTimer"]["skill"][player_id],
-                             calcs["spawnHeightAndTimer"]["level"][player_id],
-                             calcs["spawnHeightAndTimer"]["skill"][player_id],
-                             calcs["precision"]["level"][player_id],
-                             calcs["precision"]["skill"][player_id],
-                             calcs["speedAndSpawnRate"]["level"][player_id],
-                             calcs["speedAndSpawnRate"]["skill"][player_id],
-                             calcs["speedAndSpawnRate"]["level"][player_id],
-                             calcs["speedAndSpawnRate"]["skill"][player_id])
+        await con.insert_DDA_table(player_id + 1, calcs["threshold"],
+                                   calcs["spawnHeightAndTimer"]["level"][player_id],
+                                   calcs["spawnHeightAndTimer"]["skill"][player_id],
+                                   calcs["spawnHeightAndTimer"]["level"][player_id],
+                                   calcs["spawnHeightAndTimer"]["skill"][player_id],
+                                   calcs["precision"]["level"][player_id],
+                                   calcs["precision"]["skill"][player_id],
+                                   calcs["speedAndSpawnRate"]["level"][player_id],
+                                   calcs["speedAndSpawnRate"]["skill"][player_id],
+                                   calcs["speedAndSpawnRate"]["level"][player_id],
+                                   calcs["speedAndSpawnRate"]["skill"][player_id])
     return
 
 
@@ -169,34 +171,37 @@ async def on_message(data):
     print('message received with ', data)
     global first_connection, table_name, con, last_time
     if first_connection is True:
-        table_name = data.split(" ")[1].split(".")[1]
-        if not table_name.startswith("DDA") and not table_name.startswith("dda"):
+        tmp_table_name = data.split(" ")[1].split(".")[1]
+        if not tmp_table_name.startswith("DDA") and not tmp_table_name.startswith("dda"):
             return
-        con = DB_connection(table_name, number_of_players)
-        first_connection = False
-        print("done first connection")
+        else:
+            table_name = tmp_table_name
+            con = DB_connection(table_name)
+            await con._init(number_of_players)
+            first_connection = False
+            print("done first connection")
 
     elif data == "table yarrserver." + table_name + " updated":
-        total, last_skills = await getDataFromDB()
+        # total, last_skills = await getDataFromDB()
         current_time = time.time()
         if current_time > last_time + 5:
             last_time = current_time
             total, last_skills = await getDataFromDB()
             #####
             """shouldUpdate = False
-            for player_id in range(number_of_players):
+                for player_id in range(number_of_players):
                 print(total["pickup"][0])
                 print(total["getDamaged"][0])
                 if total["pickup"][player_id] != 0 or total["getDamaged"][player_id] != 0:
                     #print(total["pickup"][0])
                     #print(total["getDamaged"][0])
                     shouldUpdate = True
-    
+
             if shouldUpdate == True:"""
             #####
             calcs = await calculate(total, last_skills)
             await insertCalculationsToDB(calcs)
-            game_json = await createGameJson(calcs)        
+            game_json = await createGameJson(calcs)
             await sio.emit('variables', game_json)
             print("variables sent to game: ", game_json)
 
@@ -204,7 +209,7 @@ async def on_message(data):
         # transfer data from temporary tables to permanent experiment table
 
         await sio.emit('end', 'experiment ended')
-        con.close_connection()
+        await con.close_connection()
         await sio.disconnect()
 
 
