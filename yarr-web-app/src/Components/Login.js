@@ -36,7 +36,7 @@ class Login extends Component {
   }
   
   verifyUser(userName, password){
-    const url = "http://localhost:3001/verifyResearcher"
+    const url = 'https://yarr-user-management.herokuapp.com/verifyResearcher'
     const { handleSetBearerKey, handleSetUser } = this.props
     let json = {
       userName: userName,

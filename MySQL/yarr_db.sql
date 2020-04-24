@@ -1,6 +1,6 @@
-CREATE SCHEMA IF NOT EXIST yarr;
+CREATE SCHEMA IF NOT EXISTS yarr;
 
-CREATE TABLE IF NOT EXIST `yarr`.`researchers` (
+CREATE TABLE IF NOT EXISTS `yarr`.`researchers` (
   `ResearcherId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `UserName` VARCHAR(45) NOT NULL,
   `HashedPassword` VARCHAR(45) NOT NULL,
@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXIST `yarr`.`researchers` (
   `Email` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`ResearcherId`));
   
-CREATE TABLE IF NOT EXIST `yarr`.`studies` (
+CREATE TABLE IF NOT EXISTS `yarr`.`studies` (
   `StudyId` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `ResearcherId` INT UNSIGNED NOT NULL,
   `Title` VARCHAR(1024) NOT NULL,

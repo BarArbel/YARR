@@ -24,7 +24,7 @@ class StudyList extends Component {
   componentDidMount() {
     const { userInfo, handleAddStudies } = this.props
 
-    const getAllUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
+    const getAllUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
 
     fetch(getAllUrl).then(res => res.json())
       .then(json => {
@@ -40,7 +40,7 @@ class StudyList extends Component {
 
   handleDelete(studyId) {
     const { handleDeleteStudy } = this.props
-    const url = `http://localhost:3002/deleteStudy?studyId=${studyId}`
+    const url = `https://yarr-study-service.herokuapp.com/deleteStudy?studyId=${studyId}`
 
     fetch(url, {
       method: "DELETE",

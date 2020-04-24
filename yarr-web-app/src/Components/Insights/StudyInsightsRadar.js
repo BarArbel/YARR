@@ -31,7 +31,7 @@ class StudyInsightRadar extends Component {
   componentDidMount() {
     const { studyId, userInfo } = this.props
 
-    const url = `http://localhost:3004/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
+    const url = `https://yarr-insight-service.herokuapp.com/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
     fetch(url).then(res => res.json())
       .then(json => {

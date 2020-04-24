@@ -54,8 +54,8 @@ class StudyPage extends Component {
       { name: 'Home', redirect: '/homePage', isActive: true },
       { name: 'Study', redirect: `/study/${studyId}`, isActive: false }
     ]
-    const studiesUrl = `http://localhost:3002/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
-    const experimentsUrl = `http://localhost:3003/getAllStudyExperiments?studyId=${studyId}`
+    const studiesUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
+    const experimentsUrl = ` https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
 
     buildExperiment && handleToggleBuildExperiment()
     handleSetRoutes(routes)

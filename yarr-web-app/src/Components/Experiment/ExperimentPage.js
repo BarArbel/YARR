@@ -40,7 +40,7 @@ class ExperimentPage extends Component {
     ]
     let experiment = null
     if(experimentList.length === 0) {
-      const url = `http://localhost:3003/getExperiment?experimentId=${experimentId}`
+      const url = `https://yarr-experiment-service.herokuapp.com/getExperiment?experimentId=${experimentId}`
 
       await fetch(url).then(res => res.json()).then(json => {
         if (json.result === "Success") {

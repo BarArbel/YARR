@@ -179,7 +179,8 @@ class ExperimentBuilder extends Component {
       handleUpdateExperiment,
       handleToggleBuildExperiment
     } = this.props
-    const url = editForm ? 'http://localhost:3003/updateExperiment' : 'http://localhost:3003/addExperiment'
+    let url = 'https://yarr-experiment-service.herokuapp.com'
+    url += editForm ? '/updateExperiment' : '/addExperiment'
 
     /* fetch request to add experiment */
     const json = {

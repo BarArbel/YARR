@@ -22,7 +22,7 @@ export class ExperimentList extends Component {
   componentDidMount() {
     const { studyId, handleSetExperiments } = this.props
 
-    const getAllUrl = `http://localhost:3003/getAllStudyExperiments?studyId=${studyId}`
+    const getAllUrl = `https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
 
     fetch(getAllUrl).then(res => res.json())
       .then(json => {
@@ -38,7 +38,7 @@ export class ExperimentList extends Component {
 
   handleDelete(experimentId) {
     const { handleDeleteExperiment } = this.props
-    const url = `http://localhost:3003/deleteExperiment?experimentId=${experimentId}`
+    const url = `https://yarr-experiment-service.herokuapp.com/deleteExperiment?experimentId=${experimentId}`
 
     fetch(url, {
       method: "DELETE",

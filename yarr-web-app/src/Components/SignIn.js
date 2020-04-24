@@ -58,7 +58,7 @@ class SignIn extends Component {
       email 
     } = this.state
 
-    const url = 'http://localhost:3001/addResearcher'
+    const url = 'https://yarr-user-management.herokuapp.com/addResearcher'
     /* fetch request to add user */
     const json = {
       userName: userName,

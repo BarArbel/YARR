@@ -48,8 +48,8 @@ class StudyBuilder extends Component {
       onSubmit,
       handleUpdateStudy
     } = this.props
-
-    const url = editForm ? 'http://localhost:3002/updateStudy' : 'http://localhost:3002/addStudy'
+    let url = 'https://yarr-study-service.herokuapp.com'
+    url += editForm ? '/updateStudy' : '/addStudy'
     /* fetch request to add Study */
     const json = {
       researcherId: userInfo.researcherId,
