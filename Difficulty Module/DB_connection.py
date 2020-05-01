@@ -10,6 +10,7 @@ class DB_connection:
 
     def __init__(self, table_name):
         self.counter = 0
+        self.timestamps = [0, 0, 0]
         self.db = os.getenv('DATABASE')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
@@ -104,12 +105,27 @@ class DB_connection:
         await self.remove_DDA_table()
         self.pool.close()
         await self.pool.wait_closed()
+    
+    async def get_timestamp(self):
+        query = ("SELECT Timestamp From " + self.db + "." + self.tb +
+                 " ORDER BY Timestamp DESC LIMIT 1")
+        
+        async with self.pool.acquire() as con:
+            async with con.cursor() as cursor:
+                await cursor.execute(query)
+                fetch = await cursor.fetchone()
+                return fetch
 
-    async def count_total_player_events(self, event, player_id):
+    async def count_last_pickup_events(self, player_id, tstamp, limit):
         try:
-            query = ("SELECT count(Event) FROM " + self.db + "." + self.tb +
-                     " WHERE Event = '" + event + "' AND PlayerID = " +
-                     str(player_id))
+            query = ("SELCT count(Event) FROM (select Event from " + self.db +
+                     "." + self.tb + " WHERE (Event = 'pickup' OR Event = " +
+                     "'failPickup') AND Timestamp > " +
+                     str(self.timestamps[player_id - 1]) +
+                     "  AND Timestamp <= " + str(tstamp) + " AND PlayerID = " +
+                     str(player_id) + " AND Item = " + str(player_id) +
+                     " ORDER BY Timestamp DESC LIMIT " + str(limit) +
+                     ") AS limitTable WHERE Event = 'Pickup'")
 
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
@@ -120,8 +136,40 @@ class DB_connection:
             print("count_total exception: " + str(e))
             return [0]
 
+    async def count_total_player_events(self, event, player_id, tstamp,
+                                        spawnItemFlag, playerFlag):
+
+        try:
+            query = ("SELECT count(Event) FROM " + self.db + "." + self.tb +
+                     " WHERE Event = '" + event + "' AND Timestamp > " +
+                     str(self.timestamps[player_id - 1]) +
+                     " AND Timestamp <= " + str(tstamp) + " AND PlayerID = " +
+                     str(player_id))
+
+            if event == "pickup":
+                if playerFlag is True:
+                    query += " AND Item = " + str(player_id)
+                else:
+                    query += " AND Item != " + str(player_id)
+
+            if event == "spawn":
+                if spawnItemFlag is True:
+                    query += " AND Enemy = 0"
+                else:
+                    query += " AND Item = 0"
+
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    fetch = await cursor.fetchone()
+                    return fetch
+
+        except Exception as e:
+            print("count_total exception: " + str(e))
+            return [0]
+
     # NOT USED
-    async def count_total_team_events(self, value, event):
+    """async def count_total_team_events(self, value, event):
         query = ("SELECT count(" + value + ") FROM `" + self.tb +
                  "` WHERE Event = " + event)
 
@@ -129,7 +177,7 @@ class DB_connection:
             async with con.cursor() as cursor:
                 await cursor.execute(query)
                 fetch = await cursor.fetchall()
-                return fetch
+                return fetch"""
 
     async def insert_DDA_table(self, PlayerID, Threshold, I_SpawnHeight_level,
                                I_SpawnHeight_skill, I_DestroyTimer_level,
