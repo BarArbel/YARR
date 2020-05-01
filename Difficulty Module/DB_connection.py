@@ -11,14 +11,14 @@ class DB_connection:
     def __init__(self, table_name):
         self.counter = 0
         self.timestamps = [0, 0, 0]
-        self.db = os.getenv('DATABASE')
+        self.db = os.getenv('DATABASE_GAME_DB')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
     async def _init(self, number_of_players):
-        self.pool = await aiomysql.create_pool(user=os.getenv('USER'),
-                                               password=os.getenv('PASSWORD'),
-                                               host=os.getenv('HOST'),
+        self.pool = await aiomysql.create_pool(user=os.getenv('USER_GAME_DB'),
+                                               password=os.getenv('PASSWORD_GAME_DB'),
+                                               host=os.getenv('HOST_GAME_DB'),
                                                db=self.db,
                                                auth_plugin='mysql_native_password')
         """self.cnx = await aiomysql.connect(user=os.getenv('USER'),
@@ -92,7 +92,7 @@ class DB_connection:
                     return fetch
         except Exception as e:
             print("last_skill exception: " + str(e))
-            return [0]
+            return [-1]
 
     async def remove_DDA_table(self):
         query = ("DROP TABLE `" + self.db + "`.`" + self.DDAtb + "`")
@@ -118,7 +118,7 @@ class DB_connection:
 
     async def count_last_pickup_events(self, player_id, tstamp, limit):
         try:
-            query = ("SELCT count(Event) FROM (select Event from " + self.db +
+            query = ("SELECT count(Event) FROM (select Event from " + self.db +
                      "." + self.tb + " WHERE (Event = 'pickup' OR Event = " +
                      "'failPickup') AND Timestamp > " +
                      str(self.timestamps[player_id - 1]) +
@@ -133,8 +133,8 @@ class DB_connection:
                     fetch = await cursor.fetchone()
                     return fetch
         except Exception as e:
-            print("count_total exception: " + str(e))
-            return [0]
+            print("count_last_pickups exception: " + str(e))
+            return [-1]
 
     async def count_total_player_events(self, event, player_id, tstamp,
                                         spawnItemFlag, playerFlag):
@@ -148,15 +148,14 @@ class DB_connection:
 
             if event == "pickup":
                 if playerFlag is True:
-                    query += " AND Item = " + str(player_id)
+                    query += (" AND Item = " + str(player_id))
                 else:
-                    query += " AND Item != " + str(player_id)
-
-            if event == "spawn":
+                    query += (" AND Item != " + str(player_id))
+            elif event == "spawn":
                 if spawnItemFlag is True:
-                    query += " AND Enemy = 0"
+                    query += (" AND Enemy = 0")
                 else:
-                    query += " AND Item = 0"
+                    query += (" AND Item = 0")
 
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
@@ -166,7 +165,7 @@ class DB_connection:
 
         except Exception as e:
             print("count_total exception: " + str(e))
-            return [0]
+            return [-1]
 
     # NOT USED
     """async def count_total_team_events(self, value, event):

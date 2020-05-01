@@ -14,8 +14,8 @@ table_name = ""
 con = None
 calc = DDA_calc()
 number_of_players = 3
-host = os.getenv('HOST')
-recv_port = os.getenv('PORT')
+host = os.getenv('HOST_SERVER')
+recv_port = os.getenv('PORT_SERVER')
 
 
 async def getDataFromDB():
@@ -59,11 +59,11 @@ async def getDataFromDB():
                 fetch = await con.count_last_pickup_events(player_id + 1,
                                                            timestamp, 5)
             else:
-                if event == "pickupPlayerTotal" or "pickupOther":
+                if event == "pickupPlayerTotal" or event == "pickupOther":
                     tempEvent = "pickup"
                     if event == "pickupOther":
                         tempPlayerFlag = False
-                elif event == "spawnPlayerItem" or "spawnEnemy":
+                elif event == "spawnPlayerItem" or event == "spawnEnemy":
                     tempEvent = "spawn"
                     if event == "spawnPlayerItem":
                         tempSpawnItemFlag = True
@@ -115,6 +115,7 @@ def calculate(total, last_skills, timestamp):
     calcs = {
         "threshold": [],
         "penalty": [],
+        "bonus": [],
         "skill": [],
         "level": []
     }
@@ -146,18 +147,22 @@ def calculate(total, last_skills, timestamp):
         if threshold == None:
             calcs["threshold"].append(-1)
             calcs["penalty"].append(0)
+            calcs["bonus"].append(0)
             calcs["skill"].append(last_skills[key_pairs[1][1]][player_id])
             calcs["level"].append(0)
             continue
         calcs["threshold"].append(threshold)
 
-        penalty = calc.calc_penalty(total["pickupPlayer"][player_id],
-                                    total["failPickup"][player_id],
-                                    total["getDamaged"][player_id],
-                                    total["blockDamage"][player_id])
+        penalty, bonus = calc.calc_penalty_and_bonus(
+            total["pickupPlayerTotal"][player_id],
+            total["giveItem"][player_id], total["revivePlayer"][player_id],
+            total["getDamaged"][player_id], total["blockDamage"][player_id],
+            total["fallAccidently"][player_id])
         calcs["penalty"].append(penalty)
+        calcs["bonus"].append(bonus)
 
-        skill = calc.calc_skill(penalty, total["pickupPlayer"][player_id],
+        skill = calc.calc_skill(penalty, bonus,
+                                total["pickupPlayerTotal"][player_id],
                                 total["spawnPlayerItem"][player_id])
         calcs["skill"].append(skill)
 
@@ -165,6 +170,9 @@ def calculate(total, last_skills, timestamp):
                                      last_skills[key_pairs[1][1]][player_id],
                                      threshold)
         calcs["level"].append(level)
+
+        if level != 0:
+            con.timestamps[player_id] = timestamp
 
         """calcs["spawnHeightAndTimer"]["skill"].append(
             calc.calc_spawn_height_and_timer(
