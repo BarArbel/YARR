@@ -7,13 +7,14 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+number_of_players = 3
+starting_level = 2
 last_time = None
 sio = socketio.AsyncClient()
 first_connection = True
 table_name = ""
 con = None
-calc = DDA_calc()
-number_of_players = 3
+calc = DDA_calc(number_of_players, starting_level)
 host = os.getenv('HOST_SERVER')
 recv_port = os.getenv('PORT_SERVER')
 
@@ -40,11 +41,11 @@ async def getDataFromDB():
         "spawnEnemy": []
     }
 
-    last_skills = {
+    """last_skills = {
         "I_SpawnHeight_skill": [],
         "E_Precision_skill": [],
         "E_Speed_skill": []
-    }
+    }"""
 
     fetch = await con.get_timestamp()
     timestamp = fetch[0]
@@ -103,23 +104,25 @@ async def getDataFromDB():
                                                         timestamp)"""
             total[event].append(fetch[0])
 
-        for skill in last_skills:
+        """for skill in last_skills:
             fetch = await con.get_DDA_last_player_skill(skill, player_id + 1)
-            last_skills[skill].append(fetch[0])
+            last_skills[skill].append(fetch[0])"""
 
-    return total, last_skills, timestamp
+    # return total, last_skills, timestamp
+    return total, timestamp
 
 
-def calculate(total, last_skills, timestamp):
+# def calculate(total, last_skills, timestamp):
+def calculate(total, timestamp):
 
     calcs = {
-        "threshold": [],
         "penalty": [],
         "bonus": [],
         "skill": [],
         "level": []
     }
-    """"spawnHeightAndTimer": {
+    """""threshold": [],
+        spawnHeightAndTimer": {
             "skill": [],
             "level": []
         },
@@ -133,16 +136,16 @@ def calculate(total, last_skills, timestamp):
         }
     }"""
 
-    key_pairs = [
+    """key_pairs = [
         ["spawnHeightAndTimer", "I_SpawnHeight_skill"],
         ["precision", "E_Precision_skill"],
         ["speedAndSpawnRate", "E_Speed_skill"]
-    ]
+    ]"""
 
     # calcs["threshold"] = calc.calc_threshold(total["pickup"], total["spawn"])
 
     for player_id in range(number_of_players):
-        threshold = calc.calc_thresholds(total["pickupPlayerTotal"][player_id],
+        """threshold = calc.calc_thresholds(total["pickupPlayerTotal"][player_id],
                                          total["spawnPlayerItem"][player_id])
         if threshold == None:
             calcs["threshold"].append(-1)
@@ -151,7 +154,7 @@ def calculate(total, last_skills, timestamp):
             calcs["skill"].append(last_skills[key_pairs[1][1]][player_id])
             calcs["level"].append(0)
             continue
-        calcs["threshold"].append(threshold)
+        calcs["threshold"].append(threshold)"""
 
         penalty, bonus = calc.calc_penalty_and_bonus(
             total["pickupPlayerTotal"][player_id],
@@ -164,14 +167,18 @@ def calculate(total, last_skills, timestamp):
         skill = calc.calc_skill(penalty, bonus,
                                 total["pickupPlayerTotal"][player_id],
                                 total["spawnPlayerItem"][player_id])
+        if skill is None:
+            calcs["skill"].append(-1)
+            calcs["level"].append(0)
+            continue
         calcs["skill"].append(skill)
 
-        level = calc.calc_difficulty(skill,
-                                     last_skills[key_pairs[1][1]][player_id],
-                                     threshold)
+        level = calc.calc_difficulty(skill)
         calcs["level"].append(level)
 
-        if level != 0:
+        player_level = calc.player_levels[player_id]
+        if level != 0 and player_level > 1 and player_level < 6:
+            calc.player_levels[player_id] += level
             con.timestamps[player_id] = timestamp
 
         """calcs["spawnHeightAndTimer"]["skill"].append(
@@ -214,21 +221,15 @@ def calculate(total, last_skills, timestamp):
     return calcs
 
 
-async def insertCalculationsToDB(calcs):
+async def insertCalculationsToDB(calcs, timestamp):
 
     for player_id in range(number_of_players):
         await con.insert_DDA_table(player_id + 1,
-                                   calcs["threshold"][player_id],
-                                   calcs["level"][player_id],
+                                   calcs["penalty"][player_id],
+                                   calcs["bonus"][player_id],
                                    calcs["skill"][player_id],
                                    calcs["level"][player_id],
-                                   calcs["skill"][player_id],
-                                   calcs["level"][player_id],
-                                   calcs["skill"][player_id],
-                                   calcs["level"][player_id],
-                                   calcs["skill"][player_id],
-                                   calcs["level"][player_id],
-                                   calcs["skill"][player_id])
+                                   timestamp)
         """await con.insert_DDA_table(player_id + 1, calcs["threshold"],
                                    calcs["spawnHeightAndTimer"]["level"][player_id],
                                    calcs["spawnHeightAndTimer"]["skill"][player_id],
@@ -279,7 +280,7 @@ def connect():
 
 @sio.on("message")
 async def on_message(data):
-    global first_connection, table_name, con, last_time
+    global first_connection, table_name, con, last_time, starting_level
 
     print('message received with ', data)
 
@@ -290,7 +291,7 @@ async def on_message(data):
         else:
             table_name = tmp_table_name
             con = DB_connection(table_name)
-            await con._init(number_of_players)
+            await con._init(number_of_players, starting_level)
             last_time = time.time()
             first_connection = False
             print("done first connection")
@@ -300,7 +301,8 @@ async def on_message(data):
         current_time = time.time()
         if current_time > last_time + 5:
             last_time = current_time
-            total, last_skills, timestamp = await getDataFromDB()
+            # total, last_skills, timestamp = await getDataFromDB()
+            total, timestamp = await getDataFromDB()
             #####
             """shouldUpdate = False
                 for player_id in range(number_of_players):
@@ -313,9 +315,10 @@ async def on_message(data):
 
             if shouldUpdate == True:"""
             #####
-            calcs = calculate(total, last_skills, timestamp)
+            # calcs = calculate(total, last_skills, timestamp)
+            calcs = calculate(total, timestamp)
             print("calcs: ", calcs)
-            await insertCalculationsToDB(calcs)
+            await insertCalculationsToDB(calcs, timestamp)
             game_json = createGameJson(calcs)
             await sio.emit('variables', game_json)
             print("variables sent to game: ", game_json)

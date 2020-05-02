@@ -15,7 +15,7 @@ class DB_connection:
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
-    async def _init(self, number_of_players):
+    async def _init(self, number_of_players, starting_level):
         self.pool = await aiomysql.create_pool(user=os.getenv('USER_GAME_DB'),
                                                password=os.getenv('PASSWORD_GAME_DB'),
                                                host=os.getenv('HOST_GAME_DB'),
@@ -28,11 +28,11 @@ class DB_connection:
                                           auth_plugin='mysql_native_password')"""
         # self.cursor = await self.pool.cursor()
         await self.create_DDA_table()
-        await self.initialize_DDA_table(number_of_players)
+        # await self.initialize_DDA_table(number_of_players)
 
     async def create_DDA_table(self):
 
-        query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
+        """query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
                  "`Id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
                  "`PlayerID` INT UNSIGNED NOT NULL,"
                  "`Threshold` FLOAT NOT NULL,"
@@ -47,13 +47,23 @@ class DB_connection:
                  "`E_SpawnRate_level` INT NOT NULL,"
                  "`E_SpawnRate_skill` FLOAT NOT NULL,"
                  "PRIMARY KEY (`Id`))"
+                 "DEFAULT CHARACTER SET = UTF8MB4;")"""
+        query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
+                 "`Id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
+                 "`PlayerID` INT UNSIGNED NOT NULL,"
+                 "`Penalty` FLOAT NOT NULL,"
+                 "`Bonus` FLOAT NOT NULL,"
+                 "`Skill` FLOAT NOT NULL,"
+                 "`Level` INT NOT NULL,"
+                 "`Timestamp` FLOAT NOT NULL,"
+                 "PRIMARY KEY (`Id`))"
                  "DEFAULT CHARACTER SET = UTF8MB4;")
 
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
                 await cursor.execute(query)
 
-    async def initialize_DDA_table(self, number_of_players):
+    """async def initialize_DDA_table(self, number_of_players):
 
         initial_SpawnHeight_skill = "3"
         initial_DestroyTimer_skill = "3"
@@ -77,9 +87,9 @@ class DB_connection:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
                     await cursor.execute(query)
-                    await con.commit()
+                    await con.commit()"""
 
-    async def get_DDA_last_player_skill(self, skill, player_id):
+    """async def get_DDA_last_player_skill(self, skill, player_id):
         try:
             query = ("SELECT " + skill + " FROM " + self.db + "."
                      + self.DDAtb + " WHERE PlayerID = " + str(player_id) +
@@ -92,7 +102,7 @@ class DB_connection:
                     return fetch
         except Exception as e:
             print("last_skill exception: " + str(e))
-            return [-1]
+            return [-1]"""
 
     async def remove_DDA_table(self):
         query = ("DROP TABLE `" + self.db + "`.`" + self.DDAtb + "`")
@@ -167,6 +177,20 @@ class DB_connection:
             print("count_total exception: " + str(e))
             return [-1]
 
+    async def insert_DDA_table(self, player_id, penalty, bonus, skill, level,
+                               timestamp):
+
+        query = ("INSERT INTO " + self.db + "." + self.DDAtb +
+                 "(PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES" +
+                 " (" + str(player_id) + ", " + str(penalty) + ", " +
+                 str(bonus) + ", " + str(skill) + ", " + str(level) + ", " +
+                 str(timestamp) + ")")
+
+        async with self.pool.acquire() as con:
+            async with con.cursor() as cursor:
+                await cursor.execute(query)
+                await con.commit()
+
     # NOT USED
     """async def count_total_team_events(self, value, event):
         query = ("SELECT count(" + value + ") FROM `" + self.tb +
@@ -178,7 +202,7 @@ class DB_connection:
                 fetch = await cursor.fetchall()
                 return fetch"""
 
-    async def insert_DDA_table(self, PlayerID, Threshold, I_SpawnHeight_level,
+    """async def insert_DDA_table(self, PlayerID, Threshold, I_SpawnHeight_level,
                                I_SpawnHeight_skill, I_DestroyTimer_level,
                                I_DestroyTimer_skill, E_Precision_level,
                                E_Precision_skill, E_Speed_level, E_Speed_skill,
@@ -201,7 +225,7 @@ class DB_connection:
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
                 await cursor.execute(query)
-                await con.commit()
+                await con.commit()"""
 
 
 """class DB_connection:

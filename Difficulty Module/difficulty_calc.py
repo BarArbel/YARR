@@ -4,53 +4,60 @@
 
 class DDA_calc:
 
-    def __init__(self):
-        self.coeff_player_pickup_item_ = 0.7
+    def __init__(self, number_of_players, starting_level):
+        self.player_levels = []
+        for i in range(number_of_players):
+            self.player_levels.append(starting_level)
+        """self.coeff_player_pickup_item_ = 0.7
         self.coeff_spawn_height_and_timer = 0.3
         self.coeff_precision = 0.3
-        self.coeff_speed_and_spawn_rate = 0.3
+        self.coeff_speed_and_spawn_rate = 0.3"""
 
-    def calc_thresholds(self, player_pickup_item, player_spawn_item):
-        if player_spawn_item < 4:
+    """def calc_thresholds(self, player_pickup_item, player_spawn_item):
+        if player_spawn_item < 3:
             return None
         else:
-            return player_pickup_item / player_spawn_item
+            return player_pickup_item / player_spawn_item"""
 
     def calc_penalty_and_bonus(self, pickup_player_total, give_item,
                                revive_player, get_damaged, block_damage,
                                fall_accidently):
 
-        get_damaged_penalty = (0.1 * pickup_player_total) * get_damaged
+        get_damaged_penalty = (0.4 * pickup_player_total) * get_damaged
         print("get_damaged_penalty: ", get_damaged_penalty)
         fall_accidently_penalty = (0.01 * pickup_player_total) * fall_accidently
         #print("fall_accidently_penalty: ", fall_accidently_penalty)
         penalty = get_damaged_penalty #+ fall_accidently_penalty
 
-        give_item_bonus = (0.05 * pickup_player_total) * give_item
+        give_item_bonus = (0.2 * pickup_player_total) * give_item
         print("give_item_bonus: ", give_item_bonus)
-        revive_player_bonus = (0.05 * pickup_player_total) * revive_player
+        revive_player_bonus = (0.2 * pickup_player_total) * revive_player
         print("revive_player_bonus: ", revive_player_bonus)
         block_damage_bonus = (0.01 * pickup_player_total) * block_damage
         print("block_damage_bonus: ", block_damage_bonus)
         bonus = give_item_bonus + revive_player_bonus + block_damage_bonus
 
-        return int(round(penalty)), int(round(bonus))
+        return round(penalty, 3), round(bonus, 3)
 
     def calc_skill(self, penalty, bonus, pickup_player_total, spawn_player_item):
-        if spawn_player_item == 0:
+        if spawn_player_item < 3:
             return None
         else:
             print("pickup: ", pickup_player_total, ", spawn: ", spawn_player_item)
             print("penalty: ", penalty, ", bonus: ", bonus)
-            skill = pickup_player_total - penalty + bonus
-            skill = skill / spawn_player_item
+            #skill = pickup_player_total - penalty + bonus
+            #skill = skill / spawn_player_item
+            skill = round(pickup_player_total / spawn_player_item, 3)
+            print("start skill: ", skill)
             skill = float(skill * 100.0)
             print("skill * 100: ", skill)
+            skill = skill - penalty + bonus
+            print("final skill: ", skill)
             return skill
 
-    def calc_difficulty(self, skill, last_skill, threshold):
-        rangeMax = 75
-        rangeMin = 25
+    def calc_difficulty(self, skill):
+        rangeMax = 66
+        rangeMin = 33
 
         return 1 if skill > rangeMax else (-1 if skill <= rangeMin else 0)
 
