@@ -1,5 +1,5 @@
 var mysql = require("mysql");
-
+var fetch = require("node-fetch");
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
 var connection = mysql.createConnection({
@@ -11,7 +11,8 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
-async function verifyRequest(userInfo, bearerKey) {
+async function verifyRequest(req) {
+  const { userInfo, bearerKey } = req.body
   let verified = false;
   const json = {
     userInfo: userInfo,
@@ -25,7 +26,7 @@ async function verifyRequest(userInfo, bearerKey) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(json)
-  }).theמ(res => res.json())
+  }).then(res => res.json())
     .then(json => {
       if (json.result === "Success") {
         verified = true;

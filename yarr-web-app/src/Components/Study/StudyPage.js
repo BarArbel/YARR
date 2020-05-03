@@ -43,6 +43,7 @@ class StudyPage extends Component {
     const { 
       studies,
       userInfo,
+      bearerKey,
       handleSetRoutes, 
       buildExperiment, 
       handleAddStudies,
@@ -56,10 +57,21 @@ class StudyPage extends Component {
     ]
     const studiesUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
     const experimentsUrl = ` https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
-
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+    
     buildExperiment && handleToggleBuildExperiment()
     handleSetRoutes(routes)
-    fetch(experimentsUrl, { method: "POST" }).then(res => res.json()).then(json => {
+    fetch(experimentsUrl, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
       if (json.result === "Success") {
         handleSetExperiments(json.experiments)
       }
@@ -69,7 +81,14 @@ class StudyPage extends Component {
     })
     .catch(err => handleSetExperiments([]))
 
-    !studies.length && fetch(studiesUrl, { method: "POST" }).then(res => res.json())
+    !studies.length && fetch(studiesUrl, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)

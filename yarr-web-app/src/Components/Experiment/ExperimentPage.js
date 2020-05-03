@@ -30,7 +30,7 @@ class ExperimentPage extends Component {
   }
 
   async componentDidMount() {
-    const { handleSetRoutes, handleSelectExperiment, experimentList } = this.props
+    const { handleSetRoutes, handleSelectExperiment, experimentList, userInfo, bearerKey } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
     const routes = [
@@ -38,16 +38,29 @@ class ExperimentPage extends Component {
       { name: 'Study', redirect: `/Study/${studyId}`, isActive: true },
       { name: 'Experiment', redirect: `/Study/${studyId}/Experiment/${experimentId}`, isActive: false }
     ]
+
     let experiment = null
     if(experimentList.length === 0) {
       const url = `https://yarr-experiment-service.herokuapp.com/getExperiment?experimentId=${experimentId}`
-
-      await fetch(url, { method: "POST" }).then(res => res.json()).then(json => {
+      const json = {
+        userInfo: userInfo,
+        bearerKey: bearerKey
+      }
+      
+      await fetch(url, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(json)
+      }).then(res => res.json()).then(json => {
         if (json.result === "Success") {
           experiment = json.experiment
         }
       })
-      .catch(err => console.log(err));
+      .catch(err => console.log(err))
+
     } else {
       const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
       experiment = experimentList.find(idCompare)

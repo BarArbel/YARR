@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 const util = require('util');
+var fetch = require("node-fetch");
 var CodeGenerator = require('node-code-generator');
 var generator = new CodeGenerator();
 
@@ -15,7 +16,8 @@ var connection = mysql.createConnection({
 connection.connect();
 const query = util.promisify(connection.query).bind(connection);
 
-async function verifyRequest(userInfo, bearerKey) {
+async function verifyRequest(req) {
+  const { userInfo, bearerKey } = req.body
   let verified = false;
   const json = {
     userInfo: userInfo,
@@ -29,7 +31,7 @@ async function verifyRequest(userInfo, bearerKey) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(json)
-  }).theמ(res => res.json())
+  }).then(res => res.json())
     .then(json => {
       if (json.result === "Success") {
         verified = true;

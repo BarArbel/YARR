@@ -32,8 +32,19 @@ class StudyInsightMirror extends Component {
     const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${studyId}`
-
-    fetch(url, { method: "POST" }).then(res => res.json())
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+    
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
       .then(json => {
         if(json.result === "Success") {
           this.data = json.data

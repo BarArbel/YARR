@@ -4,9 +4,11 @@ import PropTypes from "prop-types"
 import ExperimentActions from "../../Actions/ExperimentActions"
 import ExperimentItem from "./ExperimentItem"
 
-const mapStateToProps = ({ experiment }) => {
+const mapStateToProps = ({ experiment, user }) => {
   return {
-    experimentList: experiment.experimentList
+    experimentList: experiment.experimentList,
+    userInfo: user.userInfo,
+    bearerKey: user.bearerKey
   }
 }
 
@@ -20,11 +22,23 @@ export class ExperimentList extends Component {
   }
 
   componentDidMount() {
-    const { studyId, handleSetExperiments } = this.props
+    const { studyId, handleSetExperiments, userInfo, bearerKey } = this.props
 
     const getAllUrl = `https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
 
-    fetch(getAllUrl, { method: "POST" }).then(res => res.json())
+    const json = {
+      bearerKey: bearerKey,
+      userInfo: userInfo
+    }
+
+    fetch(getAllUrl, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleSetExperiments(json.experiments)
@@ -37,15 +51,21 @@ export class ExperimentList extends Component {
   }
 
   handleDelete(experimentId) {
-    const { handleDeleteExperiment } = this.props
+    const { handleDeleteExperiment, userInfo, bearerKey } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/deleteExperiment?experimentId=${experimentId}`
+
+    const json = {
+      bearerKey: bearerKey,
+      userInfo: userInfo
+    }
 
     fetch(url, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json"
-      }
+      },
+      body: JSON.stringify(json)
     }).then(res => res.json())
         .then(json => {
           console.log(json)

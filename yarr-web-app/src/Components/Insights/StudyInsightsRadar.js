@@ -11,7 +11,8 @@ import {
 
 const mapStateToProps = ({ user }) => {
   return {
-    userInfo: user.userInfo
+    userInfo: user.userInfo,
+    bearerKey: user.bearerKey
   }
 }
 
@@ -29,11 +30,22 @@ class StudyInsightRadar extends Component {
   }
 
   componentDidMount() {
-    const { studyId, userInfo } = this.props
+    const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
 
-    fetch(url, { method: "POST" }).then(res => res.json())
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           let tempData = []
