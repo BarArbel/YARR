@@ -6,7 +6,8 @@ import {
 
 const mapStateToProps = ({ user }) => {
   return {
-    userInfo: user.userInfo
+    userInfo: user.userInfo,
+    bearerKey: user.bearerKey
   }
 }
 
@@ -28,11 +29,11 @@ class StudyInsightMirror extends Component {
   }
 
   componentDidMount() {
-    const { studyId, userInfo } = this.props
+    const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
-    fetch(url).then(res => res.json())
+    fetch(url, { method: "POST" }).then(res => res.json())
       .then(json => {
         if(json.result === "Success") {
           this.data = json.data

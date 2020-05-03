@@ -176,6 +176,8 @@ class ExperimentBuilder extends Component {
       editForm,
       currExperiment,
       onSubmit,
+      bearerKey,
+      userInfo,
       handleUpdateExperiment,
       handleToggleBuildExperiment
     } = this.props
@@ -193,10 +195,11 @@ class ExperimentBuilder extends Component {
       disability: disability,
       characterType: characterType,
       colorSettings: colorSettings,
-      experimentId: editForm ? currExperiment.ExperimentId : undefined
+      experimentId: editForm ? currExperiment.ExperimentId : undefined,
+      bearerKey: bearerKey,
+      userInfo: userInfo
     }
 
-    console.log(json)
     event.preventDefault()
 
     fetch(url, {

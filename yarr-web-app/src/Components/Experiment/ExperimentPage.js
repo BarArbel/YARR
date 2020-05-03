@@ -42,7 +42,7 @@ class ExperimentPage extends Component {
     if(experimentList.length === 0) {
       const url = `https://yarr-experiment-service.herokuapp.com/getExperiment?experimentId=${experimentId}`
 
-      await fetch(url).then(res => res.json()).then(json => {
+      await fetch(url, { method: "POST" }).then(res => res.json()).then(json => {
         if (json.result === "Success") {
           experiment = json.experiment
         }

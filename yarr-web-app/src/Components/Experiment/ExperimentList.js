@@ -24,7 +24,7 @@ export class ExperimentList extends Component {
 
     const getAllUrl = `https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
 
-    fetch(getAllUrl).then(res => res.json())
+    fetch(getAllUrl, { method: "POST" }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleSetExperiments(json.experiments)

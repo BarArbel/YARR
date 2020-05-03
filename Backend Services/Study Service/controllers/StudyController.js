@@ -1,5 +1,5 @@
 var mysql = require('mysql');
-
+var fetch = require('node-fetch');
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
 var connection = mysql.createConnection({
@@ -11,37 +11,47 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
-async function verifyRequest(userInfo, bearerKey){
-  let retVal = false;
+async function verifyRequest(req) {
+  const { userInfo, bearerKey } = req.body
+  let verified = false;
+
+  if (!userInfo || !bearerKey){
+    return false;
+  }
   const json = {
     userInfo: userInfo,
     bearerKey: bearerKey
   }
 
-  await fetch('http://localhost:3001/verifyRequest', {
+  await fetch('https://yarr-user-management.herokuapp.com/verifyRequest', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(json)
-  }).theמ(res => res.json())
+  }).then(res => res.json())
     .then(json => {
       if (json.result === "Success") {
-        retVal = true;
+        verified = true;
       }
       else {
-        retVal = false;
+        verified = false;
       }
     })
-    .catch(err => { retVal = false });
+    .catch(err => { verified = false });
 
-    return retVal;
+  return verified;
 }
 
 module.exports = {
   getStudy: async(req, res) => {
     const { studyId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
@@ -65,6 +75,11 @@ module.exports = {
 
   getAllResearcherStudies: async(req, res) => {
     const { researcherId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId) {
       res.status(400).send('{"result": "Faliure", "error": "ResearcherId is required."}');
@@ -94,6 +109,11 @@ module.exports = {
 
   addStudy: async(req, res) => {
     const { researcherId, title, studyQuestions, description } = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId || !title || !studyQuestions) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -122,6 +142,11 @@ module.exports = {
 
   updateStudy: async(req, res) => {
     const { studyId, title, studyQuestions, description } = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if(!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
@@ -161,6 +186,11 @@ module.exports = {
 
   deleteStudy: async(req, res) => {
     const { studyId } = req.query;
+    const verified = await verifyRequest(req); 
+    if (!verified){
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!studyId) {
       res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');

@@ -22,11 +22,22 @@ class StudyList extends Component {
   }
 
   componentDidMount() {
-    const { userInfo, handleAddStudies } = this.props
-
+    const { userInfo, handleAddStudies, bearerKey } = this.props
     const getAllUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
+    const json = {
+      bearerKey: bearerKey,
+      userInfo: userInfo
+    }
 
-    fetch(getAllUrl).then(res => res.json())
+    fetch(getAllUrl, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    })
+    .then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)
@@ -35,19 +46,27 @@ class StudyList extends Component {
           handleAddStudies([])
         }
       })
-      .catch(err => handleAddStudies([]))
+      .catch(err => {
+        console.log(err)
+        handleAddStudies([])
+      })
   }
 
   handleDelete(studyId) {
-    const { handleDeleteStudy } = this.props
+    const { handleDeleteStudy, bearerKey, userInfo } = this.props
     const url = `https://yarr-study-service.herokuapp.com/deleteStudy?studyId=${studyId}`
+    const json = {
+      bearerKey: bearerKey,
+      userInfo: userInfo
+    }
 
     fetch(url, {
       method: "DELETE",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json"
-      }
+      },
+      body: JSON.stringify(json)
     }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {

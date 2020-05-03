@@ -1,5 +1,7 @@
 var mysql = require("mysql");
 const util = require('util');
+var CodeGenerator = require('node-code-generator');
+var generator = new CodeGenerator();
 
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
@@ -14,13 +16,13 @@ connection.connect();
 const query = util.promisify(connection.query).bind(connection);
 
 async function verifyRequest(userInfo, bearerKey) {
-  let retVal = false;
+  let verified = false;
   const json = {
     userInfo: userInfo,
     bearerKey: bearerKey
   }
 
-  await fetch('http://localhost:3001/verifyRequest', {
+  await fetch('https://yarr-user-management.herokuapp.com/verifyRequest', {
     method: 'POST',
     headers: {
       'Accept': 'application/json',
@@ -30,20 +32,25 @@ async function verifyRequest(userInfo, bearerKey) {
   }).theמ(res => res.json())
     .then(json => {
       if (json.result === "Success") {
-        retVal = true;
+        verified = true;
       }
       else {
-        retVal = false;
+        verified = false;
       }
     })
-    .catch(err => { retVal = false });
+    .catch(err => { verified = false });
 
-  return retVal;
+  return verified;
 }
 
 module.exports = {
   getExperiment: async (req, res) => {
     const { experimentId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
@@ -94,6 +101,12 @@ module.exports = {
   
   getAllStudyExperiments: async (req, res) => {
     const { studyId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
     let resStr;
 
     if (!studyId) {
@@ -160,6 +173,11 @@ module.exports = {
       characterType,
       colorSettings
     } = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     let errorMsg = false
 
@@ -220,6 +238,11 @@ module.exports = {
       characterType,
       colorSettings
     } = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
@@ -266,6 +289,11 @@ module.exports = {
 
   deleteExperiment: async (req, res) => {
     const { experimentId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!experimentId) {
       res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
@@ -281,5 +309,53 @@ module.exports = {
         res.status(200).send(`{"result": "Success", "msg": "Experiment: ${experimentId} was deleted"}`);
       }
     });
+  },
+
+  generateGameCode: async (req, res) => {
+    const { experimentId } = req.body;
+    const pattern = '******';
+    const howMany = 1;
+    const options = { alphanumericRegex: /\*(?!\+)/g };
+    let found = false;
+    let gameCode;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (experimentId === undefined) {
+      res.status(400).send(`{"result": "Failure", "msg": "ExperimentId is required"}`);
+      return;
+    }
+    /* generate code here */
+    while(!found){
+      let codes = generator.generateCodes(pattern, howMany, options);
+      gameCode = codes[0];
+      /* Check if code exists, if yes, generate again */
+      try {
+        let results = await query(`SELECT * FROM game_codes WHERE GameCode = "${gameCode}"`);
+        if(!results.length) {
+          found = true;
+        }
+      }
+      catch(error) {
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+        return;
+      }
+    }
+
+    connection.query(`INSERT INTO game_codes (GameCode, ExperimentId) VALUES ("${gameCode}", ${experimentId})`,
+      (error, results) => {
+        if (error) {
+          res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+          return;
+        }
+        else if (results.affectedRows > 0){
+            res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
+          }
+        else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      }
+    );
   }
-};
+}

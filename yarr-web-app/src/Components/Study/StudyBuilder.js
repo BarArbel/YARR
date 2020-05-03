@@ -46,7 +46,8 @@ class StudyBuilder extends Component {
       editForm, 
       currStudy, 
       onSubmit,
-      handleUpdateStudy
+      handleUpdateStudy,
+      bearerKey
     } = this.props
     let url = 'https://yarr-study-service.herokuapp.com'
     url += editForm ? '/updateStudy' : '/addStudy'
@@ -56,8 +57,11 @@ class StudyBuilder extends Component {
       title: title,
       description: description.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
       studyQuestions: studyQuestions.replace(/\n/g, "\\\\n").replace(/\r/g, "\\\\r").replace(/\t/g, "\\\\t"),
-      studyId: editForm ? currStudy.StudyId : undefined
+      studyId: editForm ? currStudy.StudyId : undefined,
+      bearerKey: bearerKey,
+      userInfo: userInfo
     }
+    
     event.preventDefault()
 
     await fetch(url, {

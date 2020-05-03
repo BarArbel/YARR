@@ -21,9 +21,10 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 // app.get('/getRuntime', runtimeCtl.getAll);
-app.get('/getExperiment', ExperimentCtl.getExperiment)
-app.get('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments)
+app.post('/getExperiment', ExperimentCtl.getExperiment)
+app.post('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments)
 app.post('/addExperiment', ExperimentCtl.addExperiment)
+app.post('/generateGameCode', ExperimentCtl.generateGameCode)
 app.put('/updateExperiment', ExperimentCtl.updateExperiment)
 app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment)
 

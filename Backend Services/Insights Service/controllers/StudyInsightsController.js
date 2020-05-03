@@ -11,9 +11,42 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+async function verifyRequest(userInfo, bearerKey) {
+  let verified = false;
+  const json = {
+    userInfo: userInfo,
+    bearerKey: bearerKey
+  }
+
+  await fetch('https://yarr-user-management.herokuapp.com/verifyRequest', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(json)
+  }).theמ(res => res.json())
+    .then(json => {
+      if (json.result === "Success") {
+        verified = true;
+      }
+      else {
+        verified = false;
+      }
+    })
+    .catch(err => { verified = false });
+
+  return verified;
+}
+
 module.exports = {
   requestInsightMirror: async(req, res) => {
     const { researcherId, studyId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -43,6 +76,11 @@ module.exports = {
 
   requestInsightRadar: async(req, res) => {
     const { researcherId, studyId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -98,6 +136,11 @@ module.exports = {
 
   requestInsightMixed: async(req, res) => {
     const { researcherId, studyId} = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
@@ -116,6 +159,11 @@ module.exports = {
 
   requestInsightPie: async(req, res) => {
     const { researcherId, studyId} = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
 
     if (!researcherId || !studyId ) {
       res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",

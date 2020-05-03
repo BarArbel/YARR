@@ -22,10 +22,10 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 // WHAT IS THIS EVEN
-app.get('/requestInsightMirror', StudyInsightsCtl.requestInsightMirror)
-app.get('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar)
-app.get('/requestInsightMixed', StudyInsightsCtl.requestInsightMixed)
-app.get('/requestInsightPie', StudyInsightsCtl.requestInsightPie)
+app.post('/requestInsightMirror', StudyInsightsCtl.requestInsightMirror)
+app.post('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar)
+app.post('/requestInsightMixed', StudyInsightsCtl.requestInsightMixed)
+app.post('/requestInsightPie', StudyInsightsCtl.requestInsightPie)
 
 // WHAT AM I DOING 
 

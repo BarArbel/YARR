@@ -59,7 +59,7 @@ class StudyPage extends Component {
 
     buildExperiment && handleToggleBuildExperiment()
     handleSetRoutes(routes)
-    fetch(experimentsUrl).then(res => res.json()).then(json => {
+    fetch(experimentsUrl, { method: "POST" }).then(res => res.json()).then(json => {
       if (json.result === "Success") {
         handleSetExperiments(json.experiments)
       }
@@ -69,7 +69,7 @@ class StudyPage extends Component {
     })
     .catch(err => handleSetExperiments([]))
 
-    !studies.length && fetch(studiesUrl).then(res => res.json())
+    !studies.length && fetch(studiesUrl, { method: "POST" }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)

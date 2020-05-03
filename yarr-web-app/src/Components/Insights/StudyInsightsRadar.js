@@ -33,7 +33,7 @@ class StudyInsightRadar extends Component {
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
-    fetch(url).then(res => res.json())
+    fetch(url, { method: "POST" }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
           let tempData = []
