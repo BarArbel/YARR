@@ -30,5 +30,5 @@ export default {
   handleAddStudies,
   handleDeleteStudy,
   handleUpdateStudy,
-  handleToggleBuildStudy
+  handleToggleBuildStudy,
 }

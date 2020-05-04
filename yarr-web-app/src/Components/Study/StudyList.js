@@ -47,7 +47,6 @@ class StudyList extends Component {
         }
       })
       .catch(err => {
-        console.log(err)
         handleAddStudies([])
       })
   }

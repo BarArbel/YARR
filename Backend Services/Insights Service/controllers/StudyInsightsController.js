@@ -56,7 +56,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM Study_Insights_Mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM study_insights_mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
@@ -90,7 +90,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM Study_Insights_Radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM study_insights_radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if (error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
@@ -150,7 +150,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM Study_Insights_Mixed WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM study_insights_mixed WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
         return;
@@ -173,7 +173,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM Study_Insights_Pie WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM study_insights_pie WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
         res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
         return;

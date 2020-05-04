@@ -29,7 +29,7 @@ class StudyInsightRadar extends Component {
     this.handleTypeChange = this.handleTypeChange.bind(this)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightRadar?researcherId=${userInfo.researcherId}&studyId=${studyId}`
@@ -38,7 +38,7 @@ class StudyInsightRadar extends Component {
       bearerKey: bearerKey
     }
 
-    fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         "Accept": "application/json",

@@ -28,7 +28,7 @@ class StudyInsightMirror extends Component {
     this.handleTypeChange = this.handleTypeChange.bind(this)
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${studyId}`
@@ -36,8 +36,7 @@ class StudyInsightMirror extends Component {
       userInfo: userInfo,
       bearerKey: bearerKey
     }
-    
-    fetch(url, {
+    await fetch(url, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -49,10 +48,11 @@ class StudyInsightMirror extends Component {
         if(json.result === "Success") {
           this.data = json.data
           let tempTypes = []
-          json.data.map(line => {
-            !tempTypes.find(element => { return element === line.BreakdownType}) && tempTypes.push(line.BreakdownType)
-            return null
-          })
+          /* this map causes the page to freeze */
+          // json.data.map(line => {
+          //   !tempTypes.find(element => { return element === line.BreakdownType}) && tempTypes.push(line.BreakdownType)
+          //   return null
+          // })
           this.setState({ selectedType: 0, types: tempTypes })
           this.setData(0)
         }

@@ -61,7 +61,7 @@ class StudyPage extends Component {
       userInfo: userInfo,
       bearerKey: bearerKey
     }
-    
+
     buildExperiment && handleToggleBuildExperiment()
     handleSetRoutes(routes)
     fetch(experimentsUrl, {

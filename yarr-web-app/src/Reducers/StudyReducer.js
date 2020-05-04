@@ -7,7 +7,8 @@ import {
 
 const initialState = {
   studies: [],
-  buildStudy: false
+  buildStudy: false,
+  studyLoaded: false
 }
 
 export default (state = initialState, action) => {
@@ -23,7 +24,8 @@ export default (state = initialState, action) => {
       action.data.sort((a, b) => parseInt(b.StudyId) - parseInt(a.StudyId))
       return {
         ...state,
-        studies: action.data
+        studies: action.data,
+        studyLoaded: true
       }
     }
 
