@@ -127,7 +127,7 @@ class ExperimentPage extends Component {
       ColorSettings
     } = experiment
     const studyId = this.props.match.params.studyId
-
+    // const statusColor = Status === "Running" ? ("green") : (Status === "Ready" ? "gray" : "red"); 
     return (
       <div className="studyPage">
         <Header />

@@ -1,13 +1,17 @@
-import { USER_LOGIN, USER_LOGOUT, SET_BEARER_KEY, REMOVE_BEARER_KEY } from '../ActionsTypes/UserActionTypes'
+import { 
+  USER_LOGIN, 
+  USER_LOGOUT, 
+  SET_BEARER_KEY, 
+  REMOVE_BEARER_KEY,
+  TOGGLE_VERIFY_FINISH 
+} from '../ActionsTypes/UserActionTypes'
 
 const initialState = {
+  verifyFinished: true,
   userInfo: localStorage.getItem("userInfo") ? JSON.parse(localStorage.getItem("userInfo")) : undefined,
   isLogged: localStorage.getItem("isLogged") ? JSON.parse(localStorage.getItem("isLogged")) : false,
   bearerKey: localStorage.getItem("bearerKey") ? localStorage.getItem("bearerKey") : undefined
 }
-
-
-/* Saving/Removing userInfo to/from local storage needs to be added */
 
 export default (state = initialState, action) => {
     switch (action.type) {
@@ -39,6 +43,13 @@ export default (state = initialState, action) => {
         return {
           ...state,
           bearerKey: undefined
+        }
+      }
+
+      case TOGGLE_VERIFY_FINISH: {
+        return {
+          ...state,
+          verifyFinished: action.data
         }
       }
 

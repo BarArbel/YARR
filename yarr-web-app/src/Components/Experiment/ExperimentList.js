@@ -99,24 +99,12 @@ export class ExperimentList extends Component {
               <label className="card-title cardInlineText">{CreationDate}</label>
               <div className="cardInlineText">
                 <label className="card-text">Status:</label>
-                <label className="card-title" style={statusStyle}>{Status}</label>
+                <label className="card-title" style={statusStyle}><b>{Status}</b></label>
               </div>
             </div>
           </ExperimentItem>
         </div>
       </div>
-      // <ExperimentItem
-      //   key={`experiment${i}`}
-      //   experimentId={parseInt(experiment.ExperimentId)}
-      //   studyId={parseInt(studyId)}
-      //   title={experiment.Title}
-      //   creationDate={experiment.CreationDate}
-      //   status={experiment.Status}
-      //   details={experiment.Details}
-      //   gameSettings={experiment.GameSettings}
-      //   handleEdit={this.handleEdit}
-      //   handleDelete={this.handleDelete}
-      // />
     )
   }
 

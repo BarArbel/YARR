@@ -189,7 +189,7 @@ module.exports = {
                             "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
                             "RoundsNumber": "${roundsNumber}", "RoundsSettings": "${roundsSettings}"},
                             "RoundDuration": "${roundDuration}", "Disability": "${disability}",
-                            "msg": "A parameter is missing."}`);
+                            "error": "A parameter is missing."}`);
       return;
     }
 
@@ -308,13 +308,13 @@ module.exports = {
       } else if (results.affectedRows <= 0) {
         res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
-        res.status(200).send(`{"result": "Success", "msg": "Experiment: ${experimentId} was deleted"}`);
+        res.status(200).send(`{"result": "Success", "error": "Experiment: ${experimentId} was deleted"}`);
       }
     });
   },
 
   generateGameCode: async (req, res) => {
-    const { experimentId } = req.body;
+    const { experimentId, userInfo } = req.body;
     const pattern = '******';
     const howMany = 1;
     const options = { alphanumericRegex: /\*(?!\+)/g };
@@ -326,10 +326,32 @@ module.exports = {
       return;
     }
 
-    if (experimentId === undefined) {
-      res.status(400).send(`{"result": "Failure", "msg": "ExperimentId is required"}`);
+    if (experimentId === undefined || userInfo === undefined) {
+      res.status(400).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
       return;
     }
+
+    /* check if experimentId exists in resreacher's data OR if gameCode already exists */
+    try {
+      let queryRes = await query(`SELECT * FROM main_view WHERE ResearcherId = ${userInfo.researcherId} AND ExperimentId = ${experimentId}`);
+      if(!queryRes.length) {
+        res.status(400).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
+        return;
+      }
+      queryRes = await query(`SELECT * FROM game_codes WHERE ExperimentId = ${experimentId}`);
+      
+      /* code already exists for this experiment */
+      if(queryRes.length){
+        res.status(400).send(`{"result": "Failure", "error": "Game code already exists for this experiment"}`);
+        return;
+      }
+    }
+    catch(error) {
+      console.log(error)
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      return;
+    }
+
     /* generate code here */
     while(!found){
       let codes = generator.generateCodes(pattern, howMany, options);
@@ -353,10 +375,22 @@ module.exports = {
           res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
           return;
         }
+
         else if (results.affectedRows > 0){
-            res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
-          }
-        else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+          connection.query(`UPDATE experiments SET Status = "Running" WHERE ExperimentId = ${experimentId}`,
+            (error, results) => {
+              if (error) {
+                res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+                return;
+              }
+              else if (results.affectedRows > 0) {
+                res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
+              }
+              else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+            }
+          );
+        }
+        else res.status(400).send(`{"result": "Failure", "error": "Failed to insert to database"}`);
       }
     );
   }

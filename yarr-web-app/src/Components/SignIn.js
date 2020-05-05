@@ -1,9 +1,15 @@
-import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
+import { MDBBtn } from 'mdbreact'
 import CustomSnackbar from './CustomSnackbar'
+import ClipLoader from "react-spinners/ClipLoader"
 
+const mapStateToProps = ({ user }) => {
+  return {
+    verifyFinished: user.verifyFinished
+  }
+}
 
 class SignIn extends Component {
 
@@ -20,7 +26,7 @@ class SignIn extends Component {
       signUp: false,
       isMsg: false,
       error: false,
-      msg: ""
+      msg: "",
     }
 
     this.renderLogin = this.renderLogin.bind(this)
@@ -44,8 +50,8 @@ class SignIn extends Component {
     const { userName, password } = this.state
     const { verifyUser } = this.props
 
-    verifyUser(userName, password)
     event.preventDefault()
+    verifyUser(userName, password)
   }
 
   handleSignUpSubmit(event){
@@ -92,6 +98,7 @@ class SignIn extends Component {
 
   renderLogin(){
     const { userName, password } = this.state
+    const { verifyFinished } = this.props
 
     return (
       <form onSubmit={this.handleLoginSubmit}>
@@ -120,7 +127,12 @@ class SignIn extends Component {
           required
         />
         <div className="text-center mt-4">
-          <MDBBtn color="elegant" type="submit" className="login-btn">Login</MDBBtn>
+          {
+            verifyFinished ? 
+            <MDBBtn color="elegant" type="submit" className="login-btn">Login</MDBBtn> 
+            : 
+            <ClipLoader size={45} color={"#123abc"} loading={true} />
+          }
         </div>
       </form>
     )
@@ -245,4 +257,4 @@ SignIn.propTypes  = {
   verifyUser: PropTypes.func
 }
 
-export default connect()(SignIn)
+export default connect(mapStateToProps)(SignIn)

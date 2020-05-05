@@ -10,7 +10,8 @@ const mapStateToProps = ({ user }) => {
   return {
     userInfo: user.userInfo,
     isLogged: user.isLogged,
-    bearerKey: user.bearerKey
+    bearerKey: user.bearerKey,
+    verifyFinished: user.verifyFinished
   }
 }
 
@@ -21,7 +22,7 @@ class Login extends Component {
     this.state = {
       isMsg: false,
       error: false,
-      msg: ""
+      msg: "",
     }
 
     this.verifyUser = this.verifyUser.bind(this)
@@ -35,15 +36,16 @@ class Login extends Component {
     this.setState({ isMsg: false })
   }
   
-  verifyUser(userName, password){
+  async verifyUser(userName, password){
     const url = 'https://yarr-user-management.herokuapp.com/verifyResearcher'
-    const { handleSetBearerKey, handleSetUser } = this.props
+    const { handleSetBearerKey, handleSetUser, handleSetVerifyFinished } = this.props
     let json = {
       userName: userName,
       password: password,
     }
+    handleSetVerifyFinished(false)
 
-    fetch(url, {
+    await fetch(url, {
       method: 'POST',
       headers: {
           'Accept': 'application/json',
@@ -52,18 +54,22 @@ class Login extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json())
         .then(json => {
+          handleSetVerifyFinished(true)
           if(json.result === "Verified"){
             this.setState({ msg: "Logged in successfully! Redirecting...", isMsg: true, error: false })
             setTimeout(() => {
-              handleSetUser(json.userInfo)
               handleSetBearerKey(json.bearerKey)
+              handleSetUser(json.userInfo)
             }, 3000);
           }
           else {
             this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
           }
         })
-      .catch(err => this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true }))
+      .catch(err => {
+        this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
+        handleSetVerifyFinished(true)
+      })
   }
 
   render() {
