@@ -31,6 +31,7 @@ public class GameManager : MonoBehaviour
     private List<Sprite> ShapeSprites;
     private List<Sprite> TypeSprites;
     private List<Sprite> EnemySprites;
+    private List<Sprite> PowerupSprites;
 
     // Input
     private List<KeyCode> RightMovement;
@@ -48,6 +49,7 @@ public class GameManager : MonoBehaviour
     private PlayerFactory PlayerFactory;
     private List<ObjectFactory> ItemFactories;
     private List<ObjectFactory> EnemyFactories;
+    private List<ObjectFactory> PowerupFactories;
 
     void InitGameManager(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
     {
@@ -67,10 +69,12 @@ public class GameManager : MonoBehaviour
         EnemySprites = new List<Sprite>();
         ItemSprites = new List<Sprite>();
         ItemSinkColliderSize = new List<Vector2>();
+        PowerupSprites = new List<Sprite>();
 
         // Initialize object factories lists
         EnemyFactories = new List<ObjectFactory>();
         ItemFactories = new List<ObjectFactory>();
+        PowerupFactories = new List<ObjectFactory>();
 
         // Load ALL possible sprites
         // Player sprites
@@ -93,6 +97,9 @@ public class GameManager : MonoBehaviour
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure2"));
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure3"));
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
+
+        //Powerup sprites
+        PowerupSprites.Add(Resources.Load<Sprite>("Sprites/Kraken"));
 
         // Item sink sprites
         ItemSinkSprites.Add(Resources.Load<Sprite>("Sprites/Gold"));
@@ -247,6 +254,23 @@ public class GameManager : MonoBehaviour
                 }
             }
 
+            //Initilazie Powerups
+            if (Mode == GameMode.Competitive)
+            {
+                GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
+                PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
+                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0]);
+            }
+            else
+            {
+                for (int i = 0; i < NumberOfPlayers; i++)
+                {
+                    GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
+                    PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
+                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0]);
+                }
+            }
+
             // Initialize UI
             GameObject canvas = GameObject.Find("Canvas");
             canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
@@ -287,6 +311,7 @@ public class GameManager : MonoBehaviour
         Destroy(PlayerFactory);
         DestroyObjectFactory(EnemyFactories);
         DestroyObjectFactory(ItemFactories);
+        DestroyObjectFactory(PowerupFactories);
         return true;
     }
 
@@ -322,12 +347,14 @@ public class GameManager : MonoBehaviour
                 {
                     EnemyFactories[player.GetID()-1].FreezeSpawn(false);
                     ItemFactories[player.GetID() - 1].FreezeSpawn(false);
+                    PowerupFactories[player.GetID() - 1].FreezeSpawn(false);
                     return false;
                 }
                 else
                 {
                     EnemyFactories[player.GetID()-1].FreezeSpawn(true);
                     ItemFactories[player.GetID() - 1].FreezeSpawn(true);
+                    PowerupFactories[player.GetID() - 1].FreezeSpawn(true);
                     Debug.Log("froze spawn for player " + i);
                 }
             }

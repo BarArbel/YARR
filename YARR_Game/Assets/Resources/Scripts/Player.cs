@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Project.Networking;
 using Event = Project.Networking.Event;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class Player : MonoBehaviour
     private Item[] OthersItemInventory;
     private List<Item> TotalItemInventory;
     private float FixBoatTime;
+    private int immuneTimer;
 
     // Identify accidental fall
     private bool FallSamplesReady;
@@ -79,9 +81,9 @@ public class Player : MonoBehaviour
 
     public bool SetEnemyHit( Enemy enemy)
     {
-        float spriteBrightness;        
+        float spriteBrightness;
         Player player = gameObject.GetComponent<Player>();
-        if (Health <= 0)
+        if (Health <= 0 || immuneTimer > 0)
         {
             return false;
         }
@@ -278,6 +280,7 @@ public class Player : MonoBehaviour
         const int sinkLayer = 12;
         const int playerCollisionLayer = 13;
         const int dontCollideLayer = 14;
+        const int Powerup = 15;
         Player playerObj = gameObject.GetComponent<Player>();
         switch (collider.gameObject.layer)
         {
@@ -346,6 +349,24 @@ public class Player : MonoBehaviour
                     
                 }
                 break;
+
+            case Powerup:
+                if(GetGameMode() == 1)
+                {
+                    immuneTimer = 5;
+                    StartCoroutine(Countdown());
+                }
+                else
+                {
+                    Debug.Log("yes");
+                    GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Player");
+                    foreach (var g in gameObjects)
+                    {
+                        g.GetComponent<Player>().SetHealth();
+                    }
+                }
+            break;
+            
             default:                
                 break;
         }
@@ -570,6 +591,17 @@ public class Player : MonoBehaviour
         ItemsDistance2nd.Clear();
         FallSamplesReady = false;
         return false;
+    }
+
+    //
+    IEnumerator Countdown()
+    {
+        while(immuneTimer > 0)
+        {
+            yield return new WaitForSeconds(1f);
+
+            immuneTimer--;
+        }
     }
 
     // Start is called before the first frame update

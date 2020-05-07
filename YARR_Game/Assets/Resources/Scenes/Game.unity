@@ -590,6 +590,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e1be632628a7e0459c7c9009bd55038, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  StaticMode: 1
+  CoopMode: 1
 --- !u!4 &753220624
 Transform:
   m_ObjectHideFlags: 0
@@ -1830,6 +1832,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbbadf607394e294f91092bd13a03509, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DebugIndicator: {fileID: 0}
+  EnemyFactories: []
+  ItemFactories: []
+  debugText: {fileID: 0}
+  Difficulty: 0
 --- !u!1 &1983492072
 GameObject:
   m_ObjectHideFlags: 0
