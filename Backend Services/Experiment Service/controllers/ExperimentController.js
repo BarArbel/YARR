@@ -101,6 +101,31 @@ module.exports = {
     });
   },
   
+  getInteruptedInstances: async (req, res) => {
+    const { experimentId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (!experimentId) {
+      res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
+      return;
+    }
+
+    connection.query(`SELECT * FROM interupted_instances WHERE ExperimentId = "${experimentId}"`, (error, results) => {
+      if (error)
+        res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+
+      else if (!results.length)
+        res.status(400).send(`{"result": "Failure", "error": "No instances found."}`);
+
+      else
+        res.status(200).send(`{"result": "Success", "instances": ${results}}`);      
+    });
+  },
+
   getAllStudyExperiments: async (req, res) => {
     const { studyId } = req.query;
     const verified = await verifyRequest(req);
@@ -317,7 +342,7 @@ module.exports = {
     const { experimentId, userInfo } = req.body;
     const pattern = '******';
     const howMany = 1;
-    const options = { alphanumericRegex: /\*(?!\+)/g };
+    const options = { alphanumericRegex: /^[A-Z]\*(?!\+)/g };
     let found = false;
     let gameCode;
     const verified = await verifyRequest(req);
@@ -347,7 +372,6 @@ module.exports = {
       }
     }
     catch(error) {
-      console.log(error)
       res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       return;
     }
@@ -393,5 +417,58 @@ module.exports = {
         else res.status(400).send(`{"result": "Failure", "error": "Failed to insert to database"}`);
       }
     );
+  },
+
+  stopExperiment: async (req, res) => {
+    const { experimentId, userInfo } = req.body;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (experimentId === undefined || userInfo === undefined) {
+      res.status(400).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
+      return;
+    }
+
+    /* check if experimentId exists in resreacher's data OR if gameCode already exists */
+    try {
+      let queryRes = await query(`SELECT * FROM main_view WHERE ResearcherId = ${userInfo.researcherId} AND ExperimentId = ${experimentId}`);
+      if (!queryRes.length) {
+        res.status(400).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
+        return;
+      }
+    }
+    catch (error) {
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+      return;
+    }
+
+    connection.query(`DELETE FROM game_codes WHERE ExperimentId = ${experimentId}`,
+      (error, results) => {
+        if (error) {
+          res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+          return;
+        }
+
+        else if (results.affectedRows > 0) {
+          connection.query(`UPDATE experiments SET Status = "Stopped" WHERE ExperimentId = ${experimentId}`,
+            (error, results) => {
+              if (error) {
+                res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+                return;
+              }
+              else if (results.affectedRows > 0) {
+                res.status(200).send(`{"result": "Success"}`);
+              }
+              else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+            }
+          );
+        }
+        else res.status(400).send(`{"result": "Failure", "error": "Experiment is not running or does not exists"}`);
+      }
+    );
+
   }
 }

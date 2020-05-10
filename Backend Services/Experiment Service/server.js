@@ -25,6 +25,7 @@ app.post('/getExperiment', ExperimentCtl.getExperiment)
 app.post('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments)
 app.post('/addExperiment', ExperimentCtl.addExperiment)
 app.post('/generateGameCode', ExperimentCtl.generateGameCode)
+app.post('/stopExperiment', ExperimentCtl.stopExperiment)
 app.put('/updateExperiment', ExperimentCtl.updateExperiment)
 app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment)
 

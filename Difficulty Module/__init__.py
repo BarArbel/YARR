@@ -4,6 +4,7 @@ import socketio
 import asyncio
 import time
 import os
+import sys
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -206,7 +207,7 @@ async def start_server():
     await sio.wait()
 
 if __name__ == '__main__':
-
+    print(sys.argv[1])
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())
     loop.close()

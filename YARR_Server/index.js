@@ -3,9 +3,9 @@ const io = require('socket.io')(process.env.PORT || 52300);
 const mysqlConnection = require("./connection");
 const Table = require('./Classes/Table.js');
 const util = require('util');
+const spawn = require("child_process").spawn;
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
-
 console.log('Server has started');
 
 const tables = [];
@@ -20,8 +20,8 @@ io.on('connection', async socket =>{
   tables[thisTableID] = table;
 
   tables.push(table);
-  socket.emit('ExperimentID', table);
-  
+  socket.emit('InstanceId', `${table.time}_${table.id}`);
+
   socket.on('createTables', async () => {
     //Creating table for each experiment   
     const sql = `CREATE TABLE yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} (
@@ -37,15 +37,6 @@ io.on('connection', async socket =>{
       PRIMARY KEY (EventID)
     );`;
 
-    try {
-      await query(sql);
-      console.log("data was added");
-      socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
-    }
-    catch(err) {
-      throw err;
-    }
-
     const sql2 = `CREATE TABLE yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} (
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
@@ -60,37 +51,58 @@ io.on('connection', async socket =>{
     );`;
 
     try {
+      await query(sql);
       await query(sql2);
-      console.log("data was added");
-      socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
+      
+      socket.broadcast.emit('createTables', { result: `Success`, instanceId: `${ table.time }_${ table.id }`  });
+      console.log("Tables Created");
     }
     catch (err) {
-      throw err;
+      socket.broadcast.emit('createTables', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
+      console.log("Failed to create tables");
     }
   });
 
+  socket.on('initDDA', () => {
+    const pythonProcess = spawn('python', ["../DifficultyModule/__init__.py", `${table.time}_${table.id}`]);
+    if (pythonProcess.pid !== undefined)
+      socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${table.time}_${table.id}` });
+    else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
+  })
+
   //Sending Data to the spesific table
   socket.on('DDAinput', async data => {
-    const sql = `INSERT INTO yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
-      VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
+    const sql = `INSERT INTO yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id}(Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode) 
+      VALUES('${data.Time}','${data.Event + 1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode + 1}');`;
     
-    const { err, rows, fields } = await query(sql);
-    if(err) throw err;
-    console.log("data was added");
-    socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} updated`);
+    try {
+      const result = await query(sql);
+      if (result.affectedRows > 0)
+        socket.broadcast.emit('DDAinput', `${table.time}_${table.id}`);
+    }
+    catch (err) {
+      console.log("Failed to insert new DDA data");
+    }
+
+    console.log("DDA data was added");
   });
 
   socket.on('TrackerInput', async data => {
     const sql = `INSERT INTO yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
-      VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
-    const { err, rows, fields } = await query(sql)
-    if(err) throw err;
-    console.log("data was added");
-    socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
+      VALUES('${data.Time}','${data.Event + 1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode + 1}');`;
+    try {
+      const result = await query(sql);
+      if (result.affectedRows > 0)
+        socket.broadcast.emit('TrackerInput', `${table.time}_${table.id}`);
+    }
+    catch (err) {
+      console.log("Failed to insert new DDA data");
+    }
+    console.log("Tracker data was added");
   });
 
-  socket.on('variables', data => {
-    socket.broadcast.emit('variables', data);
+  socket.on('LevelSettings', data => {
+    socket.broadcast.emit('LevelSettings', { LvSettings: data, instanceId: `${table.time}_${table.id}` });
     console.log('variables sent to game');
   });
 
