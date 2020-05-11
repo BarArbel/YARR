@@ -66,6 +66,7 @@ export default (state = initialState, action) => {
     }
 
     case SELECT_EXPERIMENT: {
+      console.log(action.data)
       return {
         ...state,
         experiment: action.data

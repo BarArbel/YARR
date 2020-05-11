@@ -27,10 +27,19 @@ class ExperimentPage extends Component {
 
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
+    this.handleStopExperiment = this.handleStopExperiment.bind(this)
+    this.handleStartExperiment = this.handleStartExperiment.bind(this)
   }
 
   async componentDidMount() {
-    const { handleSetRoutes, handleSelectExperiment, experimentList, userInfo, bearerKey } = this.props
+    const { 
+      handleSetRoutes, 
+      handleSelectExperiment,
+      handleSetExperiments, 
+      experimentList, 
+      userInfo, 
+      bearerKey 
+    } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
     const routes = [
@@ -68,8 +77,57 @@ class ExperimentPage extends Component {
     
     handleSetRoutes(routes)
     handleSelectExperiment(experiment)
+    handleSetExperiments([experiment])
   }
 
+  handleStartExperiment(){
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey,
+      experimentId: experiment.ExperimentId
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), "Running")
+      }
+    })
+      .catch(err => console.log(err))
+  }
+
+  handleStopExperiment(){
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/stopExperiment`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey,
+      experimentId: experiment.ExperimentId
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), "Stopped")
+      }
+    })
+      .catch(err => console.log(err))
+  }
+  
   renderRounds() {
     const { Rounds } = this.props.experiment
     const gameMode = ["Cooperative", "Competitive"]
@@ -124,15 +182,23 @@ class ExperimentPage extends Component {
       RoundDuration,
       Disability,
       CharacterType,
-      ColorSettings
+      ColorSettings,
+      GameCode
     } = experiment
     const studyId = this.props.match.params.studyId
+    const buttonText = Status === "Running" ? "STOP EXPERIMENT" : "START EXPERIMENT"
 
     return (
       <div className="studyPage">
         <Header />
         <Breadcrumbs/>
         <div className="container">
+          <div className="startExperiment">
+            {Status === "Running" && <label>{GameCode}</label>}
+            <button onClick={Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment}>
+              {buttonText}
+            </button>
+          </div>
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
               <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
@@ -179,7 +245,7 @@ class ExperimentPage extends Component {
 
   render() {
     const { isLogged, experiment } = this.props
-
+    console.log(experiment)
     return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
   }
 }

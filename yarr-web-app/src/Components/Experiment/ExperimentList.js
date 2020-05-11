@@ -80,7 +80,9 @@ export class ExperimentList extends Component {
     const { studyId, toggleEdit } = this.props
     const { Title, ExperimentId, CreationDate, Status, Details } = experiment
     const limitedDetails = Details.length > 265 ? Details.substring(0, 265) + '...' : Details
-    const statusStyle = Status === "Running" ? ({ color: "#4BB543", paddingLeft: 10 + 'px' }) : ({ paddingLeft: 10 + 'px' })
+    const statusStyle = Status === "Running" ? 
+    ({ color: "#4BB543", paddingLeft: 10 + 'px' }) 
+      : (Status === "Ready" ? { paddingLeft: 10 + 'px' } : { color: "red", paddingLeft: 10 + 'px' })
     return (
       <div className="card" key={`container${i}`}>
         <div className="card-body">
@@ -110,9 +112,9 @@ export class ExperimentList extends Component {
 
   renderList() {
     const { experimentList } = this.props
-    if (experimentList.length) {
+    if (experimentList.length)
       return experimentList.map(this.eachExperiment)
-    }
+      
     return <label>No experiments found</label>
   }
 

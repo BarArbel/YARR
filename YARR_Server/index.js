@@ -11,7 +11,7 @@ console.log('Server has started');
 const tables = [];
 const sockets = [];
 
-io.on('connection', async socket =>{
+io.on('connection', async socket => {
   console.log('Connection Made!');
 
   const table = new Table();
@@ -64,7 +64,7 @@ io.on('connection', async socket =>{
   });
 
   socket.on('initDDA', () => {
-    const pythonProcess = spawn('python', ["../DifficultyModule/__init__.py", `${table.time}_${table.id}`]);
+    const pythonProcess = spawn('python', ["../Difficulty Module/__init__.py", `${table.time}_${table.id}`]);
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${table.time}_${table.id}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
