@@ -280,8 +280,10 @@ public class Player : MonoBehaviour
         const int sinkLayer = 12;
         const int playerCollisionLayer = 13;
         const int dontCollideLayer = 14;
-        const int Powerup = 15;
+        const int powerupLayer = 15;
+
         Player playerObj = gameObject.GetComponent<Player>();
+        int gameMode = GetGameMode();
         switch (collider.gameObject.layer)
         {
             // Check collistion with treasures
@@ -291,7 +293,7 @@ public class Player : MonoBehaviour
                 if (!treasure.GetIsPickedUp())
                 {
                     TakeTreasure(collider.gameObject);                 
-                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, GetGameMode());
+                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.pickup, playerObj, treasure.GetID(), 0, gameMode);
                 }
                 break;
             // Check collistion with enemies
@@ -304,7 +306,7 @@ public class Player : MonoBehaviour
                 }
                 else
                 {
-                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.blockDamage, playerObj, 0, enemyID, GetGameMode());
+                    DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.blockDamage, playerObj, 0, enemyID, gameMode);
                 }
                 break;
             case sinkLayer:
@@ -315,8 +317,8 @@ public class Player : MonoBehaviour
                         int itemID = MyItemInventory[i].GetID();
                         if (RemoveItem(MyItemInventory[i]))
                         {
-                            collider.GetComponent<ItemSink>().SetScore(gameObject.GetComponent<Player>());
-                            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.dropitem, gameObject.GetComponent<Player>(), itemID, 0, GetGameMode());
+                            collider.GetComponent<ItemSink>().SetScore(playerObj);
+                            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.dropitem, playerObj, itemID, 0, gameMode);
                             break;
                         }
                     }
@@ -337,7 +339,7 @@ public class Player : MonoBehaviour
                                 OrderCarriedItems();
                                 otherPlayer.TakeTreasure(OthersItemInventory[i].gameObject);
                                 RemoveItem(OthersItemInventory[i]);
-                                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.giveItem, playerObj, otherPlayer.GetID(), 0, GetGameMode());
+                                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.giveItem, playerObj, otherPlayer.GetID(), 0, gameMode);
                             }
                         }
                     }
@@ -350,22 +352,26 @@ public class Player : MonoBehaviour
                 }
                 break;
 
-            case Powerup:
-                if(GetGameMode() == 1)
+            case powerupLayer:
+
+                if(gameMode == 1)
                 {
+                    // Competitive mode
                     immuneTimer = 5;
                     StartCoroutine(Countdown());
                 }
                 else
                 {
-                    Debug.Log("yes");
+                    // Cooperative mode
                     GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Player");
                     foreach (var g in gameObjects)
                     {
                         g.GetComponent<Player>().SetHealth();
+                        
                     }
                 }
-            break;
+                DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.powerupTaken, playerObj, 0, 0, gameMode);
+                break;
             
             default:                
                 break;
@@ -391,12 +397,13 @@ public class Player : MonoBehaviour
 
     private void HandleInput()      // NOTE: not in the design
     {
+       
         if (Health > 0)
-        {
+        {          
             // Retrieve key presses for movement
             if (Input.GetKey(MoveLeftButton))
             {
-                Direction.x = -1f;
+                Direction.x = -1f;               
             }
             else if (Input.GetKey(MoveRightButton))
             {
@@ -436,7 +443,10 @@ public class Player : MonoBehaviour
         int spriteDirection = 1;
         Rigidbody2D rigidbody2D = GetComponent<Rigidbody2D>();
         BoxCollider2D boxCollider2D = GetComponent<BoxCollider2D>();
-      
+
+        int gameMode = GetGameMode();
+        Player playerObj = gameObject.GetComponent<Player>();
+
         // Flip player according to movement direction
         if (IsSpriteDirectionRight == false)
         {
@@ -447,6 +457,7 @@ public class Player : MonoBehaviour
             transform.localScale = new Vector3(spriteDirection * Direction.x * Mathf.Abs(transform.localScale.x),
                                                transform.localScale.y,
                                                transform.localScale.z);
+            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.move, playerObj, 0, 0, gameMode);
         }
 
         // Left & Right movement
@@ -457,6 +468,7 @@ public class Player : MonoBehaviour
         {
 
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
+            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.jump, playerObj, 0, 0, gameMode);
         }
 
         if (Health <= 0 && IsGrounded(boxCollider2D, MapLayer)) { rigidbody2D.velocity = new Vector2(0, 0); }

@@ -6,8 +6,9 @@ using System;
 
 namespace Project.Networking
 {
-    public class NetworkClient : SocketIOComponent
+    public class GameClient : SocketIOComponent
     {
+        string InstanceID;
         public override void Start()
         {
             base.Start();
@@ -23,20 +24,29 @@ namespace Project.Networking
         {
             On("open", (E) => {
                 Debug.Log("Connection Made To The Server");
-                Debug.Log("what is " + this);
             });
 
             On("disconected", (E) => {
                 Debug.Log("disconected");
             });
 
-            On("ExperimentID", (E) => {
-                Debug.Log("My table number is: " + E.data);
+            On("instanceId", (E) => {
+                InstanceID = E.data["id"].str;
+                Debug.Log("My table number is: " + InstanceID);
                 DataTransformer.createTables();
             });
 
-            On("variables", (E) => {
-                FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data);
+            On("correctCode", (E) => {
+                //if (E.data == InstanceID)
+                Debug.Log("fuck");
+                /*Debug.Log("What's going on" + E);
+                Debug.Log(E.data["instanceID"]);
+                GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
+            });
+
+            On("startExperiment", (E) =>
+            {
+               FindObjectOfType<GameManager>().InitExperiment(E.data);
             });
 
         }

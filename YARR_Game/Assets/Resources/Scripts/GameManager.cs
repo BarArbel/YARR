@@ -11,9 +11,17 @@ public class GameManager : MonoBehaviour
     public enum GameMode { Cooperative, Competitive };
     public enum Skin { Color, Shape, Type };
     public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6 };
+    public enum ColorBlindness { Colorful, Protanopia, Tritanopia};
     //DEBUG
     public bool StaticMode = true;
     public bool CoopMode = true;
+
+    //Round settings
+    private int NumberOfRounds;
+    private List<GameMode> RoundsModes;
+    private List<Skin> RoundsSkins;
+    private List<Level> RoundsDifficulties;
+    private bool ExperimentStarted;
 
     // Game settings
     private GameMode Mode;
@@ -23,6 +31,10 @@ public class GameManager : MonoBehaviour
     private int DDAIndex;
     private Skin SkinType;
     private List<Vector2> ItemSinkColliderSize;
+    private int CurrentRound;
+    private float RoundLength;
+    private float RoundTimer;
+    private ColorBlindness BlindnessType;
 
     // Sprites
     private List<Sprite> ItemSprites;
@@ -51,10 +63,81 @@ public class GameManager : MonoBehaviour
     private List<ObjectFactory> EnemyFactories;
     private List<ObjectFactory> PowerupFactories;
 
-    void InitGameManager(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
+    public bool InitExperiment(JSONObject rSettings)
+    {
+        ExperimentStarted = false;
+        // Test json structure
+        if (rSettings.keys[0] != "numberOfPlayers"             || 
+            rSettings.keys[1] != "roundLength" || 
+            rSettings.keys[2] != "blindness"                   ||
+            rSettings.keys[3] != "modes"                       ||
+            rSettings.keys[4] != "skins"                       ||
+            rSettings.keys[5] != "difficulties"                ||
+            rSettings.list[3].Count != rSettings.list[4].Count || 
+            rSettings.list[3].Count != rSettings.list[5].Count)
+        {
+            return false;
+        }
+
+        // Experiment properties
+        RoundTimer = 0;
+        NumberOfRounds = rSettings.list[3].Count;
+        NumberOfPlayers = (int)rSettings.list[0].n;
+        RoundLength = (float)rSettings.list[1].n;
+        BlindnessType = (ColorBlindness)rSettings.list[2].n;
+
+        // Test json values
+        if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundTimer == 0)
+        {
+            return false;
+        }
+
+        // Initialize lists of round properties
+        RoundsModes = new List<GameMode>();
+        RoundsSkins = new List<Skin>();
+        RoundsDifficulties = new List<Level>();
+
+        for (int i = 0; i < NumberOfRounds; i++)
+        {
+            RoundsModes.Add((GameMode)rSettings.list[3].list[i].n);
+            RoundsSkins.Add((Skin)rSettings.list[4].list[i].n);
+            RoundsDifficulties.Add((Level)rSettings.list[5].list[i].n);
+        }
+
+        StartExperimet();
+        return true;
+    }
+
+    private void StartExperimet()
+    {
+        InitGameManager(RoundsModes[0], RoundsSkins[0], RoundsDifficulties[0]);
+        if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
+        {
+            ExperimentStarted = true;
+            RoundTimer = RoundLength;
+            CurrentRound = 1;
+        }
+    }
+
+    private void StartNextRound()
+    {
+
+        if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
+        {
+            SetMode(RoundsModes[CurrentRound], RoundsSkins[CurrentRound], RoundsDifficulties[CurrentRound]);
+            if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
+            {
+                RoundTimer = RoundLength;
+                CurrentRound++;
+            }
+            
+        }
+
+    }
+
+    void InitGameManager(GameMode mode, Skin skin, Level difficulty)
     {
         // First Round properties
-        NumberOfPlayers = numberOfPlayers;
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
@@ -185,9 +268,8 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void SetMode(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
+    public void SetMode( GameMode mode, Skin skin, Level difficulty)
     {
-        NumberOfPlayers = numberOfPlayers;
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
@@ -441,7 +523,7 @@ public class GameManager : MonoBehaviour
     //DEBUG CHANGE MODE
     public void DEBUGCHANGEMODE()
     {
-        SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        SetMode(GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     public void NotificationPlayerDied(int playerID)
@@ -478,8 +560,10 @@ public class GameManager : MonoBehaviour
         {
             gm = GameMode.Competitive;
         }
+
         //DEBUG//
-        InitGameManager(3, gm, Skin.Color, lvl);
+        NumberOfPlayers = 3;
+        InitGameManager(gm, Skin.Color, lvl);
         //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }
@@ -487,6 +571,17 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (ExperimentStarted)
+        {
+            if (RoundTimer != 0)
+            {
+                RoundTimer -= Time.deltaTime;
+            }
+            else
+            {
+                StartNextRound();
+            }
+        }
+       
     }
 }
