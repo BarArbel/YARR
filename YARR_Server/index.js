@@ -65,7 +65,7 @@ io.on('connection', async socket => {
 
   socket.on('initDDA', async data => {
     const { initLevel, numOfPlayers } = data;
-    const pythonProcess = spawn('python', ["../Difficulty Module/__init__.py", `${table.time}_${table.id}`, initLevel, numOfPlayers]);
+    const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${table.time}_${table.id}`, initLevel, numOfPlayers]);
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${table.time}_${table.id}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
