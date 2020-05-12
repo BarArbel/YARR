@@ -63,8 +63,9 @@ io.on('connection', async socket => {
     }
   });
 
-  socket.on('initDDA', () => {
-    const pythonProcess = spawn('python', ["../Difficulty Module/__init__.py", `${table.time}_${table.id}`]);
+  socket.on('initDDA', async data => {
+    const { initLevel, numOfPlayers } = data;
+    const pythonProcess = spawn('python', ["../Difficulty Module/__init__.py", `${table.time}_${table.id}`, initLevel, numOfPlayers]);
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${table.time}_${table.id}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
@@ -101,6 +102,7 @@ io.on('connection', async socket => {
     console.log("Tracker data was added");
   });
 
+  /* DDA Module related event */
   socket.on('LevelSettings', data => {
     socket.broadcast.emit('LevelSettings', { LvSettings: data.LvSetting, instanceId: data.instanceId });
     console.log('variables sent to game');
