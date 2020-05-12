@@ -1,14 +1,15 @@
 import Header from '../Header'
 import { connect } from 'react-redux'
-import Breadcrumbs from '../Utilities/Breadcrumbs'
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
+import CoopImg from '../../cooperative.png'
+import CompImg from '../../competitive.png'
+import Skeleton from 'react-loading-skeleton'
+import DifficultyImg from '../../difficulty.png'
+import Breadcrumbs from '../Utilities/Breadcrumbs'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
-import DifficultyImg from '../../difficulty.png'
-import CoopImg from '../../cooperative.png'
-import CompImg from '../../competitive.png'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
 
 const mapStateToProps = ({ user, experiment }) => {
@@ -24,6 +25,10 @@ const mapStateToProps = ({ user, experiment }) => {
 class ExperimentPage extends Component {
   constructor(props) {
     super(props)
+
+    this.state = {
+      experimentLoaded: false
+    }
 
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
@@ -78,6 +83,7 @@ class ExperimentPage extends Component {
     handleSetRoutes(routes)
     handleSelectExperiment(experiment)
     handleSetExperiments([experiment])
+    this.setState({ experimentLoaded: true })
   }
 
   handleStartExperiment(){
@@ -127,7 +133,15 @@ class ExperimentPage extends Component {
     })
       .catch(err => console.log(err))
   }
-  
+
+  renderWaitForExperiment() {
+    return (
+      <div style={{ marginTop: "25px" }} >
+        <Skeleton count={5} />
+      </div>
+    )
+  }
+
   renderRounds() {
     const { Rounds } = this.props.experiment
     const gameMode = ["Cooperative", "Competitive"]
@@ -170,6 +184,7 @@ class ExperimentPage extends Component {
 
   renderLogged(){
     const { experiment } = this.props
+    const { experimentLoaded } = this.state
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
@@ -216,19 +231,36 @@ class ExperimentPage extends Component {
 
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-              <h2>{Title}</h2>
-              <p>Created: {CreationDate}</p>
-              <p>Status: {Status}</p>
-              <p>Details: {Details}</p>
-              <p>Disability: {disability[Disability - 1]}</p>
+              {
+                experimentLoaded ? 
+                (
+                  <div>
+                    <h2>{Title}</h2>
+                    <p>Created: {CreationDate}</p>
+                    <p>Status: {Status}</p>
+                    <p>Details: {Details}</p>
+                    <p>Disability: {disability[Disability - 1]}</p>
+                  </div>
+                ) 
+                : this.renderWaitForExperiment()
+              }
             </div>
             <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="gameSettings-tab">
-              <p>Character skin: {characterType[CharacterType - 1]}</p>
-              <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
-              <p>Round Duration: {RoundDuration} seconds</p>
-              <p>Number of rounds: {RoundsNumber}</p>
-              <p>Rounds:</p>
-              {this.renderRounds()}
+              {
+                experimentLoaded ? 
+                (
+                  <div>
+                    <p>Character skin: {characterType[CharacterType - 1]}</p>
+                    <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
+                    <p>Round Duration: {RoundDuration} seconds</p>
+                    <p>Number of rounds: {RoundsNumber}</p>
+                    <p>Rounds:</p>
+                    {this.renderRounds()}
+                  </div>
+                )
+                :
+                this.renderWaitForExperiment()
+              }
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
               <StudyInsightsMirror studyId={studyId} />

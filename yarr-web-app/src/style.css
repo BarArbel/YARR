@@ -14,8 +14,12 @@
 	margin: 0 auto;
 }
 
-/* Logo */
+.barLoader {
+  margin-top: 25px;
+  padding-left: 10px;
+}
 
+/* Logo */
 .header-login-signup .header-limiter h1{
 	float: left;
 	font: normal 28px Cookie, Arial, Helvetica, sans-serif;
