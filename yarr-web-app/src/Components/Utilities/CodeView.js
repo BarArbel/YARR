@@ -18,6 +18,8 @@ class CodeView extends Component {
       <div className="codeView">
         <div className='custom-ui card'>
           <div className="card-body gameCodeCard">
+            <button onClick={onClose} className="invisButton popUpButton"><MDBIcon icon="times" /></button>
+            <div className="clear"/>
             <h1 className="centerText">Game Code</h1>
             <hr />
             <div className="gameCodeWrapper">
@@ -28,7 +30,6 @@ class CodeView extends Component {
               <button className="gameCodeCopy">Copy</button>
             </CopyToClipboard>
             {this.state.copied ? <label className="centerText" style={{ color: '#62c462', width: '100%', marginTop: '5px' }}>Game Code Copied!</label> : null}
-            <button onClick={onClose} className="invisButton"><MDBIcon icon="times" /></button>
           </div>
         </div>
       </div>

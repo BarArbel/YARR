@@ -108,6 +108,10 @@ io.on('connection', async socket => {
     console.log('variables sent to game');
   });
 
+  socket.on('gameEnded', () => {
+    socket.broadcast.emit('gameEnded', `${table.time}_${table.id}`);
+  });
+
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     delete tables[thisTableID];
