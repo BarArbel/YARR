@@ -111,7 +111,7 @@ io.on('connection', async socket => {
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     delete tables[thisTableID];
-    socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} finished the game`);
+    socket.broadcast.emit('disconnect', `${table.time}_${table.id}`);
     socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} finished the game`);
   });
 });

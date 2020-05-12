@@ -1,4 +1,4 @@
-import { MDBBtn } from 'mdbreact'
+import { MDBIcon } from 'mdbreact'
 import React, { Component } from "react";
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
@@ -28,7 +28,7 @@ class CodeView extends Component {
               <button className="gameCodeCopy">Copy</button>
             </CopyToClipboard>
             {this.state.copied ? <label className="centerText" style={{ color: '#62c462', width: '100%', marginTop: '5px' }}>Game Code Copied!</label> : null}
-            <MDBBtn color="blue-grey" className="popUpButton" onClick={onClose}>Close</MDBBtn>
+            <button onClick={onClose} className="invisButton"><MDBIcon icon="times" /></button>
           </div>
         </div>
       </div>
