@@ -10,7 +10,8 @@ import {
 const initialState = {
   experimentList: [],
   experiment: null,
-  buildExperiment: false
+  buildExperiment: false,
+  experimentsLoaded: false
 }
 
 export default (state = initialState, action) => {
@@ -19,7 +20,8 @@ export default (state = initialState, action) => {
       action.data.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,
-        experimentList: action.data
+        experimentList: action.data,
+        experimentsLoaded: true
       }
     }
     
@@ -58,15 +60,17 @@ export default (state = initialState, action) => {
     case CHANGE_EXPERIMENT_STATUS: {
       const newList = state.experimentList.filter(i => parseInt(i.ExperimentId) !== action.data.experimentId)
       let toUpdate = state.experimentList.find(i => parseInt(i.ExperimentId) === action.data.experimentId)
-      toUpdate.Status = action.data.status
+      toUpdate.Status = action.data.data.status
+      toUpdate.GameCode = action.data.data.gameCode
+      newList.push(toUpdate)
+      newList.sort((a, b) => parseInt(b.ExperimentId) - parseInt(a.ExperimentId))
       return {
         ...state,
-        experimentList: [...newList, toUpdate]
+        experimentList: newList
       }
     }
 
     case SELECT_EXPERIMENT: {
-      console.log(action.data)
       return {
         ...state,
         experiment: action.data

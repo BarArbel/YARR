@@ -2,7 +2,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import { MDBBtn } from 'mdbreact'
-import CustomSnackbar from './CustomSnackbar'
+import CustomSnackbar from './Utilities/CustomSnackbar'
 import ClipLoader from "react-spinners/ClipLoader"
 
 const mapStateToProps = ({ user }) => {

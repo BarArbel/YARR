@@ -1,6 +1,6 @@
 import Header from '../Header'
 import { connect } from 'react-redux'
-import Breadcrumbs from '../Breadcrumbs'
+import Breadcrumbs from '../Utilities/Breadcrumbs'
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
 import UserActions from '../../Actions/UserActions'
@@ -98,7 +98,7 @@ class ExperimentPage extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json()).then(json => {
       if (json.result === "Success") {
-        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), "Running")
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
       }
     })
       .catch(err => console.log(err))
@@ -122,7 +122,7 @@ class ExperimentPage extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json()).then(json => {
       if (json.result === "Success") {
-        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), "Stopped")
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
       }
     })
       .catch(err => console.log(err))
@@ -245,7 +245,6 @@ class ExperimentPage extends Component {
 
   render() {
     const { isLogged, experiment } = this.props
-    console.log(experiment)
     return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
   }
 }

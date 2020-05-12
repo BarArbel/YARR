@@ -1,11 +1,11 @@
 import Header from './Header'
 import { MDBBtn } from 'mdbreact'
 import { connect } from 'react-redux'
-import Breadcrumbs from './Breadcrumbs'
+import Breadcrumbs from './Utilities/Breadcrumbs'
 import React, { Component } from 'react'
 import StudyList from './Study/StudyList'
 import { Redirect } from 'react-router-dom'
-import Skeleton from 'react-loading-skeleton';
+import Skeleton from 'react-loading-skeleton'
 import StudyBuilder from './Study/StudyBuilder'
 import UserActions from '../Actions/UserActions'
 import StudyActions from '../Actions/StudyActions'

@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import  { Redirect } from 'react-router-dom'
 import UserActions from '../Actions/UserActions'
-import CustomSnackbar from './CustomSnackbar'
+import CustomSnackbar from './Utilities/CustomSnackbar'
 
 const mapStateToProps = ({ user }) => {
   return {

@@ -5,13 +5,16 @@ import React, { Component } from 'react'
 import { MDBIcon, MDBBtn } from 'mdbreact'
 import { confirmAlert } from 'react-confirm-alert'
 import ExperimentBuilder from './ExperimentBuilder'
-import DeleteConfirmation from '../DeleteConfirmation'
+import DeleteConfirmation from '../Utilities/DeleteConfirmation'
 import 'react-confirm-alert/src/react-confirm-alert.css'
 import ExperimentActions from "../../Actions/ExperimentActions"
+import CodeView from '../Utilities/CodeView'
 
 
-const mapStateToProps = ({ experiment }) => {
+const mapStateToProps = ({ user, experiment }) => {
   return {
+    userInfo: user.userInfo,
+    bearerKey: user.bearerKey,
     experimentList: experiment.experimentList
   }
 }
@@ -35,18 +38,21 @@ export class ExperimentItem extends Component {
     this.handleDelete = this.handleDelete.bind(this)
     this.renderEditForm = this.renderEditForm.bind(this)
     this.handleSubmitEdit = this.handleSubmitEdit.bind(this)
+    this.handleViewGameCode = this.handleViewGameCode.bind(this)
+    this.handleStartExperiment = this.handleStartExperiment.bind(this)
   }
 
   componentDidMount() {
     const { thisExperiment } = this.props
-    const { Status, Title, Details, Disability, CharacterType, ColorSettings } = thisExperiment
+    const { Status, Title, Details, Disability, CharacterType, ColorSettings, GameCode } = thisExperiment
     this.setState({
       status: Status,
       title: Title,
       details: Details,
       disability: Disability,
       characterType: CharacterType,
-      colorSettings: ColorSettings
+      colorSettings: ColorSettings,
+      gameCode: GameCode
     })
   }
 
@@ -88,8 +94,52 @@ export class ExperimentItem extends Component {
     this.handleEdit()
   }
 
+  handleStartExperiment(experimentId) {
+    const { userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey,
+      experimentId: experimentId
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
+        this.setState({ gameCode: json.gameCode })
+      }
+    })
+      .catch(err => console.log(err))
+  }
+
+  handleViewGameCode() {
+    const { thisExperiment } = this.props
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <CodeView
+            onClose={onClose}
+            gameCode={thisExperiment.GameCode}
+          />
+        )
+      }
+    })
+
+  }
+
   renderCard() {
-    const { experimentId, studyId } = this.props
+    const { experimentId, studyId, thisExperiment } = this.props
+    const gameCode = thisExperiment.GameCode
+    const codeButtonText = gameCode === "null" ? "Start Experiment" : "View Game Code"
+    const codeButtonColor = gameCode === "null" ? "light-green" : "elegant"
+    const codeButtonFunction = gameCode === "null" ? this.handleStartExperiment : this.handleViewGameCode
 
     return (
       <div className = "experimentItem">
@@ -100,6 +150,7 @@ export class ExperimentItem extends Component {
         <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
           {this.props.children}
         </Link>
+        <MDBBtn color={codeButtonColor} className="login-btn codeButton" onClick={() => codeButtonFunction(experimentId)}>{codeButtonText}</MDBBtn>
       </div>
     )
   }
