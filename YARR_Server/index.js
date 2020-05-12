@@ -102,7 +102,7 @@ io.on('connection', async socket => {
   });
 
   socket.on('LevelSettings', data => {
-    socket.broadcast.emit('LevelSettings', { LvSettings: data, instanceId: `${table.time}_${table.id}` });
+    socket.broadcast.emit('LevelSettings', { LvSettings: data.LvSetting, instanceId: data.instanceId });
     console.log('variables sent to game');
   });
 
