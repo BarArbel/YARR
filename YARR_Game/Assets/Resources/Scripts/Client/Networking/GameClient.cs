@@ -22,31 +22,62 @@ namespace Project.Networking
 
         private void setupEvents()
         {
-            On("open", (E) => {
-                Debug.Log("Connection Made To The Server");
-            });
-
-            On("disconected", (E) => {
-                Debug.Log("disconected");
-            });
-
             On("instanceId", (E) => {
                 InstanceID = E.data["id"].str;
                 Debug.Log("My table number is: " + InstanceID);
                 DataTransformer.createTables();
             });
 
-            On("correctCode", (E) => {
-                //if (E.data == InstanceID)
-                Debug.Log("fuck");
-                /*Debug.Log("What's going on" + E);
-                Debug.Log(E.data["instanceID"]);
-                GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
+            On("disconected", (E) => {
+
+                Debug.Log("disconected");
+
             });
 
-            On("startExperiment", (E) =>
-            {
-               FindObjectOfType<GameManager>().InitExperiment(E.data);
+            On("open", (E) => {
+
+                Debug.Log("Connection Made To The Server");
+
+            });
+
+            On("newCorrect", (E) => {
+                Debug.Log("Correct");
+                if (E.data["instanceId"].str == InstanceID)
+                {                  
+                    Debug.Log(E.data["instanceID"]);
+                    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(true);
+                }               
+            });
+
+            On("wrongCode", (E) => {
+                Debug.Log("Incorrect");
+                if (E.data["instanceId"].str == InstanceID)
+                {
+                    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(false);
+                }
+            });
+
+            On("interruptedCorrect", (E) => {
+                Debug.Log("Correct");
+                if (E.data["instanceId"].str == InstanceID)
+                {
+                    Debug.Log(E.data["instanceID"]);
+                    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationInterruptedCode(true);
+                }
+            });
+
+            // This piece of code is a curse. Don't awaken the spirit of the abyss please.
+            //On("correctCode", (E) => {
+            //    //if (E.data == InstanceID)
+            //    Debug.Log("fuck");
+            //    /*Debug.Log("What's going on" + E);
+            //    Debug.Log(E.data["instanceID"]);
+            //    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
+            //});
+
+            On("startExperiment", (E) => {
+
+                FindObjectOfType<GameManager>().InitExperiment(E.data);
             });
 
         }

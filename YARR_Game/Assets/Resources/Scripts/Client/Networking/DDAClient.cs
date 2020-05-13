@@ -23,7 +23,7 @@ namespace Project.Networking
         private void setupEvents()
         {
             On("open", (E) => {
-                Debug.Log("Connection Made To The Server");
+                //Debug.Log("Connection Made To The Server");
                 Debug.Log("what is " + this);
             });
 

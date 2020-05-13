@@ -75,10 +75,22 @@ namespace Project.Networking
             GameSocket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
-        public static void codeInput(String userInput)
+        public static void codeInput(string userInput)
         {
             gameCode.code = userInput;
-            GameSocket.Emit("codeInput", new JSONObject(JsonUtility.ToJson(gameCode)));
+            // Check if it's a new game or not
+            // [0-9] An interrupted game
+            // [A-Z] A new game
+            if (Char.IsLetter(userInput[0]))
+            {
+                GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(gameCode)));
+            }
+            else if (Char.IsDigit(userInput[0]))
+            {
+                GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(gameCode)));
+            }
+
+
         }
     }
 

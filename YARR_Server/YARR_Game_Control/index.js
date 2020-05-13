@@ -20,7 +20,7 @@ io.on('connection', async socket =>{
   tables[thisTableID] = table;
 
   tables.push(table);
-  socket.emit('instanceId', table);
+  socket.emit('instanceId', {id: table.time+'_'+table.id});
   
   socket.on('createTables', async () => {
     //Creating table for each experiment   
@@ -85,20 +85,35 @@ io.on('connection', async socket =>{
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
   });
 
-    //Sending game code for a verification
-    socket.on('codeInput', async data => {
-      /*const sql = `SELECT * FROM ${process.env.DATABASE}.game_codes where code = '${data.code}' LIMIT 1 ;`;
+    //Sending new game code for a verification
+    socket.on('newCodeInput', async data => {
+      const sql = `SELECT * FROM ${process.env.DATABASE}.game_codes where code = '${data.code}' LIMIT 1 ;`;
       mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
-          res.status(400).send('{"result": "Failure", "error": "Provided game code is incorrect."}');
+          socket.emit('wrongCode', {message: "Wrong code", instanceId: `${table.time}_${table.id}`});
+          //res.status(400).send('{"result": "Failure", "error": "Provided game code is incorrect."}');
         }
         else {
           console.log(results[0]["ExperimentId"]);
-          console.log("Provided game code is correct. ");
-          socket.broadcast.emit('correctCode', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`});
-        }});*/
-        console.log("wowzer");
-        socket.emit('correctCode',  "wowzer" );
+          console.log("Provided game code is correct. " + data.code + "\nInstanceID: " + table.id);
+          socket.emit('newCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`});
+        }});
+    });
+
+    //Sending interrupted game code for a verification
+    socket.on('interruptedCodeInput', async data => {
+      const sql = `SELECT * FROM ${process.env.DATABASE}.interupted_instances where GameCode = '${data.code}' LIMIT 1 ;`;
+      mysqlConnection.query(sql, (error, results) => {
+        if (error || !results.length) {
+          socket.emit('wrongCode', {message: "Wrong code", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          console.log(results[0]["ExperimentId"]);
+          console.log("Provided game code is correct. " + data.code + "\nInstanceID: " + table.id);
+          //socket.emit('interruptedCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`});
+        }});
+        //console.log("wowzer");
+        //socket.emit('correctCode',  "wowzer" );
     });
 
     // Add instance ID to the server
