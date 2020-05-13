@@ -217,8 +217,7 @@ async def on_gameended(data):
     global instance_id, con
 
     if data == instance_id:
-        # transfer data from temporary tables to permanent experiment table
-
+        await con.insert_permanent_table(instance_id)
         await con.close_connection()
         await sio.disconnect()
 

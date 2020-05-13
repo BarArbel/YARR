@@ -126,3 +126,32 @@ class DB_connection:
             async with con.cursor() as cursor:
                 await cursor.execute(query)
                 await con.commit()
+
+    async def insert_permanent_table(self, instance_id):
+
+        select_query = ("SELECT * FROM " + self.db + "." + self.DDAtb)
+        select_fetch = None
+        experiment_query = ("SELECT ExperimentId FROM " + self.db +
+                            ".instances WHERE InstanceId = " + instance_id)
+        experiment_fetch = None
+        experiment_id = None
+        insert_vals = []
+        insert_query = ("INSERT INTO " + self.db + ".dda_calculations " +
+                        "(ExperimentId, InstanceId, Timestamp, PlayerID, " +
+                        "Penalty, Bonus, Skill, Level) VALUES (%d, %s, %f, " +
+                        "%d, %f, %f, %f, %d)")
+
+        async with self.pool.acquire() as con:
+            async with con.cursor() as cursor:
+                await cursor.execute(select_query)
+                select_fetch = await cursor.fetchall()
+
+                await cursor.execute(experiment_query)
+                experiment_fetch = await cursor.fetchone()
+                experiment_id = experiment_fetch[0]
+
+                for result in select_fetch:
+                    insert_vals.append((experiment_id, instance_id) + result)
+
+                await cursor.execute(insert_query, insert_vals)
+                await con.commit()
