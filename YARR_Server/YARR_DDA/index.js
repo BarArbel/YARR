@@ -14,13 +14,6 @@ const sockets = [];
 io.on('connection', async socket =>{
   console.log('Connection Made!');
 
-  const table = new Table();
-  const thisTableID = table.id;
-
-  tables[thisTableID] = table;
-
-  tables.push(table);
-  socket.emit('instanceId', table);
 
   //Sending Data to the DDA table for game difficulty analysis
   socket.on('DDAinput', async data => {

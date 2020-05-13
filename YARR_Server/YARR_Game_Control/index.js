@@ -13,7 +13,7 @@ const sockets = [];
 
 io.on('connection', async socket =>{
   console.log('Connection Made!');
-
+  var interruptedInstanceID;
   const table = new Table();
   const thisTableID = table.id;
 
@@ -87,39 +87,75 @@ io.on('connection', async socket =>{
 
     //Sending new game code for a verification
     socket.on('newCodeInput', async data => {
-      const sql = `SELECT * FROM ${process.env.DATABASE}.game_codes where code = '${data.code}' LIMIT 1 ;`;
+      const sql = `SELECT * FROM ${process.env.DATABASE}.game_codes where code = '${data.Code}' LIMIT 1 ;`;
       mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
           socket.emit('wrongCode', {message: "Wrong code", instanceId: `${table.time}_${table.id}`});
-          //res.status(400).send('{"result": "Failure", "error": "Provided game code is incorrect."}');
         }
         else {
+          console.log("correct new game");
           console.log(results[0]["ExperimentId"]);
-          console.log("Provided game code is correct. " + data.code + "\nInstanceID: " + table.id);
+          console.log("Provided game code is correct. " + data.Code + "\nInstanceID: " + table.id);
           socket.emit('newCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`});
         }});
     });
 
     //Sending interrupted game code for a verification
     socket.on('interruptedCodeInput', async data => {
-      const sql = `SELECT * FROM ${process.env.DATABASE}.interupted_instances where GameCode = '${data.code}' LIMIT 1 ;`;
+      const sql = `SELECT * FROM ${process.env.DATABASE}.interupted_instances where GameCode = '${data.Code}' LIMIT 1 ;`;
       mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
           socket.emit('wrongCode', {message: "Wrong code", instanceId: `${table.time}_${table.id}`});
         }
         else {
+          console.log("correct interrupted game");
+          this.interruptedInstanceID = results[0]["InstanceId"];
           console.log(results[0]["ExperimentId"]);
-          console.log("Provided game code is correct. " + data.code + "\nInstanceID: " + table.id);
-          //socket.emit('interruptedCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`});
+          console.log("Provided game code is correct. " + data.Code + "\nInstanceID: " + table.id);
+          socket.emit('interruptedCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`, interruptedInstanceId: results[0]["InstanceId"]});
         }});
-        //console.log("wowzer");
-        //socket.emit('correctCode',  "wowzer" );
     });
 
     // Add instance ID to the server
-    socket.on('addInstanceID', data => {
-      socket.broadcast.emit('variables', data);
-      console.log('variables sent to game');
+    socket.on('initNewGameSettings', data => {
+      
+      var numOfPlayers = 3;
+      var roundDuration;
+      var colorBlindness;
+      var skin;
+      var modeList = new Array();
+      var difficList = new Array();
+      const sql1 = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+
+      mysqlConnection.query(sql1, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (row in results) {
+            modeList.push(row["GameMode"]);
+            difficList.push(row["Difficulty"]);
+          }
+        }});
+      
+      const sql2 = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
+      mysqlConnection.query(sql2, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          roundDuration = results[0]["RoundDuration"];
+          colorBlindness = results[0]["Disability"];
+          skin = results[0]["ColorSettings"];
+        }});
+      socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+                                                  roundLength:      roundDuration, 
+                                                  blindness:        colorBlindness, 
+                                                  modes:            modeList,
+                                                  skin:             skin,
+                                                  difficulties:     difficList}, instanceId: `${table.time}_${table.id}`});
     });
 
   socket.on('disconnect', () => {

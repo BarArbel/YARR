@@ -8,6 +8,8 @@ using Project.Networking;
 
 public class CodeValidator : MonoBehaviour
 {
+    private GameObject button;
+
     private string currInputValue;
     private string prevInputValue;
     private readonly int codeLen = 6;
@@ -15,6 +17,7 @@ public class CodeValidator : MonoBehaviour
     private readonly Color correctValueColor = new Color(0.5312541f, 1f, 0.4539427f, 1f);
     private bool isNewCorrect;
     private bool isInterruptedCorrect;
+
     // Allow only alphanumeric in string
     Regex rgx = new Regex("[^a-zA-Z0-9]");
 
@@ -28,8 +31,7 @@ public class CodeValidator : MonoBehaviour
             gameObject.GetComponent<Image>().color = wrongValueColor;
             isNewCorrect = false;
             isInterruptedCorrect = false;
-            Debug.Log(code);
-            Debug.Log(gameObject.GetComponent<Image>().color);
+            button.GetComponent<Button>().interactable = false;
             return false;
         }
 
@@ -44,33 +46,55 @@ public class CodeValidator : MonoBehaviour
         {
             gameObject.GetComponent<Image>().color = correctValueColor;
             isNewCorrect = true;
+            isInterruptedCorrect = false;
+            button.GetComponent<Button>().interactable = true;
         }
         else
         {
             gameObject.GetComponent<Image>().color = wrongValueColor;
             isNewCorrect = false;
             isInterruptedCorrect = false;
+            button.GetComponent<Button>().interactable = false;
         }
 
     }
 
     // Interrupted game
-    public void NotificationInterruptedCode(bool isCorrectCode)
+    public void NotificationInterruptedCode(bool isCorrectCode, string interruptedInstanceID)
     {
         if (isCorrectCode)
         {
             gameObject.GetComponent<Image>().color = correctValueColor;
             isInterruptedCorrect = true;
+            isNewCorrect = false;
+            button.GetComponent<Button>().interactable = true;
         }
 
+    }
+
+    public void InstantiateGameScene()
+    {
+        if (isNewCorrect)
+        {
+            DataTransformer.getInitSettings();
+            //InitExperiment(JSONObject rSettings);
+        }
+        
+        if (isInterruptedCorrect)
+        {
+            //ContinueExperiment(JSONObject rSettings);
+        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        prevInputValue = gameObject.GetComponent<TMP_InputField>().text;
+        prevInputValue = gameObject.GetComponent<TMP_InputField>().text;        
         isNewCorrect = false;
         isInterruptedCorrect = false;
+
+        button = FindObjectOfType<Button>().gameObject;
+        button.GetComponent<Button>().interactable = false;
     }
 
     // Update is called once per frame

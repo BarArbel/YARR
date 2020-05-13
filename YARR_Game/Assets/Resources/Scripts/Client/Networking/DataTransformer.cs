@@ -9,15 +9,16 @@ namespace Project.Networking
 {
     public static class DataTransformer
     {
-        static SocketIOComponent DDASocket = GameObject.Find("[Network Container]").GetComponent<DDAClient>();
+        static SocketIOComponent DDASocket;
         static SocketIOComponent GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
         static DataGameSnapShot data = new DataGameSnapShot();
-        static GameCode gameCode = new GameCode();    
-        
-        public static void createTables()
-        {
-            GameSocket.Emit("createTables");
-        }
+        static ExperimentSettings settings = new ExperimentSettings();    
+
+        public static void SetExperimentID         (string expID)    { settings.ExperimentID = expID; }
+        public static void SetInstanceID           (string instID)   { settings.InstanceID = instID; }
+        public static void SeInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
+        public static void SeIsInterrupted(bool isInterr) { settings.IsInterrupted = isInterr; }
+
 
         public static void sendDDA(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
         {
@@ -77,20 +78,28 @@ namespace Project.Networking
 
         public static void codeInput(string userInput)
         {
-            gameCode.code = userInput;
+            settings.Code = userInput;
             // Check if it's a new game or not
             // [0-9] An interrupted game
             // [A-Z] A new game
             if (Char.IsLetter(userInput[0]))
             {
-                GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(gameCode)));
+                GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
             }
             else if (Char.IsDigit(userInput[0]))
             {
-                GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(gameCode)));
+                GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
             }
 
 
+        }
+
+        public static void getInitSettings()
+        {
+            GameSocket.Emit("createTables");
+            DDASocket = GameObject.Find("[Network Container]").GetComponent<DDAClient>();
+            DDASocket.Connect();
+            GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
         }
     }
 
@@ -109,9 +118,13 @@ namespace Project.Networking
     }
 
     [Serializable]
-    public class GameCode
+    public class ExperimentSettings
     {
-        public String code;
+        public string Code;
+        public string ExperimentID;
+        public string InstanceID;
+        public string InterruptedInstanceID;
+        public bool IsInterrupted;
     }
 
 public enum Event

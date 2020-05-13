@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using SocketIO;
 using System;
-
+using UnityEngine.SceneManagement;
 namespace Project.Networking
 {
     public class GameClient : SocketIOComponent
     {
         string InstanceID;
+        string InterruptedInstanceID;
         public override void Start()
         {
             base.Start();
@@ -24,8 +25,8 @@ namespace Project.Networking
         {
             On("instanceId", (E) => {
                 InstanceID = E.data["id"].str;
+                DataTransformer.SetInstanceID(InstanceID);
                 Debug.Log("My table number is: " + InstanceID);
-                DataTransformer.createTables();
             });
 
             On("disconected", (E) => {
@@ -45,6 +46,8 @@ namespace Project.Networking
                 if (E.data["instanceId"].str == InstanceID)
                 {                  
                     Debug.Log(E.data["instanceID"]);
+                    DataTransformer.SetExperimentID(E.data["experimentID"].str);
+                    DataTransformer.SeIsInterrupted(false);
                     GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(true);
                 }               
             });
@@ -59,10 +62,16 @@ namespace Project.Networking
 
             On("interruptedCorrect", (E) => {
                 Debug.Log("Correct");
+                Debug.Log(E.data["instanceId"].str);
+                Debug.Log(InstanceID);
                 if (E.data["instanceId"].str == InstanceID)
                 {
-                    Debug.Log(E.data["instanceID"]);
-                    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationInterruptedCode(true);
+                    InterruptedInstanceID = E.data["interruptedInstanceId"].str;
+                    Debug.Log("Interrupted instanceID: " + InterruptedInstanceID);
+                    DataTransformer.SetExperimentID(E.data["experimentID"].str);
+                    DataTransformer.SeInterruptedInstanceID(InterruptedInstanceID);
+                    DataTransformer.SeIsInterrupted(true); 
+                    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationInterruptedCode(true, InterruptedInstanceID);
                 }
             });
 
@@ -75,8 +84,8 @@ namespace Project.Networking
             //    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
             //});
 
-            On("startExperiment", (E) => {
-
+            On("newGameSettings", (E) => {
+                SceneManager.LoadScene("Game");
                 FindObjectOfType<GameManager>().InitExperiment(E.data);
             });
 

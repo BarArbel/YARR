@@ -8,7 +8,8 @@ namespace Project.Networking
 {
     public class DDAClient : SocketIOComponent
     {
-        String InstanceID;
+        string InstanceID;
+
         public override void Start()
         {
             base.Start();
