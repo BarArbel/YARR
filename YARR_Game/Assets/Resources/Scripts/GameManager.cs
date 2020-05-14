@@ -65,10 +65,11 @@ public class GameManager : MonoBehaviour
 
     public bool InitExperiment(JSONObject rSettings)
     {
+        Debug.Log(rSettings);
         ExperimentStarted = false;
         // Test json structure
         if (rSettings.keys[0] != "numberOfPlayers"             || 
-            rSettings.keys[1] != "roundLength" || 
+            rSettings.keys[1] != "roundLength"                 || 
             rSettings.keys[2] != "blindness"                   ||
             rSettings.keys[3] != "modes"                       ||
             rSettings.keys[4] != "skins"                       ||
@@ -78,6 +79,9 @@ public class GameManager : MonoBehaviour
         {
             return false;
         }
+
+        Debug.Log("Hello InitExperiment");
+        Debug.Log(rSettings);
 
         // Experiment properties
         RoundTimer = 0;
@@ -541,7 +545,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //DEBUG
-        Level lvl;
+        /*Level lvl;
         GameMode gm;
         if (StaticMode)
         {
@@ -559,11 +563,11 @@ public class GameManager : MonoBehaviour
         else
         {
             gm = GameMode.Competitive;
-        }
+        }*/
 
         //DEBUG//
-        NumberOfPlayers = 3;
-        InitGameManager(gm, Skin.Color, lvl);
+        //NumberOfPlayers = 3;
+        //InitGameManager(gm, Skin.Color, lvl);
         //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }

@@ -139,10 +139,9 @@ VALUES (1,1,"comp",80,20,80,20,0),
 
 
 CREATE TABLE `yarr`.`instances` (
-  `ResearcherId` INT UNSIGNED NOT NULL,
   `StudyId` INT UNSIGNED NOT NULL,
   `ExperimentId` INT UNSIGNED NOT NULL,
-  `InstanceId` INT UNSIGNED NOT NULL,
+  `InstanceId` VARCHAR(32) NOT NULL,
   `CreationTimestamp` float NOT NULL,
   `Status` enum('running','interrupted') NOT NULL,
   `DDAParity` BOOLEAN NOT NULL);

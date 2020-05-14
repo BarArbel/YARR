@@ -13,6 +13,7 @@ namespace Project.Networking
         public override void Start()
         {
             base.Start();
+            DontDestroyOnLoad(gameObject);
             setupEvents();
         }
 
@@ -26,6 +27,10 @@ namespace Project.Networking
             On("open", (E) => {
                 //Debug.Log("Connection Made To The Server");
                 Debug.Log("what is " + this);
+            });
+
+            On("connectionConfirmed", (E) => {
+                DataTransformer.getInitSettings();
             });
 
             On("disconected", (E) => {

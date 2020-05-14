@@ -42,6 +42,7 @@ public class CodeValidator : MonoBehaviour
     // New game
     public void NotificationCode(bool isCorrectCode)
     {
+        Debug.Log("NotificationCode");
         if (isCorrectCode)
         {
             gameObject.GetComponent<Image>().color = correctValueColor;
@@ -76,7 +77,7 @@ public class CodeValidator : MonoBehaviour
     {
         if (isNewCorrect)
         {
-            DataTransformer.getInitSettings();
+            DataTransformer.initDDAConnection();
             //InitExperiment(JSONObject rSettings);
         }
         

@@ -65,7 +65,6 @@ public abstract class ObjectFactory : MonoBehaviour
 
     public IEnumerator StartSpawner()
     {
-        Debug.Log("Starting spawn was called");
         while (true)
         {
             while (SpawnRateRange.x == -1)
@@ -73,7 +72,6 @@ public abstract class ObjectFactory : MonoBehaviour
                 yield return null;
             }
                 int randomNumber = UnityEngine.Random.Range(SpawnRateRange.x, SpawnRateRange.y);
-                Debug.Log("Spawn in: " + randomNumber);
                 Invoke("Spawn", randomNumber);
                 yield return new WaitForSeconds(randomNumber);
             

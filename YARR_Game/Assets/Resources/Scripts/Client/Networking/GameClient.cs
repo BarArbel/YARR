@@ -13,6 +13,7 @@ namespace Project.Networking
         public override void Start()
         {
             base.Start();
+            DontDestroyOnLoad(gameObject);
             setupEvents();
         }
 
@@ -43,10 +44,11 @@ namespace Project.Networking
 
             On("newCorrect", (E) => {
                 Debug.Log("Correct");
+                Debug.Log(E);
                 if (E.data["instanceId"].str == InstanceID)
                 {                  
-                    Debug.Log(E.data["instanceID"]);
-                    DataTransformer.SetExperimentID(E.data["experimentID"].str);
+                    Debug.Log("They are the same");
+                    DataTransformer.SetExperimentID(E.data["experimentID"].n.ToString());
                     DataTransformer.SeIsInterrupted(false);
                     GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(true);
                 }               
@@ -85,6 +87,7 @@ namespace Project.Networking
             //});
 
             On("newGameSettings", (E) => {
+                Debug.Log(E);
                 SceneManager.LoadScene("Game");
                 FindObjectOfType<GameManager>().InitExperiment(E.data);
             });

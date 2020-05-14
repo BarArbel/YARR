@@ -94,11 +94,17 @@ namespace Project.Networking
 
         }
 
-        public static void getInitSettings()
+        public static void initDDAConnection()
         {
             GameSocket.Emit("createTables");
+            GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
             DDASocket = GameObject.Find("[Network Container]").GetComponent<DDAClient>();
             DDASocket.Connect();
+        }
+
+        public static void getInitSettings()
+        {
+            DDASocket.Emit("sendInstanceID", new JSONObject(JsonUtility.ToJson(settings)));
             GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
         }
     }

@@ -24,7 +24,7 @@ io.on('connection', async socket =>{
   
   socket.on('createTables', async () => {
     //Creating table for each experiment   
-    const sql = `CREATE TABLE ${process.env.DATABASE}.DDA_Input_ExperimentID_${table.time}_${table.id} (
+    const sql = `CREATE TABLE ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} (
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
@@ -43,13 +43,13 @@ io.on('connection', async socket =>{
     try {
       await query(sql);
       console.log("dda table created");
-      socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_ExperimentID_${table.time}_${table.id} was created`);
+      socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} was created`);
     }
     catch(err) {
       throw err;
     }
 
-    const sql2 = `CREATE TABLE ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id} (
+    const sql2 = `CREATE TABLE ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} (
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
@@ -68,21 +68,45 @@ io.on('connection', async socket =>{
     try {
       await query(sql2);
       console.log("tracker table created");
-      socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id} was created`);
+      socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} was created`);
     }
     catch (err) {
       throw err;
     }
   });
 
+  //Add information about instance
+  socket.on('addInstanceMetaData', async data => {
+    const sql1 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+    console.log(sql1);
+    console.log(data);
+    mysqlConnection.query(sql1, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          const sql2 = `INSERT INTO ${process.env.DATABASE}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
+          VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time},     "running", false);`;
+          console.log(sql2);
+          mysqlConnection.query(sql2, (error, results) => {
+            if (error || !results.length) {
+              // TODO: Take care of exception
+              socket.emit('unableToAddInstanceData', {message: "Adding instance data failed", instanceId: `${table.time}_${table.id}`});
+            }});
+
+       } 
+    }
+  )});
+
   //Sending Data to the Tracker table for experiment analysis
   socket.on('TrackerInput', async data => {
-    const sql = `INSERT INTO ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
+    const sql = `INSERT INTO ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
       VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     const { err, rows, fields } = await query(sql)
     if(err) throw err;
     console.log("data was added");
-    socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id} updated`);
+    socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} updated`);
   });
 
     //Sending new game code for a verification
@@ -134,8 +158,9 @@ io.on('connection', async socket =>{
         }
         else {
           for (row in results) {
-            modeList.push(row["GameMode"]);
-            difficList.push(row["Difficulty"]);
+            console.log(results[row]);
+            modeList.push(results[row]["GameMode"]);
+            difficList.push(results[row]["Difficulty"]);
           }
         }});
       
@@ -149,19 +174,21 @@ io.on('connection', async socket =>{
           roundDuration = results[0]["RoundDuration"];
           colorBlindness = results[0]["Disability"];
           skin = results[0]["ColorSettings"];
+
+          socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+                                                      roundLength:      roundDuration, 
+                                                      blindness:        colorBlindness, 
+                                                      modes:            modeList,
+                                                      skin:             skin,
+                                                      difficulties:     difficList}, instanceId: `${table.time}_${table.id}`});   
         }});
-      socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
-                                                  roundLength:      roundDuration, 
-                                                  blindness:        colorBlindness, 
-                                                  modes:            modeList,
-                                                  skin:             skin,
-                                                  difficulties:     difficList}, instanceId: `${table.time}_${table.id}`});
+    
     });
 
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     delete tables[thisTableID];
-    //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_ExperimentID_${table.time}_${table.id} finished the game`);
-    socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_ExperimentID_${table.time}_${table.id} finished the game`);
+    //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
+    socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} finished the game`);
   });
 });
