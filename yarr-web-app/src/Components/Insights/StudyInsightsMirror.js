@@ -3,6 +3,7 @@ import { connect } from 'react-redux'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
 } from 'recharts'
+import BarLoader from "react-spinners/BarLoader"
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -21,7 +22,8 @@ class StudyInsightMirror extends Component {
       currData: [],
       types: [],
       names: [],
-      selectedType: 0
+      selectedType: 0,
+      dataLoaded: false
     }
 
     this.setData = this.setData.bind(this)
@@ -53,7 +55,7 @@ class StudyInsightMirror extends Component {
           //   !tempTypes.find(element => { return element === line.BreakdownType}) && tempTypes.push(line.BreakdownType)
           //   return null
           // })
-          this.setState({ selectedType: 0, types: tempTypes })
+          this.setState({ selectedType: 0, types: tempTypes, dataLoaded: false })
           this.setData(0)
         }
       })
@@ -98,7 +100,7 @@ class StudyInsightMirror extends Component {
   }
 
   render() {
-    const { types, selectedType, currData, names } = this.state
+    const { types, selectedType, currData, names, dataLoaded } = this.state
 
     return (
       <div className="insightCard">
@@ -112,26 +114,38 @@ class StudyInsightMirror extends Component {
               return <option key={`option${type}`} value={index}>{type}</option>
             })}
           </select>
-
-          <LineChart
-            layout="vertical"
-            width={500}
-            height={350}
-            data={currData}
-            margin={{
-              top: 20, right: 30, left: 20, bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis dataKey="name" type="category" />
-            <Tooltip />
-            <Legend />
-            {names.map(name => {
-              let randomcolor =  '#' + Math.random().toString(16).substr(-6);
-              return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
-            })}
-          </LineChart>
+          {
+            dataLoaded ? 
+            (
+              <div>
+                <LineChart
+                  layout="vertical"
+                  width={500}
+                  height={350}
+                  data={currData}
+                  margin={{
+                    top: 20, right: 30, left: 20, bottom: 5,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" />
+                  <Tooltip />
+                  <Legend />
+                  {names.map(name => {
+                    let randomcolor = '#' + Math.random().toString(16).substr(-6);
+                    return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
+                  })}
+                </LineChart>
+              </div>
+            ) 
+            : 
+            (
+              <div className="barLoader">
+                <BarLoader height={5} width={500} color={"#123abc"} loading={true} />
+              </div>
+            )
+          }
         </div>
       </div>
     )

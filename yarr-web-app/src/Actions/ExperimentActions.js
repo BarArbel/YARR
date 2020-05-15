@@ -26,9 +26,9 @@ const selectExperiment = experiment => ({
   data: experiment
 })
 
-const changeExperimentStatus = (experimentId, status) => ({
+const changeExperimentStatus = (experimentId, data) => ({
   type: CHANGE_EXPERIMENT_STATUS,
-  data: { experimentId, status }
+  data: { experimentId, data }
 })
 
 const handleSetExperiments = experiments => async dispatch => {
@@ -51,8 +51,8 @@ const handleSelectExperiment = experiment => async dispatch => {
   dispatch(selectExperiment(experiment))
 }
 
-const handleChangeExperimentStatus = (experimentId, status) => async dispatch => {
-  dispatch(changeExperimentStatus(experimentId, status))
+const handleChangeExperimentStatus = (experimentId, data) => async dispatch => {
+  dispatch(changeExperimentStatus(experimentId, data))
 }
 
 export default {

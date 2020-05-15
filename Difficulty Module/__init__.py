@@ -12,15 +12,17 @@ number_of_players = 3
 starting_level = 2
 last_time = None
 sio = socketio.AsyncClient()
-first_connection = True
-table_name = ""
+# first_connection = True
+instance_id = ""
+table_name = "DDA_Input_ExperimentID_"
 con = None
-calc = DDA_calc(number_of_players, starting_level)
+calc = None
 host = os.getenv('HOST_SERVER')
 recv_port = os.getenv('PORT_SERVER')
 
 
 async def getDataFromDB():
+    global con, number_of_players
 
     total = {
         "pickupPlayerLimit": [],
@@ -76,6 +78,7 @@ async def getDataFromDB():
 
 
 def calculate(total, timestamp):
+    global con, calc, number_of_players
 
     calcs = {
         "penalty": [],
@@ -115,6 +118,7 @@ def calculate(total, timestamp):
 
 
 async def insertCalculationsToDB(calcs, timestamp):
+    global con, number_of_players
 
     for player_id in range(number_of_players):
         await con.insert_DDA_table(player_id + 1,
@@ -123,10 +127,11 @@ async def insertCalculationsToDB(calcs, timestamp):
                                    calcs["skill"][player_id],
                                    calcs["level"][player_id],
                                    timestamp)
-    return
 
 
 def createGameJson(calcs):
+    global con, number_of_players
+
     game_json = {
         "index": 0,
         "LevelSpawnHeightAndTimer": [],
@@ -152,13 +157,31 @@ def connect():
     print('Connected successfuly to data collector')
 
 
-@sio.on("message")
+@sio.on("DDAinput")
 async def on_message(data):
-    global first_connection, table_name, con, last_time, starting_level
+    # global first_connection, table_name, con, last_time, starting_level
+    global instance_id, table_name, last_time, starting_level
 
     print('message received with ', data)
 
-    if first_connection is True:
+    if data == instance_id:
+        current_time = time.time()
+        if current_time > last_time + 5:
+            last_time = current_time
+            total, timestamp = await getDataFromDB()
+            calcs = calculate(total, timestamp)
+            await insertCalculationsToDB(calcs, timestamp)
+            game_json = createGameJson(calcs)
+
+            emit_json = {
+                "LvSettings": game_json,
+                "instanceId": instance_id
+            }
+
+            await sio.emit('LevelSettings', emit_json)
+            print("data sent to server: ", emit_json)
+
+    """if first_connection is True:
         tmp_table_name = data.split(" ")[1].split(".")[1]
         if not tmp_table_name.startswith("DDA") and not tmp_table_name.startswith("dda"):
             return
@@ -186,6 +209,16 @@ async def on_message(data):
 
         await sio.emit('end', 'experiment ended')
         await con.close_connection()
+        await sio.disconnect()"""
+
+
+@sio.on("gameEnded")
+async def on_gameended(data):
+    global instance_id, con
+
+    if data == instance_id:
+        await con.insert_permanent_table(instance_id)
+        await con.close_connection()
         await sio.disconnect()
 
 
@@ -195,19 +228,38 @@ def disconnect():
 
 
 async def start_server():
-    connected_to_data_collector = False
+    global host, recv_port
 
-    while not connected_to_data_collector:
+    connected_to_server = False
+
+    while not connected_to_server:
         try:
             await sio.connect("http://" + host + ":" + recv_port)
         except:
             print("Failed to connect to data collector, trying again")
         else:
-            connected_to_data_collector = True
+            connected_to_server = True
+
     await sio.wait()
+
+
+async def init_vars(inst_id):
+    global instance_id, table_name, con, calc, number_of_players, last_time
+    global starting_level
+
+    instance_id = inst_id
+    table_name.append(instance_id)
+    con = DB_connection(table_name)
+    await con._init(number_of_players)
+    calc = DDA_calc(number_of_players, starting_level)
+    last_time = time.time()
+    print("done init_vars")
+
 
 if __name__ == '__main__':
     print(sys.argv[1])
+
+    init_vars(sys.argv[1])
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())
     loop.close()

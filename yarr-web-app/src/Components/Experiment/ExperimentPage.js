@@ -1,14 +1,15 @@
 import Header from '../Header'
 import { connect } from 'react-redux'
-import Breadcrumbs from '../Breadcrumbs'
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
+import CoopImg from '../../cooperative.png'
+import CompImg from '../../competitive.png'
+import Skeleton from 'react-loading-skeleton'
+import DifficultyImg from '../../difficulty.png'
+import Breadcrumbs from '../Utilities/Breadcrumbs'
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
-import DifficultyImg from '../../difficulty.png'
-import CoopImg from '../../cooperative.png'
-import CompImg from '../../competitive.png'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
 
 const mapStateToProps = ({ user, experiment }) => {
@@ -25,12 +26,25 @@ class ExperimentPage extends Component {
   constructor(props) {
     super(props)
 
+    this.state = {
+      experimentLoaded: false
+    }
+
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
+    this.handleStopExperiment = this.handleStopExperiment.bind(this)
+    this.handleStartExperiment = this.handleStartExperiment.bind(this)
   }
 
   async componentDidMount() {
-    const { handleSetRoutes, handleSelectExperiment, experimentList, userInfo, bearerKey } = this.props
+    const { 
+      handleSetRoutes, 
+      handleSelectExperiment,
+      handleSetExperiments, 
+      experimentList, 
+      userInfo, 
+      bearerKey 
+    } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
     const routes = [
@@ -68,6 +82,64 @@ class ExperimentPage extends Component {
     
     handleSetRoutes(routes)
     handleSelectExperiment(experiment)
+    handleSetExperiments([experiment])
+    this.setState({ experimentLoaded: true })
+  }
+
+  handleStartExperiment(){
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey,
+      experimentId: experiment.ExperimentId
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
+      }
+    })
+      .catch(err => console.log(err))
+  }
+
+  handleStopExperiment(){
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/stopExperiment`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey,
+      experimentId: experiment.ExperimentId
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
+      }
+    })
+      .catch(err => console.log(err))
+  }
+
+  renderWaitForExperiment() {
+    return (
+      <div style={{ marginTop: "25px" }} >
+        <Skeleton count={5} />
+      </div>
+    )
   }
 
   renderRounds() {
@@ -112,6 +184,7 @@ class ExperimentPage extends Component {
 
   renderLogged(){
     const { experiment } = this.props
+    const { experimentLoaded } = this.state
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
@@ -124,15 +197,23 @@ class ExperimentPage extends Component {
       RoundDuration,
       Disability,
       CharacterType,
-      ColorSettings
+      ColorSettings,
+      GameCode
     } = experiment
     const studyId = this.props.match.params.studyId
+    const buttonText = Status === "Running" ? "STOP EXPERIMENT" : "START EXPERIMENT"
 
     return (
       <div className="studyPage">
         <Header />
         <Breadcrumbs/>
         <div className="container">
+          <div className="startExperiment">
+            {Status === "Running" && <label>{GameCode}</label>}
+            <button onClick={Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment}>
+              {buttonText}
+            </button>
+          </div>
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
               <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
@@ -150,19 +231,36 @@ class ExperimentPage extends Component {
 
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-              <h2>{Title}</h2>
-              <p>Created: {CreationDate}</p>
-              <p>Status: {Status}</p>
-              <p>Details: {Details}</p>
-              <p>Disability: {disability[Disability - 1]}</p>
+              {
+                experimentLoaded ? 
+                (
+                  <div>
+                    <h2>{Title}</h2>
+                    <p>Created: {CreationDate}</p>
+                    <p>Status: {Status}</p>
+                    <p>Details: {Details}</p>
+                    <p>Disability: {disability[Disability - 1]}</p>
+                  </div>
+                ) 
+                : this.renderWaitForExperiment()
+              }
             </div>
             <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="gameSettings-tab">
-              <p>Character skin: {characterType[CharacterType - 1]}</p>
-              <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
-              <p>Round Duration: {RoundDuration} seconds</p>
-              <p>Number of rounds: {RoundsNumber}</p>
-              <p>Rounds:</p>
-              {this.renderRounds()}
+              {
+                experimentLoaded ? 
+                (
+                  <div>
+                    <p>Character skin: {characterType[CharacterType - 1]}</p>
+                    <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
+                    <p>Round Duration: {RoundDuration} seconds</p>
+                    <p>Number of rounds: {RoundsNumber}</p>
+                    <p>Rounds:</p>
+                    {this.renderRounds()}
+                  </div>
+                )
+                :
+                this.renderWaitForExperiment()
+              }
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
               <StudyInsightsMirror studyId={studyId} />
@@ -179,7 +277,6 @@ class ExperimentPage extends Component {
 
   render() {
     const { isLogged, experiment } = this.props
-
     return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
   }
 }

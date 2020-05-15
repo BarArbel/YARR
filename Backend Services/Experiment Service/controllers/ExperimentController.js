@@ -1,8 +1,7 @@
 var mysql = require("mysql");
 const util = require('util');
 var fetch = require("node-fetch");
-var CodeGenerator = require('node-code-generator');
-var generator = new CodeGenerator();
+const randexp = require('randexp').randexp;
 
 const { HOST, USER, PASSWORD, DATABASE } = process.env
 
@@ -76,7 +75,8 @@ module.exports = {
           RoundDuration,
           Disability,
           CharacterType,
-          ColorSettings
+          ColorSettings,
+          GameCode
         } = results[0];
         connection.query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`, (error, results) => {
           if (error) {
@@ -86,7 +86,7 @@ module.exports = {
                           "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
                           "Details": "${Details}", "Disability": "${Disability}", "CharacterType": "${CharacterType}",
                           "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}",
-                          "RoundDuration": "${RoundDuration}", "Rounds": [`;
+                          "RoundDuration": "${RoundDuration}", "GameCode": "${GameCode}", "Rounds": [`;
             for (let i = 0; i < results.length; ++i) {
               let { RoundId, RoundNumber, GameMode, Difficulty } = results[i];
               resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
@@ -161,14 +161,15 @@ module.exports = {
           RoundDuration,
           Disability,
           CharacterType,
-          ColorSettings
+          ColorSettings,
+          GameCode
         } = results[i];
         const roundsResults = await query(`SELECT * FROM rounds WHERE ExperimentId = "${ExperimentId}"`);
         resStr = resStr.concat(`{"ExperimentId": "${ExperimentId}", "StudyId": "${StudyId}",
                                       "CreationDate": "${CreationDate}", "Status": "${Status}", "Title": "${Title}",
                                       "Details": "${Details}", "Disability": "${Disability}", "CharacterType": "${CharacterType}",
                                       "ColorSettings": "${ColorSettings}", "RoundsNumber": "${RoundsNumber}",
-                                      "RoundDuration": "${RoundDuration}", "Rounds": [`);
+                                      "RoundDuration": "${RoundDuration}", "GameCode": "${GameCode}", "Rounds": [`);
         for (let j = 0; j < roundsResults.length; ++j) {
           let { RoundId, RoundNumber, GameMode, Difficulty } = roundsResults[j];
           resStr = resStr.concat(`{"RoundId": "${RoundId}", "RoundNumber": "${RoundNumber}",
@@ -338,11 +339,9 @@ module.exports = {
     });
   },
 
-  generateGameCode: async (req, res) => {
+  startExperiment: async (req, res) => {
     const { experimentId, userInfo } = req.body;
-    const pattern = '******';
-    const howMany = 1;
-    const options = { alphanumericRegex: /^[A-Z]\*(?!\+)/g };
+    const pattern = '^[A-Z][A-Z0-9]{5}';
     let found = false;
     let gameCode;
     const verified = await verifyRequest(req);
@@ -363,10 +362,10 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
         return;
       }
-      queryRes = await query(`SELECT * FROM game_codes WHERE ExperimentId = ${experimentId}`);
+      queryRes = await query(`SELECT * FROM experiments WHERE ExperimentId = ${experimentId}`);
       
       /* code already exists for this experiment */
-      if(queryRes.length){
+      if (queryRes.length && queryRes[0].Status === "Running"){
         res.status(400).send(`{"result": "Failure", "error": "Game code already exists for this experiment"}`);
         return;
       }
@@ -378,11 +377,10 @@ module.exports = {
 
     /* generate code here */
     while(!found){
-      let codes = generator.generateCodes(pattern, howMany, options);
-      gameCode = codes[0];
+      gameCode = randexp(pattern);
       /* Check if code exists, if yes, generate again */
       try {
-        let results = await query(`SELECT * FROM game_codes WHERE GameCode = "${gameCode}"`);
+        let results = await query(`SELECT * FROM experiments WHERE GameCode = "${gameCode}"`);
         if(!results.length) {
           found = true;
         }
@@ -393,7 +391,7 @@ module.exports = {
       }
     }
 
-    connection.query(`INSERT INTO game_codes (GameCode, ExperimentId) VALUES ("${gameCode}", ${experimentId})`,
+    connection.query(`UPDATE experiments SET GameCode = "${gameCode}", Status = "Running" WHERE ExperimentId = ${experimentId}`,
       (error, results) => {
         if (error) {
           res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -401,20 +399,9 @@ module.exports = {
         }
 
         else if (results.affectedRows > 0){
-          connection.query(`UPDATE experiments SET Status = "Running" WHERE ExperimentId = ${experimentId}`,
-            (error, results) => {
-              if (error) {
-                res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-                return;
-              }
-              else if (results.affectedRows > 0) {
-                res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
-              }
-              else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-            }
-          );
+          res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
         }
-        else res.status(400).send(`{"result": "Failure", "error": "Failed to insert to database"}`);
+        else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
     );
   },
@@ -432,7 +419,7 @@ module.exports = {
       return;
     }
 
-    /* check if experimentId exists in resreacher's data OR if gameCode already exists */
+    /* check if experimentId exists in resreacher's data */
     try {
       let queryRes = await query(`SELECT * FROM main_view WHERE ResearcherId = ${userInfo.researcherId} AND ExperimentId = ${experimentId}`);
       if (!queryRes.length) {
@@ -445,7 +432,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`DELETE FROM game_codes WHERE ExperimentId = ${experimentId}`,
+    connection.query(`UPDATE experiments SET Status = "Stopped", GameCode = null WHERE ExperimentId = ${experimentId}`,
       (error, results) => {
         if (error) {
           res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
@@ -453,22 +440,10 @@ module.exports = {
         }
 
         else if (results.affectedRows > 0) {
-          connection.query(`UPDATE experiments SET Status = "Stopped" WHERE ExperimentId = ${experimentId}`,
-            (error, results) => {
-              if (error) {
-                res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-                return;
-              }
-              else if (results.affectedRows > 0) {
-                res.status(200).send(`{"result": "Success"}`);
-              }
-              else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
-            }
-          );
+          res.status(200).send(`{"result": "Success"}`);
         }
         else res.status(400).send(`{"result": "Failure", "error": "Experiment is not running or does not exists"}`);
-      }
+        }
     );
-
   }
 }

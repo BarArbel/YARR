@@ -7,7 +7,7 @@ import StudyBuilder from './StudyBuilder'
 import { confirmAlert } from 'react-confirm-alert'
 import StudyActions from '../../Actions/StudyActions'
 import 'react-confirm-alert/src/react-confirm-alert.css'
-import DeleteConfirmation from '../DeleteConfirmation'
+import DeleteConfirmation from '../Utilities/DeleteConfirmation'
 import { withRouter } from "react-router";
 
 const mapStateToProps = ({ study }) => {

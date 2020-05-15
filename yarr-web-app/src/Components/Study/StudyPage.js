@@ -1,9 +1,10 @@
 import Header from '../Header'
 import { MDBBtn } from 'mdbreact'
 import { connect } from 'react-redux'
-import Breadcrumbs from '../Breadcrumbs'
+import Breadcrumbs from '../Utilities/Breadcrumbs'
 import React, { Component } from 'react'
 import { Redirect } from 'react-router-dom'
+import Skeleton from 'react-loading-skeleton'
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
 import ExperimentList from '../Experiment/ExperimentList'
@@ -20,7 +21,8 @@ const mapStateToProps = ({ user, study, experiment }) => {
     bearerKey: user.bearerKey,
     studies: study.studies,
     buildExperiment: experiment.buildExperiment,
-    experimentList: experiment.experimentList
+    experimentList: experiment.experimentList,
+    experimentsLoaded: experiment.experimentsLoaded
   }
 }
 
@@ -30,13 +32,16 @@ class StudyPage extends Component {
 
     this.numberOfEdits = 0
     this.state = {
+      studyLoaded: false,
       editExperiment: false
     }
-
+    this.renderWait = this.renderWait.bind(this)
+    this.renderLoaded = this.renderLoaded.bind(this)
     this.handleCreate = this.handleCreate.bind(this)
     this.renderLogged = this.renderLogged.bind(this)
     this.renderStudyInfo = this.renderStudyInfo.bind(this)
     this.handleToggleEdit = this.handleToggleEdit.bind(this)
+    this.renderWaitForStudy = this.renderWaitForStudy.bind(this)
   }
 
   async componentDidMount() {
@@ -81,6 +86,8 @@ class StudyPage extends Component {
     })
     .catch(err => handleSetExperiments([]))
 
+    studies.length && this.setState({ studyLoaded: true })
+
     !studies.length && fetch(studiesUrl, {
       method: "POST",
       headers: {
@@ -92,12 +99,17 @@ class StudyPage extends Component {
       .then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)
+          this.setState({ studyLoaded: true })
         }
         else {
+          /* redirect to HomePage */
           handleAddStudies([])
         }
       })
-      .catch(err => handleAddStudies([]))
+      .catch(err => {
+        /* redirect to HomePage */
+        handleAddStudies([])
+      })
   }
 
   handleToggleEdit(editExperiment) {
@@ -132,23 +144,69 @@ class StudyPage extends Component {
     const studyId = this.props.match.params.studyId
     const idCompare = i => parseInt(i.StudyId) === parseInt(studyId)
     const currStudy = studies.find(idCompare)
-    
+
     return currStudy ? (
       <div style={{marginTop: "25px"}}>
         <h2>{currStudy.Title}</h2>
         <p><b>Study Questions:</b> <br/>{currStudy.StudyQuestions}</p>
         <p><b>Description:</b> <br/> {currStudy.Description}</p>
       </div>
-    ) : (null)
+    ) : (null) /* redirect to HomePage */
   }
 
-  renderLogged() {
+  renderWaitForStudy() {
+    return (
+      <div style={{ marginTop: "25px" }} >
+        <Skeleton count={5} />
+      </div>
+    )
+  }
+
+  renderLoaded() {
     const { buildExperiment, experimentList } = this.props
     const { editExperiment } = this.state
-    const studyId = parseInt(this.props.match.params.studyId)
     const toggleButtonText = buildExperiment ? "Return" : experimentList.length ? "Create Experiment" : "Create First Experiment"
     const buttonClassName = experimentList.length || buildExperiment ? "login-btn addStudy" : "login-btn addFirstStudy"
     const buttonColor = buildExperiment ? "blue-grey" : "light-green"
+    const studyId = parseInt(this.props.match.params.studyId)
+
+    return (
+      <div>
+        <label />
+        {(experimentList.length || buildExperiment) && !editExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
+        {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} toggleEdit={this.handleToggleEdit} />)}
+        {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
+      </div>
+    )
+  }
+
+  renderWait() {
+    const renderSkeletons = [0, 1, 2]
+
+    return (
+      <div>
+        <label />
+        <MDBBtn color={"light-green"} onClick={this.handleToggleBuild} className={"login-btn addStudy"}>Create Study</MDBBtn>
+        <div className="studyList">
+          <h1 className="h4 text-center mb-4">Study Experiments</h1>
+          {renderSkeletons.map(number => {
+            return (
+              <div key={`skeleton${number}`} className="card">
+                <div className="card-body">
+                  <Skeleton count={4} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  renderLogged() {
+    const { studyLoaded } = this.state
+    const { experimentsLoaded } = this.props
+    const studyId = parseInt(this.props.match.params.studyId)
 
     return (
       <div className="studyPage">
@@ -172,13 +230,10 @@ class StudyPage extends Component {
           </ul>
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-              {this.renderStudyInfo()}
+              {studyLoaded ? this.renderStudyInfo() : this.renderWaitForStudy()}
             </div>
             <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
-              <label/>
-              {(experimentList.length || buildExperiment) && !editExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
-              {buildExperiment ? (<ExperimentBuilder studyId={studyId} editForm={false} />) : (<ExperimentList studyId={studyId} toggleEdit={this.handleToggleEdit}/>)}
-              {!experimentList.length && !buildExperiment ? <MDBBtn color={buttonColor} onClick={this.handleCreate} className={buttonClassName}>{toggleButtonText}</MDBBtn> : null}
+              {experimentsLoaded ? this.renderLoaded() : this.renderWait()}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
               <div className="insightHolder">

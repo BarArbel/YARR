@@ -135,3 +135,13 @@ CREATE TABLE `yarr`.`study_insights_pie` (
 INSERT INTO yarrs.study_insights_pie
 VALUES (1,1,"comp",80,20,80,20,0),
 (1,1,"coop",60,40,70,20,10);
+
+
+
+CREATE TABLE `yarr`.`instances` (
+  `StudyId` INT UNSIGNED NOT NULL,
+  `ExperimentId` INT UNSIGNED NOT NULL,
+  `InstanceId` VARCHAR(32) NOT NULL,
+  `CreationTimestamp` float NOT NULL,
+  `Status` enum('running','interrupted') NOT NULL,
+  `DDAParity` BOOLEAN NOT NULL);

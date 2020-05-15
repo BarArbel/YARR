@@ -11,7 +11,7 @@ console.log('Server has started');
 const tables = [];
 const sockets = [];
 
-io.on('connection', async socket =>{
+io.on('connection', async socket => {
   console.log('Connection Made!');
 
   const table = new Table();
@@ -63,8 +63,9 @@ io.on('connection', async socket =>{
     }
   });
 
-  socket.on('initDDA', () => {
-    const pythonProcess = spawn('python', ["../DifficultyModule/__init__.py", `${table.time}_${table.id}`]);
+  socket.on('initDDA', async data => {
+    const { initLevel, numOfPlayers } = data;
+    const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${table.time}_${table.id}`, initLevel, numOfPlayers]);
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${table.time}_${table.id}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${table.time}_${table.id}` });
@@ -101,15 +102,20 @@ io.on('connection', async socket =>{
     console.log("Tracker data was added");
   });
 
+  /* DDA Module related event */
   socket.on('LevelSettings', data => {
-    socket.broadcast.emit('LevelSettings', { LvSettings: data, instanceId: `${table.time}_${table.id}` });
+    socket.broadcast.emit('LevelSettings', { LvSettings: data.LvSetting, instanceId: data.instanceId });
     console.log('variables sent to game');
+  });
+
+  socket.on('gameEnded', () => {
+    socket.broadcast.emit('gameEnded', `${table.time}_${table.id}`);
   });
 
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     delete tables[thisTableID];
-    socket.broadcast.emit('message', `table yarrserver.DDA_Input_ExperimentID_${table.time}_${table.id} finished the game`);
+    socket.broadcast.emit('disconnect', `${table.time}_${table.id}`);
     socket.broadcast.emit('message', `table yarrserver.Tracker_Input_ExperimentID_${table.time}_${table.id} finished the game`);
   });
 });

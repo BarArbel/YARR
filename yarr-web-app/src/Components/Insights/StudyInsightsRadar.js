@@ -4,15 +4,15 @@ import {
   Radar,
   RadarChart, 
   PolarGrid, 
-  Legend,
   PolarAngleAxis, 
   PolarRadiusAxis 
 } from 'recharts'
+import BarLoader from "react-spinners/BarLoader"
 
 const mapStateToProps = ({ user }) => {
   return {
     userInfo: user.userInfo,
-    bearerKey: user.bearerKey
+    bearerKey: user.bearerKey,
   }
 }
 
@@ -23,7 +23,8 @@ class StudyInsightRadar extends Component {
     this.state = {
       data: [],
       names: ["mean", "median", "mode", "range"],
-      selectedName: 0
+      selectedName: 0,
+      dataLoaded: false
     }
 
     this.handleTypeChange = this.handleTypeChange.bind(this)
@@ -61,7 +62,7 @@ class StudyInsightRadar extends Component {
             return null
           })
 
-          this.setState({ data: tempData })
+          this.setState({ data: tempData, dataLoaded: true })
         }
       })
       .catch(err => console.log(err))
@@ -72,7 +73,7 @@ class StudyInsightRadar extends Component {
   }
 
   render() {
-    const { data, names, selectedName } = this.state
+    const { data, names, selectedName, dataLoaded } = this.state
 
     return data.length ? (
       <div className="insightCard">
@@ -87,14 +88,24 @@ class StudyInsightRadar extends Component {
             })}
           </select>
         </div>
-        <RadarChart cx={300} cy={250} outerRadius={150} width={800} height={450} data={data}>
-          <PolarGrid />
-          <PolarAngleAxis dataKey="experiment" />
-          <PolarRadiusAxis domain={[0, 10]}/>
-          <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-        </RadarChart>
+        {
+          dataLoaded ? 
+          (
+            <RadarChart cx={300} cy={250} outerRadius={150} width={800} height={450} data={data}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="experiment" />
+              <PolarRadiusAxis domain={[0, 10]} />
+              <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+            </RadarChart>
+          ) 
+          : 
+          (
+            <BarLoader size = { 45 } color = { "#123abc" } loading = { true } />
+          )
+        }
       </div>
     ) : null
+
   }
 }
 
