@@ -61,7 +61,7 @@ namespace Project.Networking
                 if (E.data["instanceId"].str == InstanceID)
                 {                  
                     DataTransformer.SetExperimentID(E.data["experimentID"].n.ToString());
-                    DataTransformer.SeIsInterrupted(false);
+                    DataTransformer.SetIsInterrupted(false);
                     GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(true);
                 }               
             });
@@ -83,8 +83,8 @@ namespace Project.Networking
                     InterruptedInstanceID = E.data["interruptedInstanceId"].str;
                     Debug.Log("Interrupted instanceID: " + InterruptedInstanceID);
                     DataTransformer.SetExperimentID(E.data["experimentID"].str);
-                    DataTransformer.SeInterruptedInstanceID(InterruptedInstanceID);
-                    DataTransformer.SeIsInterrupted(true); 
+                    DataTransformer.SetInterruptedInstanceID(InterruptedInstanceID);
+                    DataTransformer.SetIsInterrupted(true); 
                     GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationInterruptedCode(true, InterruptedInstanceID);
                 }
             });

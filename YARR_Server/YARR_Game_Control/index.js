@@ -25,8 +25,8 @@ io.on('connection', async socket =>{
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
-        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed',
-        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD'
+        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage'
+        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD','newRound'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -50,8 +50,8 @@ io.on('connection', async socket =>{
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
-        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed',
-        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD'
+        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage'
+        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD','newRound'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -99,11 +99,13 @@ io.on('connection', async socket =>{
   //Add information about instance
   socket.on('editInstanceMetaData', async data => {
     interruptedInstanceID = data.InterruptedInstanceID;
+
+    // Update information about interrupted instance
     table.time = interruptedInstanceID.split("_")[0];
     table.id =  interruptedInstanceID.split("_")[1];
     const sql = `SET SQL_SAFE_UPDATES=0;
                  UPDATE  ${process.env.DATABASE}.instances SET Status = "running" where InstanceId = '${data.InstanceID}' ;
-                 SET SQL_SAFE_UPDATES=1; `    ;
+                 SET SQL_SAFE_UPDATES=1; ` ;
     console.log(sql);
     mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
@@ -205,28 +207,63 @@ io.on('connection', async socket =>{
     // Add instance ID to the server
     socket.on('initInterrGameSettings', data => {
       
+      // Expected game settings
+      var roundsNumber;
+
+      // Actual game settings
       var numOfPlayers = 3;
       var roundDuration;
       var colorBlindness;
       var skin;
+      var initTimestamp;
+      var roundsDone;
       var modeList = new Array();
       var difficList = new Array();
-      const sql1 = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+      var playerLocList = new Array();
+      //var heldPickupLocList = new Array();
+      var enemyLocList = new Array();
+      var pickupLocList = new Array();
 
-      mysqlConnection.query(sql1, (error, results) => {
+      // Get number of rounds
+      const sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+      mysqlConnection.query(sql_roundsNumber, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          roundsNumber = results[0]["RoundsNumber"];
+        }});
+      
+      // Get how many rounds were done duing the instance  
+      const sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} where ;`;
+      mysqlConnection.query(sql_roundsDone, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
-          for (row in results) {
-            modeList.push(results[row]["GameMode"]);
-            difficList.push(results[row]["Difficulty"]);
+          roundsDone = results[0]["RoundsDone"];
+        }});
+
+      // Get left rounds data  
+      const sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+
+      mysqlConnection.query(sql_roundsLeft, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (var i=roundsDone; i<results.length; i++) {
+            modeList.push(results[i]["GameMode"]);
+            difficList.push(results[i]["Difficulty"]);
           }
         }});
       
-      const sql2 = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
-      mysqlConnection.query(sql2, (error, results) => {
+      // Get experiment settings  
+      const sql_expr_settings = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
+      mysqlConnection.query(sql_expr_settings, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
@@ -234,15 +271,33 @@ io.on('connection', async socket =>{
         else {
           roundDuration = results[0]["RoundDuration"];
           colorBlindness = results[0]["Disability"];
-          skin = results[0]["ColorSettings"];
-
-          socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
-                                                      roundLength:      roundDuration, 
-                                                      blindness:        colorBlindness, 
-                                                      modes:            modeList,
-                                                      skin:             skin,
-                                                      difficulties:     difficList}, instanceId: `${table.time}_${table.id}`});   
+          skin = results[0]["ColorSettings"];  
         }});
+      
+      // Get players' positions
+      const sql_pLoc = `
+      WITH all_events AS 
+      (select Event, Timestamp ts, PlayerID, CoordX,CoordY from ${process.env.DATABASE}.dda_input_${table.time}_${table.id}
+      union all
+      select Event, Timestamp ts, PlayerID, CoordX,CoordY from ${process.env.DATABASE}.tracker_input_${table.time}_${table.id}
+      ORDER BY 2)
+      
+      select PlayerID, max_ts, CoordX, CoordY from
+      (select max(ts) max_ts, PlayerID from all_events
+      Where Event in ("move","jump")
+      group by 2) as latest_ts LEFT JOIN (select ts, PlayerID pid, CoordX,CoordY from all_events) as all_e ON (pid = PlayerID and ts = max_ts)`;
+      
+      /*socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+                                                  roundLength:      roundDuration, 
+                                                  blindness:        colorBlindness, 
+                                                  modes:            modeList,
+                                                  skin:             skin,
+                                                  difficulties:     difficList
+                                                  timestamp:
+                                                  pLoc:
+                                                  eLoc:
+                                                  iLoc:
+                                                }, instanceId: `${table.time}_${table.id}`});   */
     
     });
 

@@ -41,6 +41,7 @@ public class Enemy : MonoBehaviour
             DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, target, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             return true;
         }
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
         Destroy(gameObject);
         return false;
     }
@@ -103,6 +104,7 @@ public class Enemy : MonoBehaviour
         int playerLayer = LayerMask.NameToLayer("Player"); 
         if (collider.gameObject.layer == playerLayer)
         {
+            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             Destroy(gameObject);
         }
     }
@@ -118,6 +120,7 @@ public class Enemy : MonoBehaviour
         if (RecalculationsAvailable == 0)
         {
             // If out of screen + no turns left, we can destroy it
+            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             Destroy(gameObject);
         }
     }

@@ -26,7 +26,7 @@ public class CodeValidator : MonoBehaviour
         string code = rgx.Replace(currInputValue, "");
         if (code.Length != codeLen)
         {
-            // Indicate wrong  game code
+            // Indicate wrong game code
             gameObject.GetComponent<Image>().color = wrongValueColor;
             isNewCorrect = false;
             isInterruptedCorrect = false;

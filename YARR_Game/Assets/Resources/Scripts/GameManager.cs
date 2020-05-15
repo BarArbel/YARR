@@ -125,6 +125,7 @@ public class GameManager : MonoBehaviour
 
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
+            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
             SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
             {
