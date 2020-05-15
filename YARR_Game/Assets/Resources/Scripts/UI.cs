@@ -13,6 +13,7 @@ public class UI : MonoBehaviour
     private GameObject HealthPrefab;
     private List<GameObject> HealthIdicators;
     private List<GameObject> ScoresIdicators;
+    private bool IsUIInit;
 
     // UI Debug
     public GameObject DebugIndicator;
@@ -28,6 +29,7 @@ public class UI : MonoBehaviour
         HealthIdicators = new List<GameObject>();
         ScoresIdicators = new List<GameObject>();
 
+        IsUIInit = true;
         Mode = mode;
         NumberOfPlayers = numberOfPlayers;
         InitialHealth = initialHealth;
@@ -138,18 +140,23 @@ public class UI : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        IsUIInit = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        SetHealth();
-        SetScore();
-        /*DEBUG*/
-        if (Difficulty == GameManager.Level.Adaptive)
+        if (IsUIInit == true)
         {
-            SETDEBUGLEVELS();
+
+
+            SetHealth();
+            SetScore();
+            /*DEBUG*/
+            if (Difficulty == GameManager.Level.Adaptive)
+            {
+                SETDEBUGLEVELS();
+            }
         }
         
     }

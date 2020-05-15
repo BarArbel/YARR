@@ -9,12 +9,6 @@ var mysqlConnection = mysql.createConnection({
     database: DATABASE,
     multipleStatements: true
 });
-/*
-    host: "localhost",
-    user: "root",
-    password: "123456",
-    database: "yarrserver",
-*/ 
 
 mysqlConnection.connect((err) => {
     if(!err){
