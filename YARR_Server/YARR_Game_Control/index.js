@@ -15,9 +15,6 @@ io.on('connection', async socket =>{
   console.log('Connection Made!');
   var interruptedInstanceID;
   const table = new Table();
-  const thisTableID = table.id;
-
-  tables[thisTableID] = table;
 
   tables.push(table);
   socket.emit('instanceId', {id: table.time+'_'+table.id});
@@ -99,6 +96,27 @@ io.on('connection', async socket =>{
     }
   )});
 
+  //Add information about instance
+  socket.on('editInstanceMetaData', async data => {
+    interruptedInstanceID = data.InterruptedInstanceID;
+    table.time = interruptedInstanceID.split("_")[0];
+    table.id =  interruptedInstanceID.split("_")[1];
+    const sql = `SET SQL_SAFE_UPDATES=0;
+                 UPDATE  ${process.env.DATABASE}.instances SET Status = "running" where InstanceId = '${data.InstanceID}' ;
+                 SET SQL_SAFE_UPDATES=1; `    ;
+    console.log(sql);
+    mysqlConnection.query(sql, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableInstance', {message: "There's no instance with such ID", instanceId: `${table.time}_${table.id}`});
+        }
+        else{
+          socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} was created`);
+          socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} was created`);
+        }
+    }
+  )});
+
   //Sending Data to the Tracker table for experiment analysis
   socket.on('TrackerInput', async data => {
     const sql = `INSERT INTO ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
@@ -158,7 +176,50 @@ io.on('connection', async socket =>{
         }
         else {
           for (row in results) {
-            console.log(results[row]);
+            modeList.push(results[row]["GameMode"]);
+            difficList.push(results[row]["Difficulty"]);
+          }
+        }});
+      
+      const sql2 = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
+      mysqlConnection.query(sql2, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          roundDuration = results[0]["RoundDuration"];
+          colorBlindness = results[0]["Disability"];
+          skin = results[0]["ColorSettings"];
+
+          socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+                                                      roundLength:      roundDuration, 
+                                                      blindness:        colorBlindness, 
+                                                      modes:            modeList,
+                                                      skin:             skin,
+                                                      difficulties:     difficList}, instanceId: `${table.time}_${table.id}`});   
+        }});
+    
+    });
+
+    // Add instance ID to the server
+    socket.on('initInterrGameSettings', data => {
+      
+      var numOfPlayers = 3;
+      var roundDuration;
+      var colorBlindness;
+      var skin;
+      var modeList = new Array();
+      var difficList = new Array();
+      const sql1 = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+
+      mysqlConnection.query(sql1, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (row in results) {
             modeList.push(results[row]["GameMode"]);
             difficList.push(results[row]["Difficulty"]);
           }
@@ -187,7 +248,6 @@ io.on('connection', async socket =>{
 
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
-    delete tables[thisTableID];
     //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} finished the game`);
   });

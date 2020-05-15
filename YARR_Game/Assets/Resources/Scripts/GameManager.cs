@@ -19,7 +19,7 @@ public class GameManager : MonoBehaviour
     //Round settings
     private int NumberOfRounds;
     private List<GameMode> RoundsModes;
-    private List<Skin> RoundsSkins;
+    private Skin RoundsSkins;
     private List<Level> RoundsDifficulties;
     private bool ExperimentStarted;
 
@@ -65,17 +65,15 @@ public class GameManager : MonoBehaviour
 
     public bool InitExperiment(JSONObject rSettings)
     {
-        Debug.Log(rSettings);
         ExperimentStarted = false;
         // Test json structure
-        if (rSettings.keys[0] != "numberOfPlayers"             || 
-            rSettings.keys[1] != "roundLength"                 || 
-            rSettings.keys[2] != "blindness"                   ||
-            rSettings.keys[3] != "modes"                       ||
-            rSettings.keys[4] != "skins"                       ||
-            rSettings.keys[5] != "difficulties"                ||
-            rSettings.list[3].Count != rSettings.list[4].Count || 
-            rSettings.list[3].Count != rSettings.list[5].Count)
+        if (rSettings.list[0].keys[0] != "numberOfPlayers"             || 
+            rSettings.list[0].keys[1] != "roundLength"                 || 
+            rSettings.list[0].keys[2] != "blindness"                   ||
+            rSettings.list[0].keys[3] != "modes"                       ||
+            rSettings.list[0].keys[4] != "skin"                        ||
+            rSettings.list[0].keys[5] != "difficulties"                ||
+            rSettings.list[0].list[3].Count != rSettings.list[0].list[5].Count)
         {
             return false;
         }
@@ -85,27 +83,26 @@ public class GameManager : MonoBehaviour
 
         // Experiment properties
         RoundTimer = 0;
-        NumberOfRounds = rSettings.list[3].Count;
-        NumberOfPlayers = (int)rSettings.list[0].n;
-        RoundLength = (float)rSettings.list[1].n;
-        BlindnessType = (ColorBlindness)rSettings.list[2].n;
+        NumberOfRounds = rSettings.list[0].list[3].Count;
+        NumberOfPlayers = (int)rSettings.list[0].list[0].n;
+        RoundLength = (float)rSettings.list[0].list[1].n;
+        BlindnessType = (ColorBlindness)rSettings.list[0].list[2].n-1;
+        RoundsSkins = (Skin)rSettings.list[0].list[4].n-1;
 
         // Test json values
-        if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundTimer == 0)
+        if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundLength == 0)
         {
             return false;
         }
 
         // Initialize lists of round properties
         RoundsModes = new List<GameMode>();
-        RoundsSkins = new List<Skin>();
         RoundsDifficulties = new List<Level>();
 
         for (int i = 0; i < NumberOfRounds; i++)
         {
-            RoundsModes.Add((GameMode)rSettings.list[3].list[i].n);
-            RoundsSkins.Add((Skin)rSettings.list[4].list[i].n);
-            RoundsDifficulties.Add((Level)rSettings.list[5].list[i].n);
+            RoundsModes.Add((GameMode)rSettings.list[0].list[3].list[i].n-1);
+            RoundsDifficulties.Add((Level)rSettings.list[0].list[5].list[i].n);
         }
 
         StartExperimet();
@@ -114,7 +111,7 @@ public class GameManager : MonoBehaviour
 
     private void StartExperimet()
     {
-        InitGameManager(RoundsModes[0], RoundsSkins[0], RoundsDifficulties[0]);
+        InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
         if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
         {
             ExperimentStarted = true;
@@ -128,7 +125,7 @@ public class GameManager : MonoBehaviour
 
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
-            SetMode(RoundsModes[CurrentRound], RoundsSkins[CurrentRound], RoundsDifficulties[CurrentRound]);
+            SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
             {
                 RoundTimer = RoundLength;
@@ -545,7 +542,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         //DEBUG
-        /*Level lvl;
+        Level lvl;
         GameMode gm;
         if (StaticMode)
         {
@@ -563,11 +560,11 @@ public class GameManager : MonoBehaviour
         else
         {
             gm = GameMode.Competitive;
-        }*/
+        }
 
         //DEBUG//
-        //NumberOfPlayers = 3;
-        //InitGameManager(gm, Skin.Color, lvl);
+        NumberOfPlayers = 3;
+        InitGameManager(gm, Skin.Color, lvl);
         //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }

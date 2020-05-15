@@ -10,6 +10,8 @@ namespace Project.Networking
     {
         string InstanceID;
         string InterruptedInstanceID;
+        AsyncOperation asyncLoadLevel;
+
         public override void Start()
         {
             base.Start();
@@ -20,6 +22,18 @@ namespace Project.Networking
         public override void Update()
         {
             base.Update();
+        }
+
+        IEnumerator LoadGame(JSONObject data)
+        {
+            asyncLoadLevel = SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
+            while (!asyncLoadLevel.isDone)
+            {
+                Debug.Log("Loading the Scene");
+                yield return null;
+            }
+            Debug.Log(data);
+            FindObjectOfType<GameManager>().InitExperiment(data);
         }
 
         private void setupEvents()
@@ -44,10 +58,8 @@ namespace Project.Networking
 
             On("newCorrect", (E) => {
                 Debug.Log("Correct");
-                Debug.Log(E);
                 if (E.data["instanceId"].str == InstanceID)
                 {                  
-                    Debug.Log("They are the same");
                     DataTransformer.SetExperimentID(E.data["experimentID"].n.ToString());
                     DataTransformer.SeIsInterrupted(false);
                     GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCode(true);
@@ -87,9 +99,16 @@ namespace Project.Networking
             //});
 
             On("newGameSettings", (E) => {
-                Debug.Log(E);
-                SceneManager.LoadScene("Game");
-                FindObjectOfType<GameManager>().InitExperiment(E.data);
+                if (E.data["instanceId"].str == InstanceID)
+                {                    
+                    Debug.Log(E);
+                    //LoadGame(E.data);
+                    SceneManager.LoadScene("Game");
+                    //while (FindObjectOfType<GameManager>() == null) { }
+                    // TODO: Make this func get called V
+                    FindObjectOfType<GameManager>().InitExperiment(E.data);
+
+                }
             });
 
         }

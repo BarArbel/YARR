@@ -27,7 +27,6 @@ public class CodeValidator : MonoBehaviour
         if (code.Length != codeLen)
         {
             // Indicate wrong  game code
-            Debug.Log(gameObject.GetComponent<Image>().color);
             gameObject.GetComponent<Image>().color = wrongValueColor;
             isNewCorrect = false;
             isInterruptedCorrect = false;
@@ -42,7 +41,6 @@ public class CodeValidator : MonoBehaviour
     // New game
     public void NotificationCode(bool isCorrectCode)
     {
-        Debug.Log("NotificationCode");
         if (isCorrectCode)
         {
             gameObject.GetComponent<Image>().color = correctValueColor;
@@ -75,15 +73,10 @@ public class CodeValidator : MonoBehaviour
 
     public void InstantiateGameScene()
     {
-        if (isNewCorrect)
+        if (isNewCorrect || isInterruptedCorrect)
         {
             DataTransformer.initDDAConnection();
             //InitExperiment(JSONObject rSettings);
-        }
-        
-        if (isInterruptedCorrect)
-        {
-            //ContinueExperiment(JSONObject rSettings);
         }
     }
 

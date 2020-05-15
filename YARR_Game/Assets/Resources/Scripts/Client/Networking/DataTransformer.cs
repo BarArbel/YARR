@@ -96,8 +96,18 @@ namespace Project.Networking
 
         public static void initDDAConnection()
         {
-            GameSocket.Emit("createTables");
-            GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
+            // New game
+            if (!settings.IsInterrupted)
+            {
+                GameSocket.Emit("createTables");
+                GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            // Interrupted game
+            else if (settings.InterruptedInstanceID != null)
+            {
+                settings.InstanceID = settings.InterruptedInstanceID;
+                GameSocket.Emit("editInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
+            }
             DDASocket = GameObject.Find("[Network Container]").GetComponent<DDAClient>();
             DDASocket.Connect();
         }
@@ -105,7 +115,14 @@ namespace Project.Networking
         public static void getInitSettings()
         {
             DDASocket.Emit("sendInstanceID", new JSONObject(JsonUtility.ToJson(settings)));
-            GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
+            if (!settings.IsInterrupted)
+            {
+                GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            else
+            {
+                GameSocket.Emit("initInterrGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
+            }
         }
     }
 
