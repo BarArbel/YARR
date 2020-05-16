@@ -117,7 +117,7 @@ namespace Project.Networking
 
         public static void getInitSettings()
         {
-            DDASocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
+            DDASocket.Emit("sendInstanceID", new JSONObject(JsonUtility.ToJson(settings)));
             if (!settings.IsInterrupted)
             {
                 GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
@@ -126,6 +126,12 @@ namespace Project.Networking
             {
                 GameSocket.Emit("initInterrGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
             }
+        }
+
+        public static void initDDA()
+        {
+            // TODO: send num of players and starting diff
+            GameSocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
         }
     }
 

@@ -103,6 +103,7 @@ namespace Project.Networking
                 {                    
                     Debug.Log(E);
                     //LoadGame(E.data);
+                    DataTransformer.initDDA();
                     SceneManager.LoadScene("Game");
                     //while (FindObjectOfType<GameManager>() == null) { }
                     // TODO: Make this func get called V

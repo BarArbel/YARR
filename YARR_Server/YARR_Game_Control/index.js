@@ -220,9 +220,10 @@ io.on('connection', async socket =>{
       var modeList = new Array();
       var difficList = new Array();
       var playerLocList = new Array();
-      //var heldPickupLocList = new Array();
+      var heldPickupLocList = new Array();
       var enemyLocList = new Array();
       var pickupLocList = new Array();
+
 
       // Get number of rounds
       const sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
@@ -233,6 +234,7 @@ io.on('connection', async socket =>{
         }
         else {
           roundsNumber = results[0]["RoundsNumber"];
+          console.log(roundsNumber);
         }});
       
       // Get how many rounds were done duing the instance  
@@ -244,6 +246,7 @@ io.on('connection', async socket =>{
         }
         else {
           roundsDone = results[0]["RoundsDone"];
+          console.log(roundsDone);
         }});
 
       // Get left rounds data  
@@ -259,6 +262,8 @@ io.on('connection', async socket =>{
             modeList.push(results[i]["GameMode"]);
             difficList.push(results[i]["Difficulty"]);
           }
+          console.log(modeList);
+          console.log(difficList);
         }});
       
       // Get experiment settings  
@@ -277,28 +282,99 @@ io.on('connection', async socket =>{
       // Get players' positions
       const sql_pLoc = `
       WITH all_events AS 
-      (select Event, Timestamp ts, PlayerID, CoordX,CoordY from ${process.env.DATABASE}.dda_input_${table.time}_${table.id}
-      union all
-      select Event, Timestamp ts, PlayerID, CoordX,CoordY from ${process.env.DATABASE}.tracker_input_${table.time}_${table.id}
-      ORDER BY 2)
-      
-      select PlayerID, max_ts, CoordX, CoordY from
-      (select max(ts) max_ts, PlayerID from all_events
-      Where Event in ("move","jump")
-      group by 2) as latest_ts LEFT JOIN (select ts, PlayerID pid, CoordX,CoordY from all_events) as all_e ON (pid = PlayerID and ts = max_ts)`;
+      (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
+        where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1)
 
-      /*socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+      SELECT ts,pid,CoordX,CoordY FROM
+      (select max(Timestamp) ts, PlayerID from all_events
+      Where playerID != 0 and Event = "playerLoc"
+      group by 2) as latest_ts LEFT JOIN (SELECT Timestamp, PlayerID pid, CoordX, CoordY FROM all_events) as all_e  ON ts = Timestamp and PlayerID = pid
+      ORDER BY 1;`;
+      
+      mysqlConnection.query(sql_pLoc, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (var row in results) {
+            playerLocList.push({playerID: results[row]["pid"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
+          }
+          initTimestamp = results[0]["ts"]-1
+          console.log(playerLocList);
+          console.log(initTimestamp);
+        }});
+
+      // Get enemies' positions
+      const sql_eLoc = `SELECT Timestamp, Event, Enemy, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+                        WHERE Event = "enemyLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
+      
+      mysqlConnection.query(sql_eLoc, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (var row in results) {
+            enemyLocList.push({Enemy: results[row]["Enemy"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
+          }
+        }});
+
+      // Get items' positions
+      const sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+                        WHERE Event = "itemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
+      
+      mysqlConnection.query(sql_iLoc, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (var row in results) {
+            pickupLocList.push({Item: results[row]["Item"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
+          }
+        }});  
+
+        // Get held items
+      const sql_hiLoc = `SELECT Timestamp, Event, PlayerID, Item FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+                        WHERE Event = "takenItemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
+      
+      mysqlConnection.query(sql_hiLoc, (error, results) => {
+        if (error || !results.length) {
+          // TODO: Take care of exception
+          socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        }
+        else {
+          for (var row in results) {
+            heldPickupLocList.push({Item: results[row]["Item"], playerID: results[row]["pid"]});
+            console.log(heldPickupLocList);
+          }
+        }});  
+      console.log(  {numberOfPlayers:  numOfPlayers, 
+                    roundLength:      roundDuration, 
+                    blindness:        colorBlindness, 
+                    modes:            modeList,
+                    skin:             skin,
+                    difficulties:     difficList,
+                    timestamp:        initTimestamp,
+                    pLoc:             playerLocList,
+                    eLoc:             enemyLocList,
+                    iLoc:             pickupLocList,
+                    hiLoc:            heldPickupLocList
+      });
+      socket.emit('interrGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
                                                   roundLength:      roundDuration, 
                                                   blindness:        colorBlindness, 
                                                   modes:            modeList,
                                                   skin:             skin,
-                                                  difficulties:     difficList
-                                                  timestamp:
-                                                  pLoc:
-                                                  eLoc:
-                                                  iLoc:
-                                                }, instanceId: `${table.time}_${table.id}`});   */
-    
+                                                  difficulties:     difficList,
+                                                  timestamp:        initTimestamp,
+                                                  pLoc:             playerLocList,
+                                                  eLoc:             enemyLocList,
+                                                  iLoc:             pickupLocList,
+                                                  hiLoc:            heldPickupLocList
+                                                }, instanceId: `${table.time}_${table.id}`});   
+                                                
     });
 
   socket.on('disconnect', () => {
