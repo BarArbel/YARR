@@ -522,6 +522,49 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public bool TrackObjLocation()
+    {
+        const int itemLayer = 10;
+        const int enemyLayer = 11; 
+        const int playerLayer = 9;
+        float posX;
+        float posY;
+        GameObject[] gameObjects = FindObjectsOfType<GameObject>();
+        for (int i = 0; i < gameObjects.Length; i++)
+        {
+            switch (gameObjects[i].layer)
+            {
+                case itemLayer:
+                    Treasure item = gameObjects[i].GetComponent<Treasure>();
+                    posX = item.transform.position.x;
+                    posY = item.transform.position.y;
+                    if (item.GetIsPickedUp())
+                    {
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.takenItemLoc, item.GetCarrierID(), posX, posY, item.GetID(), 0, (int)GetMode());
+                    }
+                    else
+                    {
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.itemLoc, -1, posX, posY, item.GetID(), 0, (int)GetMode());
+                    }
+                    break;
+                case enemyLayer:
+                    Enemy enemy = gameObjects[i].GetComponent<Enemy>();
+                    posX = enemy.transform.position.x;
+                    posY = enemy.transform.position.y;
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.enemyLoc, -1, posX, posY, 0, enemy.GetID(), (int)GetMode());
+                    break;
+                case playerLayer:
+                    Player player = gameObjects[i].GetComponent<Player>();
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLoc, player, 0, 0, (int)GetMode());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+
     //DEBUG CHANGE MODE
     public void DEBUGCHANGEMODE()
     {
@@ -542,6 +585,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        InvokeRepeating("TrackObjLocation", 5.0f, 5.0f);
         //DEBUG
         Level lvl;
         GameMode gm;

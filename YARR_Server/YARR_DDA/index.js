@@ -16,8 +16,8 @@ io.on('connection', async socket =>{
   console.log('Connection Made!');
   socket.emit('connectionConfirmed');
 
-  // Get Instance ID from the game client
-  socket.on('sendInstanceID', data => {
+  // Initiate DDA calculations and get Instance ID from the game client
+  socket.on('initDDA', data => {
     tableTimeId = data.InstanceID;
     const sql = `SET SQL_SAFE_UPDATES=0;
                  UPDATE  ${process.env.DATABASE}.instances SET DDAParity = true  where InstanceId = '${tableTimeId}' ;
@@ -27,7 +27,18 @@ io.on('connection', async socket =>{
         if (error || !results.length) {
           // TODO: Take care of exception
           socket.emit('cantUpdate', {message: "Couldn't update the instances table", instanceId: `${tableTimeId}`});
-        }});
+        }
+      else {
+        // TODO: Finish initlevel and numof players code
+        //const { InitLevel, NumOfPlayers } = data;
+        // DEBUG:
+        NumOfPlayers = 3;
+        InitLevel = 2;
+        const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${tableTimeId}`, InitLevel, NumOfPlayers]);
+        if (pythonProcess.pid !== undefined)
+          socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${tableTimeId}` });
+        else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${tableTimeId}` });
+      }});
 
     console.log(tableTimeId);
   });
@@ -47,6 +58,10 @@ io.on('connection', async socket =>{
   socket.on('LevelSettings', data => {
     socket.broadcast.emit('LevelSettings', { LvSettings: data, instanceId: `${tableTimeId}` });
     console.log('variables sent to game');
+  });
+
+  socket.on('gameEnded', () => {
+    socket.broadcast.emit('gameEnded', `${tableTimeId}`);
   });
 
   socket.on('disconnect', () => {

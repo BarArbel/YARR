@@ -117,7 +117,7 @@ namespace Project.Networking
 
         public static void getInitSettings()
         {
-            DDASocket.Emit("sendInstanceID", new JSONObject(JsonUtility.ToJson(settings)));
+            DDASocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
             if (!settings.IsInterrupted)
             {
                 GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
@@ -152,6 +152,8 @@ namespace Project.Networking
         public string InterruptedInstanceID;
         public bool IsInterrupted;
         public float InitTimestamp;
+        public int InitLevel;
+        public int NumOfPlayers;
     }
 
 public enum Event
@@ -159,7 +161,7 @@ public enum Event
         // DDA
         pickup,giveItem,revivePlayer,temporaryLose,revived,lose,dropitem,getDamaged,blockDamage,failPickup,fallAccidently,individualLoss,spawn,powerupSpawn,powerupTaken,powerupMissed,win,avoidDamage,
         // Tracker
-        move,jump,lvlUp,lvlDown,lvlStay,enemyRecalcD,newRound
+        enemyLoc,itemLoc,takenItemLoc,playerLoc,lvlUp,lvlDown,lvlStay,newRound
     }
 }
 

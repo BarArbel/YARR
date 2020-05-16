@@ -91,7 +91,6 @@ public class Enemy : MonoBehaviour
                 setDirection();
                 RecalculationsAvailable--;
                 TimeLeft = TimeBetweenPathRecalculation;
-                DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.enemyRecalcD, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             }
         }
 

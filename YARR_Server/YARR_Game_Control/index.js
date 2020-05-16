@@ -25,8 +25,8 @@ io.on('connection', async socket =>{
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
-        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage'
-        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD','newRound'
+        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
+        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -50,8 +50,8 @@ io.on('connection', async socket =>{
       EventID int unsigned NOT NULL AUTO_INCREMENT,
       Timestamp float NOT NULL,
       Event enum(
-        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage'
-        'move','jump','lvlUp','lvlDown','lvlStay','enemyRecalcD','newRound'
+        'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
+        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -286,7 +286,7 @@ io.on('connection', async socket =>{
       (select max(ts) max_ts, PlayerID from all_events
       Where Event in ("move","jump")
       group by 2) as latest_ts LEFT JOIN (select ts, PlayerID pid, CoordX,CoordY from all_events) as all_e ON (pid = PlayerID and ts = max_ts)`;
-      
+
       /*socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
                                                   roundLength:      roundDuration, 
                                                   blindness:        colorBlindness, 

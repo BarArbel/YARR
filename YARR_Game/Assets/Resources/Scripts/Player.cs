@@ -457,7 +457,6 @@ public class Player : MonoBehaviour
             transform.localScale = new Vector3(spriteDirection * Direction.x * Mathf.Abs(transform.localScale.x),
                                                transform.localScale.y,
                                                transform.localScale.z);
-            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.move, playerObj, 0, 0, gameMode);
         }
 
         // Left & Right movement
@@ -468,7 +467,6 @@ public class Player : MonoBehaviour
         {
 
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
-            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.jump, playerObj, 0, 0, gameMode);
         }
 
         if (Health <= 0 && IsGrounded(boxCollider2D, MapLayer)) { rigidbody2D.velocity = new Vector2(0, 0); }
