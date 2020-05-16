@@ -10,18 +10,52 @@ class DB_connection:
 
     def __init__(self, table_name):
         self.counter = 0
-        self.timestamps = [0, 0, 0]
+        self.timestamps = []
         self.db = os.getenv('DATABASE_GAME_DB')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
     async def _init(self, number_of_players):
+        for i in range(number_of_players):
+            self.timestamps.append(0)
+
         self.pool = await aiomysql.create_pool(user=os.getenv('USER_GAME_DB'),
                                                password=os.getenv('PASSWORD_GAME_DB'),
                                                host=os.getenv('HOST_GAME_DB'),
                                                db=self.db,
                                                auth_plugin='mysql_native_password')
-        await self.create_DDA_table()
+
+        if await self.check_if_table_exist():
+            await self.init_timestamps()
+        else:
+            await self.create_DDA_table()
+
+    async def check_if_table_exist(self):
+
+        async with self.pool.acquire() as con:
+            async with con.sursor() as cursor:
+                await cursor.execute("SHOW TABLES")
+                fetch = await cursor.fetchall()
+
+                for result in fetch:
+                    if result == self.DDAtb:
+                        return True
+
+                return False
+
+    async def init_timestamps(self):
+
+        query = ("SELECT PlayerID, max(Timestamp) as max_ts FROM " + self.db +
+                 "." + self.DDAtb + "WHERE Level != 0 GROUP BY PlayerID")
+
+        async with self.pool.acquire() as con:
+            async with con.cursor() as cursor:
+                await cursor.execute(query)
+                fetch = await cursor.fetchall()
+
+                for result in fetch:
+                    if result[0] is not None and result[1] is not None:
+                        self.timestamps[result[0] - 1] = result[1]
 
     async def create_DDA_table(self):
 
