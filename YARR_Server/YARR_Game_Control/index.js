@@ -131,7 +131,7 @@ io.on('connection', async socket =>{
 
     //Sending new game code for a verification
     socket.on('newCodeInput', async data => {
-      const sql = `SELECT * FROM ${process.env.DATABASE}.game_codes where code = '${data.Code}' LIMIT 1 ;`;
+      const sql = `SELECT * FROM ${process.env.DATABASE}.experiments where GameCode = '${data.Code}' LIMIT 1 ;`;
       mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
           socket.emit('wrongCode', {message: "Wrong code", instanceId: `${table.time}_${table.id}`});
@@ -145,7 +145,7 @@ io.on('connection', async socket =>{
     });
 
     //Sending interrupted game code for a verification
-    socket.on('interruptedCodeInput', async data => {
+    socket.on('interruptedCodeInput', data => {
       const sql = `SELECT * FROM ${process.env.DATABASE}.interupted_instances where GameCode = '${data.Code}' LIMIT 1 ;`;
       mysqlConnection.query(sql, (error, results) => {
         if (error || !results.length) {
@@ -156,8 +156,9 @@ io.on('connection', async socket =>{
           this.interruptedInstanceID = results[0]["InstanceId"];
           console.log(results[0]["ExperimentId"]);
           console.log("Provided game code is correct. " + data.Code + "\nInstanceID: " + table.id);
-          socket.emit('interruptedCorrect', {experimentID: results[0]["ExperimentId"], instanceId: `${table.time}_${table.id}`, interruptedInstanceId: results[0]["InstanceId"]});
+          socket.emit('interruptedCorrect', {experimentID: `${results[0]["ExperimentId"]}`, instanceId: `${table.time}_${table.id}`, interruptedInstanceId: results[0]["InstanceId"]});
         }});
+
     });
 
     // Add instance ID to the server
@@ -194,7 +195,7 @@ io.on('connection', async socket =>{
           colorBlindness = results[0]["Disability"];
           skin = results[0]["ColorSettings"];
 
-          socket.emit('newGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
+          socket.emit('newGameScene', {rSettings: {numberOfPlayers:  numOfPlayers, 
                                                       roundLength:      roundDuration, 
                                                       blindness:        colorBlindness, 
                                                       modes:            modeList,
@@ -204,32 +205,43 @@ io.on('connection', async socket =>{
     
     });
 
+    socket.on('SyncNewScene', (data) => {
+      console.log("SyncNewScene");
+      console.log(data);
+      //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
+      socket.broadcast.emit('newGameSettings', data);
+    });
+
     // Add instance ID to the server
-    socket.on('initInterrGameSettings', data => {
+    socket.on('initInterrGameSettings', async data => {
       
       // Expected game settings
-      var roundsNumber;
+      let roundsNumber;
 
       // Actual game settings
-      var numOfPlayers = 3;
-      var roundDuration;
-      var colorBlindness;
-      var skin;
-      var initTimestamp;
-      var roundsDone;
-      var modeList = new Array();
-      var difficList = new Array();
-      var playerLocList = new Array();
-      var heldPickupLocList = new Array();
-      var enemyLocList = new Array();
-      var pickupLocList = new Array();
+      let numOfPlayers = 3;
+      let roundDuration;
+      let colorBlindness;
+      let skin;
+      let initTimestamp;
+      let roundsDone;
+      let modeList = new Array();
+      let difficList = new Array();
+      let playerLocList = new Array();
+      let heldPickupLocList = new Array();
+      let enemyLocList = new Array();
+      let pickupLocList = new Array();
+      //TODO: async all of that shit 
 
-
+      console.log(data);
+      try { 
       // Get number of rounds
-      const sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
-      mysqlConnection.query(sql_roundsNumber, (error, results) => {
+      let sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+      await mysqlConnection.query(sql_roundsNumber, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_roundsNumber);
           socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -238,10 +250,12 @@ io.on('connection', async socket =>{
         }});
       
       // Get how many rounds were done duing the instance  
-      const sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} where ;`;
-      mysqlConnection.query(sql_roundsDone, (error, results) => {
+      let sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} where Event = 'newRound';`;
+      await mysqlConnection.query(sql_roundsDone, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_roundsDone);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -250,11 +264,13 @@ io.on('connection', async socket =>{
         }});
 
       // Get left rounds data  
-      const sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+      let sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
 
-      mysqlConnection.query(sql_roundsLeft, (error, results) => {
+      await mysqlConnection.query(sql_roundsLeft, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_roundsLeft);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -267,10 +283,12 @@ io.on('connection', async socket =>{
         }});
       
       // Get experiment settings  
-      const sql_expr_settings = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
-      mysqlConnection.query(sql_expr_settings, (error, results) => {
+      let sql_expr_settings = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
+      await mysqlConnection.query(sql_expr_settings, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_expr_settings);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -280,7 +298,7 @@ io.on('connection', async socket =>{
         }});
       
       // Get players' positions
-      const sql_pLoc = `
+      let sql_pLoc = `
       WITH all_events AS 
       (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
         where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1)
@@ -291,9 +309,11 @@ io.on('connection', async socket =>{
       group by 2) as latest_ts LEFT JOIN (SELECT Timestamp, PlayerID pid, CoordX, CoordY FROM all_events) as all_e  ON ts = Timestamp and PlayerID = pid
       ORDER BY 1;`;
       
-      mysqlConnection.query(sql_pLoc, (error, results) => {
+      await mysqlConnection.query(sql_pLoc, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_pLoc);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -306,12 +326,14 @@ io.on('connection', async socket =>{
         }});
 
       // Get enemies' positions
-      const sql_eLoc = `SELECT Timestamp, Event, Enemy, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+      let sql_eLoc = `SELECT Timestamp, Event, Enemy, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
                         WHERE Event = "enemyLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
       
-      mysqlConnection.query(sql_eLoc, (error, results) => {
+      await mysqlConnection.query(sql_eLoc, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_eLoc);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -321,12 +343,14 @@ io.on('connection', async socket =>{
         }});
 
       // Get items' positions
-      const sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+      let sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
                         WHERE Event = "itemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
       
-      mysqlConnection.query(sql_iLoc, (error, results) => {
+      await mysqlConnection.query(sql_iLoc, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_iLoc);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -336,12 +360,14 @@ io.on('connection', async socket =>{
         }});  
 
         // Get held items
-      const sql_hiLoc = `SELECT Timestamp, Event, PlayerID, Item FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+        let sql_hiLoc = `SELECT Timestamp, Event, PlayerID, Item FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
                         WHERE Event = "takenItemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
       
-      mysqlConnection.query(sql_hiLoc, (error, results) => {
+      await mysqlConnection.query(sql_hiLoc, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
+          console.log(error);
+          console.log(sql_hiLoc);
           socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
         }
         else {
@@ -350,6 +376,8 @@ io.on('connection', async socket =>{
             console.log(heldPickupLocList);
           }
         }});  
+      }
+      catch (err) {console.log("fuck");}
       console.log(  {numberOfPlayers:  numOfPlayers, 
                     roundLength:      roundDuration, 
                     blindness:        colorBlindness, 

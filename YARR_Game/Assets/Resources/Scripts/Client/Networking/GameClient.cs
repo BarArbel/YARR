@@ -27,12 +27,13 @@ namespace Project.Networking
         IEnumerator LoadGame(JSONObject data)
         {
             asyncLoadLevel = SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
-            while (!asyncLoadLevel.isDone)
+            /*while (!asyncLoadLevel.isDone)
             {
                 Debug.Log("Loading the Scene");
                 yield return null;
-            }
+            }*/
             Debug.Log(data);
+            yield return new WaitForEndOfFrame();
             FindObjectOfType<GameManager>().InitExperiment(data);
         }
 
@@ -82,6 +83,7 @@ namespace Project.Networking
                 {
                     InterruptedInstanceID = E.data["interruptedInstanceId"].str;
                     Debug.Log("Interrupted instanceID: " + InterruptedInstanceID);
+                    Debug.Log("Experiment ID:" + E.data["experimentID"].str);
                     DataTransformer.SetExperimentID(E.data["experimentID"].str);
                     DataTransformer.SetInterruptedInstanceID(InterruptedInstanceID);
                     DataTransformer.SetIsInterrupted(true); 
@@ -98,15 +100,25 @@ namespace Project.Networking
             //    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
             //});
 
-            On("newGameSettings", (E) => {
+            On("newGameScene", (E) => {
                 if (E.data["instanceId"].str == InstanceID)
-                {                    
+                {
                     Debug.Log(E);
-                    //LoadGame(E.data);
                     DataTransformer.initDDA();
                     SceneManager.LoadScene("Game");
-                    //while (FindObjectOfType<GameManager>() == null) { }
-                    // TODO: Make this func get called V
+                    DataTransformer.SyncNewScene(E.data);
+
+                }
+            });
+
+            On("newGameSettings", (E) => {
+                Debug.Log("I'M LOSING MY MIND HERE");
+                Debug.Log("THE data");
+                Debug.Log("THE data");
+                Debug.Log("THE data");
+                Debug.Log(E.data);
+                if (E.data["instanceId"].str == InstanceID)
+                {
                     FindObjectOfType<GameManager>().InitExperiment(E.data);
 
                 }

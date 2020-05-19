@@ -133,6 +133,12 @@ namespace Project.Networking
             // TODO: send num of players and starting diff
             GameSocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
         }
+
+        public static void SyncNewScene(JSONObject E)
+        {
+            Debug.Log("SyncNewScene" + E);
+            GameSocket.Emit("SyncNewScene", E);
+        }
     }
 
 

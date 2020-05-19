@@ -587,7 +587,7 @@ public class GameManager : MonoBehaviour
     {
         InvokeRepeating("TrackObjLocation", 5.0f, 5.0f);
         //DEBUG
-        Level lvl;
+        /*Level lvl;
         GameMode gm;
         if (StaticMode)
         {
@@ -609,7 +609,7 @@ public class GameManager : MonoBehaviour
 
         //DEBUG//
         NumberOfPlayers = 3;
-        InitGameManager(gm, Skin.Color, lvl);
+        InitGameManager(gm, Skin.Color, lvl);*/
         //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }
