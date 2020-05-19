@@ -209,7 +209,7 @@ io.on('connection', async socket =>{
       console.log("SyncNewScene");
       console.log(data);
       //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
-      socket.broadcast.emit('newGameSettings', data);
+      socket.emit('newGameSettings', data);
     });
 
     // Add instance ID to the server
