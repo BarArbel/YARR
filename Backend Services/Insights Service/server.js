@@ -22,16 +22,17 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 // WHAT IS THIS EVEN
-app.post('/requestInsightMirror', StudyInsightsCtl.requestInsightMirror)
-app.post('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar)
-app.post('/requestInsightMixed', StudyInsightsCtl.requestInsightMixed)
-app.post('/requestInsightPie', StudyInsightsCtl.requestInsightPie)
+app.post('/requestInsightBars', StudyInsightsCtl.requestInsightBars);
+app.post('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar);
+app.post('/requestInsightMixed', ExprInsightsCtl.requestInsightMixed);
+app.post('/requestInsightMirror', StudyInsightsCtl.requestInsightMirror);
+app.post('/requestAllInsightMixed', StudyInsightsCtl.requestAllInsightMixed);
 
 // WHAT AM I DOING 
 
 
 app.all('*', (req, res) => {
-    res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`)
+    res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`);
 });
 
 app.listen(port, () => {

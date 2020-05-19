@@ -8,9 +8,11 @@ import Skeleton from 'react-loading-skeleton'
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
 import ExperimentList from '../Experiment/ExperimentList'
+import StudyInsightsBars from '../Insights/StudyInsightsBars'
 import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
+import StudyInsightsMixed from '../Insights/StudyInsightsMixed'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
 
@@ -215,10 +217,10 @@ class StudyPage extends Component {
         <div className="container">
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
-              <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
+              <a className="nav-link" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
             </li>
             <li className="nav-item">
-              <a className="nav-link" id="experiments-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="experiments" aria-selected="false">Experiments</a>
+              <a className="nav-link active" id="experiments-tab" data-toggle="tab" href="#experiments" role="tab" aria-controls="experiments" aria-selected="false">Experiments</a>
             </li>
             <li className="nav-item">
               <a className="nav-link" id="insights-tab" data-toggle="tab" href="#insights" role="tab" aria-controls="insights" aria-selected="false">Insights</a>
@@ -229,18 +231,18 @@ class StudyPage extends Component {
 
           </ul>
           <div className="tab-content" id="myTabContent">
-            <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+            <div className="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
               {studyLoaded ? this.renderStudyInfo() : this.renderWaitForStudy()}
             </div>
-            <div className="tab-pane fade" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
+            <div className="tab-pane fade show active" id="experiments" role="tabpanel" aria-labelledby="profile-tab">
               {experimentsLoaded ? this.renderLoaded() : this.renderWait()}
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
-              <div className="insightHolder">
+              <div>
                 <StudyInsightsMirror studyId={studyId} />
                 <StudyInsightRadar studyId={studyId} />
-                <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightRadar studyId={studyId} />
+                <StudyInsightsBars studyId={studyId} />
+                <StudyInsightsMixed studyId={studyId} />
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>

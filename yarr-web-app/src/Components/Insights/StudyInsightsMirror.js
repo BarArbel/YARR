@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts'
-import BarLoader from "react-spinners/BarLoader"
+import MoonLoader from "react-spinners/MoonLoader"
+import randomColor from 'randomcolor'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -16,7 +17,7 @@ class StudyInsightMirror extends Component {
   constructor(props){
     super(props)
 
-    this.data = []
+    this.dataSets = []
 
     this.state = {
       currData: [],
@@ -48,14 +49,9 @@ class StudyInsightMirror extends Component {
     }).then(res => res.json())
       .then(json => {
         if(json.result === "Success") {
-          this.data = json.data
-          let tempTypes = []
-          /* this map causes the page to freeze */
-          // json.data.map(line => {
-          //   !tempTypes.find(element => { return element === line.BreakdownType}) && tempTypes.push(line.BreakdownType)
-          //   return null
-          // })
-          this.setState({ selectedType: 0, types: tempTypes, dataLoaded: false })
+          this.dataSets = json.dataSets
+
+          this.setState({ selectedType: 0, types: json.types })
           this.setData(0)
         }
       })
@@ -68,42 +64,24 @@ class StudyInsightMirror extends Component {
   }
 
   setData(index) {
-    const data = this.data
     const { types } = this.state
-    const filteredData = data.filter(element => {return element.BreakdownType === types[index]})
-    const tempData = []
-    const tempNames = []
+    let tempIndex
 
-    filteredData.map(element => {
-      tempData.push({ time: parseInt(element.AxisTime), value: parseInt(element.AxisEngagement), BreakdownName: element.BreakdownName})
-      !tempNames.find(name => name === element.BreakdownName) && tempNames.push(element.BreakdownName)
+    this.dataSets.map((dataSet, i) => {
+      tempIndex = dataSet[0].type === types[index] ? i : tempIndex
       return null
     })
 
-    let dataSet = []
-
-    for (let i = 3; dataSet.length < tempData.length / tempNames.length; i += 3){
-      let tempFiltered = tempData.filter(element => parseInt(element.time) === i)
-
-      if(!tempFiltered || !tempFiltered.length){
-        continue
-      }
-      
-      dataSet.push({ 
-        name: `Time: ${tempFiltered[0].time}`, 
-        [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
-        [tempFiltered[1].BreakdownName]: tempFiltered[1].value
-       })
-    }
-
-    this.setState({ currData: dataSet, names: tempNames })
+    this.setState({ currData: this.dataSets[tempIndex], names: this.dataSets[tempIndex][0].names, dataLoaded: true })
   }
 
   render() {
     const { types, selectedType, currData, names, dataLoaded } = this.state
+    const hues = ["green", "red", "blue", "yellow", "monochrome"]
 
     return (
       <div className="insightCard">
+        <h4 style={{textAlign: "center"}}>Engagement Over Time</h4>
         <div>
           <select
             value={selectedType}
@@ -117,23 +95,30 @@ class StudyInsightMirror extends Component {
           {
             dataLoaded ? 
             (
-              <div>
+              <div className="insightHolder">
                 <LineChart
-                  layout="vertical"
-                  width={500}
-                  height={350}
+                  width={750}
+                  height={450}
                   data={currData}
                   margin={{
                     top: 20, right: 30, left: 20, bottom: 5,
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" />
+                  <XAxis 
+                    height={50}
+                    dataKey="time" 
+                    type="category" 
+                    label={{ value: 'Seconds', position: 'insideBottomRight', offset: 0 }} 
+                  />
+                  <YAxis 
+                    type="number" 
+                    label={{ value: 'Engagement', angle: -90, position: 'insideLeft', offset: 0 }} 
+                  />
                   <Tooltip />
                   <Legend />
-                  {names.map(name => {
-                    let randomcolor = '#' + Math.random().toString(16).substr(-6);
+                  {names.map((name, i) => {
+                    let randomcolor = randomColor({ hue: hues[i % 5], format: "hex", luminosity: "bright"})
                     return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
                   })}
                 </LineChart>
@@ -142,7 +127,7 @@ class StudyInsightMirror extends Component {
             : 
             (
               <div className="barLoader">
-                <BarLoader height={5} width={500} color={"#123abc"} loading={true} />
+                <MoonLoader size={120} color={"#123abc"} loading={true} />
               </div>
             )
           }

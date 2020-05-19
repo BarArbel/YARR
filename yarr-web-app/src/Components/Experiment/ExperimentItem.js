@@ -138,7 +138,8 @@ export class ExperimentItem extends Component {
     const { experimentId, studyId, thisExperiment } = this.props
     const gameCode = thisExperiment.GameCode
     const codeButtonText = gameCode === "null" ? "Start Experiment" : "View Game Code"
-    const codeButtonColor = gameCode === "null" ? "light-green" : "elegant"
+    const codeButtonColor = gameCode === "null" ? "Success" : "elegant"
+    const greenColor = gameCode === "null" ? "greenButton" : null
     const codeButtonFunction = gameCode === "null" ? this.handleStartExperiment : this.handleViewGameCode
 
     return (
@@ -150,7 +151,7 @@ export class ExperimentItem extends Component {
         <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
           {this.props.children}
         </Link>
-        <MDBBtn color={codeButtonColor} className="login-btn codeButton" onClick={() => codeButtonFunction(experimentId)}>{codeButtonText}</MDBBtn>
+        <MDBBtn color={codeButtonColor} className={`login-btn codeButton ${greenColor}`} onClick={() => codeButtonFunction(experimentId)}>{codeButtonText}</MDBBtn>
       </div>
     )
   }
