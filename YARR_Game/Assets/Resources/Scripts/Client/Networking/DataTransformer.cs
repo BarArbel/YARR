@@ -9,18 +9,21 @@ namespace Project.Networking
 {
     public static class DataTransformer
     {
-        static SocketIOComponent socket = GameObject.Find("[Network Container]").GetComponent<NetworkClient>();
+        static SocketIOComponent DDASocket;
+        static SocketIOComponent GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
         static DataGameSnapShot data = new DataGameSnapShot();
-         
-        
-        public static void createTables()
-        {
-            socket.Emit("createTables");
-        }
+        static ExperimentSettings settings = new ExperimentSettings();    
+
+        public static void SetExperimentID         (string expID)    { settings.ExperimentID = expID; }
+        public static void SetInstanceID           (string instID)   { settings.InstanceID = instID; }
+        public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
+        public static void SetIsInterrupted         (bool isInterr) { settings.IsInterrupted = isInterr; }
+        public static void SetInitTimestamp        (float time) { settings.InitTimestamp = time; }
+
 
         public static void sendDDA(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
         {
-            data.Time = time;
+            data.Time = settings.InitTimestamp+time;
             data.Event = eventOccurred;
             data.PlayerID = player.GetID();
             data.CoordX = player.transform.position.x;
@@ -29,12 +32,12 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            socket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
+            DDASocket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
         public static void sendDDA(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
         {
-            data.Time = time;
+            data.Time = settings.InitTimestamp+time;
             data.Event = eventOccurred;
             data.PlayerID = PlayerID;
             data.CoordX = CoordX;
@@ -43,12 +46,12 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            socket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
+            DDASocket.Emit("DDAinput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
         public static void sendTracker(float time, Event eventOccurred, Player player, int item, int enemy, int gameMode)
         {
-            data.Time = time;
+            data.Time = settings.InitTimestamp+time;
             data.Event = eventOccurred;
             data.PlayerID = player.GetID();
             data.CoordX = player.transform.position.x;
@@ -57,7 +60,84 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
-            socket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
+            GameSocket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
+        }
+
+        public static void sendTracker(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
+        {
+            data.Time = settings.InitTimestamp+time;
+            data.Event = eventOccurred;
+            data.PlayerID = PlayerID;
+            data.CoordX = CoordX;
+            data.CoordY = CoordY;
+            data.Item = item;
+            data.Enemy = enemy;
+            data.GameMode = (GameManager.GameMode)gameMode;
+
+            GameSocket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
+        }
+
+        public static void codeInput(string userInput)
+        {
+            settings.Code = userInput;
+            // Check if it's a new game or not
+            // [0-9] An interrupted game
+            // [A-Z] A new game
+            if (Char.IsLetter(userInput[0]))
+            {
+                GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            else if (Char.IsDigit(userInput[0]))
+            {
+                GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+
+
+        }
+
+        public static void initDDAConnection()
+        {
+            SetInitTimestamp(0);
+
+            // New game
+            if (!settings.IsInterrupted)
+            {                
+                GameSocket.Emit("createTables");
+                GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            // Interrupted game
+            else if (settings.InterruptedInstanceID != null)
+            {
+                settings.InstanceID = settings.InterruptedInstanceID;
+                GameSocket.Emit("editInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            DDASocket = GameObject.Find("[Network Container]").GetComponent<DDAClient>();
+            DDASocket.Connect();
+        }
+
+        public static void getInitSettings()
+        {
+            DDASocket.Emit("sendInstanceID", new JSONObject(JsonUtility.ToJson(settings)));
+            if (!settings.IsInterrupted)
+            {
+                GameSocket.Emit("initNewGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+            else
+            {
+                GameSocket.Emit("initInterrGameSettings", new JSONObject(JsonUtility.ToJson(settings)));
+            }
+        }
+
+        public static void initDDA()
+        {
+            // TODO: send num of players and starting diff
+            GameSocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
+        }
+
+        public static void SyncNewScene(JSONObject E)
+        {
+            Debug.Log("SyncNewScene" + E);
+            GameSocket.Emit("SyncNewScene", E);
         }
     }
 
@@ -75,10 +155,25 @@ namespace Project.Networking
         public GameManager.GameMode GameMode;
     }
 
-    public enum Event
+    [Serializable]
+    public class ExperimentSettings
     {
-        pickup,giveItem,revivePlayer,temporaryLose,revived,lose,dropitem,getDamaged,blockDamage,failPickup,fallAccidently,individualLoss,spawn
+        public string Code;
+        public string ExperimentID;
+        public string InstanceID;
+        public string InterruptedInstanceID;
+        public bool IsInterrupted;
+        public float InitTimestamp;
+        public int InitLevel;
+        public int NumOfPlayers;
     }
 
+public enum Event
+    {
+        // DDA
+        pickup,giveItem,revivePlayer,temporaryLose,revived,lose,dropitem,getDamaged,blockDamage,failPickup,fallAccidently,individualLoss,spawn,powerupSpawn,powerupTaken,powerupMissed,win,avoidDamage,
+        // Tracker
+        enemyLoc,itemLoc,takenItemLoc,playerLoc,lvlUp,lvlDown,lvlStay,newRound
+    }
 }
 

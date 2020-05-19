@@ -11,9 +11,17 @@ public class GameManager : MonoBehaviour
     public enum GameMode { Cooperative, Competitive };
     public enum Skin { Color, Shape, Type };
     public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6 };
+    public enum ColorBlindness { Colorful, Protanopia, Tritanopia};
     //DEBUG
     public bool StaticMode = true;
     public bool CoopMode = true;
+
+    //Round settings
+    private int NumberOfRounds;
+    private List<GameMode> RoundsModes;
+    private Skin RoundsSkins;
+    private List<Level> RoundsDifficulties;
+    private bool ExperimentStarted;
 
     // Game settings
     private GameMode Mode;
@@ -23,6 +31,10 @@ public class GameManager : MonoBehaviour
     private int DDAIndex;
     private Skin SkinType;
     private List<Vector2> ItemSinkColliderSize;
+    private int CurrentRound;
+    private float RoundLength;
+    private float RoundTimer;
+    private ColorBlindness BlindnessType;
 
     // Sprites
     private List<Sprite> ItemSprites;
@@ -51,10 +63,83 @@ public class GameManager : MonoBehaviour
     private List<ObjectFactory> EnemyFactories;
     private List<ObjectFactory> PowerupFactories;
 
-    void InitGameManager(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
+    public bool InitExperiment(JSONObject rSettings)
+    {
+        ExperimentStarted = false;
+        // Test json structure
+        if (rSettings.list[0].keys[0] != "numberOfPlayers"             || 
+            rSettings.list[0].keys[1] != "roundLength"                 || 
+            rSettings.list[0].keys[2] != "blindness"                   ||
+            rSettings.list[0].keys[3] != "modes"                       ||
+            rSettings.list[0].keys[4] != "skin"                        ||
+            rSettings.list[0].keys[5] != "difficulties"                ||
+            rSettings.list[0].list[3].Count != rSettings.list[0].list[5].Count)
+        {
+            return false;
+        }
+
+        Debug.Log("Hello InitExperiment");
+        Debug.Log(rSettings);
+
+        // Experiment properties
+        RoundTimer = 0;
+        NumberOfRounds = rSettings.list[0].list[3].Count;
+        NumberOfPlayers = (int)rSettings.list[0].list[0].n;
+        RoundLength = (float)rSettings.list[0].list[1].n;
+        BlindnessType = (ColorBlindness)rSettings.list[0].list[2].n-1;
+        RoundsSkins = (Skin)rSettings.list[0].list[4].n-1;
+
+        // Test json values
+        if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundLength == 0)
+        {
+            return false;
+        }
+
+        // Initialize lists of round properties
+        RoundsModes = new List<GameMode>();
+        RoundsDifficulties = new List<Level>();
+
+        for (int i = 0; i < NumberOfRounds; i++)
+        {
+            RoundsModes.Add((GameMode)rSettings.list[0].list[3].list[i].n-1);
+            RoundsDifficulties.Add((Level)rSettings.list[0].list[5].list[i].n);
+        }
+
+        StartExperimet();
+        return true;
+    }
+
+    private void StartExperimet()
+    {
+        InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
+        if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
+        {
+            ExperimentStarted = true;
+            RoundTimer = RoundLength;
+            CurrentRound = 1;
+        }
+    }
+
+    private void StartNextRound()
+    {
+
+        if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
+        {
+            DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
+            SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
+            if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
+            {
+                RoundTimer = RoundLength;
+                CurrentRound++;
+            }
+            
+        }
+
+    }
+
+    void InitGameManager(GameMode mode, Skin skin, Level difficulty)
     {
         // First Round properties
-        NumberOfPlayers = numberOfPlayers;
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
@@ -185,9 +270,8 @@ public class GameManager : MonoBehaviour
         return false;
     }
 
-    public void SetMode(int numberOfPlayers, GameMode mode, Skin skin, Level difficulty)
+    public void SetMode( GameMode mode, Skin skin, Level difficulty)
     {
-        NumberOfPlayers = numberOfPlayers;
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
@@ -438,10 +522,53 @@ public class GameManager : MonoBehaviour
 
     }
 
+    public bool TrackObjLocation()
+    {
+        const int itemLayer = 10;
+        const int enemyLayer = 11; 
+        const int playerLayer = 9;
+        float posX;
+        float posY;
+        GameObject[] gameObjects = FindObjectsOfType<GameObject>();
+        for (int i = 0; i < gameObjects.Length; i++)
+        {
+            switch (gameObjects[i].layer)
+            {
+                case itemLayer:
+                    Treasure item = gameObjects[i].GetComponent<Treasure>();
+                    posX = item.transform.position.x;
+                    posY = item.transform.position.y;
+                    if (item.GetIsPickedUp())
+                    {
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.takenItemLoc, item.GetCarrierID(), posX, posY, item.GetID(), 0, (int)GetMode());
+                    }
+                    else
+                    {
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.itemLoc, -1, posX, posY, item.GetID(), 0, (int)GetMode());
+                    }
+                    break;
+                case enemyLayer:
+                    Enemy enemy = gameObjects[i].GetComponent<Enemy>();
+                    posX = enemy.transform.position.x;
+                    posY = enemy.transform.position.y;
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.enemyLoc, -1, posX, posY, 0, enemy.GetID(), (int)GetMode());
+                    break;
+                case playerLayer:
+                    Player player = gameObjects[i].GetComponent<Player>();
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLoc, player, 0, 0, (int)GetMode());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        return true;
+    }
+
     //DEBUG CHANGE MODE
     public void DEBUGCHANGEMODE()
     {
-        SetMode(3, GameMode.Competitive, Skin.Color, Level.Static3);
+        SetMode(GameMode.Competitive, Skin.Color, Level.Static3);
     }
 
     public void NotificationPlayerDied(int playerID)
@@ -458,8 +585,9 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        InvokeRepeating("TrackObjLocation", 5.0f, 5.0f);
         //DEBUG
-        Level lvl;
+        /*Level lvl;
         GameMode gm;
         if (StaticMode)
         {
@@ -478,8 +606,10 @@ public class GameManager : MonoBehaviour
         {
             gm = GameMode.Competitive;
         }
+
         //DEBUG//
-        InitGameManager(3, gm, Skin.Color, lvl);
+        NumberOfPlayers = 3;
+        InitGameManager(gm, Skin.Color, lvl);*/
         //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
         //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }
@@ -487,6 +617,17 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (ExperimentStarted)
+        {
+            if (RoundTimer != 0)
+            {
+                RoundTimer -= Time.deltaTime;
+            }
+            else
+            {
+                StartNextRound();
+            }
+        }
+       
     }
 }

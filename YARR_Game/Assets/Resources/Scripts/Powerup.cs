@@ -51,24 +51,22 @@ public class Powerup : Item
     {
         int playerID = GetID() == -1 ? 0 : GetID();
         Destroy(gameObject);
-        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.failPickup, playerID, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.powerupMissed, playerID, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
     }
 
     public void PowerupInit(int id, float destroyTimer)
     {
-        int playerID;
         ID = id;
         DestroyTimer = destroyTimer;
         IsPickedUp = false;
         Carrier = null;
-        playerID = GetID() == -1 ? 0 : GetID();
 
         if (DestroyTimer != -1)
         {
             Invoke("SetDestroy", DestroyTimer);
         }
 
-        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, playerID, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.powerupSpawn, 0, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

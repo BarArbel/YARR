@@ -6,11 +6,14 @@ using System;
 
 namespace Project.Networking
 {
-    public class NetworkClient : SocketIOComponent
+    public class DDAClient : SocketIOComponent
     {
+        string InstanceID;
+
         public override void Start()
         {
             base.Start();
+            DontDestroyOnLoad(gameObject);
             setupEvents();
         }
 
@@ -22,20 +25,24 @@ namespace Project.Networking
         private void setupEvents()
         {
             On("open", (E) => {
-                Debug.Log("Connection Made To The Server");
+                //Debug.Log("Connection Made To The Server");
                 Debug.Log("what is " + this);
+            });
+
+            On("connectionConfirmed", (E) => {
+                DataTransformer.getInitSettings();
             });
 
             On("disconected", (E) => {
                 Debug.Log("disconected");
             });
 
-            On("ExperimentID", (E) => {
+            /*On("ExperimentID", (E) => {
                 Debug.Log("My table number is: " + E.data);
                 DataTransformer.createTables();
-            });
+            });*/
 
-            On("variables", (E) => {
+            On("LevelSettings", (E) => {
                 FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data);
             });
 
