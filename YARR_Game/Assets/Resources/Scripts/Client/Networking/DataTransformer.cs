@@ -131,9 +131,6 @@ namespace Project.Networking
 
         public static void initDDA()
         {
-            Debug.Log("Let's print the settings sent to the server");
-            Debug.Log(settings.InitLevel);
-            Debug.Log(settings.NumOfPlayers);
             DDASocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
         }
 
@@ -158,7 +155,7 @@ namespace Project.Networking
         public GameManager.GameMode GameMode;
     }
 
-    [Serializable]
+    [Serializable] 
     public class ExperimentSettings
     {
         public string Code;
