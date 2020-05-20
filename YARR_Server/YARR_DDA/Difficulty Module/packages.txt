@@ -1,9 +1,10 @@
-python-socketio[client]
 python-socketio[asyncio_client]
 aiomysql
+python-dotenv
+asyncio
 
 #mybe still needed bu not sure:
-python-dotenv
+python-socketio[client]
 mysql-connector
 mysql-connector-python
 dnspython

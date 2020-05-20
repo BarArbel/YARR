@@ -232,7 +232,7 @@ async def init_vars(args):
     global starting_level
 
     instance_id = args[0]
-    staring_level = int(args[1])
+    starting_level = int(args[1])
     number_of_players = int(args[2])
 
     table_name += instance_id
@@ -266,6 +266,7 @@ async def start_server(args):
 
 
 if __name__ == '__main__':
+    print("hello ", sys.argv)
     sys.stdout.flush()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server(sys.argv[1:]))

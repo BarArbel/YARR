@@ -1,7 +1,3 @@
-
-# ----------------------
-
-
 class DDA_calc:
 
     def __init__(self, number_of_players, starting_level, levels):
