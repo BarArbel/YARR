@@ -257,8 +257,8 @@ async def init_vars(inst_id):
 
 
 if __name__ == '__main__':
-    print(sys.argv[1])
-
+    print("Hello Miri From Gershon Server Best Server NA & EU. MID OR FEED: " + sys.argv[1])
+    sys.stdout.flush()
     init_vars(sys.argv[1])
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())

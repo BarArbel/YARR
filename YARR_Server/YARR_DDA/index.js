@@ -33,6 +33,11 @@ io.on('connection', async socket =>{
   socket.on('initDDA', async data => {
     const { initLevel, numOfPlayers } = data;
     const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
+    
+    pythonProcess.stdout.on('data', (chunk) => {
+      console.log(chunk.toString('utf8'));
+    });
+
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${tableTimeId}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${tableTimeId}` });
