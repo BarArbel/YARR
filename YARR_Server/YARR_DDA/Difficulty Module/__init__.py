@@ -243,11 +243,11 @@ async def start_server():
     await sio.wait()
 
 
-async def init_vars(inst_id):
+async def init_vars(args):
     global instance_id, table_name, con, calc, number_of_players, last_time
     global starting_level
 
-    instance_id = inst_id
+    [instance_id, starting_level, number_of_players] = args
     table_name.append(instance_id)
     con = DB_connection(table_name)
     await con._init(number_of_players)
@@ -259,7 +259,7 @@ async def init_vars(inst_id):
 if __name__ == '__main__':
     print("Hello Miri From Gershon Server Best Server NA & EU. MID OR FEED: " + sys.argv[1])
     sys.stdout.flush()
-    init_vars(sys.argv[1])
+    init_vars(sys.argv[1:])
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server())
     loop.close()

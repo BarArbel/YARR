@@ -11,7 +11,7 @@ class DB_connection:
     def __init__(self, table_name):
         self.counter = 0
         self.timestamps = []
-        self.db = os.getenv('DATABASE_GAME_DB')
+        self.db = os.getenv('DATABASE_DB')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
@@ -19,9 +19,9 @@ class DB_connection:
         for i in range(number_of_players):
             self.timestamps.append(0)
 
-        self.pool = await aiomysql.create_pool(user=os.getenv('USER_GAME_DB'),
-                                               password=os.getenv('PASSWORD_GAME_DB'),
-                                               host=os.getenv('HOST_GAME_DB'),
+        self.pool = await aiomysql.create_pool(user=os.getenv('USER_DB'),
+                                               password=os.getenv('PASSWORD_DB'),
+                                               host=os.getenv('HOST_DB'),
                                                db=self.db,
                                                auth_plugin='mysql_native_password')
 
