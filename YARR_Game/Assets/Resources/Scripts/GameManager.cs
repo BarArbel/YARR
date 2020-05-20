@@ -570,12 +570,6 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    //DEBUG CHANGE MODE
-    public void DEBUGCHANGEMODE()
-    {
-        SetMode(GameMode.Competitive, Skin.Color, Level.Static3);
-    }
-
     public void NotificationPlayerDied(int playerID)
     {
         //EnemyFactories[playerID].FreezeSpawn(true);
