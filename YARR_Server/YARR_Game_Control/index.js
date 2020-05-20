@@ -405,6 +405,58 @@ io.on('connection', async socket =>{
                                                 
     });
 
+  socket.on('gameEnded', () => {
+    // insert DDa + Tracker into perma table
+    const dda_table = `${proccess.env.DATABASE}.dda_input_${table.time}_${table.id}`
+    const tracker_table = `${proccess.env.DATABASE}.tracker_input_${table.time}_${table.id}`
+    const dda_permanent_table = `${proccess.env.DATABASE}.dda_inputs`
+    const tracker_permanent_table = `${proccess.env.DATABASE}.tracker_inputs`
+    const select_query = `SELECT * FROM `
+    const insert_query_1 = `INSERT INTO `
+    const insert_query_2 = ` (InstanceID, ExperimentID, EventID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode)
+                            VALUES ?`
+    const drop_query = `DROP TABLE `
+    
+    socket.broadcast.emit('gameEnded', `${tableTimeId}`);
+
+    let arr = [
+      [dda_table, dda_permanent_table],
+      [tracker_table, tracker_permanent_table]
+    ]
+
+    for (i in arr) {
+      let select_q = select_query + i[0]
+      await mysqlConnection.query(select_q, (error, result) => {
+        let values = []
+  
+        if (!error && result.length) {
+          for (row in result) {
+            values.push(row)
+          }
+        }
+  
+        if (values.length) {
+          let insert_q = insert_query_1 + i[1] + insert_query_2
+          await mysqlConnection.query(insert_q, [values], (error_insert, result_insert) => {
+            if (error_insert) {
+              console.log(error_insert)
+            }
+            else if (!result_insert.affectedRows) {
+              console.log(`no new rows inerted to ${i[1]}`)
+            }
+          })
+        }
+  
+        let drop_q = drop_query + i[0]
+        await mysqlConnection.query(drop_q, (error_drop, result_drop) => {
+          if (error_drop) {
+            console.log(error_drop)
+          }
+        })
+      })
+    }
+  });
+
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
