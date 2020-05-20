@@ -4,10 +4,13 @@
 
 class DDA_calc:
 
-    def __init__(self, number_of_players, starting_level):
+    def __init__(self, number_of_players, starting_level, levels):
         self.player_levels = []
         for i in range(number_of_players):
             self.player_levels.append(starting_level)
+        if len(levels) != 0:
+            for i in range(number_of_players):
+                self.player_levels[i] += levels[i]
 
     def calc_penalty_and_bonus(self, pickup_player_total, give_item,
                                revive_player, get_damaged, block_damage,

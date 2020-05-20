@@ -14,7 +14,7 @@ last_time = None
 sio = socketio.AsyncClient()
 # first_connection = True
 instance_id = ""
-table_name = "DDA_Input_ExperimentID_"
+table_name = "DDA_Input_"
 con = None
 calc = None
 host = os.getenv('HOST_SERVER')
@@ -227,10 +227,32 @@ def disconnect():
     print('Disconnected from data collector')
 
 
-async def start_server():
+async def init_vars(args):
+    global instance_id, table_name, con, calc, number_of_players, last_time
+    global starting_level
+
+    instance_id = args[0]
+    staring_level = int(args[1])
+    number_of_players = int(args[2])
+
+    table_name += instance_id
+    con = DB_connection(table_name)
+    await con._init(number_of_players)
+    if con.newT_continueF:
+        levels = await con.get_levels(number_of_players)
+    else:
+        levels = []
+    calc = DDA_calc(number_of_players, starting_level, levels)
+    last_time = time.time()
+    print("done init_vars")
+
+
+async def start_server(args):
     global host, recv_port
 
     connected_to_server = False
+
+    await init_vars(args)
 
     while not connected_to_server:
         try:
@@ -243,23 +265,8 @@ async def start_server():
     await sio.wait()
 
 
-async def init_vars(args):
-    global instance_id, table_name, con, calc, number_of_players, last_time
-    global starting_level
-
-    [instance_id, starting_level, number_of_players] = args
-    table_name.append(instance_id)
-    con = DB_connection(table_name)
-    await con._init(number_of_players)
-    calc = DDA_calc(number_of_players, starting_level)
-    last_time = time.time()
-    print("done init_vars")
-
-
 if __name__ == '__main__':
-    print("Hello Miri From Gershon Server Best Server NA & EU. MID OR FEED: " + sys.argv[1])
     sys.stdout.flush()
-    init_vars(sys.argv[1:])
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(start_server())
+    loop.run_until_complete(start_server(sys.argv[1:]))
     loop.close()

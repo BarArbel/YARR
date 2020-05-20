@@ -9,6 +9,7 @@ load_dotenv()
 class DB_connection:
 
     def __init__(self, table_name):
+        self.newT_continueF = True
         self.counter = 0
         self.timestamps = []
         self.db = os.getenv('DATABASE_DB')
@@ -27,18 +28,19 @@ class DB_connection:
 
         if await self.check_if_table_exist():
             await self.init_timestamps()
+            self.newT_continueF = False
         else:
             await self.create_DDA_table()
 
     async def check_if_table_exist(self):
 
         async with self.pool.acquire() as con:
-            async with con.sursor() as cursor:
+            async with con.cursor() as cursor:
                 await cursor.execute("SHOW TABLES")
                 fetch = await cursor.fetchall()
 
                 for result in fetch:
-                    if result == self.DDAtb:
+                    if result[0] == self.DDAtb:
                         return True
 
                 return False
@@ -46,7 +48,9 @@ class DB_connection:
     async def init_timestamps(self):
 
         query = ("SELECT PlayerID, max(Timestamp) as max_ts FROM " + self.db +
-                 "." + self.DDAtb + "WHERE Level != 0 GROUP BY PlayerID")
+                 "." + self.DDAtb + " WHERE Level != 0 GROUP BY PlayerID")
+        
+        print(query)
 
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
@@ -73,6 +77,26 @@ class DB_connection:
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
                 await cursor.execute(query)
+
+    async def get_levels(self, number_of_players):
+
+        query = ("SELECT PlayerID, sum(Level) as sum_lv FROM " + self.db +
+                 "." + self.DDAtb + " GROUP BY PlayerID")
+
+        levels = []
+        for i in range(number_of_players):
+            levels.append(0)
+
+        async with self.pool.acquire() as con:
+            async with con.cursor() as cursor:
+                await cursor.execute(query)
+                fetch = await cursor.fetchall()
+
+                for result in fetch:
+                    if result[0] is not None and result[1] is not None:
+                        levels[result[0] - 1] = result[1]
+
+        return levels
 
     async def remove_DDA_table(self):
         query = ("DROP TABLE `" + self.db + "`.`" + self.DDAtb + "`")
