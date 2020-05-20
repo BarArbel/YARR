@@ -2,6 +2,7 @@ require('dotenv').config()
 const io = require('socket.io')(process.env.PORT);
 const mysqlConnection = require("./connection");
 const util = require('util');
+const spawn = require("child_process").spawn;
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
 
