@@ -111,13 +111,17 @@ public class GameManager : MonoBehaviour
 
     private void StartExperimet()
     {
-        InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
-        if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
-        {
-            ExperimentStarted = true;
-            RoundTimer = RoundLength;
-            CurrentRound = 1;
-        }
+            InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
+            // Should be placed in init game manager instead of here?
+            InitMode();
+            //Debug.Log("Players: " + GameObject.FindGameObjectsWithTag("Player"));
+            //if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
+            //{
+                ExperimentStarted = true;
+                RoundTimer = RoundLength;
+                CurrentRound = 1;
+            //}
+        
     }
 
     private void StartNextRound()
@@ -230,7 +234,8 @@ public class GameManager : MonoBehaviour
         IsSpriteDirectionRight = false;
         HeldItemHeight = 0.5f;
 
-        InitMode();
+        //SHOULD BE TURNED ON ACTUALLY
+        //InitMode();
     }
 
     //Getters
@@ -619,9 +624,10 @@ public class GameManager : MonoBehaviour
     {
         if (ExperimentStarted)
         {
-            if (RoundTimer != 0)
+            if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
+                Debug.Log(RoundTimer);
             }
             else
             {

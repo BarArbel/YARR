@@ -112,11 +112,6 @@ namespace Project.Networking
             });
 
             On("newGameSettings", (E) => {
-                Debug.Log("I'M LOSING MY MIND HERE");
-                Debug.Log("THE data");
-                Debug.Log("THE data");
-                Debug.Log("THE data");
-                Debug.Log(E.data);
                 if (E.data["instanceId"].str == InstanceID)
                 {
                     FindObjectOfType<GameManager>().InitExperiment(E.data);
