@@ -46,7 +46,6 @@ class StudyInsightsMixed extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json())
       .then(json => {
-        console.log(json)
         if (json.result === "Success"){
           this.dataSets = json.dataSets
           this.setState({ dataSets: json.data, dataLoaded: true, experimentNames: json.experimentNames, names:json.names })
@@ -78,7 +77,7 @@ class StudyInsightsMixed extends Component {
 
     return (
       <div className="insightCard">
-        <h4 style={{ textAlign: "center" }}>Player Performance</h4>
+        <h4 style={{ textAlign: "center" }}>Response to Difficulty Changes</h4>
         <select
           value={selectedType}
           onChange={this.handleTypeChange}
