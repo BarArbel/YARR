@@ -98,7 +98,8 @@ namespace Project.Networking
         public static void initDDAConnection()
         {
             SetInitTimestamp(0);
-
+            settings.NumOfPlayers = 3;
+            settings.InitLevel = 2;
             // New game
             if (!settings.IsInterrupted)
             {                
@@ -130,8 +131,10 @@ namespace Project.Networking
 
         public static void initDDA()
         {
-            // TODO: send num of players and starting diff
-            GameSocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
+            Debug.Log("Let's print the settings sent to the server");
+            Debug.Log(settings.InitLevel);
+            Debug.Log(settings.NumOfPlayers);
+            DDASocket.Emit("initDDA", new JSONObject(JsonUtility.ToJson(settings)));
         }
 
         public static void SyncNewScene(JSONObject E)

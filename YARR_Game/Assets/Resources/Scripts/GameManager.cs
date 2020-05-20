@@ -627,7 +627,6 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
-                Debug.Log(RoundTimer);
             }
             else
             {

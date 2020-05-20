@@ -164,7 +164,7 @@ io.on('connection', async socket =>{
     // Add instance ID to the server
     socket.on('initNewGameSettings', data => {
       
-      var numOfPlayers = 3;
+      var numOfPlayers = data.NumOfPlayers;
       var roundDuration;
       var colorBlindness;
       var skin;
