@@ -68,8 +68,6 @@ public class PlayerFactory : MonoBehaviour
 
             // Init player properties
             player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
-            Debug.Log(playerObj);
-            Debug.Log(player);
         }
     }
 

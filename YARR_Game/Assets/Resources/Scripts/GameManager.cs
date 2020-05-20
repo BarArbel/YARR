@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Mathematics;
 using Project.Networking;
 using Event = Project.Networking.Event;
+using UnityEngine.SceneManagement;
 using System;
 
 public class GameManager : MonoBehaviour
@@ -137,6 +138,10 @@ public class GameManager : MonoBehaviour
                 CurrentRound++;
             }
             
+        }
+        if (CurrentRound == NumberOfRounds && RoundTimer == 0)
+        {
+            SceneManager.LoadScene("FinishMenu");
         }
 
     }
@@ -431,24 +436,26 @@ public class GameManager : MonoBehaviour
         {
             for (int i = 0; i < players.Length; i++)
             {
+                Debug.Log("Do we check if all players died?");
                 Player player = players[i].GetComponent<Player>();
                 if (player.GetHealth() > 0)
                 {
-                    EnemyFactories[player.GetID()-1].FreezeSpawn(false);
-                    ItemFactories[player.GetID() - 1].FreezeSpawn(false);
-                    PowerupFactories[player.GetID() - 1].FreezeSpawn(false);
+                    //EnemyFactories[player.GetID()-1].FreezeSpawn(false);
+                    //ItemFactories[player.GetID() - 1].FreezeSpawn(false);
+                    //PowerupFactories[player.GetID() - 1].FreezeSpawn(false);
                     return false;
                 }
                 else
                 {
-                    EnemyFactories[player.GetID()-1].FreezeSpawn(true);
-                    ItemFactories[player.GetID() - 1].FreezeSpawn(true);
-                    PowerupFactories[player.GetID() - 1].FreezeSpawn(true);
-                    Debug.Log("froze spawn for player " + i);
+                    //EnemyFactories[player.GetID()-1].FreezeSpawn(true);
+                    //ItemFactories[player.GetID() - 1].FreezeSpawn(true);
+                    //PowerupFactories[player.GetID() - 1].FreezeSpawn(true);
+                    //Debug.Log("froze spawn for player " + i);
                 }
             }
 
             IsGameLost = true;
+            RoundTimer = 0;
             DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.lose, 0, 0, 0, 0, 0, (int)Mode);
             return true;
         }

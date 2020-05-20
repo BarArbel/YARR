@@ -24,19 +24,6 @@ namespace Project.Networking
             base.Update();
         }
 
-        IEnumerator LoadGame(JSONObject data)
-        {
-            asyncLoadLevel = SceneManager.LoadSceneAsync("Game", LoadSceneMode.Single);
-            /*while (!asyncLoadLevel.isDone)
-            {
-                Debug.Log("Loading the Scene");
-                yield return null;
-            }*/
-            Debug.Log(data);
-            yield return new WaitForEndOfFrame();
-            FindObjectOfType<GameManager>().InitExperiment(data);
-        }
-
         private void setupEvents()
         {
             On("instanceId", (E) => {

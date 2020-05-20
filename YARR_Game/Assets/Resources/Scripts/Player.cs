@@ -94,9 +94,9 @@ public class Player : MonoBehaviour
 
         if (Health == 0)
         {
+            FindObjectOfType<GameManager>().NotificationPlayerDied(GetID());
             if (GetGameMode() == 0)
-            {
-                //FindObjectOfType<GameManager>().NotificationPlayerDied(GetID());
+            {              
                 this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
                 DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
