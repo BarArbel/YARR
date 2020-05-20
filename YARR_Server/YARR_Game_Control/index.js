@@ -405,10 +405,11 @@ io.on('connection', async socket =>{
                                                 
     });
 
-  socket.on('gameEnded', () => {
+  socket.on('gameEnded', async () => {
     // insert DDa + Tracker into perma table
-    const dda_table = `${proccess.env.DATABASE}.dda_input_${table.time}_${table.id}`
-    const tracker_table = `${proccess.env.DATABASE}.tracker_input_${table.time}_${table.id}`
+    const instance_id = `${table.time}_${table.id}`
+    const dda_table = `${proccess.env.DATABASE}.dda_input_${instance_id}`
+    const tracker_table = `${proccess.env.DATABASE}.tracker_input_${instance_id}`
     const dda_permanent_table = `${proccess.env.DATABASE}.dda_inputs`
     const tracker_permanent_table = `${proccess.env.DATABASE}.tracker_inputs`
     const select_query = `SELECT * FROM `
@@ -424,36 +425,49 @@ io.on('connection', async socket =>{
       [tracker_table, tracker_permanent_table]
     ]
 
-    for (i in arr) {
-      let select_q = select_query + i[0]
-      await mysqlConnection.query(select_q, (error, result) => {
-        let values = []
-  
-        if (!error && result.length) {
-          for (row in result) {
-            values.push(row)
+    try {
+      let result = await query(`SELECT ExperimentId FROM ${proccess.env.DATABASE}.instances WHERE InstanceId = ${instance_id}`)
+      let experiment_id = result[0]
+
+      for (i in arr) {
+        let select_q = select_query + i[0]
+        try {
+          let select_result = await query(select_q)
+          let values = []
+          if (select_result.length) {
+            for (row in select_result) {
+              values.push([instance_id, experiment_id].concat(row))
+            }
+          }
+
+          if (values.length) {
+            let insert_q = insert_query_1 + i[1] + insert_query_2
+            try {
+              let insert_result = await query(insert_q, [values])
+              if (!insert_result.affectedRows) {
+                console.log(`no new rows inerted to ${i[1]}`)
+              }
+            }
+            catch (insert_error) {
+              console.log(insert_error)
+            }
+          }
+
+          let drop_q = drop_query + i[0]
+          try {
+            drop_result = await query(drop_q)
+          }
+          catch {
+            console.log(drop_result)
           }
         }
-  
-        if (values.length) {
-          let insert_q = insert_query_1 + i[1] + insert_query_2
-          await mysqlConnection.query(insert_q, [values], (error_insert, result_insert) => {
-            if (error_insert) {
-              console.log(error_insert)
-            }
-            else if (!result_insert.affectedRows) {
-              console.log(`no new rows inerted to ${i[1]}`)
-            }
-          })
+        catch (select_error) {
+          console.log(select_error)
         }
-  
-        let drop_q = drop_query + i[0]
-        await mysqlConnection.query(drop_q, (error_drop, result_drop) => {
-          if (error_drop) {
-            console.log(error_drop)
-          }
-        })
-      })
+      }
+    }
+    catch (error) {
+      console.log(error)
     }
   });
 
