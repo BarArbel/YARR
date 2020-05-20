@@ -155,7 +155,7 @@ namespace Project.Networking
         public GameManager.GameMode GameMode;
     }
 
-    [Serializable] 
+    [Serializable]  
     public class ExperimentSettings
     {
         public string Code;
