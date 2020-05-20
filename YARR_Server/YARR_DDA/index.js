@@ -1,18 +1,14 @@
 require('dotenv').config()
 const io = require('socket.io')(process.env.PORT);
 const mysqlConnection = require("./connection");
-const Table = require('./Classes/Table.js');
 const util = require('util');
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
 
 console.log('Server has started');
 
-const tables = [];
-var tableTimeId;
-const sockets = [];
-
 io.on('connection', async socket =>{
+  let tableTimeId;
   console.log('Connection Made!');
   socket.emit('connectionConfirmed');
 
@@ -34,10 +30,8 @@ io.on('connection', async socket =>{
 
   // Initiate DDA calculations
   socket.on('initDDA', async data => {
-    //const { initLevel, numOfPlayers } = data;
-    NumOfPlayers = 3;
-    InitLevel = 2;
-    const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${tableTimeId}`, InitLevel, NumOfPlayers]);
+    const { initLevel, numOfPlayers } = data;
+    const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
     if (pythonProcess.pid !== undefined)
       socket.broadcast.emit('initDDA', { result: `Success`, instanceId: `${tableTimeId}` });
     else socket.broadcast.emit('initDDA', { result: `Failure`, instanceId: `${tableTimeId}` });
@@ -61,6 +55,7 @@ io.on('connection', async socket =>{
   });
 
   socket.on('gameEnded', () => {
+    // insert DDa + Tracker into perma table
     socket.broadcast.emit('gameEnded', `${tableTimeId}`);
   });
 

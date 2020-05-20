@@ -68,6 +68,8 @@ class ExperimentInsightsMixed extends Component {
     return (
       <div className="insightCard">
         {!dataSet && <h4 style={{ textAlign: "center" }}>Response to Difficulty Changes</h4>}
+        {dataSet && <h6 style={{ textAlign: "center" }}>Experiment Breakdown</h6>}
+
         {
           dataLoaded ?
             (
