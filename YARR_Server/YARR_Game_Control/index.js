@@ -6,6 +6,7 @@ const util = require('util');
 const randexp = require('randexp').randexp;
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
+const { HOST, USER, PASSWORD, DATABASE } = process.env
 
 console.log('Server has started');
 
@@ -478,37 +479,42 @@ io.on('connection', async socket =>{
 
   socket.on('gameEnded', async () => {
     // insert DDa + Tracker into perma table
+    
+    console.log("game ended")
+
     const instance_id = `${table.time}_${table.id}`
-    const dda_table = `${proccess.env.DATABASE}.dda_input_${instance_id}`
-    const tracker_table = `${proccess.env.DATABASE}.tracker_input_${instance_id}`
-    const dda_permanent_table = `${proccess.env.DATABASE}.dda_inputs`
-    const tracker_permanent_table = `${proccess.env.DATABASE}.tracker_inputs`
+    const dda_table = `${DATABASE}.DDA_Input_${instance_id}`
+    const tracker_table = `${DATABASE}.Tracker_Input_${instance_id}`
+    const dda_permanent_table = `${DATABASE}.dda_inputs`
+    const tracker_permanent_table = `${DATABASE}.tracker_inputs`
     const select_query = `SELECT * FROM `
     const insert_query_1 = `INSERT INTO `
-    const insert_query_2 = ` (InstanceID, ExperimentID, EventID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode)
-                            VALUES ?`
+    const insert_query_2 = ` (InstanceID, ExperimentID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode) VALUES ?`
     const drop_query = `DROP TABLE `
-    
-    socket.broadcast.emit('gameEnded', `${tableTimeId}`);
+
+    socket.broadcast.emit('gameEnded', `${instance_id}`);
 
     let arr = [
       [dda_table, dda_permanent_table],
       [tracker_table, tracker_permanent_table]
     ]
 
-    try {
-      let result = await query(`SELECT ExperimentId FROM ${proccess.env.DATABASE}.instances WHERE InstanceId = ${instance_id}`)
-      let experiment_id = result[0]
+    console.log(arr)
 
-      for (i in arr) {
+    try {
+      let result = await query(`SELECT ExperimentId FROM ${DATABASE}.instances WHERE InstanceId = '${instance_id}'`)
+      let experiment_id = result[0].ExperimentId
+
+      arr.map(async i => {
         let select_q = select_query + i[0]
         try {
           let select_result = await query(select_q)
           let values = []
           if (select_result.length) {
-            for (row in select_result) {
-              values.push([instance_id, experiment_id].concat(row))
-            }
+            select_result.map(row => {
+              let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
+              values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
+            })
           }
 
           if (values.length) {
@@ -516,7 +522,7 @@ io.on('connection', async socket =>{
             try {
               let insert_result = await query(insert_q, [values])
               if (!insert_result.affectedRows) {
-                console.log(`no new rows inerted to ${i[1]}`)
+                console.log(`no new rows inserted to ${i[1]}`)
               }
             }
             catch (insert_error) {
@@ -535,7 +541,7 @@ io.on('connection', async socket =>{
         catch (select_error) {
           console.log(select_error)
         }
-      }
+      })
     }
     catch (error) {
       console.log(error)
