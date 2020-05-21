@@ -3,6 +3,7 @@ const io = require('socket.io')(process.env.PORT);
 const mysqlConnection = require("./connection");
 const Table = require('./Classes/Table.js');
 const util = require('util');
+const randexp = require('randexp').randexp;
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
 
@@ -14,11 +15,10 @@ const sockets = [];
 async function checkIfInteruppted(instanceId) {
   try {
     const sql = `SELECT UPDATE_TIME FROM information_schema.tables WHERE 
-                TABLE_SCHEMA = 'yarr' AND TABLE_NAME = 'Tracker_Input_${instanceId}';`
+                TABLE_SCHEMA = '${process.env.DATABASE}' AND TABLE_NAME = 'Tracker_Input_${instanceId}';`
     const results = await query(sql);
     if(!results.length) {
       //what then?
-      return false;
     }
     const lastUpdate = Date.parse(results[0].UPDATE_TIME);
     const utcCurr = Date.now();
@@ -27,14 +27,27 @@ async function checkIfInteruppted(instanceId) {
     console.log(lastUpdate);
     console.log(utcCurr - lastUpdate > 30000 ? "yes" : "no");
 
-    return utcCurr - lastUpdate > 30000 ? true : false
+    if (utcCurr - lastUpdate > 30000 )
+    {
+        const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`
+        const results = await query(sql_check_finish);
+        if(!results.length) {
+        //what then?
+        }
+        return results[0].counter > 0 ? false : true;
+    }
+    return false;
   }
   catch (err) {
     return false; //??
   }
 }
 
-checkIfInteruppted('1589963472424_NbwZ1Of4F');
+async function generateInterrGameCode(instanceId) {
+  const pattern = '^[0-9][A-Z0-9]{5}';
+  let found = false;
+  let gameCode;
+}
 
 io.on('connection', async socket =>{
   console.log('Connection Made!');
@@ -59,7 +72,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound'
+        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -84,7 +97,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound'
+        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,

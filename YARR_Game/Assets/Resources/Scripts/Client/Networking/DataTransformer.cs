@@ -200,7 +200,7 @@ public enum Event
         // DDA
         pickup,giveItem,revivePlayer,temporaryLose,revived,lose,dropitem,getDamaged,blockDamage,failPickup,fallAccidently,individualLoss,spawn,powerupSpawn,powerupTaken,powerupMissed,win,avoidDamage,
         // Tracker
-        enemyLoc,itemLoc,takenItemLoc,playerLoc,lvlUp,lvlDown,lvlStay,newRound
+        enemyLoc,itemLoc,takenItemLoc,playerLoc,lvlUp,lvlDown,lvlStay,newRound,gameEnded
     }
 }
 
