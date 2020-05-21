@@ -69,32 +69,9 @@ async function generateInterrGameCode() {
 
 io.on('connection', async socket =>{
   console.log('Connection Made!');
-  var interruptedInstanceID;
+  let interruptedInstanceID;
   const table = new Table();
-  const instanceId = `${table.time}_${table.id}`;
-
-  setInterval( () => {
-    if(checkIfInteruppted(instanceId) === true) {
-      let gameCode
-      // Update instance as Interrupted instead of running
-      const sql_update_instance = `SET SQL_SAFE_UPDATES=0;
-                 UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${instanceId}' ;
-                 SET SQL_SAFE_UPDATES=1; ` ;
-      try {
-        query(sql_update_instance);
-      }
-      catch(err) {
-        throw err;
-      }
-      // Generate game code
-      gameCode = generateInterrGameCode();
-
-      // Add instance to interrupted instances
-
-      // Notify DDA? close module?
-
-    }
-  }, 30000);
+  let refreshIntervalId;
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
@@ -173,8 +150,43 @@ io.on('connection', async socket =>{
             }});
 
        } 
-    }
-  )});
+    })
+
+    // Check if experiment is interrupted
+    refreshIntervalId = setInterval( () => {
+      if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
+        let gameCode
+        // Update instance as Interrupted instead of running
+        let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
+                   UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${table.time}_${table.id}' ;
+                   SET SQL_SAFE_UPDATES=1; ` ;
+        try {
+          query(sql_update_instance);
+        }
+        catch(err) {
+          throw err;
+        }
+        // Generate game code
+        gameCode = generateInterrGameCode();
+        console.log(gameCode);
+  
+        // Add instance to interrupted instances
+        let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
+                                VALUES ('${table.time}_${table.id}',${data.ExperimentID},'${gameCode}'); `;
+        try {
+          query(sql_add_instance);
+        }
+        catch(err) {
+          throw err;
+        }
+        // Notify DDA? close module?
+
+        // Stop interval
+        clearInterval(refreshIntervalId);
+      }
+    }, 30000);
+
+  });
 
   //Add information about instance
   socket.on('editInstanceMetaData', async data => {
@@ -196,8 +208,42 @@ io.on('connection', async socket =>{
           socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} was created`);
           socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} was created`);
         }
-    }
-  )});
+    })
+
+    // Check if experiment is interrupted
+    refreshIntervalId = setInterval( () => {
+      if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
+        let gameCode
+        // Update instance as Interrupted instead of running
+        let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
+                   UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${table.time}_${table.id}' ;
+                   SET SQL_SAFE_UPDATES=1; ` ;
+        try {
+          query(sql_update_instance);
+        }
+        catch(err) {
+          throw err;
+        }
+        // Generate game code
+        gameCode = generateInterrGameCode();
+        console.log(gameCode);
+  
+        // Add instance to interrupted instances
+        let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
+                                VALUES ('${table.time}_${table.id}',${data.ExperimentID},'${gameCode}'); `;
+        try {
+          query(sql_add_instance);
+        }
+        catch(err) {
+          throw err;
+        }
+        // Notify DDA? close module?
+
+        // Stop interval
+        clearInterval(refreshIntervalId);
+      }
+    }, 30000);
+  });
 
   //Sending Data to the Tracker table for experiment analysis
   socket.on('TrackerInput', async data => {
