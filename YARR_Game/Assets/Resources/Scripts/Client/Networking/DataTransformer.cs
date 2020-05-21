@@ -126,7 +126,7 @@ namespace Project.Networking
         {
             SetInitTimestamp(0);
             settings.NumOfPlayers = 3;
-            settings.InitLevel = 2;
+            settings.InitLevel = 3;
             // New game
             if (!settings.IsInterrupted)
             {                
