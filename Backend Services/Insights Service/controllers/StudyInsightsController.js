@@ -284,7 +284,7 @@ module.exports = {
             Title,
             Timestamp
           } = line;
-          data.push([Title, InstanceID, GameMode, Timestamp ,Event, PlayerID, CoordX, CoordY, Item, Enemy]);
+          data.push([Title, InstanceID, GameMode, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy]);
         });
 
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
