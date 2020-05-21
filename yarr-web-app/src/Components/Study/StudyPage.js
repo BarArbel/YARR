@@ -2,10 +2,12 @@ import Header from '../Header'
 import { MDBBtn } from 'mdbreact'
 import { CSVLink } from 'react-csv'
 import { connect } from 'react-redux'
-import Breadcrumbs from '../Utilities/Breadcrumbs'
 import React, { Component } from 'react'
+import { withRouter } from "react-router"
 import { Redirect } from 'react-router-dom'
 import Skeleton from 'react-loading-skeleton'
+import Breadcrumbs from '../Utilities/Breadcrumbs'
+import MoonLoader from "react-spinners/MoonLoader"
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
 import ExperimentList from '../Experiment/ExperimentList'
@@ -35,6 +37,8 @@ class StudyPage extends Component {
 
     this.numberOfEdits = 0
     this.state = {
+      csvData : [],
+      csvLoaded: false,
       studyLoaded: false,
       editExperiment: false
     }
@@ -65,6 +69,8 @@ class StudyPage extends Component {
     ]
     const studiesUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
     const experimentsUrl = ` https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
+    const rawDataURL = `https://yarr-insight-service.herokuapp.com/requestRawData?studyId=${studyId}`
+
     const json = {
       userInfo: userInfo,
       bearerKey: bearerKey
@@ -87,7 +93,9 @@ class StudyPage extends Component {
         handleSetExperiments([])
       }
     })
-    .catch(err => handleSetExperiments([]))
+    .catch(err => {
+      handleSetExperiments([])
+    })
 
     studies.length && this.setState({ studyLoaded: true })
 
@@ -101,18 +109,38 @@ class StudyPage extends Component {
     }).then(res => res.json())
       .then(json => {
         if (json.result === "Success") {
+          const studyExists = json.studies.find(line => line.StudyId === studyId)
           handleAddStudies(json.studies)
+          studyExists.length === 0 && this.props.history.push('/')
           this.setState({ studyLoaded: true })
         }
         else {
-          /* redirect to HomePage */
+          this.props.history.push('/')
           handleAddStudies([])
         }
       })
       .catch(err => {
-        /* redirect to HomePage */
+        this.props.history.push('/')
         handleAddStudies([])
       })
+
+      fetch(rawDataURL, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(json)
+      }).then(res => res.json())
+        .then(json => {
+          if (json.result === "Success") {
+            this.setState({ csvData: json.data, csvLoaded: true })
+          }
+          else {
+          }
+        })
+        .catch(err => {
+        })
   }
 
   handleToggleEdit(editExperiment) {
@@ -154,7 +182,7 @@ class StudyPage extends Component {
         <p><b>Study Questions:</b> <br/>{currStudy.StudyQuestions}</p>
         <p><b>Description:</b> <br/> {currStudy.Description}</p>
       </div>
-    ) : (null) /* redirect to HomePage */
+    ) : (null)
   }
 
   renderWaitForStudy() {
@@ -207,16 +235,13 @@ class StudyPage extends Component {
   }
 
   renderLogged() {
-    const { studyLoaded } = this.state
-    const { experimentsLoaded } = this.props
+    const { studies, experimentsLoaded } = this.props
+    const { studyLoaded, csvData, csvLoaded } = this.state
     const studyId = parseInt(this.props.match.params.studyId)
-    const csvData = [
-      ["firstname", "lastname", "email"],
-      ["Ahmed", "Tomi", "ah@smthing.co.com"],
-      ["Raed", "Labes", "rl@smthing.co.com"],
-      ["Yezzi", "Min l3b", "ymin@cocococo.com"]
-    ]
-
+    const idCompare = i => parseInt(i.StudyId) === parseInt(studyId)
+    const currStudy = studies.find(idCompare)
+    
+    const fileName = currStudy ? `Study ${currStudy.Title} Raw Data.csv` : "tempName.csv"
     return (
       <div className="studyPage">
         <Header />
@@ -235,7 +260,6 @@ class StudyPage extends Component {
             <li className="nav-item">
               <a className="nav-link" id="review-tab" data-toggle="tab" href="#review" role="tab" aria-controls="review" aria-selected="false">Review & Export</a>
             </li>
-
           </ul>
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade" id="info" role="tabpanel" aria-labelledby="info-tab">
@@ -253,7 +277,16 @@ class StudyPage extends Component {
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">
-              <CSVLink data={csvData}>Download me</CSVLink>
+              {
+              csvLoaded ? 
+                  (<CSVLink filename={fileName} data={csvData}>Download me</CSVLink>) 
+              : 
+                (
+                  <div style={{marginTop: '30px'}} className="barLoader">
+                    <MoonLoader size={100} color={"#123abc"} loading={true} />
+                  </div>
+                )
+              }
             </div>
           </div>
         </div>
@@ -268,4 +301,4 @@ class StudyPage extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...UserActions, ...StudyActions, ...ExperimentActions, ...BreadcrumbsActions })(StudyPage)
+export default connect(mapStateToProps, { ...UserActions, ...StudyActions, ...ExperimentActions, ...BreadcrumbsActions })(withRouter(StudyPage))

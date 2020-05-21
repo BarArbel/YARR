@@ -240,6 +240,55 @@ module.exports = {
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
       }
     });
-  }
+  },
 
+  requestRawData: async(req, res) => {
+    const { studyId } = req.query;
+    const verified = await verifyRequest(req);
+    
+    if(!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if(!studyId) {
+      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}"}, "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    const sql = `SELECT  Title, InstanceID, GameMode, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy
+                FROM yarr.dda_inputs LEFT JOIN (SELECT sid,eid,Title FROM 
+                (SELECT StudyId sid, ExperimentId eid FROM yarr.main_view) AS mv 
+                LEFT JOIN yarr.experiments ON ExperimentId = eid) exp_data ON ExperimentID = eid WHERE sid = ${studyId};`
+
+    connection.query(sql, (error, results) => {
+      if (error || !results.length) {
+        res.status(400).send('{"result": "Failure", "error": "No insights for StudyId exist."}');
+      }
+
+      else {
+        let data = [
+          ["ExperimentTitle", "InstanceID", "GameMode", "Timestamp", "EventID", "PlayerID", "CoordX", "CoordY", "Item", "Enemy"]
+        ];
+
+        results.map(line => {
+          const {
+            InstanceID, 
+            EventID, 
+            PlayerID, 
+            CoordX, 
+            CoordY, 
+            Item, 
+            Enemy, 
+            GameMode, 
+            Title,
+            Timestamp
+          } = line;
+          data.push([Title, InstanceID, GameMode, Timestamp ,EventID, PlayerID, CoordX, CoordY, Item, Enemy]);
+        });
+
+        res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
+      }
+    });
+  }
 }

@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
+import { connect } from 'react-redux'
+import React, { Component } from 'react'
+import { withRouter } from "react-router"
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
-import { withRouter } from "react-router";
 
 const mapStateToProps = ({ user }) => {
   return {
