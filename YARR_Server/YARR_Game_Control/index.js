@@ -77,7 +77,15 @@ io.on('connection', async socket =>{
     if(checkIfInteruppted(instanceId) === true) {
       let gameCode
       // Update instance as Interrupted instead of running
-
+      const sql_update_instance = `SET SQL_SAFE_UPDATES=0;
+                 UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${instanceId}' ;
+                 SET SQL_SAFE_UPDATES=1; ` ;
+      try {
+        query(sql_update_instance);
+      }
+      catch(err) {
+        throw err;
+      }
       // Generate game code
       gameCode = generateInterrGameCode();
 
