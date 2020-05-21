@@ -1,5 +1,6 @@
 import Header from '../Header'
 import { MDBBtn } from 'mdbreact'
+import { CSVLink } from 'react-csv'
 import { connect } from 'react-redux'
 import Breadcrumbs from '../Utilities/Breadcrumbs'
 import React, { Component } from 'react'
@@ -209,6 +210,12 @@ class StudyPage extends Component {
     const { studyLoaded } = this.state
     const { experimentsLoaded } = this.props
     const studyId = parseInt(this.props.match.params.studyId)
+    const csvData = [
+      ["firstname", "lastname", "email"],
+      ["Ahmed", "Tomi", "ah@smthing.co.com"],
+      ["Raed", "Labes", "rl@smthing.co.com"],
+      ["Yezzi", "Min l3b", "ymin@cocococo.com"]
+    ]
 
     return (
       <div className="studyPage">
@@ -245,7 +252,9 @@ class StudyPage extends Component {
                 <StudyInsightsMixed studyId={studyId} />
               </div>
             </div>
-            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">Placeholder 4</div>
+            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">
+              <CSVLink data={csvData}>Download me</CSVLink>
+            </div>
           </div>
         </div>
       </div>

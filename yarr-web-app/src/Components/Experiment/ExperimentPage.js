@@ -1,12 +1,16 @@
 import Header from '../Header'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
+import { MDBBtn } from 'mdbreact'
 import { Redirect } from 'react-router-dom'
 import CoopImg from '../../cooperative.png'
 import CompImg from '../../competitive.png'
+import CodeView from '../Utilities/CodeView'
 import Skeleton from 'react-loading-skeleton'
 import DifficultyImg from '../../difficulty.png'
 import Breadcrumbs from '../Utilities/Breadcrumbs'
+import { confirmAlert } from 'react-confirm-alert'
+import ClipLoader from "react-spinners/ClipLoader"
 import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
@@ -27,11 +31,13 @@ class ExperimentPage extends Component {
     super(props)
 
     this.state = {
-      experimentLoaded: false
+      experimentLoaded: false,
+      startStopFinished: true
     }
 
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
+    this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStopExperiment = this.handleStopExperiment.bind(this)
     this.handleStartExperiment = this.handleStartExperiment.bind(this)
   }
@@ -182,9 +188,23 @@ class ExperimentPage extends Component {
     )
   }
 
+  handleViewGameCode() {
+    const { experiment } = this.props
+    confirmAlert({
+      customUI: ({ onClose }) => {
+        return (
+          <CodeView
+            onClose={onClose}
+            gameCode={experiment.GameCode}
+          />
+        )
+      }
+    })
+  }
+
   renderLogged(){
     const { experiment } = this.props
-    const { experimentLoaded } = this.state
+    const { experimentLoaded, startStopFinished } = this.state
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
@@ -198,22 +218,41 @@ class ExperimentPage extends Component {
       Disability,
       CharacterType,
       ColorSettings,
-      GameCode
     } = experiment
     const studyId = this.props.match.params.studyId
     const buttonText = Status === "Running" ? "STOP EXPERIMENT" : "START EXPERIMENT"
-
+    const codeButtonColor = Status === "Running" ? "elegant" : "success"
+    const endStartColor = Status === "Running" ? "yellowButton" : "greenButton"
+    const codeButtonFunction = Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment
+    const runningStyle = ({ color: "#4BB543", fontWeight: "bold" })
     return (
       <div className="studyPage">
         <Header />
         <Breadcrumbs/>
         <div className="container">
-          <div className="startExperiment">
-            {Status === "Running" && <label>{GameCode}</label>}
-            <button onClick={Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment}>
-              {buttonText}
-            </button>
+          <div>
+            {Status === "Running" && 
+              (
+                <div className="greyBackground">
+                  <label style={runningStyle}>Experiment is running</label>
+                  <MDBBtn color={"elegant"} className={`login-btn viewCodeButton`} onClick={this.handleViewGameCode}>{"View Game Code"}</MDBBtn>
+                </div>
+              )
+            }
+            { 
+              startStopFinished ? 
+                <MDBBtn 
+                  color={codeButtonColor} 
+                  className={`popUpButton login-btn ${endStartColor}`}
+                  onClick={codeButtonFunction}
+                >
+                  {buttonText}
+                </MDBBtn>
+              :
+                <ClipLoader size={45} color={"#123abc"} loading={true} />
+            }
           </div>
+          <div className="clear" />
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
               <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>

@@ -131,7 +131,6 @@ export class ExperimentItem extends Component {
         )
       }
     })
-
   }
 
   renderCard() {

@@ -364,7 +364,7 @@ class ExperimentBuilder extends Component {
           className="custom-range"
           name="roundDuration"
           type="range"
-          min="60"
+          min="30"
           max="300"
           required
         />
