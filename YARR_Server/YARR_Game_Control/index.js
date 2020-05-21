@@ -43,10 +43,27 @@ async function checkIfInteruppted(instanceId) {
   }
 }
 
-async function generateInterrGameCode(instanceId) {
+async function generateInterrGameCode() {
   const pattern = '^[0-9][A-Z0-9]{5}';
-  let found = false;
+  let found = true;
   let gameCode;
+
+  /* generate code here */
+  while(found){
+    gameCode = randexp(pattern);
+    /* Check if code exists, if yes, generate again */
+    try {
+      let results = await query(`SELECT * FROM ${process.env.DATABASE}.interupted_instances WHERE GameCode = "${gameCode}"`);
+      if(!results.length) {
+        found = false;
+      }
+    }
+    catch(err) {
+      //What to do?
+      return;
+    }
+  }
+  return gameCode;
 }
 
 io.on('connection', async socket =>{
@@ -57,6 +74,14 @@ io.on('connection', async socket =>{
 
   setInterval( () => {
     if(checkIfInteruppted(instanceId) === true) {
+      let gameCode
+      // Update instance as Interrupted
+
+      // Generate game code
+      gameCode = generateInterrGameCode();
+      
+      // Add instance to interrupted instances
+
       //instance is dead. do stuff.
       // notify DDA > close module > add interuppted instanceid  to table > fix tables?
     }
