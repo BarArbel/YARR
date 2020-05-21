@@ -1,4 +1,5 @@
 # import mysql.connector
+import sys
 import os
 import aiomysql
 from dotenv import load_dotenv
@@ -111,7 +112,7 @@ class DB_connection:
         await self.pool.wait_closed()
     
     async def get_timestamp(self):
-        query = ("SELECT Timestamp From " + self.db + "." + self.tb +
+        query = ("SELECT Timestamp FROM " + self.db + "." + self.tb +
                  " ORDER BY Timestamp DESC LIMIT 1")
         
         async with self.pool.acquire() as con:
@@ -138,6 +139,7 @@ class DB_connection:
                     return fetch
         except Exception as e:
             print("count_last_pickups exception: " + str(e))
+            sys.stdout.flush()
             return [-1]
 
     async def count_total_player_events(self, event, player_id, tstamp,
@@ -169,6 +171,7 @@ class DB_connection:
 
         except Exception as e:
             print("count_total exception: " + str(e))
+            sys.stdout.flush()
             return [-1]
 
     async def insert_DDA_table(self, player_id, penalty, bonus, skill, level,

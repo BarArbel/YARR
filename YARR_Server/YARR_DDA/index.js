@@ -59,7 +59,7 @@ io.on('connection', async socket =>{
     const { err, rows, fields } = await query(sql);
     if(err) throw err;
     console.log("data was added");
-    socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${tableTimeId} updated`);
+    socket.broadcast.emit('DDAupdate', `${tableTimeId}`);
   });
 
   // Update game difficulty
@@ -76,6 +76,6 @@ io.on('connection', async socket =>{
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     //delete tables[thisTableID];
-    socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${tableTimeId} finished the game`);
+    socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.DDA_Input_${tableTimeId} finished the game`);
   });
 });

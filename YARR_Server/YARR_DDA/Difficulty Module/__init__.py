@@ -45,7 +45,13 @@ async def getDataFromDB():
     }
 
     fetch = await con.get_timestamp()
-    timestamp = fetch[0]
+    if fetch:
+        timestamp = fetch[0]
+    else:
+        timestamp = 0
+
+    print(timestamp)
+    sys.stdout.flush()
 
     for player_id in range(number_of_players):
         for event in total:
@@ -110,7 +116,7 @@ def calculate(total, timestamp):
         calcs["level"].append(level)
 
         player_level = calc.player_levels[player_id]
-        if level != 0 and player_level > 1 and player_level < 6:
+        if level != 0 and 1 < player_level < 6:
             calc.player_levels[player_id] += level
             con.timestamps[player_id] = timestamp
 
@@ -155,14 +161,16 @@ def createGameJson(calcs):
 @sio.event
 def connect():
     print('Connected successfuly to data collector')
+    sys.stdout.flush()
 
 
-@sio.on("DDAinput")
-async def on_message(data):
+@sio.on("DDAupdate")
+async def on_ddaupdate(data):
     # global first_connection, table_name, con, last_time, starting_level
     global instance_id, table_name, last_time, starting_level
 
-    print('message received with ', data)
+    print('DDAupdate received with ', data)
+    sys.stdout.flush()
 
     if data == instance_id:
         current_time = time.time()
@@ -180,6 +188,7 @@ async def on_message(data):
 
             await sio.emit('LevelSettings', emit_json)
             print("data sent to server: ", emit_json)
+            sys.stdout.flush()
 
     """if first_connection is True:
         tmp_table_name = data.split(" ")[1].split(".")[1]
@@ -219,12 +228,15 @@ async def on_gameended(data):
     if data == instance_id:
         await con.insert_permanent_table(instance_id)
         await con.close_connection()
+        print("dda closing")
+        sys.stdout.flush()
         await sio.disconnect()
 
 
 @sio.event
 def disconnect():
     print('Disconnected from data collector')
+    sys.stdout.flush()
 
 
 async def init_vars(args):
@@ -245,6 +257,7 @@ async def init_vars(args):
     calc = DDA_calc(number_of_players, starting_level, levels)
     last_time = time.time()
     print("done init_vars")
+    sys.stdout.flush()
 
 
 async def start_server(args):
@@ -259,6 +272,7 @@ async def start_server(args):
             await sio.connect("http://" + host + ":" + recv_port)
         except:
             print("Failed to connect to data collector, trying again")
+            sys.stdout.flush()
         else:
             connected_to_server = True
 
