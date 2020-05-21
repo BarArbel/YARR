@@ -12,13 +12,27 @@ namespace Project.Networking
         static SocketIOComponent DDASocket;
         static SocketIOComponent GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
         static DataGameSnapShot data = new DataGameSnapShot();
-        static ExperimentSettings settings = new ExperimentSettings();    
-
-        public static void SetExperimentID         (string expID)    { settings.ExperimentID = expID; }
-        public static void SetInstanceID           (string instID)   { settings.InstanceID = instID; }
+        static ExperimentSettings settings = new ExperimentSettings();
+        
+        public static void SetExperimentID         (string expID)     { settings.ExperimentID = expID; }
+        public static void SetInstanceID           (string instID)    { settings.InstanceID = instID; }
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
-        public static void SetIsInterrupted         (bool isInterr) { settings.IsInterrupted = isInterr; }
-        public static void SetInitTimestamp        (float time) { settings.InitTimestamp = time; }
+        public static void SetIsInterrupted         (bool isInterr)   { settings.IsInterrupted = isInterr; }
+        public static void SetInitTimestamp        (float time)       { settings.InitTimestamp = time; }
+        public static void SetGameConnection        ()                { GameSocket.Connect(); }
+        public static void SetDisconnect ()
+        {
+            if (DDASocket.IsConnected)
+            {
+                DDASocket.Emit("gameEnded");
+                DDASocket.Close();
+            }
+            if (GameSocket.IsConnected && !DDASocket.IsConnected)
+            {
+                GameSocket.Emit("gameEnded");
+                GameSocket.Close();
+            }
+        }
 
 
         public static void sendDDA(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)

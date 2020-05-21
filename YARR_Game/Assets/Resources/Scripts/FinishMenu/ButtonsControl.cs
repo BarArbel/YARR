@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
-using TMPro;
-using System.Text.RegularExpressions;
 using Project.Networking;
 
 public class ButtonsControl : MonoBehaviour
@@ -17,6 +14,8 @@ public class ButtonsControl : MonoBehaviour
 
     public void MoveToStartMenu()
     {
+        DataTransformer.SetDisconnect();
+        Destroy(GameObject.Find("[Network Container]"));
         SceneManager.LoadScene("StartMenu");
     }
 

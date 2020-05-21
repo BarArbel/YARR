@@ -436,7 +436,6 @@ public class GameManager : MonoBehaviour
         {
             for (int i = 0; i < players.Length; i++)
             {
-                Debug.Log("Do we check if all players died?");
                 Player player = players[i].GetComponent<Player>();
                 if (player.GetHealth() > 0)
                 {
@@ -628,6 +627,7 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
+                Debug.Log(RoundTimer);
             }
             else
             {
