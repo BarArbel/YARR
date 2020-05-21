@@ -109,12 +109,17 @@ class DBconnection:
     
     async def get_timestamp(self):
         query = ("SELECT Timestamp FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
-        
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
-                fetch = await cursor.fetchone()
-                return fetch
+
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    fetch = await cursor.fetchone()
+                    return fetch
+        except Exception as e:
+            print("count_total exception: " + str(e))
+            sys.stdout.flush()
+            return None
 
     async def count_last_pickup_events(self, player_id, tstamp, limit):
         try:
@@ -169,21 +174,23 @@ class DBconnection:
                  "(PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES (" + str(player_id) + ", " + str(penalty) +
                  ", " + str(bonus) + ", " + str(skill) + ", " + str(level) + ", " + str(timestamp) + ")")
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
-                await con.commit()
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    await con.commit()
+        except Exception as e:
+            print("count_total exception: " + str(e))
+            sys.stdout.flush()
 
     async def insert_permanent_table(self, instance_id):
 
-        select_query = ("SELECT * FROM " + self.db + "." + self.DDAtb)
-        select_fetch = None
-        experiment_query = ("SELECT ExperimentId FROM " + self.db + ".instances WHERE InstanceId = " + instance_id)
-        experiment_fetch = None
-        experiment_id = None
+        select_query = ("SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
+        experiment_query = ("SELECT ExperimentId FROM " + self.db + ".instances WHERE InstanceId = '" +
+                            instance_id + "'")
         insert_vals = []
-        insert_query = ("INSERT INTO " + self.db + ".dda_calculations (ExperimentId, InstanceId, Timestamp, PlayerID," +
-                        " Penalty, Bonus, Skill, Level) VALUES (%d, %s, %f, %d, %f, %f, %f, %d)")
+        insert_query = ("INSERT INTO " + self.db + ".dda_calculations (ExperimentId, InstanceId, PlayerID, Penalty, " +
+                        "Bonus, Skill, Level, Timestamp) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
 
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
@@ -197,5 +204,7 @@ class DBconnection:
                 for result in select_fetch:
                     insert_vals.append((experiment_id, instance_id) + result)
 
-                await cursor.execute(insert_query, insert_vals)
+                print(insert_vals)
+
+                await cursor.executemany(insert_query, insert_vals)
                 await con.commit()
