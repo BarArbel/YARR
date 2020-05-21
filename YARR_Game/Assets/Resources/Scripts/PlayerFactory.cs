@@ -13,6 +13,7 @@ public class PlayerFactory : MonoBehaviour
     private float HeldItemHeight;
     private int NumberOfPlayers;
     private int PlayerCounter;
+    private bool IsNewGame;
 
     private GameObject PlayerPrefab;
     private List<Sprite> PlayerSprites;
@@ -31,7 +32,8 @@ public class PlayerFactory : MonoBehaviour
         List<Sprite> playerSprites,
         List<KeyCode> rightMovement,
         List<KeyCode> leftMovement,
-        List<KeyCode> jumpMovement
+        List<KeyCode> jumpMovement,
+        bool isNewGame
         )
     {
         Coords = coords;
@@ -41,6 +43,7 @@ public class PlayerFactory : MonoBehaviour
         IsSpriteDirectionRight = spriteDirection;
         HeldItemHeight = itemHeight;
         NumberOfPlayers = numberOfPlayers;
+        IsNewGame = isNewGame;
 
         PlayerSprites = new List<Sprite>(playerSprites);
         RightMovement = new List<KeyCode>(rightMovement);
@@ -71,10 +74,22 @@ public class PlayerFactory : MonoBehaviour
         }
     }
 
+    protected void ContinuedGameSpawn(int[] ID, float[] CoordX, float[] CoordY, int[] Health)
+    {
+        if (!IsNewGame)
+        {
+
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
-        Spawn();
+        if (IsNewGame)
+        {
+            Spawn();
+        }
+        
     }
 
     // Update is called once per frame

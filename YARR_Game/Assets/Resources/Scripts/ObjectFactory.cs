@@ -22,18 +22,20 @@ public abstract class ObjectFactory : MonoBehaviour
     protected float Speed;
     protected int Damage;
 
+    // Game-Experiment settings
+    protected bool IsNewGame;
 
     private GameObject Prefab;
     private Sprite Sprite;
 
-    // TODO:
-    public void FactoryInit(int id, int level, GameObject prefab, Sprite sprite)
+    public void FactoryInit(int id, int level, GameObject prefab, Sprite sprite, bool isNewGame)
     {
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
         IsDDAInitiated = false;
         SetLevel(level);
+        IsNewGame = isNewGame;
 
     }
 

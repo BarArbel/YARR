@@ -13,6 +13,7 @@ console.log('Server has started');
 const tables = [];
 const sockets = [];
 
+// Check if the given instance ID is an interrupted one
 async function checkIfInteruppted(instanceId) {
   try {
     const sql = `SELECT UPDATE_TIME FROM information_schema.tables WHERE 
@@ -21,21 +22,22 @@ async function checkIfInteruppted(instanceId) {
     if(!results.length) {
       //what then?
     }
-    const lastUpdate = Date.parse(results[0].UPDATE_TIME);
+    const lastUpdate = results[0].UPDATE_TIME.getTime();
     const utcCurr = Date.now();
 
     console.log(utcCurr);
     console.log(lastUpdate);
     console.log(utcCurr - lastUpdate > 30000 ? "yes" : "no");
 
-    if (utcCurr - lastUpdate > 30000 )
+    if ((utcCurr - lastUpdate) > 30000 )
     {
-        const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`
+        const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`;
         const results = await query(sql_check_finish);
+        console.log(results[0].counter);
         if(!results.length) {
         //what then?
         }
-        return results[0].counter > 0 ? false : true;
+        return results[0].counter == 0 ? true : false;
     }
     return false;
   }
@@ -44,6 +46,7 @@ async function checkIfInteruppted(instanceId) {
   }
 }
 
+// Generate a game code for restarting an interrupted game
 async function generateInterrGameCode() {
   const pattern = '^[0-9][A-Z0-9]{5}';
   let found = true;
@@ -67,11 +70,45 @@ async function generateInterrGameCode() {
   return gameCode;
 }
 
+// Set a game that stopped abruptly as an interrupted instance
+async function setInterruptedGame(instanceId, experimentId, refreshIntervalId) {
+  let gameCode
+  // Update instance as Interrupted instead of running
+  let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
+                   UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${instanceId}' ;
+                   SET SQL_SAFE_UPDATES=1; ` ;
+  try {
+    await query(sql_update_instance);
+  }
+  catch(err) {
+    throw err;
+  }
+  // Generate game code
+  gameCode = generateInterrGameCode();
+  console.log(gameCode);
+  
+  // Add instance to interrupted instances
+  let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
+                                VALUES ('${instanceId}',${experimentId},'${gameCode}'); `;
+  try {
+    await query(sql_add_instance);
+  }
+  catch(err) {
+    throw err;
+  }
+  // TODO: Notify DDA? close module?
+
+  // Stop interval
+  clearInterval(refreshIntervalId);
+      
+}
+
 io.on('connection', async socket =>{
   console.log('Connection Made!');
   let interruptedInstanceID;
   const table = new Table();
   let refreshIntervalId;
+  let experimentId;
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
@@ -83,7 +120,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
+        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -108,7 +145,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLoc','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
+        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -131,6 +168,7 @@ io.on('connection', async socket =>{
 
   //Add information about instance
   socket.on('addInstanceMetaData', async data => {
+    experimentId = data.ExperimentID;
     const sql1 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
     console.log(sql1);
     console.log(data);
@@ -155,34 +193,7 @@ io.on('connection', async socket =>{
     // Check if experiment is interrupted
     refreshIntervalId = setInterval( () => {
       if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
-        let gameCode
-        // Update instance as Interrupted instead of running
-        let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
-                   UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${table.time}_${table.id}' ;
-                   SET SQL_SAFE_UPDATES=1; ` ;
-        try {
-          query(sql_update_instance);
-        }
-        catch(err) {
-          throw err;
-        }
-        // Generate game code
-        gameCode = generateInterrGameCode();
-        console.log(gameCode);
-  
-        // Add instance to interrupted instances
-        let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
-                                VALUES ('${table.time}_${table.id}',${data.ExperimentID},'${gameCode}'); `;
-        try {
-          query(sql_add_instance);
-        }
-        catch(err) {
-          throw err;
-        }
-        // Notify DDA? close module?
-
-        // Stop interval
-        clearInterval(refreshIntervalId);
+        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
       }
     }, 30000);
 
@@ -190,6 +201,7 @@ io.on('connection', async socket =>{
 
   //Add information about instance
   socket.on('editInstanceMetaData', async data => {
+    experimentId = data.ExperimentID;
     interruptedInstanceID = data.InterruptedInstanceID;
 
     // Update information about interrupted instance
@@ -213,34 +225,7 @@ io.on('connection', async socket =>{
     // Check if experiment is interrupted
     refreshIntervalId = setInterval( () => {
       if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
-        let gameCode
-        // Update instance as Interrupted instead of running
-        let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
-                   UPDATE  ${process.env.DATABASE}.instances SET Status = "interrupted" where InstanceId = '${table.time}_${table.id}' ;
-                   SET SQL_SAFE_UPDATES=1; ` ;
-        try {
-          query(sql_update_instance);
-        }
-        catch(err) {
-          throw err;
-        }
-        // Generate game code
-        gameCode = generateInterrGameCode();
-        console.log(gameCode);
-  
-        // Add instance to interrupted instances
-        let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
-                                VALUES ('${table.time}_${table.id}',${data.ExperimentID},'${gameCode}'); `;
-        try {
-          query(sql_add_instance);
-        }
-        catch(err) {
-          throw err;
-        }
-        // Notify DDA? close module?
-
-        // Stop interval
-        clearInterval(refreshIntervalId);
+        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
       }
     }, 30000);
   });
@@ -423,16 +408,16 @@ io.on('connection', async socket =>{
         skin = results[0]["ColorSettings"];  
       }});
     
-    // Get players' positions
+    // Get players' positions and health (in the item section)
     let sql_pLoc = `
     WITH all_events AS 
     (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
       where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1)
 
-    SELECT ts,pid,CoordX,CoordY FROM
+    SELECT ts,pid,CoordX,CoordY,Item FROM
     (select max(Timestamp) ts, PlayerID from all_events
     Where playerID != 0 and Event = "playerLoc"
-    group by 2) as latest_ts LEFT JOIN (SELECT Timestamp, PlayerID pid, CoordX, CoordY FROM all_events) as all_e  ON ts = Timestamp and PlayerID = pid
+    group by 2) as latest_ts LEFT JOIN (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item FROM all_events) as all_e  ON ts = Timestamp and PlayerID = pid
     ORDER BY 1;`;
     
     await mysqlConnection.query(sql_pLoc, (error, results) => {
@@ -444,7 +429,7 @@ io.on('connection', async socket =>{
       }
       else {
         for (var row in results) {
-          playerLocList.push({playerID: results[row]["pid"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
+          playerLocList.push({playerID: results[row]["pid"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"], Health: results[row]["Item"]});
         }
         initTimestamp = results[0]["ts"]-1
         console.log(playerLocList);
@@ -467,6 +452,7 @@ io.on('connection', async socket =>{
           enemyLocList.push({Enemy: results[row]["Enemy"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
         }
       }});
+
 
     // Get items' positions
     let sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
@@ -606,5 +592,8 @@ io.on('connection', async socket =>{
     console.log('A player has disconnected');
     //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} finished the game`);
+    if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
+      setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
+    }
   });
 });

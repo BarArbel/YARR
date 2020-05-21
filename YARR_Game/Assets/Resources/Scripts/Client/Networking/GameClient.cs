@@ -106,6 +106,14 @@ namespace Project.Networking
                 }
             });
 
+            On("interrGameSettings", (E) => {
+                if (E.data["instanceId"].str == InstanceID)
+                {
+                    FindObjectOfType<GameManager>().ContinueExperiment(E.data);
+
+                }
+            });
+
         }
     }
 }
