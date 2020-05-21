@@ -242,6 +242,7 @@ class StudyPage extends Component {
     const currStudy = studies.find(idCompare)
     
     const fileName = currStudy ? `Study ${currStudy.Title} Raw Data.csv` : "tempName.csv"
+
     return (
       <div className="studyPage">
         <Header />
@@ -277,9 +278,12 @@ class StudyPage extends Component {
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">
+              <p>
+                Download all raw data collected in this study.
+              </p>
               {
-              csvLoaded ? 
-                  (<CSVLink filename={fileName} data={csvData}>Download me</CSVLink>) 
+              csvLoaded && currStudy? 
+                (<CSVLink className="btn btn-primary" filename={fileName} data={csvData}>Download me</CSVLink>) 
               : 
                 (
                   <div style={{marginTop: '30px'}} className="barLoader">
