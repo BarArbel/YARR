@@ -13,8 +13,7 @@ public class ButtonsControl : MonoBehaviour
     }
 
     public void MoveToStartMenu()
-    {
-        DataTransformer.SetDisconnect();
+    {        
         Destroy(GameObject.Find("[Network Container]"));
         SceneManager.LoadScene("StartMenu");
     }

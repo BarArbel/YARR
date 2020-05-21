@@ -36,11 +36,13 @@ namespace Project.Networking
             if (DDASocket.IsConnected)
             {
                 DDASocket.Emit("gameEnded");
+                Debug.Log("game ended");
                 DDASocket.Close();
             }
             if (GameSocket.IsConnected && !DDASocket.IsConnected)
             {
                 GameSocket.Emit("gameEnded");
+                Debug.Log("game ended");
                 GameSocket.Close();
             }
         }

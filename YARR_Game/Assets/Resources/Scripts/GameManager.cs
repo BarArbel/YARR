@@ -141,6 +141,7 @@ public class GameManager : MonoBehaviour
         }
         if (CurrentRound == NumberOfRounds && RoundTimer <= 0)
         {
+            DataTransformer.SetDisconnect();
             SceneManager.LoadScene("FinishMenu");
         }
 
