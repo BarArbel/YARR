@@ -75,15 +75,15 @@ io.on('connection', async socket =>{
   setInterval( () => {
     if(checkIfInteruppted(instanceId) === true) {
       let gameCode
-      // Update instance as Interrupted
+      // Update instance as Interrupted instead of running
 
       // Generate game code
       gameCode = generateInterrGameCode();
-      
+
       // Add instance to interrupted instances
 
-      //instance is dead. do stuff.
-      // notify DDA > close module > add interuppted instanceid  to table > fix tables?
+      // Notify DDA? close module?
+
     }
   }, 30000);
 
