@@ -13,9 +13,20 @@ namespace Project.Networking
         static SocketIOComponent GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
         static DataGameSnapShot data = new DataGameSnapShot();
         static ExperimentSettings settings = new ExperimentSettings();
-        
-        public static void SetExperimentID         (string expID)     { settings.ExperimentID = expID; }
-        public static void SetInstanceID           (string instID)    { settings.InstanceID = instID; }
+
+        public static void SetInstanceID(string instID)
+        {
+            settings.InstanceID = instID;
+            settings.Code = "";
+            settings.ExperimentID = "";
+            settings.InterruptedInstanceID = "";
+            settings.IsInterrupted = false;
+            settings.InitTimestamp = 0f;
+            settings.InitLevel = 0;
+            settings.NumOfPlayers = 0;
+    }
+
+        public static void SetExperimentID         (string expID)     { settings.ExperimentID = expID; }        
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
         public static void SetIsInterrupted         (bool isInterr)   { settings.IsInterrupted = isInterr; }
         public static void SetInitTimestamp        (float time)       { settings.InitTimestamp = time; }

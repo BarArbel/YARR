@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviour
             }
             
         }
-        if (CurrentRound == NumberOfRounds && RoundTimer == 0)
+        if (CurrentRound == NumberOfRounds && RoundTimer <= 0)
         {
             SceneManager.LoadScene("FinishMenu");
         }
