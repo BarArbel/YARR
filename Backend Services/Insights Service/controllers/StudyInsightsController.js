@@ -268,13 +268,13 @@ module.exports = {
 
       else {
         let data = [
-          ["ExperimentTitle", "InstanceID", "GameMode", "Timestamp", "EventID", "PlayerID", "CoordX", "CoordY", "Item", "Enemy"]
+          ["ExperimentTitle", "InstanceID", "GameMode", "Timestamp", "Event", "PlayerID", "CoordX", "CoordY", "Item", "Enemy"]
         ];
 
         results.map(line => {
           const {
             InstanceID, 
-            EventID, 
+            Event, 
             PlayerID, 
             CoordX, 
             CoordY, 
@@ -284,7 +284,7 @@ module.exports = {
             Title,
             Timestamp
           } = line;
-          data.push([Title, InstanceID, GameMode, Timestamp ,EventID, PlayerID, CoordX, CoordY, Item, Enemy]);
+          data.push([Title, InstanceID, GameMode, Timestamp ,Event, PlayerID, CoordX, CoordY, Item, Enemy]);
         });
 
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
