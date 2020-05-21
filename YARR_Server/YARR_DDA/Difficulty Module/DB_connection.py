@@ -1,9 +1,9 @@
-import mysql.connector
+# import mysql.connector
 import os
 import aiomysql
 from dotenv import load_dotenv
+
 load_dotenv()
-# ----------------------
 
 
 class DB_connection:
