@@ -21,16 +21,17 @@ app.use((req, res, next) => {
 
 // /*** Routes ***/
 // app.get('/getRuntime', runtimeCtl.getAll);
-app.post('/getExperiment', ExperimentCtl.getExperiment)
-app.post('/addExperiment', ExperimentCtl.addExperiment)
-app.post('/startExperiment', ExperimentCtl.startExperiment)
-app.post('/stopExperiment', ExperimentCtl.stopExperiment)
-app.post('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments)
-app.put('/updateExperiment', ExperimentCtl.updateExperiment)
-app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment)
+app.post('/getExperiment', ExperimentCtl.getExperiment);
+app.post('/addExperiment', ExperimentCtl.addExperiment);
+app.post('/stopExperiment', ExperimentCtl.stopExperiment);
+app.post('/startExperiment', ExperimentCtl.startExperiment);
+app.put('/updateExperiment', ExperimentCtl.updateExperiment);
+app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment);
+app.post('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments);
+app.post('/getInterruptedInstances', ExperimentCtl.getInterruptedInstances);
 
 app.all('*', (req, res) => {
-    res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`)
+    res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`);
 });
 
 app.listen(port, () => {

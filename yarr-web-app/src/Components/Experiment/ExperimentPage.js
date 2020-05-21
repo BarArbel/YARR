@@ -15,6 +15,7 @@ import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+import { InterruptedInstances } from './InterruptedInstances'
 
 const mapStateToProps = ({ user, experiment }) => {
   return {
@@ -30,16 +31,21 @@ class ExperimentPage extends Component {
   constructor(props) {
     super(props)
 
+    this.interruptedListRef = React.createRef();
+
     this.state = {
+      interrupted: false,
       experimentLoaded: false,
       startStopFinished: true
     }
 
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
+    this.notifyInterrupted = this.notifyInterrupted.bind(this)
     this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStopExperiment = this.handleStopExperiment.bind(this)
     this.handleStartExperiment = this.handleStartExperiment.bind(this)
+    this.handleScrollToElement = this.handleScrollToElement.bind(this)
   }
 
   async componentDidMount() {
@@ -90,6 +96,10 @@ class ExperimentPage extends Component {
     handleSelectExperiment(experiment)
     handleSetExperiments([experiment])
     this.setState({ experimentLoaded: true })
+  }
+
+  notifyInterrupted(){
+    this.setState({ interrupted: true })
   }
 
   handleStartExperiment(){
@@ -202,9 +212,13 @@ class ExperimentPage extends Component {
     })
   }
 
+  handleScrollToElement() {
+    window.scrollTo(0, this.interruptedListRef.current.offsetTop);
+  }
+
   renderLogged(){
-    const { experiment } = this.props
-    const { experimentLoaded, startStopFinished } = this.state
+    const { experiment, bearerKey, userInfo } = this.props
+    const { experimentLoaded, startStopFinished, interrupted } = this.state
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
@@ -225,6 +239,7 @@ class ExperimentPage extends Component {
     const endStartColor = Status === "Running" ? "yellowButton" : "greenButton"
     const codeButtonFunction = Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment
     const runningStyle = ({ color: "#4BB543", fontWeight: "bold" })
+
     return (
       <div className="studyPage">
         <Header />
@@ -255,7 +270,9 @@ class ExperimentPage extends Component {
           <div className="clear" />
           <ul className="nav nav-tabs" id="myTab" role="tablist">
             <li className="nav-item">
-              <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Info</a>
+              <a className="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">
+                Info {interrupted && <p style={{color: 'red', display: 'inline', fontSize: '15px', fontWeight: 'bold'}}>*</p>}
+              </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" id="gameSettings-tab" data-toggle="tab" href="#gameSettings" role="tab" aria-controls="gameSettings" aria-selected="false">Game Settings</a>
@@ -274,11 +291,31 @@ class ExperimentPage extends Component {
                 experimentLoaded ? 
                 (
                   <div>
-                    <h2>{Title}</h2>
-                    <p>Created: {CreationDate}</p>
-                    <p>Status: {Status}</p>
-                    <p>Details: {Details}</p>
-                    <p>Disability: {disability[Disability - 1]}</p>
+                    <div>
+                      {interrupted && (
+                          <button onClick={this.handleScrollToElement} className="buttonNoShow">
+                          <article className="interruptedMsg">
+                            <b>ATTENTION!</b>
+                            <p>
+                              This experiment has unfinished game(s), use the game code(s) below to continue.
+                            </p>
+                          </article>
+                        </button>
+                      )}
+                      <h2>{Title}</h2>
+                      <p>Created: {CreationDate}</p>
+                      <p>Status: {Status}</p>
+                      <p>Details: {Details}</p>
+                      <p>Disability: {disability[Disability - 1]}</p>
+                    </div>
+                    <div ref={this.interruptedListRef}>
+                      <InterruptedInstances 
+                      userInfo={userInfo} 
+                      bearerKey={bearerKey}
+                      experimentId={experiment.ExperimentId}
+                      notifyInterrupted={this.notifyInterrupted}
+                      />
+                    </div>
                   </div>
                 ) 
                 : this.renderWaitForExperiment()

@@ -101,7 +101,7 @@ module.exports = {
     });
   },
   
-  getInteruptedInstances: async (req, res) => {
+  getInterruptedInstances: async (req, res) => {
     const { experimentId } = req.query;
     const verified = await verifyRequest(req);
     if (!verified) {
@@ -121,8 +121,14 @@ module.exports = {
       else if (!results.length)
         res.status(400).send(`{"result": "Failure", "error": "No instances found."}`);
 
-      else
-        res.status(200).send(`{"result": "Success", "instances": ${results}}`);      
+      else {
+        const data = []
+        results.map(line => {
+          const { InstanceId, ExperimentId, GameCode } = line;
+          data.push({ InstanceId: InstanceId, ExperimentId: ExperimentId, GameCode: GameCode });
+        });
+        res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);      
+      }
     });
   },
 
