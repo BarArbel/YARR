@@ -279,11 +279,11 @@ class StudyPage extends Component {
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">
               <p>
-                Download all raw data collected in this study.
+                Download CSV file of all raw data collected in this study.
               </p>
               {
               csvLoaded && currStudy? 
-                (<CSVLink className="btn btn-primary" filename={fileName} data={csvData}>Download me</CSVLink>) 
+                (<CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink>) 
               : 
                 (
                   <div style={{marginTop: '30px'}} className="barLoader">
