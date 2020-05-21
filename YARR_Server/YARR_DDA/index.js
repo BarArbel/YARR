@@ -70,6 +70,7 @@ io.on('connection', async socket =>{
 
   socket.on('gameEnded', () => {
     // insert DDa + Tracker into perma table
+    console.log("game ended")
     socket.broadcast.emit('gameEnded', `${tableTimeId}`);
   });
 

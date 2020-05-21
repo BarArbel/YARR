@@ -1,5 +1,5 @@
-from DB_connection import DB_connection
-from difficulty_calc import DDA_calc
+from DB_connection import DBconnection
+from difficulty_calc import DDAcalc
 import socketio
 import asyncio
 import time
@@ -12,7 +12,6 @@ number_of_players = 3
 starting_level = 2
 last_time = None
 sio = socketio.AsyncClient()
-# first_connection = True
 instance_id = ""
 table_name = "DDA_Input_"
 con = None
@@ -21,7 +20,7 @@ host = os.getenv('HOST_SERVER')
 recv_port = os.getenv('PORT_SERVER')
 
 
-async def getDataFromDB():
+async def get_data_from_db():
     global con, number_of_players
 
     total = {
@@ -50,33 +49,26 @@ async def getDataFromDB():
     else:
         timestamp = 0
 
-    print(timestamp)
-    sys.stdout.flush()
-
     for player_id in range(number_of_players):
         for event in total:
-            tempEvent = event
-            tempSpawnItemFlag = False
-            tempPlayerFlag = True
+            temp_event = event
+            temp_spawn_item_flag = False
+            temp_player_flag = True
 
             if event == "pickupPlayerLimit":
-                fetch = await con.count_last_pickup_events(player_id + 1,
-                                                           timestamp, 5)
+                fetch = await con.count_last_pickup_events(player_id + 1, timestamp, 5)
             else:
                 if event == "pickupPlayerTotal" or event == "pickupOther":
-                    tempEvent = "pickup"
+                    temp_event = "pickup"
                     if event == "pickupOther":
-                        tempPlayerFlag = False
+                        temp_player_flag = False
                 elif event == "spawnPlayerItem" or event == "spawnEnemy":
-                    tempEvent = "spawn"
+                    temp_event = "spawn"
                     if event == "spawnPlayerItem":
-                        tempSpawnItemFlag = True
+                        temp_spawn_item_flag = True
 
-                fetch = await con.count_total_player_events(tempEvent,
-                                                            player_id + 1,
-                                                            timestamp,
-                                                            tempSpawnItemFlag,
-                                                            tempPlayerFlag)
+                fetch = await con.count_total_player_events(temp_event, player_id + 1, timestamp, temp_spawn_item_flag,
+                                                            temp_player_flag)
 
             total[event].append(fetch[0])
 
@@ -95,16 +87,14 @@ def calculate(total, timestamp):
 
     for player_id in range(number_of_players):
 
-        penalty, bonus = calc.calc_penalty_and_bonus(
-            total["pickupPlayerTotal"][player_id],
-            total["giveItem"][player_id], total["revivePlayer"][player_id],
-            total["getDamaged"][player_id], total["blockDamage"][player_id],
-            total["fallAccidently"][player_id])
+        penalty, bonus = calc.calc_penalty_and_bonus(total["pickupPlayerTotal"][player_id],
+                                                     total["giveItem"][player_id], total["revivePlayer"][player_id],
+                                                     total["getDamaged"][player_id], total["blockDamage"][player_id],
+                                                     total["fallAccidently"][player_id])
         calcs["penalty"].append(penalty)
         calcs["bonus"].append(bonus)
 
-        skill = calc.calc_skill(penalty, bonus,
-                                total["pickupPlayerTotal"][player_id],
+        skill = calc.calc_skill(penalty, bonus, total["pickupPlayerTotal"][player_id],
                                 total["spawnPlayerItem"][player_id])
         if skill is None:
             calcs["skill"].append(-1)
@@ -123,29 +113,24 @@ def calculate(total, timestamp):
     return calcs
 
 
-async def insertCalculationsToDB(calcs, timestamp):
+async def insert_calculations_to_db(calcs, timestamp):
     global con, number_of_players
 
     for player_id in range(number_of_players):
-        await con.insert_DDA_table(player_id + 1,
-                                   calcs["penalty"][player_id],
-                                   calcs["bonus"][player_id],
-                                   calcs["skill"][player_id],
-                                   calcs["level"][player_id],
-                                   timestamp)
+        await con.insert_dda_table(player_id + 1, calcs["penalty"][player_id], calcs["bonus"][player_id],
+                                   calcs["skill"][player_id], calcs["level"][player_id], timestamp)
 
 
-def createGameJson(calcs):
+def create_game_json(calcs):
     global con, number_of_players
 
     game_json = {
-        "index": 0,
+        "index": con.counter,
         "LevelSpawnHeightAndTimer": [],
         "LevelPrecision": [],
         "LevelSpeedAndSpawnRate": []
     }
 
-    game_json["index"] = con.counter
     con.counter = con.counter + 1
 
     for player_id in range(number_of_players):
@@ -166,7 +151,6 @@ def connect():
 
 @sio.on("DDAupdate")
 async def on_ddaupdate(data):
-    # global first_connection, table_name, con, last_time, starting_level
     global instance_id, table_name, last_time, starting_level
 
     print('DDAupdate received with ', data)
@@ -176,10 +160,10 @@ async def on_ddaupdate(data):
         current_time = time.time()
         if current_time > last_time + 5:
             last_time = current_time
-            total, timestamp = await getDataFromDB()
+            total, timestamp = await get_data_from_db()
             calcs = calculate(total, timestamp)
-            await insertCalculationsToDB(calcs, timestamp)
-            game_json = createGameJson(calcs)
+            await insert_calculations_to_db(calcs, timestamp)
+            game_json = create_game_json(calcs)
 
             emit_json = {
                 "LvSettings": game_json,
@@ -190,40 +174,13 @@ async def on_ddaupdate(data):
             print("data sent to server: ", emit_json)
             sys.stdout.flush()
 
-    """if first_connection is True:
-        tmp_table_name = data.split(" ")[1].split(".")[1]
-        if not tmp_table_name.startswith("DDA") and not tmp_table_name.startswith("dda"):
-            return
-        else:
-            table_name = tmp_table_name
-            con = DB_connection(table_name)
-            await con._init(number_of_players)
-            last_time = time.time()
-            first_connection = False
-            print("done first connection")
-
-    elif data == "table yarrserver." + table_name + " updated":
-        current_time = time.time()
-        if current_time > last_time + 5:
-            last_time = current_time
-            total, timestamp = await getDataFromDB()
-            calcs = calculate(total, timestamp)
-            await insertCalculationsToDB(calcs, timestamp)
-            game_json = createGameJson(calcs)
-            await sio.emit('variables', game_json)
-            print("variables sent to game: ", game_json)
-
-    elif data == "table yarrserver." + table_name + " finished the game":
-        # transfer data from temporary tables to permanent experiment table
-
-        await sio.emit('end', 'experiment ended')
-        await con.close_connection()
-        await sio.disconnect()"""
-
 
 @sio.on("gameEnded")
 async def on_gameended(data):
     global instance_id, con
+
+    print("gameEnded received with ", data)
+    sys.stdout.flush()
 
     if data == instance_id:
         await con.insert_permanent_table(instance_id)
@@ -248,13 +205,13 @@ async def init_vars(args):
     number_of_players = int(args[2])
 
     table_name += instance_id
-    con = DB_connection(table_name)
-    await con._init(number_of_players)
+    con = DBconnection(table_name)
+    await con.init_extender(number_of_players)
     if con.newT_continueF:
         levels = await con.get_levels(number_of_players)
     else:
         levels = []
-    calc = DDA_calc(number_of_players, starting_level, levels)
+    calc = DDAcalc(number_of_players, starting_level, levels)
     last_time = time.time()
     print("done init_vars")
     sys.stdout.flush()

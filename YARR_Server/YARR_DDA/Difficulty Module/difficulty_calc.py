@@ -1,4 +1,4 @@
-class DDA_calc:
+class DDAcalc:
 
     def __init__(self, number_of_players, starting_level, levels):
         self.player_levels = []
@@ -8,8 +8,7 @@ class DDA_calc:
             for i in range(number_of_players):
                 self.player_levels[i] += levels[i]
 
-    def calc_penalty_and_bonus(self, pickup_player_total, give_item,
-                               revive_player, get_damaged, block_damage,
+    def calc_penalty_and_bonus(self, pickup_player_total, give_item, revive_player, get_damaged, block_damage,
                                fall_accidently):
 
         get_damaged_penalty = (0.4 * pickup_player_total) * get_damaged
@@ -33,7 +32,7 @@ class DDA_calc:
             return skill
 
     def calc_difficulty(self, skill):
-        rangeMax = 66
-        rangeMin = 33
+        range_max = 66
+        range_min = 33
 
-        return 1 if skill > rangeMax else (-1 if skill <= rangeMin else 0)
+        return 1 if skill > range_max else (-1 if skill <= range_min else 0)
