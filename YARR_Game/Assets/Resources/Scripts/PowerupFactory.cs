@@ -69,8 +69,7 @@ public class PowerupFactory : ObjectFactory
         itemObj.GetComponent<Powerup>().PowerupInit(GetID(), DestroyTimer);
     }
 
-    public override GameObject ContinuedGameSpawn(float3 objectSettings)
-    { return null; }
+    public override GameObject ContinuedGameSpawn(float3 objectSettings) { return null; }
 
         // Start is called before the first frame update
         void Start()
