@@ -14,40 +14,41 @@ const tables = [];
 const sockets = [];
 // checkIfInteruppted('1589963472424_NbwZ1Of4F')
 // Check if the given instance ID is an interrupted one
-async function checkIfInteruppted(instanceId) {
-  try {
-    const sql = `SELECT UPDATE_TIME FROM information_schema.tables WHERE 
-                TABLE_SCHEMA = '${process.env.DATABASE}' AND TABLE_NAME = 'Tracker_Input_${instanceId}';`
-    const results = await query(sql);
-    if(!results.length) {
-      //what then?
-    }
-    const lastUpdate = new Date(results[0].UPDATE_TIME)
-    const utcCurr = Date.now();
-    const diffTime = Math.abs(utcCurr - lastUpdate);
-    console.log(diffTime + " milliseconds");
+// async function checkIfInteruppted(instanceId) {
+//   try {
+//     const sql = `SELECT UPDATE_TIME FROM information_schema.tables WHERE 
+//                 TABLE_SCHEMA = '${process.env.DATABASE}' AND TABLE_NAME = 'Tracker_Input_${instanceId}';`
+//     const results = await query(sql);
+//     if(!results.length) {
+//       //what then?
+//     }
+//     const lastUpdate = new Date(results[0].UPDATE_TIME)
+//     const utcCurr = Date.now();
+//     const diffTime = Math.abs(utcCurr - lastUpdate);
+//     console.log(diffTime + " milliseconds");
   
-    // console.log(new Date(lastUpdate).toString());
-    // console.log(utcCurr);
-    // console.log(utcCurr - lastUpdate)
-    // console.log((utcCurr.getHours() - lastUpdate) > 30000 ? "yes" : "no");
+//     // console.log(new Date(lastUpdate).toString());
+//     // console.log(utcCurr);
+//     // console.log(utcCurr - lastUpdate)
+//     // console.log((utcCurr.getHours() - lastUpdate) > 30000 ? "yes" : "no");
 
-    if (diffTime > 30000 )
-    {
-        const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`;
-        const results = await query(sql_check_finish);
-        console.log(results[0].counter);
-        if(!results.length) {
-        //what then?
-        }
-        return results[0].counter == 0 ? true : false;
-    }
-    return false;
-  }
-  catch (err) {
-    return false; //??
-  }
-}
+//     if (diffTime > 30000 )
+//     {
+//         const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`;
+//         const results = await query(sql_check_finish);
+//         console.log(results[0].counter);
+//         if(!results.length) {
+//         //what then?
+//         }
+//         return results[0].counter == 0 ? true : false;
+//     }
+//     return false;
+//   }
+//   catch (err) {
+//     return false; //??
+//   }
+// }
+
 
 // Generate a game code for restarting an interrupted game
 async function generateInterrGameCode() {
@@ -112,10 +113,17 @@ io.on('connection', async socket =>{
   const table = new Table();
   let refreshIntervalId;
   let experimentId;
+  let stillAlive = false;
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
   
+  async function checkIfInteruppted() {
+    console.log(`instance: ${table.time}_${table.id} is` + stillAlive ? " alive" : "dead");
+    stillAlive = false;
+    return true;
+  }
+
   socket.on('createTables', async () => {
     //Creating table for each experiment   
     const sql = `CREATE TABLE ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} (
@@ -195,7 +203,7 @@ io.on('connection', async socket =>{
 
     // Check if experiment is interrupted
     refreshIntervalId = setInterval( () => {
-      if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
+      if(checkIfInteruppted(stillAlive, `${table.time}_${table.id}`) === false) {
         setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
       }
     }, 30000);
@@ -240,6 +248,7 @@ io.on('connection', async socket =>{
     const { err, rows, fields } = await query(sql)
     if(err) throw err;
     console.log("data was added");
+    stillAlive = true;
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} updated`);
   });
 
