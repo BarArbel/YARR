@@ -384,7 +384,7 @@ class ExperimentPage extends Component {
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">
               <p>
-                Download CSV file of all raw data collected in this study.
+                Download CSV file of all raw data collected in this experiment.
               </p>
               {
                 csvLoaded && experimentLoaded ?
