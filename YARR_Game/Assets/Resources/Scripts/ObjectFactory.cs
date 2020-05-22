@@ -98,6 +98,8 @@ public abstract class ObjectFactory : MonoBehaviour
 
     protected abstract void ModifyLevelSettings();
     protected abstract void Spawn();
+    public abstract GameObject ContinuedGameSpawn(float3 objectSettings);
+    public virtual GameObject ContinuedGameSpawn(int2 objectSettings) { return null; }
     /*DEBUG*/
     public abstract System.String GETLEVELSTRING();
 

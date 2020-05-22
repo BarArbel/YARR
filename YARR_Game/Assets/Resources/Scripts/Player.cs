@@ -79,6 +79,22 @@ public class Player : MonoBehaviour
         return true;
     }
 
+    public bool SetHealth(int health)
+    {
+        float spriteBrightness;
+
+        if (MaxHealth <= 0 || health > MaxHealth)
+        {
+            return false;
+        }
+
+        Health = health;
+        spriteBrightness = (float)Health / (float)MaxHealth;
+        gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
+
+        return true;
+    }
+
     public bool SetEnemyHit( Enemy enemy)
     {
         float spriteBrightness;
@@ -259,6 +275,11 @@ public class Player : MonoBehaviour
         {           
             treasure.SetPickedUp(this.gameObject);
         }
+    }
+
+    public void ContinuedGameTreasure(GameObject gameObject)
+    {
+        TakeTreasure(gameObject);
     }
 
     private void OrderCarriedItems()

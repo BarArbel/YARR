@@ -91,6 +91,26 @@ public class EnemyFactory : ObjectFactory
         }
     }
 
+
+    public override GameObject ContinuedGameSpawn(float3 objectSettings)
+    {
+        if (Speed > 0)
+        {
+            // Calculate a random side to spawn at
+            int enemyLayer = LayerMask.NameToLayer("Enemy");
+            Vector3 position = new Vector3(objectSettings.y, objectSettings.z, 0);
+
+            // Create an enemy
+            GameObject enemyObj = Instantiate(GetPrefab(), position, transform.rotation);
+            enemyObj.transform.SetParent(GameObject.Find("Map").transform);
+            enemyObj.layer = enemyLayer;
+            enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
+            enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+            return enemyObj;
+        }
+        return null;
+    }
+
     // Start is called before the first frame update
     void Start()
     {

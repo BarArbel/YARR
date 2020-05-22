@@ -74,22 +74,26 @@ public class PlayerFactory : MonoBehaviour
         }
     }
 
-    protected void ContinuedGameSpawn(List<float4> playerSettings)
+    public void ContinuedGameSpawn(List<float4> playerSettings)
     {
         if (!IsNewGame)
         {
             for (int i = 0; i < playerSettings.Count; i++)
             {
+                int playerID = (int)playerSettings[i].x;
                 GameObject playerObj = Instantiate(PlayerPrefab);
                 Player player = playerObj.GetComponent<Player>();
                 player.transform.SetParent(GameObject.Find("Map").transform);
-                // TODO: player position 
-                // TODO: player health
+                // Init player health
+                player.SetHealth((int)playerSettings[i].w);
+                // Init player position
+                playerObj.transform.position = new Vector3(playerSettings[i].y, playerSettings[i].z, 0);
+
                 playerObj.tag = "Player";
-                playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
+                playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[playerID];
 
                 // Init player properties
-                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], (int)playerSettings[i].x, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
             }
         }
     }

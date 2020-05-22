@@ -73,6 +73,36 @@ public class ItemFactory : ObjectFactory
         itemObj.GetComponent<Treasure>().TreasureInit(GetID(), DestroyTimer);
     }
 
+    public override GameObject ContinuedGameSpawn(float3 objectSettings)
+    {
+        int itemLayer = LayerMask.NameToLayer("Item");
+        // Calculate a random location to spawn at
+        Vector3 position = new Vector3(objectSettings.y, objectSettings.z, 0);
+
+        // Create an item
+        GameObject itemObj = Instantiate(GetPrefab(), position, transform.rotation);
+        itemObj.transform.SetParent(GameObject.Find("Map").transform);
+        itemObj.layer = itemLayer;
+        itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+        itemObj.GetComponent<Treasure>().TreasureInit(GetID(), DestroyTimer);
+        return itemObj;
+    }
+
+    public override GameObject ContinuedGameSpawn(int2 objectSettings)
+    {
+        int itemLayer = LayerMask.NameToLayer("Item");
+        // Calculate a random location to spawn at
+        Vector3 position = new Vector3(0, 0, 0);
+
+        // Create an item
+        GameObject itemObj = Instantiate(GetPrefab(), position, transform.rotation);
+        itemObj.transform.SetParent(GameObject.Find("Map").transform);
+        itemObj.layer = itemLayer;
+        itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
+        itemObj.GetComponent<Treasure>().TreasureInit(GetID(), DestroyTimer);
+        return itemObj;
+    }
+
     // Start is called before the first frame update
     void Start()
     {

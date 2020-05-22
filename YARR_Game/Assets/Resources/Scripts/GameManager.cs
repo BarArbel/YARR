@@ -24,6 +24,9 @@ public class GameManager : MonoBehaviour
     private List<Level> RoundsDifficulties;
     private bool ExperimentStarted;
 
+    // Difficulties carried from round to round
+    private List<int> PlayerDifficulties; 
+
     // Game settings
     private GameMode Mode;
     private int NumberOfPlayers;
@@ -258,6 +261,9 @@ public class GameManager : MonoBehaviour
         ItemFactories = new List<ObjectFactory>();
         PowerupFactories = new List<ObjectFactory>();
 
+        // Initialize player difficulties
+        PlayerDifficulties = new List<int>();
+
         // Load ALL possible sprites
         // Player sprites
         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player1"));
@@ -419,12 +425,15 @@ public class GameManager : MonoBehaviour
                 sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
             }
 
-            // Initialize Items         
+            // Initialize Items   
             if (Mode == GameMode.Competitive)
             {
-                GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
-                ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                ItemFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count-1], isNewGame);
+                for (int i = 0; i < NumberOfPlayers; i++)
+                {
+                    GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                    ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                    ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                }
             }
             else
             {
@@ -459,7 +468,63 @@ public class GameManager : MonoBehaviour
 
             if (!isNewGame)
             {
-                PlayerFactory.ContinuedGameSpawn
+                // Spawn players
+                PlayerFactory.ContinuedGameSpawn(PlayerSettings);
+                GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+
+                // Spawn Items
+                for (int i = 0; i < ItemSettings.Count; i++)
+                {
+                    if (Mode == GameMode.Cooperative)
+                    {
+                        int itemID = (int)ItemSettings[i].x;
+                        ItemFactories[itemID - 1].ContinuedGameSpawn(ItemSettings[i]);
+                    }
+                    else
+                    {
+                        ItemFactories[0].ContinuedGameSpawn(ItemSettings[i]);
+                    }
+                }
+
+                // Spawn Enemies
+                for (int i = 0; i < EnemySettings.Count; i++)
+                {
+                    if (Mode == GameMode.Cooperative)
+                    {
+                        int enemyID = (int)EnemySettings[i].x;
+                        EnemyFactories[enemyID - 1].ContinuedGameSpawn(EnemySettings[i]);
+                    }
+                    else
+                    {
+                        EnemyFactories[0].ContinuedGameSpawn(EnemySettings[i]);
+                    }
+                }
+
+                // spawn taken items
+                for (int i = 0; i < HItemSettings.Count; i++)
+                {
+                    GameObject heldItem;
+
+                    if (Mode == GameMode.Cooperative)
+                    {
+                        int itemID = HItemSettings[i].x;
+                        heldItem = ItemFactories[itemID - 1].ContinuedGameSpawn(HItemSettings[i]);
+                    }
+                    else
+                    {
+                        heldItem = ItemFactories[0].ContinuedGameSpawn(HItemSettings[i]);
+                    }
+
+                    for (int j=0; j< players.Length; j++)
+                    {
+                        Player playerObj = players[i].GetComponent<Player>();
+                        if (playerObj.GetID() == HItemSettings[i].y)
+                        {
+                            playerObj.ContinuedGameTreasure(heldItem);
+                        }
+                    }
+                }
+                    
             }
         }
     }
