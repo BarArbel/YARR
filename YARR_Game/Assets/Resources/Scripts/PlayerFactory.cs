@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using Unity.Mathematics;
 
 public class PlayerFactory : MonoBehaviour
 {
@@ -64,8 +65,7 @@ public class PlayerFactory : MonoBehaviour
             GameObject playerObj = Instantiate(PlayerPrefab);
             Player player = playerObj.GetComponent<Player>();
             player.transform.SetParent(GameObject.Find("Map").transform);
-
-            // TODO: Init player sprite, transform, rotation, etc.            
+           
             playerObj.tag = "Player";
             playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
@@ -74,11 +74,22 @@ public class PlayerFactory : MonoBehaviour
         }
     }
 
-    protected void ContinuedGameSpawn(int[] ID, float[] CoordX, float[] CoordY, int[] Health)
+    protected void ContinuedGameSpawn(List<float4> playerSettings)
     {
         if (!IsNewGame)
         {
+            for (int i = 0; i < playerSettings.Count; i++)
+            {
+                GameObject playerObj = Instantiate(PlayerPrefab);
+                Player player = playerObj.GetComponent<Player>();
+                player.transform.SetParent(GameObject.Find("Map").transform);
 
+                playerObj.tag = "Player";
+                playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
+
+                // Init player properties
+                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+            }
         }
     }
 

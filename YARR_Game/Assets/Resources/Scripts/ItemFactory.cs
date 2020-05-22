@@ -36,7 +36,7 @@ public class ItemFactory : ObjectFactory
             DestroyTimer = LevelsOf_DestroyTimer[level - 1];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[level - 1];
         }
-        // Adaptive Cooperative
+        // Adaptive 
         else
         {
             if (!IsDDAInitiated)
@@ -47,9 +47,10 @@ public class ItemFactory : ObjectFactory
 
             if (!(LevelTimerAndSpawn == 1 && DDALevelSpawnHeightAndTimer == -1) && !(LevelTimerAndSpawn == 6 && DDALevelSpawnHeightAndTimer == 1))
             {
+                int mode = GetID() == -1 ? 1 : 0;
                 LevelTimerAndSpawn += DDALevelSpawnHeightAndTimer;
                 Event evnt = DDALevelSpawnHeightAndTimer > 0 ? Event.lvlUp : (DDALevelSpawnHeightAndTimer < 0 ? Event.lvlDown : Event.lvlStay);
-                DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, GetID(), 0, 0, 0, GetID(), 0);
+                DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, GetID(), 0, 0, 0, GetID(), mode);
 
             }
 
