@@ -117,7 +117,7 @@ io.on('connection', async socket =>{
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
-  
+
   async function checkIfInteruppted() {
     console.log(`instance: ${table.time}_${table.id} is` + stillAlive ? " alive" : "dead");
     stillAlive = false;
@@ -203,7 +203,7 @@ io.on('connection', async socket =>{
 
     // Check if experiment is interrupted
     refreshIntervalId = setInterval( () => {
-      if(checkIfInteruppted(stillAlive, `${table.time}_${table.id}`) === false) {
+      if(checkIfInteruppted() === false) {
         setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
       }
     }, 30000);
