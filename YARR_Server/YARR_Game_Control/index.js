@@ -12,7 +12,7 @@ console.log('Server has started');
 
 const tables = [];
 const sockets = [];
-checkIfInteruppted('1589963472424_NbwZ1Of4F')
+// checkIfInteruppted('1589963472424_NbwZ1Of4F')
 // Check if the given instance ID is an interrupted one
 async function checkIfInteruppted(instanceId) {
   try {
