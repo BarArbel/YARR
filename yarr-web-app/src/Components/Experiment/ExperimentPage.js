@@ -1,21 +1,23 @@
 import Header from '../Header'
+import { MDBBtn } from 'mdbreact'
+import { CSVLink } from 'react-csv'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
-import { MDBBtn } from 'mdbreact'
 import { Redirect } from 'react-router-dom'
 import CoopImg from '../../cooperative.png'
 import CompImg from '../../competitive.png'
 import CodeView from '../Utilities/CodeView'
 import Skeleton from 'react-loading-skeleton'
 import DifficultyImg from '../../difficulty.png'
+import MoonLoader from "react-spinners/MoonLoader"
 import Breadcrumbs from '../Utilities/Breadcrumbs'
 import { confirmAlert } from 'react-confirm-alert'
 import ClipLoader from "react-spinners/ClipLoader"
 import UserActions from '../../Actions/UserActions'
+import { InterruptedInstances } from './InterruptedInstances'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
-import { InterruptedInstances } from './InterruptedInstances'
 
 const mapStateToProps = ({ user, experiment }) => {
   return {
@@ -34,6 +36,8 @@ class ExperimentPage extends Component {
     this.interruptedListRef = React.createRef();
 
     this.state = {
+      csvData: [],
+      csvLoaded: false,
       interrupted: false,
       experimentLoaded: false,
       startStopFinished: true
@@ -41,6 +45,7 @@ class ExperimentPage extends Component {
 
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
+    this.fetchRawData = this.fetchRawData.bind(this)
     this.notifyInterrupted = this.notifyInterrupted.bind(this)
     this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStopExperiment = this.handleStopExperiment.bind(this)
@@ -50,12 +55,12 @@ class ExperimentPage extends Component {
 
   async componentDidMount() {
     const { 
-      handleSetRoutes, 
-      handleSelectExperiment,
-      handleSetExperiments, 
-      experimentList, 
       userInfo, 
-      bearerKey 
+      bearerKey, 
+      experimentList, 
+      handleSetRoutes, 
+      handleSetExperiments, 
+      handleSelectExperiment
     } = this.props
     const experimentId = this.props.match.params.experimentId
     const studyId = this.props.match.params.studyId
@@ -96,13 +101,45 @@ class ExperimentPage extends Component {
     handleSelectExperiment(experiment)
     handleSetExperiments([experiment])
     this.setState({ experimentLoaded: true })
+    this.fetchRawData()
   }
 
-  notifyInterrupted(){
+  fetchRawData() {
+    const {
+      userInfo,
+      bearerKey
+    } = this.props
+    const experimentId = this.props.match.params.experimentId
+    const rawDataURL = `https://yarr-insight-service.herokuapp.com/requestRawData?experimentId=${experimentId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+
+    fetch(rawDataURL, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          this.setState({ csvData: json.data, csvLoaded: true })
+        }
+        else {
+        }
+      })
+      .catch(err => {
+      })
+  }
+
+  notifyInterrupted() {
     this.setState({ interrupted: true })
   }
 
-  handleStartExperiment(){
+  handleStartExperiment() {
     const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
     const json = {
@@ -126,7 +163,7 @@ class ExperimentPage extends Component {
       .catch(err => console.log(err))
   }
 
-  handleStopExperiment(){
+  handleStopExperiment() {
     const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/stopExperiment`
     const json = {
@@ -216,12 +253,12 @@ class ExperimentPage extends Component {
     window.scrollTo(0, this.interruptedListRef.current.offsetTop);
   }
 
-  renderLogged(){
+  renderLogged() {
     const { experiment, bearerKey, userInfo } = this.props
-    const { experimentLoaded, startStopFinished, interrupted } = this.state
+    const { experimentLoaded, startStopFinished, interrupted, csvLoaded, csvData } = this.state
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
-    const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
+    const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     let {
       CreationDate,
       Status,
@@ -239,6 +276,7 @@ class ExperimentPage extends Component {
     const endStartColor = Status === "Running" ? "yellowButton" : "greenButton"
     const codeButtonFunction = Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment
     const runningStyle = ({ color: "#4BB543", fontWeight: "bold" })
+    const fileName = experiment ? `Experiment ${Title} Raw Data.csv` : "tempName.csv"
 
     return (
       <div className="studyPage">
@@ -344,7 +382,21 @@ class ExperimentPage extends Component {
               <StudyInsightsMirror studyId={studyId} />
               <StudyInsightsMirror studyId={studyId} />
             </div>
-            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">Placeholder 4</div>
+            <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">
+              <p>
+                Download CSV file of all raw data collected in this study.
+              </p>
+              {
+                csvLoaded && experimentLoaded ?
+                  (<CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink>)
+                  :
+                  (
+                    <div style={{ marginTop: '30px' }} className="barLoader">
+                      <MoonLoader size={100} color={"#123abc"} loading={true} />
+                    </div>
+                  )
+              }
+            </div>
           </div>
         </div>
       </div>

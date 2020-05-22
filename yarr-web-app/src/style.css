@@ -2,12 +2,22 @@ html {
   scroll-behavior: smooth;
 }
 
-.header-login-signup{
+body {
+	margin:0;
+  padding:0;
+}
+
+.header-login-signup, .header-login-signup .header-limiter a, 
+.header-login-signup .header-limiter ul button, .interruptedMsg,
+.greenButton, .yellowButton, .gameCodeCopy, .indexedStep {
+  color: #FFFFFF;
+}
+
+.header-login-signup {
 	background-color:#292c2f;
 	box-shadow:0 1px 1px #ccc;
 	padding: 20px 40px;
 	height: 80px;
-	color: #ffffff;
   box-sizing: border-box;
   transition: top 0.3s;
 }
@@ -36,7 +46,6 @@ html {
 /* The navigation links */
 
 .header-login-signup .header-limiter a {
-	color: #ffffff;
 	text-decoration: none;
 }
 
@@ -67,7 +76,6 @@ html {
 
 /* Login/Sign up buttons */
 .header-login-signup .header-limiter ul button {
-    color: #ffffff;
     background:none;
     border:none;
 }
@@ -154,14 +162,12 @@ textarea {
 }
 
 
-.warningText, .centerText {
+.warningText, .centerText, .interruptedMsg, .gameCode, .gameCodeWrapper {
   text-align: center;
 }
 
 .interruptedMsg {
   margin-top: 25px;
-  color: #FFFFFF;
-  text-align: center;
   background-color: #B33A3A;
 }
 
@@ -173,7 +179,6 @@ textarea {
 .greyBackground {
   width: 100%;
   height: 100px;
-  /* background-color: #b8a6fc; */
   border-radius: 5px;
 }
 
@@ -197,7 +202,7 @@ a.linkHolder:hover {
 }
 
 .breadcrumb {
-  background-color: #ffffff !important;
+  background-color: #FFFFFF !important;
 }
 
 .insightCard {
@@ -214,15 +219,16 @@ a.linkHolder:hover {
   left: 15%;
 }
 
-.addStudy {
+.addFirstStudy, .addStudy {
   position: relative;
-  float: right;
   background-color: #62c462 !important;
 }
 
+.addStudy {
+  float: right;
+}
+
 .addFirstStudy {
-  position: relative;
-  background-color: #62c462 !important;
   left: 50%;
   transform: translate(-50%);
 }
@@ -234,12 +240,10 @@ a.linkHolder:hover {
 
 .greenButton {
   background-color: #62c462 !important;
-  color: #FFFFFF;
 }
 
 .yellowButton {
   background-color: #ffae42 !important;
-  color: #FFFFFF;
 }
 
 .input-limit {
@@ -248,11 +252,15 @@ a.linkHolder:hover {
   font-size: 12px;
   font-weight: bold;
 }
-.buttonNoShow {
-  width: 100%;
-  height: 100;
+
+.invisButton, .buttonNoShow {
   border: none;
   background-color: white;
+}
+
+.buttonNoShow {
+  width: 100%;
+  height: 100%;
 }
 
 .buttonNoShow:focus {
@@ -260,8 +268,6 @@ a.linkHolder:hover {
 }
 
 .invisButton {
-  border: none;
-  background-color: white;
   float: right;
   position: relative;
   width: 30px;
@@ -344,7 +350,6 @@ hr {
 }
 
 .hideRadio {
-  /* position: absolute; */
   opacity: 0;
   width: 0;
   height: 0;
@@ -357,11 +362,6 @@ hr {
 .selectedVisual {
   opacity: 1;
 }
-
-/* CHECKED STYLES */
-/* [type=radio]:checked + img {
-  outline: 2px solid #608bd2;
-} */
 
 .clear {
   clear: both;
@@ -386,7 +386,6 @@ hr {
 }
 
 .gameCode {
-  text-align: center;
   font-weight: bold;
   color: #3a3c3e;
   width: 100%;
@@ -398,7 +397,6 @@ hr {
   display: inline-block;
   zoom: 1; /* Trigger hasLayout */
   width: 100%;
-  text-align: center;
 }
 
 .gameCodeCard {
@@ -407,7 +405,6 @@ hr {
 }
 
 .gameCodeCopy {
-  color: #ffffff;
   background-color: #608bd2;
   border-radius: 10px;
   border: none;
@@ -445,7 +442,6 @@ hr {
 }
 
 .indexedStep {
-  color: white;
   width: 20px;
   height: 20px;
   font-size: 12px;
@@ -462,12 +458,6 @@ hr {
 
 .redBorder {
   border-color: #B33A3A !important;
-}
-/* For the headers to look good, be sure to reset the margin and padding of the body */
-
-body {
-	margin:0;
-  padding:0;
 }
 
 .signIn {

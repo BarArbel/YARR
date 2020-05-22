@@ -1,9 +1,10 @@
 import {
   SET_EXPERIMENTS,
+  RESET_EXPERIMENTS,
   UPDATE_EXPERIMENT,
   DELETE_EXPERIMENT,
-  TOGGLE_BUILD_EXPERIMENT,
   SELECT_EXPERIMENT,
+  TOGGLE_BUILD_EXPERIMENT,
   CHANGE_EXPERIMENT_STATUS
 } from "../ActionsTypes/ExperimentActionTypes"
 
@@ -74,6 +75,14 @@ export default (state = initialState, action) => {
       return {
         ...state,
         experiment: action.data
+      }
+    }
+
+    case RESET_EXPERIMENTS: {
+      return {
+        ...state,
+        experimentList: [],
+        experimentsLoaded: false
       }
     }
 

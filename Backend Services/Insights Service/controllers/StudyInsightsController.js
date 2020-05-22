@@ -242,7 +242,7 @@ module.exports = {
     });
   },
 
-  requestRawData: async(req, res) => {
+  requestAllRawData: async(req, res) => {
     const { studyId } = req.query;
     const verified = await verifyRequest(req);
     

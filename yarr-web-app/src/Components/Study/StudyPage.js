@@ -42,11 +42,15 @@ class StudyPage extends Component {
       studyLoaded: false,
       editExperiment: false
     }
+    this.setRoutes = this.setRoutes.bind(this)
     this.renderWait = this.renderWait.bind(this)
+    this.fetchRawData = this.fetchRawData.bind(this)
+    this.fetchStudies = this.fetchStudies.bind(this)
     this.renderLoaded = this.renderLoaded.bind(this)
     this.handleCreate = this.handleCreate.bind(this)
     this.renderLogged = this.renderLogged.bind(this)
     this.renderStudyInfo = this.renderStudyInfo.bind(this)
+    this.fetchExperiments = this.fetchExperiments.bind(this)
     this.handleToggleEdit = this.handleToggleEdit.bind(this)
     this.renderWaitForStudy = this.renderWaitForStudy.bind(this)
   }
@@ -54,30 +58,43 @@ class StudyPage extends Component {
   async componentDidMount() {
     const { 
       studies,
-      userInfo,
-      bearerKey,
-      handleSetRoutes, 
       buildExperiment, 
-      handleAddStudies,
-      handleSetExperiments, 
+      handleResetExperiments,
       handleToggleBuildExperiment
     } = this.props
+
+    handleResetExperiments()
+    this.setRoutes()
+    buildExperiment && handleToggleBuildExperiment()
+    this.fetchExperiments()
+    studies.length && this.setState({ studyLoaded: true })
+    !studies.length && this.fetchStudies()
+    this.fetchRawData()
+  }
+
+  setRoutes(){
+    const { handleSetRoutes } = this.props
     const studyId = this.props.match.params.studyId
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: true },
       { name: 'Study', redirect: `/study/${studyId}`, isActive: false }
     ]
-    const studiesUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
-    const experimentsUrl = ` https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
-    const rawDataURL = `https://yarr-insight-service.herokuapp.com/requestRawData?studyId=${studyId}`
+    handleSetRoutes(routes)
+  }
 
+  fetchExperiments(){
+    const {
+      userInfo,
+      bearerKey,
+      handleSetExperiments,
+    } = this.props
+    const studyId = this.props.match.params.studyId
+    const experimentsUrl = ` https://yarr-experiment-service.herokuapp.com/getAllStudyExperiments?studyId=${studyId}`
     const json = {
       userInfo: userInfo,
       bearerKey: bearerKey
     }
 
-    buildExperiment && handleToggleBuildExperiment()
-    handleSetRoutes(routes)
     fetch(experimentsUrl, {
       method: "POST",
       headers: {
@@ -93,13 +110,26 @@ class StudyPage extends Component {
         handleSetExperiments([])
       }
     })
-    .catch(err => {
-      handleSetExperiments([])
-    })
+      .catch(err => {
+        handleSetExperiments([])
+      })
 
-    studies.length && this.setState({ studyLoaded: true })
+  }
 
-    !studies.length && fetch(studiesUrl, {
+  fetchStudies(){
+    const {
+      userInfo,
+      bearerKey,
+      handleAddStudies,
+    } = this.props
+    const studyId = this.props.match.params.studyId
+    const studiesUrl = `https://yarr-study-service.herokuapp.com/getAllResearcherStudies?researcherId=${userInfo.researcherId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+
+    fetch(studiesUrl, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -123,24 +153,37 @@ class StudyPage extends Component {
         this.props.history.push('/')
         handleAddStudies([])
       })
+  }
 
-      fetch(rawDataURL, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(json)
-      }).then(res => res.json())
-        .then(json => {
-          if (json.result === "Success") {
-            this.setState({ csvData: json.data, csvLoaded: true })
-          }
-          else {
-          }
-        })
-        .catch(err => {
-        })
+  fetchRawData() {
+    const {
+      userInfo,
+      bearerKey
+    } = this.props
+    const studyId = this.props.match.params.studyId
+    const rawDataURL = `https://yarr-insight-service.herokuapp.com/requestAllRawData?studyId=${studyId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+
+    fetch(rawDataURL, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          this.setState({ csvData: json.data, csvLoaded: true })
+        }
+        else {
+        }
+      })
+      .catch(err => {
+      })
   }
 
   handleToggleEdit(editExperiment) {

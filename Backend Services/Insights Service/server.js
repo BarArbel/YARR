@@ -21,7 +21,8 @@ app.use((req, res, next) => {
 });
 
 // /*** Routes ***/
-app.post('/requestRawData', StudyInsightsCtl.requestRawData);
+app.post('/requestRawData', ExprInsightsCtl.requestRawData);
+app.post('/requestAllRawData', StudyInsightsCtl.requestAllRawData);
 app.post('/requestInsightBars', StudyInsightsCtl.requestInsightBars);
 app.post('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar);
 app.post('/requestInsightMixed', ExprInsightsCtl.requestInsightMixed);
