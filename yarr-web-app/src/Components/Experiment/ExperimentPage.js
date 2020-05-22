@@ -129,9 +129,11 @@ class ExperimentPage extends Component {
           this.setState({ csvData: json.data, csvLoaded: true })
         }
         else {
+          this.setState({ csvData: [], csvLoaded: true })
         }
       })
       .catch(err => {
+        this.setState({ csvData: [], csvLoaded: true })
       })
   }
 
@@ -388,7 +390,12 @@ class ExperimentPage extends Component {
               </p>
               {
                 csvLoaded && experimentLoaded ?
-                  (<CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink>)
+                  (
+                    csvData.length ?
+                  <CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink> 
+                  :
+                  <label>No raw data collected yet...</label>
+                  )
                   :
                   (
                     <div style={{ marginTop: '30px' }} className="barLoader">

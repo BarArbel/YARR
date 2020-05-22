@@ -47,16 +47,16 @@ export class InterruptedInstances extends Component {
     const day = new Date(parseInt(time))
     const stringDate = `${day.getDate() < 10 ? `0${day.getDate()}` : day.getDate()}` +
       `/${day.getMonth() < 10 ? `0${day.getMonth() + 1}` : day.getMonth() + 1}` +
-      `/${day.getFullYear()} At ${day.getHours() < 10 ? `` : day.getHours()}` + 
+      `/${day.getFullYear()} At ${day.getHours() < 10 ? `0${day.getHours()}` : day.getHours()}` + 
       `:${day.getMinutes() < 10 ? `0${day.getMinutes()}` : day.getMinutes()}`
 
     return (
       <div key={`instance${index}`} className="card">
         <div className="card-body">
-          <label className="card-title">Created On: </label>
-          <label>{stringDate}</label>
-          <label className="card-title">Game Code: </label>
-          <label>{instance.GameCode}</label>
+          <label className="card-text cardInlineText">Created On: </label>
+          <label className="card-title cardInlineText">{stringDate}</label>
+          <label className="card-text cardInlineText">Game Code: </label>
+          <label className="card-title cardInlineText">{instance.GameCode}</label>
         </div>
       </div>
     )
@@ -67,6 +67,7 @@ export class InterruptedInstances extends Component {
 
     return (
       <div className="interruptedInstances">
+        <h4>Unfinished Games</h4>
         {dataLoaded && instances.length ? instances.map((instance, index) => { return this.renderInstance(instance, index) }) : null}
       </div>
     )

@@ -12,7 +12,7 @@ console.log('Server has started');
 
 const tables = [];
 const sockets = [];
-
+checkIfInteruppted('1589963472424_NbwZ1Of4F')
 // Check if the given instance ID is an interrupted one
 async function checkIfInteruppted(instanceId) {
   try {
@@ -22,14 +22,17 @@ async function checkIfInteruppted(instanceId) {
     if(!results.length) {
       //what then?
     }
-    const lastUpdate = results[0].UPDATE_TIME.getTime();
+    const lastUpdate = new Date(results[0].UPDATE_TIME)
     const utcCurr = Date.now();
+    const diffTime = Math.abs(utcCurr - lastUpdate);
+    console.log(diffTime + " milliseconds");
+  
+    // console.log(new Date(lastUpdate).toString());
+    // console.log(utcCurr);
+    // console.log(utcCurr - lastUpdate)
+    // console.log((utcCurr.getHours() - lastUpdate) > 30000 ? "yes" : "no");
 
-    console.log(utcCurr);
-    console.log(lastUpdate);
-    console.log(utcCurr - lastUpdate > 30000 ? "yes" : "no");
-
-    if ((utcCurr - lastUpdate) > 30000 )
+    if (diffTime > 30000 )
     {
         const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`;
         const results = await query(sql_check_finish);
