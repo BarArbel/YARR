@@ -62,7 +62,7 @@ public class Treasure : Item
             Invoke("SetDestroy", DestroyTimer);
         }
 
-        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, playerID, transform.position.x, transform.position.y, GetID(),0, GetGameMode());
+        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, playerID, transform.position.x, transform.position.y, id,0, GetGameMode());
     }
 
     void Update()

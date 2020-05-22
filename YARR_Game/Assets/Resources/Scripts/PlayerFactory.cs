@@ -83,12 +83,13 @@ public class PlayerFactory : MonoBehaviour
                 GameObject playerObj = Instantiate(PlayerPrefab);
                 Player player = playerObj.GetComponent<Player>();
                 player.transform.SetParent(GameObject.Find("Map").transform);
-
+                // TODO: player position 
+                // TODO: player health
                 playerObj.tag = "Player";
                 playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
                 // Init player properties
-                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], (int)playerSettings[i].x, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
             }
         }
     }

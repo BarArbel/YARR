@@ -21,6 +21,7 @@ public class Enemy : MonoBehaviour
         int amountOfPlayers = GetAmountOfPlayers();
         if (amountOfPlayers > 0)
         {
+            // Is the game cooperative or competitive?
             target = (id <= 0) ? Random.Range(1, amountOfPlayers+1) : id;
             ID = id;
             Damage = damage;
@@ -38,10 +39,9 @@ public class Enemy : MonoBehaviour
             // Set the timer
             TimeLeft = TimeBetweenPathRecalculation;
 
-            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, target, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
+            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.spawn, target, transform.position.x, transform.position.y, 0, id, GetGameMode());
             return true;
         }
-        DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
         Destroy(gameObject);
         return false;
     }
