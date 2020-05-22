@@ -263,6 +263,10 @@ public class GameManager : MonoBehaviour
 
         // Initialize player difficulties
         PlayerDifficulties = new List<int>();
+        for (int i=0; i<NumberOfPlayers; i++)
+        {
+            PlayerDifficulties.Add((int)difficulty);
+        }
 
         // Load ALL possible sprites
         // Player sprites
@@ -400,21 +404,44 @@ public class GameManager : MonoBehaviour
 
             // Initialize Enemy factories            
             GameObject enemyObj = Resources.Load<GameObject>("Prefabs/Enemy");
-
+            int lvlsum = 0;
+            int lvlMean;
+            for (int i=0; i< NumberOfPlayers; i++)
+            {
+                lvlsum += PlayerDifficulties[i];
+            }
+            lvlMean = (int)Math.Floor((double)(lvlsum / NumberOfPlayers));
 
             for (int i = 0; i < NumberOfPlayers; i++)
             {
                 EnemyFactories.Add(gameObject.AddComponent(typeof(EnemyFactory)) as EnemyFactory);
 
-                if (Mode == GameMode.Competitive)
+                // Adaptive
+                if (Difficulty == Level.Adaptive)
                 {
-                    EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                    if (Mode == GameMode.Competitive)
+                    {
+                        PlayerDifficulties[i] = lvlMean;
+                        EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                    }
+                    if (Mode == GameMode.Cooperative)
+                    {
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], isNewGame);
+                    }
                 }
+                // Static
                 else
                 {
-                    EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], isNewGame);
+                    if (Mode == GameMode.Competitive)
+                    {
+                        EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                    }
+                    if (Mode == GameMode.Cooperative)
+                    {
+                        EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], isNewGame);
+                    }
                 }
-             }
+            }
             
 
             // Initialize sink
@@ -423,27 +450,47 @@ public class GameManager : MonoBehaviour
             {
                 sink.GetComponent<BoxCollider2D>().size = GetItemSinkCollider();
                 sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
-            }
+            }   
 
             // Initialize Items   
-            if (Mode == GameMode.Competitive)
+            for (int i = 0; i < NumberOfPlayers; i++)
             {
-                for (int i = 0; i < NumberOfPlayers; i++)
-                {
-                    GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
-                    ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                    ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
-                }
+                    if (Difficulty == Level.Adaptive)
+                    {
+                        if (Mode == GameMode.Competitive)
+                        {
+                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                            ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                        }
+                        // Cooperative
+                        else
+                        {
+                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], isNewGame);
+                        }
+                        
+                    }
+                    // Static
+                    else
+                    {
+                        if (Mode == GameMode.Competitive)
+                        {
+                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                            ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                        }
+                        // Cooperative
+                        else
+                        {
+                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                            ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], isNewGame);
+                        }
+                    }
             }
-            else
-            {
-                for (int i = 0; i < NumberOfPlayers; i++)
-                {
-                    GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
-                    ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                    ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], isNewGame);
-                }
-            }
+            
 
             //Initilazie Powerups
             if (Mode == GameMode.Competitive)
@@ -637,7 +684,8 @@ public class GameManager : MonoBehaviour
                     LevelPrecision = (int)calcs.list[2].list[i].n;
                     LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
 
-                     
+                    // Save difficulty updated from DDA 
+                    PlayerDifficulties[i] += LevelPrecision;
                     EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                     ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                 }
@@ -650,13 +698,13 @@ public class GameManager : MonoBehaviour
 
             if (DDAIndex != -2)
             { 
-                int sumSpawnHeightAndTimer = 0;
-                int sumPrecision = 0;
-                int sumSpeedAndSpawnRate = 0;
+                //int sumSpawnHeightAndTimer = 0;
+                //int sumPrecision = 0;
+                //int sumSpeedAndSpawnRate = 0;
 
                 DDAIndex = calcsIndex;
            
-                for (int i = 0; i < NumberOfPlayers; i++)
+                /*for (int i = 0; i < NumberOfPlayers; i++)
                 {
                     if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
                     {
@@ -665,22 +713,28 @@ public class GameManager : MonoBehaviour
                         sumSpeedAndSpawnRate += (int)calcs.list[3].list[i].n;
                     }
 
-                }
+                }*/
 
-                if (sumSpawnHeightAndTimer > 0 && sumPrecision > 0 && sumSpeedAndSpawnRate > 0)
-                {
+                //if (sumSpawnHeightAndTimer > 0 && sumPrecision > 0 && sumSpeedAndSpawnRate > 0)
+                //{
                     // Calculate avg
-                    LevelSpawnHeightAndTimer = (int)Math.Ceiling((float)sumSpawnHeightAndTimer / (float)NumberOfPlayers);
+                    /*LevelSpawnHeightAndTimer = (int)Math.Ceiling((float)sumSpawnHeightAndTimer / (float)NumberOfPlayers);
                     LevelPrecision = (int)Math.Ceiling((float)sumPrecision / (float)NumberOfPlayers);
-                    LevelSpeedAndSpawnRate = (int)Math.Ceiling((float)sumSpeedAndSpawnRate / (float)NumberOfPlayers);
+                    LevelSpeedAndSpawnRate = (int)Math.Ceiling((float)sumSpeedAndSpawnRate / (float)NumberOfPlayers);*/
 
                     for (int i = 0; i < NumberOfPlayers; i++)
                     {
+                        LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
+                        LevelPrecision = (int)calcs.list[2].list[i].n;
+                        LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+
+                       // Save difficulty updated from DDA 
+                       PlayerDifficulties[i] += LevelPrecision;
                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                     }
 
-                }
+                //}
                 DDAIndex = -2;
 
             }
