@@ -525,63 +525,53 @@ io.on('connection', async socket =>{
     const instance_id = `${table.time}_${table.id}`
     const dda_table = `${DATABASE}.DDA_Input_${instance_id}`
     const tracker_table = `${DATABASE}.Tracker_Input_${instance_id}`
-    const dda_permanent_table = `${DATABASE}.dda_inputs`
-    const tracker_permanent_table = `${DATABASE}.tracker_inputs`
+    const permanent_table = `${DATABASE}.raw_data`
     const select_query = `SELECT * FROM `
-    const insert_query_1 = `INSERT INTO `
-    const insert_query_2 = ` (InstanceID, ExperimentID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode) VALUES ?`
+    const insert_query = `INSERT INTO ${DATABASE}.raw_data (InstanceID, ExperimentID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode) VALUES ?`
     const drop_query = `DROP TABLE `
 
     socket.broadcast.emit('gameEnded', `${instance_id}`);
 
-    let arr = [
-      [dda_table, dda_permanent_table],
-      [tracker_table, tracker_permanent_table]
-    ]
-
-    console.log(arr)
-
     try {
       let result = await query(`SELECT ExperimentId FROM ${DATABASE}.instances WHERE InstanceId = '${instance_id}'`)
       let experiment_id = result[0].ExperimentId
+      let values = []
 
-      arr.map(async i => {
-        let select_q = select_query + i[0]
-        try {
-          let select_result = await query(select_q)
-          let values = []
-          if (select_result.length) {
-            select_result.map(row => {
-              let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
-              values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
-            })
-          }
+      try {
+        let dda_select = await query(select_query + dda_table)
+        if (dda_select.length) {
+          dda_select.map(row => {
+            let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
+            values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
+          })
+        }
 
-          if (values.length) {
-            let insert_q = insert_query_1 + i[1] + insert_query_2
-            try {
-              let insert_result = await query(insert_q, [values])
-              if (!insert_result.affectedRows) {
-                console.log(`no new rows inserted to ${i[1]}`)
-              }
-            }
-            catch (insert_error) {
-              console.log(insert_error)
-            }
-          }
+        let tracker_select = await query(select_query + tracker_table)
+        if (dda_select.length) {
+          dda_select.map(row => {
+            let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
+            values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
+          })
+        }
 
-          let drop_q = drop_query + i[0]
+        if (values.length) {
           try {
-            drop_result = await query(drop_q)
+            let insert_result = await query(insert_query, [values])
+            if (!insert_result.affectedRows) {
+              console.log(`no new rows inserted to ${permanent_table}`)
+            }
           }
-          catch {
-            console.log(drop_result)
+          catch (insert_error) {
+            console.log(insert_error)
           }
         }
-        catch (select_error) {
-          console.log(select_error)
-        }
-      })
+      }
+      catch (select_error) {
+        console.log(select_error)
+      }
+
+      let dda_drop = await query(drop_query + dda_table)
+      let tracker_drop = await query(drop_query + tracker_table)
     }
     catch (error) {
       console.log(error)
