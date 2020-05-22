@@ -257,7 +257,7 @@ module.exports = {
     }
 
     const sql = `SELECT  Title, InstanceID, GameMode, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy
-                FROM yarr.dda_inputs LEFT JOIN (SELECT sid,eid,Title FROM 
+                FROM yarr.raw_data LEFT JOIN (SELECT sid,eid,Title FROM 
                 (SELECT StudyId sid, ExperimentId eid FROM yarr.main_view) AS mv 
                 LEFT JOIN yarr.experiments ON ExperimentId = eid) exp_data ON ExperimentID = eid WHERE sid = ${studyId};`
 

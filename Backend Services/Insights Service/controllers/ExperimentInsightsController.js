@@ -90,7 +90,7 @@ module.exports = {
     }
 
     const sql = `SELECT Title, InstanceID, GameMode, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy
-                FROM yarr.dda_inputs LEFT JOIN experiments ON dda_inputs.ExperimentID = experiments.ExperimentId 
+                FROM yarr.raw_data LEFT JOIN experiments ON dda_inputs.ExperimentID = experiments.ExperimentId 
                 WHERE experiments.ExperimentID = ${experimentId};`
 
     connection.query(sql, (error, results) => {
