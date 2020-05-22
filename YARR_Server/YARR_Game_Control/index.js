@@ -547,8 +547,8 @@ io.on('connection', async socket =>{
         }
 
         let tracker_select = await query(select_query + tracker_table)
-        if (dda_select.length) {
-          dda_select.map(row => {
+        if (tracker_select.length) {
+          tracker_select.map(row => {
             let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
             values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
           })
