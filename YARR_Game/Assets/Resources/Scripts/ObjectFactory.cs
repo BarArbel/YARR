@@ -59,7 +59,7 @@ public abstract class ObjectFactory : MonoBehaviour
 
     public void SetDDAChanges(int heightTimer, int precision, int speedspawn )
     {
-        Debug.Log(DDALevelSpawnHeightAndTimer);
+        Debug.Log("does it change:" + precision);
         DDALevelSpawnHeightAndTimer = heightTimer;
         DDALevelPrecision = precision;
         DDALevelSpeedAndSpawnRate = speedspawn;

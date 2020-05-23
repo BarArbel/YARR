@@ -695,50 +695,19 @@ public class GameManager : MonoBehaviour
 
         if (Mode == GameMode.Competitive && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
-
-            if (DDAIndex != -2)
-            { 
-                //int sumSpawnHeightAndTimer = 0;
-                //int sumPrecision = 0;
-                //int sumSpeedAndSpawnRate = 0;
-
                 DDAIndex = calcsIndex;
-           
-                /*for (int i = 0; i < NumberOfPlayers; i++)
+                for (int i = 0; i < NumberOfPlayers; i++)
                 {
-                    if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
-                    {
-                        sumSpawnHeightAndTimer += (int)calcs.list[1].list[i].n;
-                        sumPrecision += (int)calcs.list[2].list[i].n;
-                        sumSpeedAndSpawnRate += (int)calcs.list[3].list[i].n;
-                    }
+                        LevelSpawnHeightAndTimer =  (int)calcs.list[1].list[i].n;
+                        LevelPrecision =            (int)calcs.list[2].list[i].n;
+                        LevelSpeedAndSpawnRate =    (int)calcs.list[3].list[i].n;
 
-                }*/
-
-                //if (sumSpawnHeightAndTimer > 0 && sumPrecision > 0 && sumSpeedAndSpawnRate > 0)
-                //{
-                    // Calculate avg
-                    /*LevelSpawnHeightAndTimer = (int)Math.Ceiling((float)sumSpawnHeightAndTimer / (float)NumberOfPlayers);
-                    LevelPrecision = (int)Math.Ceiling((float)sumPrecision / (float)NumberOfPlayers);
-                    LevelSpeedAndSpawnRate = (int)Math.Ceiling((float)sumSpeedAndSpawnRate / (float)NumberOfPlayers);*/
-
-                    for (int i = 0; i < NumberOfPlayers; i++)
-                    {
-                        LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
-                        LevelPrecision = (int)calcs.list[2].list[i].n;
-                        LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
-
-                       // Save difficulty updated from DDA 
-                       PlayerDifficulties[i] += LevelPrecision;
-                       EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                       ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    }
-
-                //}
-                DDAIndex = -2;
-
-            }
-
+                    // Save difficulty updated from DDA 
+                    PlayerDifficulties[i] += LevelPrecision;
+                    Debug.Log(LevelPrecision);
+                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                }
 
         }
 

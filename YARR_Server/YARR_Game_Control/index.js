@@ -12,42 +12,6 @@ console.log('Server has started');
 
 const tables = [];
 const sockets = [];
-// checkIfInteruppted('1589963472424_NbwZ1Of4F')
-// Check if the given instance ID is an interrupted one
-// async function checkIfInteruppted(instanceId) {
-//   try {
-//     const sql = `SELECT UPDATE_TIME FROM information_schema.tables WHERE 
-//                 TABLE_SCHEMA = '${process.env.DATABASE}' AND TABLE_NAME = 'Tracker_Input_${instanceId}';`
-//     const results = await query(sql);
-//     if(!results.length) {
-//       //what then?
-//     }
-//     const lastUpdate = new Date(results[0].UPDATE_TIME)
-//     const utcCurr = Date.now();
-//     const diffTime = Math.abs(utcCurr - lastUpdate);
-//     console.log(diffTime + " milliseconds");
-  
-//     // console.log(new Date(lastUpdate).toString());
-//     // console.log(utcCurr);
-//     // console.log(utcCurr - lastUpdate)
-//     // console.log((utcCurr.getHours() - lastUpdate) > 30000 ? "yes" : "no");
-
-//     if (diffTime > 30000 )
-//     {
-//         const sql_check_finish = `SELECT count(*) counter FROM ${process.env.DATABASE}.Tracker_Input_${instanceId} WHERE Event = 'gameEnded';`;
-//         const results = await query(sql_check_finish);
-//         console.log(results[0].counter);
-//         if(!results.length) {
-//         //what then?
-//         }
-//         return results[0].counter == 0 ? true : false;
-//     }
-//     return false;
-//   }
-//   catch (err) {
-//     return false; //??
-//   }
-// }
 
 
 // Generate a game code for restarting an interrupted game
@@ -58,10 +22,13 @@ async function generateInterrGameCode() {
 
   /* generate code here */
   while(found){
-    gameCode = randexp(pattern);
+    gameCode = randexp(pattern);   
+    sql_code_dupe = `SELECT * FROM ${process.env.DATABASE}.interupted_instances WHERE GameCode = "${gameCode}";`;
+    console.log(sql_code_dupe);
     /* Check if code exists, if yes, generate again */
     try {
-      let results = await query(`SELECT * FROM ${process.env.DATABASE}.interupted_instances WHERE GameCode = "${gameCode}"`);
+      let results = await query(sql_code_dupe);
+      console.log("results: " + results);
       if(!results.length) {
         found = false;
       }
@@ -75,10 +42,10 @@ async function generateInterrGameCode() {
 }
 
 // Set a game that stopped abruptly as an interrupted instance
-async function setInterruptedGame(instanceId, experimentId, refreshIntervalId) {
+async function setInterruptedGame(instanceId, experimentId) {
+  console.log("I'm trying to take care of interruption:");
   console.log(instanceId);
   console.log(experimentId);
-  console.log(refreshIntervalId);
   let gameCode
   // Update instance as Interrupted instead of running
   let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
@@ -91,8 +58,8 @@ async function setInterruptedGame(instanceId, experimentId, refreshIntervalId) {
     throw err;
   }
   // Generate game code
-  gameCode = generateInterrGameCode();
-  console.log(gameCode);
+  gameCode = await generateInterrGameCode();
+  console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
   let sql_add_instance = `INSERT INTO ${process.env.DATABASE}.interupted_instances (InstanceId, ExperimentId, GameCode)
@@ -119,8 +86,9 @@ io.on('connection', async socket =>{
 
   async function checkIfInteruppted() {
     if(stillAlive === false) {
-      console.log(`instance: ${table.time}_${table.id} is dead`);
+      console.log(`instance: ${table.time}_${table.id} is dead`);      
       clearInterval(refreshIntervalId);
+      console.log("returning true");
       return true;
     }
     else {
@@ -209,10 +177,13 @@ io.on('connection', async socket =>{
     })
 
     // Check if experiment is interrupted
-    refreshIntervalId = setInterval(() => {
+    refreshIntervalId = setInterval( async () => {
       console.log(`checking stillAlive: ${stillAlive}`);
-      if (checkIfInteruppted() === false) {
-        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
+      let isInterr = await checkIfInteruppted();
+      console.log("is it interrupted?" + isInterr);
+      if (isInterr === true) {
+        console.log("THE GAME IS VERY MUCH INTERRUPTED");
+        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
       }
     }, 30000);
   });
@@ -241,9 +212,11 @@ io.on('connection', async socket =>{
     })
 
     // Check if experiment is interrupted
-    refreshIntervalId = setInterval( () => {
-      if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
-        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
+    refreshIntervalId = setInterval( async () => {
+      let isInterr = await checkIfInteruppted();
+      if(isInterr === true) {
+        console.log("THE GAME IS VERY MUCH INTERRUPTED");
+        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
       }
     }, 30000);
   });
@@ -598,12 +571,14 @@ io.on('connection', async socket =>{
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', async () => {
     console.log('A player has disconnected');
     //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} finished the game`);
-    if(checkIfInteruppted(`${table.time}_${table.id}`) === true) {
-      setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
+    let isInterr = await checkIfInteruppted();
+    if(isInterr === true) {
+      console.log("THE GAME IS VERY MUCH INTERRUPTED");
+      setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
     }
   });
 });

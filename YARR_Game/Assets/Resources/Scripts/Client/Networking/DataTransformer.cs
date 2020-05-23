@@ -129,7 +129,8 @@ namespace Project.Networking
             settings.InitLevel = 3;
             // New game
             if (!settings.IsInterrupted)
-            {                
+            {
+                Debug.Log("settings:" + settings);
                 GameSocket.Emit("createTables");
                 GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
             }
