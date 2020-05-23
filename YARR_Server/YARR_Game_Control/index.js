@@ -101,10 +101,6 @@ async function setInterruptedGame(instanceId, experimentId, refreshIntervalId) {
     throw err;
   }
   // TODO: Notify DDA? close module?
-
-  // Stop interval
-  clearInterval(refreshIntervalId);
-      
 }
 
 io.on('connection', async socket =>{
@@ -119,9 +115,17 @@ io.on('connection', async socket =>{
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
 
   async function checkIfInteruppted() {
-    console.log(`instance: ${table.time}_${table.id} is` + stillAlive ? " alive" : "dead");
-    stillAlive = false;
-    return true;
+    if(stillAlive === false) {
+      console.log(`instance: ${table.time}_${table.id} is dead`);
+      clearInterval(refreshIntervalId);
+      return true;
+    }
+    else {
+      console.log(`alive and well...`);
+      console.log(`changing StillAlive to false: ${stillAlive}`);
+      stillAlive = false;
+      return false;
+    }
   }
 
   socket.on('createTables', async () => {
@@ -202,12 +206,12 @@ io.on('connection', async socket =>{
     })
 
     // Check if experiment is interrupted
-    refreshIntervalId = setInterval( () => {
-      if(checkIfInteruppted() === false) {
+    refreshIntervalId = setInterval(() => {
+      console.log(`checking stillAlive: ${stillAlive}`);
+      if (checkIfInteruppted() === false) {
         setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, refreshIntervalId);
       }
     }, 30000);
-
   });
 
   //Add information about instance
@@ -248,6 +252,7 @@ io.on('connection', async socket =>{
     const { err, rows, fields } = await query(sql)
     if(err) throw err;
     console.log("data was added");
+    console.log("changing StillAlive to true");
     stillAlive = true;
     socket.broadcast.emit('message', `table ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} updated`);
   });

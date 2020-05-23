@@ -137,7 +137,7 @@ export class ExperimentItem extends Component {
     const { experimentId, studyId, thisExperiment } = this.props
     const gameCode = thisExperiment.GameCode
     const codeButtonText = gameCode === "null" ? "Start Experiment" : "View Game Code"
-    const codeButtonColor = gameCode === "null" ? "Success" : "elegant"
+    const codeButtonColor = gameCode === "null" ? "success" : "elegant"
     const greenColor = gameCode === "null" ? "greenButton" : null
     const codeButtonFunction = gameCode === "null" ? this.handleStartExperiment : this.handleViewGameCode
 
