@@ -30,7 +30,6 @@ async def get_timestamp_and_gamemode():
         timestamp = 0
 
     fetch = await con.get_gamemode(timestamp)
-    print(fetch)
 
     if fetch:
         gamemode = fetch[0]
@@ -197,29 +196,28 @@ async def on_ddaupdate(data):
 
     if data == instance_id:
         current_time = time.time()
-        if current_time > last_time + 5:
+        timestamp, gamemode = await get_timestamp_and_gamemode()
+        if current_time > last_time + 5 and gamemode is not None:
             last_time = current_time
-            timestamp, gamemode = await get_timestamp_and_gamemode()
-            print(timestamp, gamemode)
+            print("entered with timestamp: ", timestamp)
             sys.stdout.flush()
-            if gamemode is not None:
-                total = await get_data_from_db(timestamp, gamemode)
-                print(total)
-                sys.stdout.flush()
-                calcs, group_level = calculate(total, timestamp, gamemode)
-                print(calcs, group_level)
-                sys.stdout.flush()
-                await insert_calculations_to_db(calcs, group_level, timestamp, gamemode)
-                game_json = create_game_json(calcs, group_level, gamemode)
+            total = await get_data_from_db(timestamp, gamemode)
+            print(total)
+            sys.stdout.flush()
+            calcs, group_level = calculate(total, timestamp, gamemode)
+            print(calcs, group_level)
+            sys.stdout.flush()
+            await insert_calculations_to_db(calcs, group_level, timestamp, gamemode)
+            game_json = create_game_json(calcs, group_level, gamemode)
 
-                emit_json = {
-                    "LvSettings": game_json,
-                    "instanceId": instance_id
-                }
+            emit_json = {
+                "LvSettings": game_json,
+                "instanceId": instance_id
+            }
 
-                await sio.emit('LevelSettings', emit_json)
-                print("data sent to server: ", emit_json)
-                sys.stdout.flush()
+            await sio.emit('LevelSettings', emit_json)
+            print("data sent to server: ", emit_json)
+            sys.stdout.flush()
 
 
 @sio.on("gameEnded")
@@ -284,8 +282,6 @@ async def start_server(args):
 
 
 if __name__ == '__main__':
-    print("hello ", sys.argv)
-    sys.stdout.flush()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(start_server(sys.argv[1:]))
     loop.close()

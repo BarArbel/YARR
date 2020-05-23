@@ -47,8 +47,6 @@ class DBconnection:
 
         query = ("SELECT PlayerID, format(max(Timestamp), 3) as max_ts FROM " + self.db + "." + self.DDAtb +
                  " WHERE Level != 0 GROUP BY PlayerID")
-        
-        print(query)
 
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
@@ -221,8 +219,6 @@ class DBconnection:
 
                 for result in select_fetch:
                     insert_vals.append((experiment_id, instance_id) + result)
-
-                print(insert_vals)
 
                 await cursor.executemany(insert_query, insert_vals)
                 await con.commit()
