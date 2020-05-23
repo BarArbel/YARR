@@ -9,7 +9,6 @@ namespace Project.Networking
     public class DDAClient : SocketIOComponent
     {
         string InstanceID;
-
         public override void Start()
         {
             base.Start();
@@ -33,6 +32,10 @@ namespace Project.Networking
                 DataTransformer.getInitSettings();
             });
 
+            On("setInstanceID", (E) => {
+                InstanceID = E.data["instanceId"].str;
+            });
+
             On("disconected", (E) => {
                 Debug.Log("disconected");
             });
@@ -43,7 +46,10 @@ namespace Project.Networking
             });*/
 
             On("LevelSettings", (E) => {
-                FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data);
+                if (E.data["instanceId"].str == InstanceID)
+                {
+                    FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data["LvSettings"]);
+                }
             });
 
         }

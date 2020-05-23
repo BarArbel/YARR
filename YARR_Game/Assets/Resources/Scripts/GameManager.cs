@@ -668,6 +668,7 @@ public class GameManager : MonoBehaviour
 
     public void NotificationDDAUpdate(JSONObject calcs)
     {
+        Debug.Log(calcs);
         int calcsIndex = (int)calcs.list[0].n;
         int LevelSpawnHeightAndTimer;
         int LevelPrecision;
@@ -676,14 +677,13 @@ public class GameManager : MonoBehaviour
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
             
-            for (int i = 0; i < NumberOfPlayers; i++)
+            for (int i = 1; i <= NumberOfPlayers; i++)
             {
                 if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i+1)
                 {
                     LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
-                    LevelPrecision = (int)calcs.list[2].list[i].n;
-                    LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
-
+                    LevelPrecision =           (int)calcs.list[2].list[i].n;
+                    LevelSpeedAndSpawnRate =   (int)calcs.list[3].list[i].n;
                     // Save difficulty updated from DDA 
                     PlayerDifficulties[i] += LevelPrecision;
                     EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
@@ -838,7 +838,7 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
-                Debug.Log(RoundTimer);
+                //Debug.Log(RoundTimer);
             }
             else
             {

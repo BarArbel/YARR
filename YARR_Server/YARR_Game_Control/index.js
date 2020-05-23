@@ -76,6 +76,9 @@ async function generateInterrGameCode() {
 
 // Set a game that stopped abruptly as an interrupted instance
 async function setInterruptedGame(instanceId, experimentId, refreshIntervalId) {
+  console.log(instanceId);
+  console.log(experimentId);
+  console.log(refreshIntervalId);
   let gameCode
   // Update instance as Interrupted instead of running
   let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
@@ -536,7 +539,7 @@ io.on('connection', async socket =>{
 
   socket.on('gameEnded', async () => {
     // insert DDa + Tracker into perma table
-    
+    clearInterval(refreshIntervalId);
     console.log("game ended")
 
     const instance_id = `${table.time}_${table.id}`

@@ -24,7 +24,11 @@ io.on('connection', async socket =>{
         if (error || !results.length) {
           // TODO: Take care of exception
           socket.emit('cantUpdate', {message: "Couldn't update the instances table", instanceId: `${tableTimeId}`});
-        }});
+        }
+        else {
+          socket.emit('setInstanceID', {instanceId: `${tableTimeId}`});
+        }
+      });
 
     console.log(tableTimeId);
   });
@@ -64,7 +68,7 @@ io.on('connection', async socket =>{
 
   // Update game difficulty
   socket.on('LevelSettings', data => {
-    socket.broadcast.emit('LevelSettings', { LvSettings: data, instanceId: `${tableTimeId}` });
+    socket.broadcast.emit('LevelSettings', data);
     console.log('variables sent to game');
   });
 
