@@ -40,7 +40,7 @@ io.on('connection', async socket =>{
     numOfPlayers = data.NumOfPlayers;
     console.log(data);
     console.log("lvl: " + initLevel + " num: "+ numOfPlayers);
-    const pythonProcess = spawn('python', ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
+    const pythonProcess = spawn('python3', ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
     
     pythonProcess.stdout.on('data', (chunk) => {
       console.log(chunk.toString('utf8'));

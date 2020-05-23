@@ -45,7 +45,7 @@ class DBconnection:
 
     async def init_timestamps(self):
 
-        query = ("SELECT PlayerID, max(Timestamp) as max_ts FROM " + self.db + "." + self.DDAtb +
+        query = ("SELECT PlayerID, format(max(Timestamp), 3) as max_ts FROM " + self.db + "." + self.DDAtb +
                  " WHERE Level != 0 GROUP BY PlayerID")
         
         print(query)
@@ -108,7 +108,7 @@ class DBconnection:
         await self.pool.wait_closed()
     
     async def get_timestamp(self):
-        query = ("SELECT Timestamp FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
+        query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
 
         try:
             async with self.pool.acquire() as con:
@@ -117,17 +117,32 @@ class DBconnection:
                     fetch = await cursor.fetchone()
                     return fetch
         except Exception as e:
-            print("count_total exception: " + str(e))
+            print("get_timestamp exception: " + str(e))
+            sys.stdout.flush()
+            return None
+
+    async def get_gamemode(self, timestamp):
+        query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) = " + str(timestamp) +
+                 " ORDER BY Timestamp DESC LIMIT 1")
+
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    fetch = await cursor.fetchone()
+                    return fetch
+        except Exception as e:
+            print("get_gamemode exception: " + str(e))
             sys.stdout.flush()
             return None
 
     async def count_last_pickup_events(self, player_id, tstamp, limit):
         try:
             query = ("SELECT count(Event) FROM (select Event from " + self.db + "." + self.tb +
-                     " WHERE (Event = 'pickup' OR Event =  'failPickup') AND Timestamp > " +
-                     str(self.timestamps[player_id - 1]) + "  AND Timestamp <= " + str(tstamp) + " AND PlayerID = " +
-                     str(player_id) + " AND Item = " + str(player_id) + " ORDER BY Timestamp DESC LIMIT " + str(limit) +
-                     ") AS limitTable WHERE Event = 'Pickup'")
+                     " WHERE (Event = 'pickup' OR Event =  'failPickup') AND format(Timestamp, 3) > " +
+                     str(self.timestamps[player_id - 1]) + "  AND format(Timestamp, 3) <= " + str(tstamp) +
+                     " AND PlayerID = " + str(player_id) + " AND Item = " + str(player_id) +
+                     " ORDER BY Timestamp DESC LIMIT " + str(limit) + ") AS limitTable WHERE Event = 'Pickup'")
 
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
@@ -139,14 +154,15 @@ class DBconnection:
             sys.stdout.flush()
             return [-1]
 
-    async def count_total_player_events(self, event, player_id, tstamp, spawn_item_flag, player_flag):
+    async def count_total_player_events(self, event, player_id, tstamp, spawn_item_flag, player_flag, gamemode):
 
         try:
             query = ("SELECT count(Event) FROM " + self.db + "." + self.tb + " WHERE Event = '" + event +
-                     "' AND Timestamp > " + str(self.timestamps[player_id - 1]) + " AND Timestamp <= " + str(tstamp) +
-                     " AND PlayerID = " + str(player_id))
+                     "' AND format(Timestamp, 3) > " + str(self.timestamps[player_id - 1]) +
+                     " AND format(Timestamp, 3) <= " + str(tstamp) + " AND PlayerID = " + str(player_id) +
+                     " AND GameMode = '" + gamemode + "'")
 
-            if event == "pickup":
+            if event == "pickup" and gamemode == "Cooperative":
                 if player_flag is True:
                     query += (" AND Item = " + str(player_id))
                 else:
@@ -156,6 +172,8 @@ class DBconnection:
                     query += " AND Enemy = 0"
                 else:
                     query += " AND Item = 0"
+                if gamemode == "Competitive":
+                    query = query.replace(" AND PlayerID = " + str(player_id), "")
 
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
@@ -180,7 +198,7 @@ class DBconnection:
                     await cursor.execute(query)
                     await con.commit()
         except Exception as e:
-            print("count_total exception: " + str(e))
+            print("insert_dda exception: " + str(e))
             sys.stdout.flush()
 
     async def insert_permanent_table(self, instance_id):
