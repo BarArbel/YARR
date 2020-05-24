@@ -57,7 +57,7 @@ io.on('connection', async socket =>{
 
   //Sending Data to the DDA table for game difficulty analysis
   socket.on('DDAinput', async data => {
-    const sql = `INSERT INTO ${process.env.DATABASE}.DDA_Input_${tableTimeId}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
+    const sql = `INSERT INTO ${process.env.DATABASE}.dda_input_${tableTimeId}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
     VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     
     const { err, rows, fields } = await query(sql);
@@ -81,6 +81,6 @@ io.on('connection', async socket =>{
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     //delete tables[thisTableID];
-    socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.DDA_Input_${tableTimeId} finished the game`);
+    socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.dda_input_${tableTimeId} finished the game`);
   });
 });

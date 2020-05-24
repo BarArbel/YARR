@@ -180,6 +180,10 @@ public class GameManager : MonoBehaviour
         for (int i=0; i<NumberOfPlayers; i++)
         {
             JSONObject pData = rSettings.list[0].list[7];
+            Debug.Log(pData.list[0].n);
+            Debug.Log(pData.list[1].n);
+            Debug.Log(pData.list[2].n);
+            Debug.Log(pData.list[3].n);
             PlayerSettings.Add(new float4(pData.list[0].n, pData.list[1].n, pData.list[2].n, pData.list[3].n));
         }
 
