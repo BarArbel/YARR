@@ -21,7 +21,7 @@ class Breadcrumbs extends Component {
 
     return (
       <li className="breadcrumb-item" key={`route${index}`}>
-        <Link to={redirect}>
+        <Link exact to={redirect}>
           {name}
         </Link>
       </li>

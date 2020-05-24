@@ -661,7 +661,7 @@ class ExperimentBuilder extends Component {
             }
             {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" className="login-btn nextButton" onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
+                <MDBBtn color="elegant" className={`login-btn ${wizardIndex === -1 && "nextButton"}`} onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?
