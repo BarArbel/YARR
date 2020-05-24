@@ -161,6 +161,20 @@ textarea {
   color: #B33A3A;
 }
 
+.interruptedInstances {
+  position: relative;
+  top: 100px;
+  margin-bottom: 50px;
+}
+
+.svgBlock {
+  fill: transparent;
+}
+
+.nonFocus {
+  fill: #292c2f;
+  opacity: 0.6;
+}
 
 .warningText, .centerText, .interruptedMsg, .gameCode, .gameCodeWrapper {
   text-align: center;
@@ -263,7 +277,7 @@ a.linkHolder:hover {
   height: 100%;
 }
 
-.buttonNoShow:focus {
+.buttonNoShow:focus, .gameCodeCopy:focus, .invisButton:focus {
   outline:none;
 }
 
@@ -333,11 +347,12 @@ hr {
 }
 
 .builderImage {
-  height: 85%;
-  width: 85%;
+  height: 100%;
+  width: 100%;
   opacity: 0.5;
   outline: 2px solid #608bd2;
   padding: 5px;
+  margin-top: 10px;
 }
 
 .builderImage:hover {
@@ -347,6 +362,8 @@ hr {
 .inputPicHolder {
   position: relative;
   float: left;
+  left: 5%;
+  margin-right: 20px;
 }
 
 .hideRadio {
@@ -416,6 +433,7 @@ hr {
   width: 295px;
   height: 150px;
   padding-left: 10px;
+  text-align: center;
 }
 
 .cardSmall {

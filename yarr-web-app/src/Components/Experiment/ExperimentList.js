@@ -68,7 +68,6 @@ export class ExperimentList extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json())
         .then(json => {
-          console.log(json)
           if (json.result === "Success") {
             handleDeleteExperiment(experimentId)
           }

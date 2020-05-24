@@ -6,6 +6,7 @@ import UserActions from '../../Actions/UserActions'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import "react-step-progress-bar/styles.css"
 import { ProgressBar, Step } from "react-step-progress-bar"
+import ExperimentExplanation from './ExperimentExplanation'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -20,7 +21,7 @@ class ExperimentBuilder extends Component {
     super(props)
 
     this.state = {
-      wizardIndex: 0,
+      wizardIndex: -1,
       title: "",
       details: "",
       roundsNumber: 1,
@@ -69,7 +70,7 @@ class ExperimentBuilder extends Component {
     return (
       <div style={{ marginBottom: "20px", marginTop: "10px" }} >
       {editForm ? 
-        <ProgressBar percent={(tempIndex) / (steps)* 100 + 1}>
+        <ProgressBar percent={(tempIndex) / (steps) * 100 + 1}>
         <Step>
           {({ accomplished, index }) => (
             <div
@@ -604,12 +605,15 @@ class ExperimentBuilder extends Component {
   render() {
     const { wizardIndex } = this.state
     const { status } = this.props
-    
+    const nextButton = wizardIndex === -1 ? "Got it! Let's start!" : "Next"
+    const title = wizardIndex === -1 ? "Let's Explain The Basics..." : "Create Experiment"
+
     return(
       <div className="experimentBuilder">
         <form>
-          <p className="h4 text-center mb-4">Create Experiment</p>
-          {this.renderProgressBar()}
+          <p className="h4 text-center mb-4">{title}</p>
+          {wizardIndex !== -1 && this.renderProgressBar()}
+          {wizardIndex === -1 && <ExperimentExplanation />}
           {wizardIndex === 0 ?
             <div>
               <p className="h4 text-center mb-4">Experiment Info</p>
@@ -635,14 +639,14 @@ class ExperimentBuilder extends Component {
             </div> : (null)
           }
           <div className="form-row">
-            {wizardIndex !== 0 ?
+            {wizardIndex !== -1 ?
               <div className="text-center mt-4">
                 <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("back")}>Back</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("next")}>Next</MDBBtn>
+                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?

@@ -29,6 +29,7 @@ app.put('/updateExperiment', ExperimentCtl.updateExperiment);
 app.delete('/deleteExperiment', ExperimentCtl.deleteExperiment);
 app.post('/getAllStudyExperiments', ExperimentCtl.getAllStudyExperiments);
 app.post('/getInterruptedInstances', ExperimentCtl.getInterruptedInstances);
+app.delete('/deleteInterruptedInstance', ExperimentCtl.deleteInterruptedInstance);
 
 app.all('*', (req, res) => {
     res.status(404).send(`{"result": "Failure", "error": "Bad Route"}`);

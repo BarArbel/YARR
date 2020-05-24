@@ -451,5 +451,35 @@ module.exports = {
         else res.status(400).send(`{"result": "Failure", "error": "Experiment is not running or does not exists"}`);
         }
     );
+  },
+
+  deleteInterruptedInstance: async (req, res) => {
+    const { instanceId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (!instanceId) {
+      res.status(400).send('{"result": "Failure", "error": "instance ID is required."}');
+      return;
+    }
+
+
+    try {
+      await query(`DROP TABLE IF EXISTS DDA_Input_${instanceId};`);
+      await query(`DROP TABLE IF EXISTS Tracker_Input_${instanceId};`);
+      await query(`DROP TABLE IF EXISTS dda_DDA_Input_${instanceId};`);
+      await query(`DELETE FROM instances WHERE InstanceId = "${instanceId}";`);
+      await query(`DELETE FROM interupted_instances WHERE InstanceId = "${instanceId}";`);
+
+      res.status(200).send(`{"result": "Success"}`);
+    }
+    catch (err) {
+      console.log(err)
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`);
+    }
+
   }
 }
