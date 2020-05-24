@@ -260,7 +260,7 @@ class StudyPage extends Component {
     return (
       <div>
         <label />
-        <MDBBtn color={"light-green"} onClick={this.handleToggleBuild} className={"login-btn addStudy"}>Create Study</MDBBtn>
+        <MDBBtn color={"light-green"} onClick={this.handleToggleBuild} className={"login-btn addStudy"}>Create Experiment</MDBBtn>
         <div className="studyList">
           <h1 className="h4 text-center mb-4">Study Experiments</h1>
           {renderSkeletons.map(number => {
