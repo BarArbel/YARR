@@ -190,6 +190,7 @@ io.on('connection', async socket =>{
 
   //Add information about instance
   socket.on('editInstanceMetaData', async data => {
+    console.log('editInstanceMetaData data: ' + data);
     experimentId = data.ExperimentID;
     interruptedInstanceID = data.InterruptedInstanceID;
 
@@ -403,14 +404,16 @@ io.on('connection', async socket =>{
     
     // Get players' positions and health (in the item section)
     let sql_pLoc = `
-    WITH all_events AS 
-    (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
-      where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1)
-
     SELECT ts,pid,CoordX,CoordY,Item FROM
-    (select max(Timestamp) ts, PlayerID from all_events
+    (select max(Timestamp) ts, PlayerID from 
+        (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
+          where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events
     Where playerID != 0 and Event = "playerLoc"
-    group by 2) as latest_ts LEFT JOIN (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item FROM all_events) as all_e  ON ts = Timestamp and PlayerID = pid
+    group by 2) as latest_ts LEFT JOIN 
+    (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item 
+    FROM 
+      (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
+        where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events) as all_e  ON ts = Timestamp and PlayerID = pid
     ORDER BY 1;`;
     
     await mysqlConnection.query(sql_pLoc, (error, results) => {

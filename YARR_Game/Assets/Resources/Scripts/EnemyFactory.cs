@@ -37,6 +37,8 @@ public class EnemyFactory : ObjectFactory
         // Static
         if (level != 0)
         {
+            Debug.Log("There are no static games, do u get here");
+            Debug.Log("level: " + level);
             SpawnRateRange = LevelsOf_SpawnRateRange[level-1];
             Speed = LevelsOf_Speed[level - 1];
             TurnsAvailable = LevelsOf_TurnsAvailable[level - 1];

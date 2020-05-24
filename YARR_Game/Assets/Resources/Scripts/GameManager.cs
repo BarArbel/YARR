@@ -411,7 +411,7 @@ public class GameManager : MonoBehaviour
                 lvlsum += PlayerDifficulties[i];
             }
             lvlMean = (int)Math.Floor((double)(lvlsum / NumberOfPlayers));
-
+            lvlMean = lvlMean < 2 ? 2 : lvlMean;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
                 EnemyFactories.Add(gameObject.AddComponent(typeof(EnemyFactory)) as EnemyFactory);
@@ -421,7 +421,14 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        PlayerDifficulties[i] = lvlMean;
+                        /*if (CurrentRound == 1)
+                        {
+                            PlayerDifficulties[i] = 2;
+                        }
+                        else
+                        {
+                            PlayerDifficulties[i] = lvlMean;
+                        }*/
                         EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
                     }
                     if (Mode == GameMode.Cooperative)
@@ -444,22 +451,15 @@ public class GameManager : MonoBehaviour
             }
             
 
-            // Initialize sink
-            GameObject sink = GameObject.Find("ItemSink");
-            if (sink.GetComponent<ItemSink>().SinkInit(NumberOfPlayers))
-            {
-                sink.GetComponent<BoxCollider2D>().size = GetItemSinkCollider();
-                sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
-            }   
-
             // Initialize Items   
             for (int i = 0; i < NumberOfPlayers; i++)
             {
-                    if (Difficulty == Level.Adaptive)
-                    {
+                // Adaptive
+                if (Difficulty == Level.Adaptive)
+                {
                         if (Mode == GameMode.Competitive)
                         {
-                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                        GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
                             ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
                         }
@@ -471,7 +471,7 @@ public class GameManager : MonoBehaviour
                             ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], isNewGame);
                         }
                         
-                    }
+                }
                     // Static
                     else
                     {
@@ -507,6 +507,14 @@ public class GameManager : MonoBehaviour
                     PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
                     PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], isNewGame);
                 }
+            }
+
+            // Initialize sink
+            GameObject sink = GameObject.Find("ItemSink");
+            if (sink.GetComponent<ItemSink>().SinkInit(NumberOfPlayers))
+            {
+                sink.GetComponent<BoxCollider2D>().size = GetItemSinkCollider();
+                sink.GetComponent<SpriteRenderer>().sprite = GetItemSinkSprite();
             }
 
             // Initialize UI
@@ -685,9 +693,13 @@ public class GameManager : MonoBehaviour
                     LevelPrecision =           (int)calcs.list[2].list[i].n;
                     LevelSpeedAndSpawnRate =   (int)calcs.list[3].list[i].n;
                     // Save difficulty updated from DDA 
-                    PlayerDifficulties[i] += LevelPrecision;
-                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                   
+                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+                    {
+                        PlayerDifficulties[i] += LevelPrecision;
+                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    }
                 }
             
             }
@@ -703,10 +715,13 @@ public class GameManager : MonoBehaviour
                         LevelSpeedAndSpawnRate =    (int)calcs.list[3].list[i].n;
 
                     // Save difficulty updated from DDA 
-                    PlayerDifficulties[i] += LevelPrecision;
-                    Debug.Log(LevelPrecision);
-                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+                    {
+                        PlayerDifficulties[i] += LevelPrecision;
+                        Debug.Log(LevelPrecision);
+                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    }
                 }
 
         }
