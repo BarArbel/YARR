@@ -341,149 +341,141 @@ io.on('connection', async socket =>{
     console.log(data);
     try { 
     // Get number of rounds
-    let sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
-    await mysqlConnection.query(sql_roundsNumber, (error, results) => {
-      if (error || !results.length) {
+      let sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+      let results = await query(sql_roundsNumber);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_roundsNumber);
-        socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableExpData', { message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}` });
       }
       else {
         roundsNumber = results[0]["RoundsNumber"];
         console.log(roundsNumber);
-      }});
+      }
     
-    // Get how many rounds were done duing the instance  
-    let sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} where Event = 'newRound';`;
-    await mysqlConnection.query(sql_roundsDone, (error, results) => {
-      if (error || !results.length) {
+      // Get how many rounds were done duing the instance  
+      let sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE}.Tracker_Input_${table.time}_${table.id} where Event = 'newRound';`;
+      results = await query(sql_roundsDone);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_roundsDone);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
         roundsDone = results[0]["RoundsDone"];
         console.log(roundsDone);
-      }});
+      }
 
-    // Get left rounds data  
-    let sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
-
-    await mysqlConnection.query(sql_roundsLeft, (error, results) => {
-      if (error || !results.length) {
+      // Get left rounds data  
+      let sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+      results = await query(sql_roundsLeft);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_roundsLeft);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
-        for (var i=roundsDone; i<results.length; i++) {
-          modeList.push(results[i]["GameMode"]);
-          difficList.push(results[i]["Difficulty"]);
-        }
+        await results.map(row => {
+          modeList.push(row["GameMode"]);
+          difficList.push(row["Difficulty"]);
+
+        })
         console.log(modeList);
         console.log(difficList);
-      }});
-    
-    // Get experiment settings  
-    let sql_expr_settings = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
-    await mysqlConnection.query(sql_expr_settings, (error, results) => {
-      if (error || !results.length) {
+      }
+
+      // Get experiment settings  
+      let sql_expr_settings = `SELECT * FROM ${process.env.DATABASE}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
+      results = await query(sql_expr_settings);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_expr_settings);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
         roundDuration = results[0]["RoundDuration"];
         colorBlindness = results[0]["Disability"];
-        skin = results[0]["ColorSettings"];  
-      }});
-    
-    // Get players' positions and health (in the item section)
-    let sql_pLoc = `
-    SELECT ts,pid,CoordX,CoordY,Item FROM
-    (select max(Timestamp) ts, PlayerID from 
+        skin = results[0]["ColorSettings"];
+      }
+      
+      // Get players' positions and health (in the item section)
+      let sql_pLoc = `
+      SELECT ts,pid,CoordX,CoordY,Item FROM
+      (select max(Timestamp) ts, PlayerID from 
+          (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
+            where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events
+      Where playerID != 0 and Event = "playerLoc"
+      group by 2) as latest_ts LEFT JOIN 
+      (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item 
+      FROM 
         (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
-          where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events
-    Where playerID != 0 and Event = "playerLoc"
-    group by 2) as latest_ts LEFT JOIN 
-    (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item 
-    FROM 
-      (SELECT * FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id}  
-        where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events) as all_e  ON ts = Timestamp and PlayerID = pid
-    ORDER BY 1;`;
-    
-    await mysqlConnection.query(sql_pLoc, (error, results) => {
-      if (error || !results.length) {
+          where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.dda_input_${table.time}_${table.id})-1) as all_events) as all_e  ON ts = Timestamp and PlayerID = pid
+      ORDER BY 1;`;
+      
+      results = await query(sql_pLoc);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_pLoc);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
-        for (var row in results) {
-          playerLocList.push({playerID: results[row]["pid"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"], Health: results[row]["Item"]});
-        }
-        initTimestamp = results[0]["ts"]-1
+        await results.map(row => {
+          playerLocList.push({ playerID: row["pid"], CoordX: row["CoordX"], CoordY: row["CoordY"], Health: row["Item"] });
+        });
+        initTimestamp = results[0]["ts"] - 1
         console.log(playerLocList);
         console.log(initTimestamp);
-      }});
+      }
 
-    // Get enemies' positions
-    let sql_eLoc = `SELECT Timestamp, Event, Enemy, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
-                      WHERE Event = "enemyLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
-    
-    await mysqlConnection.query(sql_eLoc, (error, results) => {
-      if (error || !results.length) {
+      // Get enemies' positions
+      let sql_eLoc = `SELECT Timestamp, Event, Enemy, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+                        WHERE Event = "enemyLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
+      
+      results = await query(sql_eLoc);
+
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_eLoc);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
-        for (var row in results) {
-          enemyLocList.push({Enemy: results[row]["Enemy"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
-        }
-      }});
+        await results.map(row => {
+          enemyLocList.push({ Enemy: row["Enemy"], CoordX: row["CoordX"], CoordY: row["CoordY"] });
+        });
+      }
 
-
-    // Get items' positions
-    let sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
-                      WHERE Event = "itemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
-    
-    await mysqlConnection.query(sql_iLoc, (error, results) => {
-      if (error || !results.length) {
+      // Get items' positions
+      let sql_iLoc = `SELECT Timestamp, Event, Item, CoordX, CoordY FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
+                        WHERE Event = "itemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
+      
+      results = await query(sql_iLoc);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_iLoc);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
-        for (var row in results) {
-          pickupLocList.push({Item: results[row]["Item"], CoordX: results[row]["CoordX"], CoordY: results[row]["CoordY"]});
-        }
-      }});  
+        await results.map(row => {
+          pickupLocList.push({ Item: row["Item"], CoordX: row["CoordX"], CoordY: row["CoordY"] });
+        });
+      }  
 
       // Get held items
       let sql_hiLoc = `SELECT Timestamp, Event, PlayerID, Item FROM ${process.env.DATABASE}.dda_input_${table.time}_${table.id} 
                       WHERE Event = "takenItemLoc" and Timestamp < ${initTimestamp}+5 and Timestamp >  ${initTimestamp};`;
     
-    await mysqlConnection.query(sql_hiLoc, (error, results) => {
-      if (error || !results.length) {
+      results = await query(sql_hiLoc);
+      if (!results.length) {
         // TODO: Take care of exception
-        console.log(error);
         console.log(sql_hiLoc);
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
       }
       else {
-        for (var row in results) {
-          heldPickupLocList.push({Item: results[row]["Item"], playerID: results[row]["pid"]});
+        await results.map(row => {
+          heldPickupLocList.push({ Item: row["Item"], playerID: row["pid"] });
           console.log(heldPickupLocList);
-        }
-      }});  
+        });
+      }
     }
     catch (err) {console.log("fuck");}
     console.log(  {numberOfPlayers:  numOfPlayers, 
@@ -498,6 +490,7 @@ io.on('connection', async socket =>{
                   iLoc:             pickupLocList,
                   hiLoc:            heldPickupLocList
     });
+
     socket.emit('interrGameSettings', {rSettings: {numberOfPlayers:  numOfPlayers, 
                                                 roundLength:      roundDuration, 
                                                 blindness:        colorBlindness, 
