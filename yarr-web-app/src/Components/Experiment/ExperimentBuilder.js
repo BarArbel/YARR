@@ -613,7 +613,22 @@ class ExperimentBuilder extends Component {
         <form>
           <p className="h4 text-center mb-4">{title}</p>
           {wizardIndex !== -1 && this.renderProgressBar()}
-          {wizardIndex === -1 && <ExperimentExplanation />}
+          {
+          wizardIndex === -1 && 
+          (
+            <div>
+              <article>
+                <p>
+                  You get to build the experiment environment according to your study’s needs.<br />
+                  The experiment will be in a form of a playable game where the participants can either work together as teammates to achieve a mutual goal, or compete against one another to take the winning spot for themselves.
+                </p>
+                <p>
+                  Hover over the image to view the basic rules of the game:
+                </p>
+              </article>
+              <ExperimentExplanation />
+            </div>
+          )}
           {wizardIndex === 0 ?
             <div>
               <p className="h4 text-center mb-4">Experiment Info</p>
@@ -646,7 +661,7 @@ class ExperimentBuilder extends Component {
             }
             {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
+                <MDBBtn color="elegant" className="login-btn nextButton" onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?

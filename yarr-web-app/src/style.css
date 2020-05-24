@@ -474,6 +474,16 @@ hr {
   align-items: center;
 }
 
+.nextButton {
+  position: relative;
+  bottom: 150px;
+}
+
+.experimentExplanation {
+  position: relative;
+  bottom: 50px;
+}
+
 .indexedStep.accomplished {
   background-color: rgba(0, 116, 217, 1);
 }
