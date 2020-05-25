@@ -350,7 +350,7 @@ hr {
   justify-content: flex-end;
 }
 
-.builderImage {
+.builderImage, .disabledImage {
   height: 100%;
   width: 100%;
   opacity: 0.5;
@@ -474,9 +474,15 @@ hr {
   align-items: center;
 }
 
-.nextButton {
+.gotIt {
   position: relative;
-  bottom: 150px;
+  bottom: 125px;
+}
+
+.builderButton {
+  position: relative;
+  top: 15px;
+  margin-bottom: 35px;
 }
 
 .experimentExplanation {
