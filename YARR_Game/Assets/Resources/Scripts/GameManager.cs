@@ -43,6 +43,7 @@ public class GameManager : MonoBehaviour
     // Continued game settings
     private bool IsNewGame;
     private float ContinuedTimestamp;
+    private List<int2> Scores;
     private List<float4> PlayerSettings;
     private List<float3> EnemySettings;
     private List<float3> ItemSettings;
@@ -171,6 +172,9 @@ public class GameManager : MonoBehaviour
         ItemSettings = new List<float3>();
         HItemSettings = new List<int2>();
 
+        // Initialize score
+        Scores = new List<int2>();
+
         for (int i = 0; i < NumberOfRounds; i++)
         {
             RoundsModes.Add((GameMode)rSettings.list[0].list[3].list[i].n - 1);
@@ -180,29 +184,39 @@ public class GameManager : MonoBehaviour
         for (int i=0; i<NumberOfPlayers; i++)
         {
             JSONObject pData = rSettings.list[0].list[7];
-            Debug.Log(pData.list[0].n);
-            Debug.Log(pData.list[1].n);
-            Debug.Log(pData.list[2].n);
-            Debug.Log(pData.list[3].n);
-            PlayerSettings.Add(new float4(pData.list[0].n, pData.list[1].n, pData.list[2].n, pData.list[3].n));
+            Debug.Log(pData);
+            Debug.Log(pData.list[i].list[0].n);
+            Debug.Log(pData.list[i].list[1].n);
+            PlayerSettings.Add(new float4(pData.list[i].list[0].n, pData.list[i].list[1].n, pData.list[i].list[2].n, pData.list[i].list[3].n));
+            Scores.Add(new int2((int)pData.list[i].list[0].n, (int)pData.list[i].list[4].n));
         }
 
         for (int i = 0; i < rSettings.list[0].list[8].Count; i++)
         {
             JSONObject eData = rSettings.list[0].list[8];
-            EnemySettings.Add(new float3(eData.list[0].n, eData.list[1].n, eData.list[2].n));
+            if (eData.list[i].list[0].n != 0)
+            {
+                EnemySettings.Add(new float3(eData.list[i].list[0].n, eData.list[i].list[1].n, eData.list[i].list[2].n));
+            }
         }
 
         for (int i = 0; i < rSettings.list[0].list[9].Count; i++)
         {
             JSONObject iData = rSettings.list[0].list[9];
-            ItemSettings.Add(new float3(iData.list[0].n, iData.list[1].n, iData.list[2].n));
+            if (iData.list[i].list[0].n != 0)
+            {
+                ItemSettings.Add(new float3(iData.list[i].list[0].n, iData.list[i].list[1].n, iData.list[i].list[2].n));
+            }
+                  
         }
 
         for (int i = 0; i < rSettings.list[0].list[10].Count; i++)
         {
             JSONObject hiData = rSettings.list[0].list[10];
-            HItemSettings.Add(new int2((int)hiData.list[0].n, (int)hiData.list[1].n));
+            if (hiData.list[i].list[0].n != 0)
+            {
+                HItemSettings.Add(new int2((int)hiData.list[i].list[0].n, (int)hiData.list[i].list[1].n));
+            }
         }
 
         StartExperimet();
@@ -559,7 +573,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                // spawn taken items
+                // spawn taken items and add score
                 for (int i = 0; i < HItemSettings.Count; i++)
                 {
                     GameObject heldItem;
@@ -581,6 +595,12 @@ public class GameManager : MonoBehaviour
                         {
                             playerObj.ContinuedGameTreasure(heldItem);
                         }
+
+                        // Add score
+                        if (playerObj.GetID() == Scores[i].x)
+                        {
+                            sink.GetComponent<ItemSink>().SetInterrScore(playerObj, Scores[i].y);
+                        }                            
                     }
                 }
                     
@@ -765,7 +785,8 @@ public class GameManager : MonoBehaviour
                     break;
                 case playerLayer:
                     Player player = gameObjects[i].GetComponent<Player>();
-                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLocHealth, player, player.GetHealth(), 0, (int)GetMode());
+                    ItemSink sink = GameObject.Find("ItemSink").GetComponent<ItemSink>();
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLocHealth, player, player.GetHealth(), sink.GetPlayerScore(player.GetID()), (int)GetMode());
                     break;
                 default:
                     break;

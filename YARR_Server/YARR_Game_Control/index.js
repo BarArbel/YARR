@@ -402,7 +402,7 @@ io.on('connection', async socket =>{
         skin = results[0]["ColorSettings"];
       }
       
-      // Get players' positions and health (in the item section)
+      // Get players' positions and health (in the item section) and score (in the enemy section)
       let sql_pLoc = `
       SELECT ts,pid,CoordX,CoordY,Item FROM
       (select max(Timestamp) ts, PlayerID from 
@@ -424,7 +424,7 @@ io.on('connection', async socket =>{
       }
       else {
         await results.map(row => {
-          playerLocList.push({ playerID: row["pid"], CoordX: row["CoordX"], CoordY: row["CoordY"], Health: row["Item"] });
+          playerLocList.push({ playerID: row["pid"], CoordX: row["CoordX"], CoordY: row["CoordY"], Health: row["Item"], Score: row["Enemy"] });
         });
         initTimestamp = results[0]["ts"] - 1
       }
