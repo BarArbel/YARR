@@ -167,6 +167,12 @@ namespace Project.Networking
             Debug.Log("SyncNewScene" + E);
             GameSocket.Emit("SyncNewScene", E);
         }
+
+        public static void SyncInterruptedScene(JSONObject E)
+        {
+            Debug.Log("SyncInterruptedScene" + E);
+            GameSocket.Emit("SyncInterruptedScene", E);
+        }
     }
 
 
