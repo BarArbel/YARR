@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    public bool ContinueExperiment(JSONObject rSettings)
+    public bool InitInterrExperiment(JSONObject rSettings)
     {
         ExperimentStarted = false;
         IsNewGame = false;
@@ -144,7 +144,7 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log("Hello ContinueExperiment");
+        Debug.Log("Hello InitInterrExperiment");
         Debug.Log(rSettings);
 
         // Experiment properties
@@ -185,8 +185,6 @@ public class GameManager : MonoBehaviour
         {
             JSONObject pData = rSettings.list[0].list[7];
             Debug.Log(pData);
-            Debug.Log(pData.list[i].list[0].n);
-            Debug.Log(pData.list[i].list[1].n);
             PlayerSettings.Add(new float4(pData.list[i].list[0].n, pData.list[i].list[1].n, pData.list[i].list[2].n, pData.list[i].list[3].n));
             Scores.Add(new int2((int)pData.list[i].list[0].n, (int)pData.list[i].list[4].n));
         }
@@ -224,12 +222,13 @@ public class GameManager : MonoBehaviour
     }
 
     private void StartExperimet()
-    {
-            InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
-            InitMode();
-            ExperimentStarted = true;
-            RoundTimer = RoundLength;
-            CurrentRound = 1;
+    {        
+        CurrentRound = 1;
+        InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
+        InitMode();
+        RoundTimer = RoundLength;
+        ExperimentStarted = true;
+
     }
 
     private void StartNextRound()
@@ -237,12 +236,15 @@ public class GameManager : MonoBehaviour
 
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
+            CurrentRound++;
             DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
             SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
+
+            // Initialize round timer 
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
             {
                 RoundTimer = RoundLength;
-                CurrentRound++;
+                //CurrentRound++;
             }
             
         }
@@ -539,6 +541,7 @@ public class GameManager : MonoBehaviour
             GameObject canvas = GameObject.Find("Canvas");
             canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
 
+            // Interrupted game initializations
             if (!isNewGame)
             {
                 // Spawn players
@@ -852,6 +855,7 @@ public class GameManager : MonoBehaviour
             else
             {
                 StartNextRound();
+
             }
         }
        

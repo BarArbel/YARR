@@ -135,6 +135,7 @@ public class Player : MonoBehaviour
         bool isSpriteDirectionRight, 
         float heldItemHeight)
     {
+        Debug.Log("id: " + id + " is initing");
         // TODO: nullify inventory and total inventory
         ID = id;
         Health = health;

@@ -87,6 +87,7 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
+            // TODO: uncomment
             GameSocket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
@@ -101,6 +102,7 @@ namespace Project.Networking
             data.Enemy = enemy;
             data.GameMode = (GameManager.GameMode)gameMode;
 
+            // TODO: uncomment
             GameSocket.Emit("TrackerInput", new JSONObject(JsonUtility.ToJson(data)));
         }
 
