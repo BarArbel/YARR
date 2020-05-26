@@ -317,6 +317,17 @@ io.on('connection', async socket =>{
   socket.on('SyncInterruptedScene', (data) => {
     console.log("SyncInterruptedScene");
     console.log(data);
+
+    // Delete prev interrupted game code
+    const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
+    mysqlConnection.query(sql_del_gamecode, (error, results) => {
+      if (error || !results.length) {
+        // TODO: Take care of exception
+        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+      }
+    console.log(sql_del_gamecode);
+    });
+
     //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
     socket.emit('interrGameSettings', data);
   });
@@ -582,7 +593,9 @@ io.on('connection', async socket =>{
     let isInterr = await checkIfInteruppted();
     if(isInterr === true) {
       console.log("THE GAME IS VERY MUCH INTERRUPTED");
-      setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+      console.log("expid: " + experimentId);
+      console.log("instid: "+ table.id);
+      setInterruptedGame(`${table.time}_${table.id}`, experimentId);
     }
   });
 });

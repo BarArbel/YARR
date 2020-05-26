@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     private Skin RoundsSkins;
     private List<Level> RoundsDifficulties;
     private bool ExperimentStarted;
+    private bool IsNewRound;
 
     // Difficulties carried from round to round
     private List<int> PlayerDifficulties; 
@@ -80,6 +81,7 @@ public class GameManager : MonoBehaviour
     {
         ExperimentStarted = false;
         IsNewGame = true;
+        IsNewRound = true;
         // Test json structure
         if (rSettings.list[0].keys[0] != "numberOfPlayers"             || 
             rSettings.list[0].keys[1] != "roundLength"                 || 
@@ -127,6 +129,7 @@ public class GameManager : MonoBehaviour
     {
         ExperimentStarted = false;
         IsNewGame = false;
+        IsNewRound = false;
         // Test json structure
         if (rSettings.list[0].keys[0] != "numberOfPlayers"  ||
             rSettings.list[0].keys[1] != "roundLength"      ||
@@ -151,10 +154,10 @@ public class GameManager : MonoBehaviour
         RoundTimer = 0;
         NumberOfRounds = rSettings.list[0].list[3].Count;
         NumberOfPlayers = (int)rSettings.list[0].list[0].n;
-        RoundLength = (float)rSettings.list[0].list[1].n;
+        RoundLength = rSettings.list[0].list[1].n;
         BlindnessType = (ColorBlindness)rSettings.list[0].list[2].n - 1;
         RoundsSkins = (Skin)rSettings.list[0].list[4].n - 1;
-        ContinuedTimestamp = (float)rSettings.list[0].list[6].n;
+        ContinuedTimestamp = rSettings.list[0].list[6].n;
 
         // Test json values
         if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundLength == 0)
@@ -184,7 +187,6 @@ public class GameManager : MonoBehaviour
         for (int i=0; i<NumberOfPlayers; i++)
         {
             JSONObject pData = rSettings.list[0].list[7];
-            Debug.Log(pData);
             PlayerSettings.Add(new float4(pData.list[i].list[0].n, pData.list[i].list[1].n, pData.list[i].list[2].n, pData.list[i].list[3].n));
             Scores.Add(new int2((int)pData.list[i].list[0].n, (int)pData.list[i].list[4].n));
         }
@@ -225,8 +227,8 @@ public class GameManager : MonoBehaviour
     {        
         CurrentRound = 1;
         InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
-        InitMode();
-        RoundTimer = RoundLength;
+        RoundTimer = IsNewRound ? RoundLength : ContinuedTimestamp;
+        InitMode();   
         ExperimentStarted = true;
 
     }
@@ -236,7 +238,6 @@ public class GameManager : MonoBehaviour
 
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
-            CurrentRound++;
             DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
             SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
 
@@ -244,7 +245,7 @@ public class GameManager : MonoBehaviour
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
             {
                 RoundTimer = RoundLength;
-                //CurrentRound++;
+                CurrentRound++;
             }
             
         }
@@ -410,7 +411,6 @@ public class GameManager : MonoBehaviour
         OthersItemsAmount = 1;
         if (DestroyFactoryMadeObjects() && DestroyFactories() && DestroyUI())
         {
-            bool isNewGame = (!IsNewGame && CurrentRound == 1) ? false : true;
 
             //  Initialize player factory
             PlayerFactory = gameObject.AddComponent(typeof(PlayerFactory)) as PlayerFactory;
@@ -420,7 +420,7 @@ public class GameManager : MonoBehaviour
             }
             PlayerFactory.PlayerFactoryInit(SpawnLocation, InitialHealth, MyItemsAmount, OthersItemsAmount,
                                             IsSpriteDirectionRight, HeldItemHeight, NumberOfPlayers,
-                                            GetPlayerSprites(), RightMovement, LeftMovement, JumpMovement, isNewGame);
+                                            GetPlayerSprites(), RightMovement, LeftMovement, JumpMovement, IsNewRound);
 
             // Initialize Enemy factories            
             GameObject enemyObj = Resources.Load<GameObject>("Prefabs/Enemy");
@@ -449,11 +449,11 @@ public class GameManager : MonoBehaviour
                         {
                             PlayerDifficulties[i] = lvlMean;
                         }*/
-                        EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                        EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], isNewGame);
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], IsNewRound);
                     }
                 }
                 // Static
@@ -461,11 +461,11 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                        EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], isNewGame);
+                        EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], IsNewRound);
                     }
                 }
             }
@@ -481,14 +481,14 @@ public class GameManager : MonoBehaviour
                         {
                         GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                            ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
                         }
                         // Cooperative
                         else
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], isNewGame);
+                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], IsNewRound);
                         }
                         
                 }
@@ -499,14 +499,14 @@ public class GameManager : MonoBehaviour
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                            ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
                         }
                         // Cooperative
                         else
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], isNewGame);
+                            ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], IsNewRound);
                         }
                     }
             }
@@ -517,7 +517,7 @@ public class GameManager : MonoBehaviour
             {
                 GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                 PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0], isNewGame);
+                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
             }
             else
             {
@@ -525,7 +525,7 @@ public class GameManager : MonoBehaviour
                 {
                     GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                     PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], isNewGame);
+                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
                 }
             }
 
@@ -542,8 +542,9 @@ public class GameManager : MonoBehaviour
             canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
 
             // Interrupted game initializations
-            if (!isNewGame)
+            if (!IsNewRound)
             {
+                
                 // Spawn players
                 PlayerFactory.ContinuedGameSpawn(PlayerSettings);
                 GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -606,7 +607,10 @@ public class GameManager : MonoBehaviour
                         }                            
                     }
                 }
-                    
+
+                // Interrupted round was initialized, next rounds will be new ones
+                IsNewRound = true;
+
             }
         }
     }
@@ -850,7 +854,6 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
-                //Debug.Log(RoundTimer);
             }
             else
             {
