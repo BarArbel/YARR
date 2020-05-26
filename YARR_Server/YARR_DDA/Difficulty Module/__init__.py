@@ -42,6 +42,30 @@ async def get_timestamp_and_gamemode():
     return timestamp, gamemode
 
 
+def check_gamemode_and_levels(timestamp, gamemode):
+    global con, calc, number_of_players
+
+    if gamemode == "Competitive":
+        level = calc.player_levels[0]
+        are_different = False
+
+        for i in range(1, number_of_players):
+            if level != calc.player_levels[i]:
+                are_different = True
+                break
+
+        if are_different:
+            level = int(sum(calc.player_levels) / number_of_players)
+            if level < 1:
+                level = 1
+            elif level > 6:
+                level = 6
+
+            for i in range(number_of_players):
+                calc.player_levels[i] = level
+                con.timestamps[i] = timestamp
+
+
 async def get_data_from_db(timestamp, gamemode):
     global con, number_of_players
 
@@ -205,6 +229,7 @@ async def on_ddaupdate(data):
         if current_time > last_time + 5 and gamemode is not None:
             last_time = current_time
             time_lock.release()
+            check_gamemode_and_levels(timestamp, gamemode)
             print("entered with timestamp: ", timestamp)
             sys.stdout.flush()
             total = await get_data_from_db(timestamp, gamemode)
