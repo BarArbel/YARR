@@ -6,6 +6,7 @@ import time
 import os
 import sys
 from dotenv import load_dotenv
+import threading
 
 load_dotenv()
 number_of_players = 3
@@ -18,6 +19,8 @@ con = None
 calc = None
 host = os.getenv('HOST_SERVER')
 recv_port = os.getenv('PORT_SERVER')
+time_lock = threading.Lock()
+count_lock = threading.Lock()
 
 
 async def get_timestamp_and_gamemode():
@@ -159,14 +162,15 @@ async def insert_calculations_to_db(calcs, group_level, timestamp, gamemode):
 def create_game_json(calcs, group_level, gamemode):
     global con, number_of_players
 
+    count_lock.acquire()
     game_json = {
         "index": con.counter,
         "LevelSpawnHeightAndTimer": [],
         "LevelPrecision": [],
         "LevelSpeedAndSpawnRate": []
     }
-
     con.counter = con.counter + 1
+    count_lock.release()
 
     for player_id in range(number_of_players):
         if gamemode == "Cooperative":
@@ -197,8 +201,10 @@ async def on_ddaupdate(data):
     if data == instance_id:
         current_time = time.time()
         timestamp, gamemode = await get_timestamp_and_gamemode()
+        time_lock.acquire()
         if current_time > last_time + 5 and gamemode is not None:
             last_time = current_time
+            time_lock.release()
             print("entered with timestamp: ", timestamp)
             sys.stdout.flush()
             total = await get_data_from_db(timestamp, gamemode)
@@ -218,6 +224,8 @@ async def on_ddaupdate(data):
             await sio.emit('LevelSettings', emit_json)
             print("data sent to server: ", emit_json)
             sys.stdout.flush()
+        else:
+            time_lock.release()
 
 
 @sio.on("gameEnded")
