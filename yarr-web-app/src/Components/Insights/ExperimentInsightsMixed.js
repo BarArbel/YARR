@@ -75,7 +75,7 @@ class ExperimentInsightsMixed extends Component {
         {dataSet && <h6 style={{ textAlign: "center" }}>Experiment Breakdown</h6>}
 
         {
-          dataLoaded && data.length ?
+          dataLoaded && (data.length || dataSet) ?
             (
               <div className="insightHolder">
                 <ComposedChart
