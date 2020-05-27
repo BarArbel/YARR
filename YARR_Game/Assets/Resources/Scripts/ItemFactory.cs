@@ -32,8 +32,17 @@ public class ItemFactory : ObjectFactory
             new float2(-3, -2), new float2(-3, 0), new float2(-3, 2), new float2(0, 2), new float2(0, 3.5f), new float2(1, 3.5f)
         };
 
-        DestroyTimer = LevelsOf_DestroyTimer[levels[0] - 1];
-        SpawnHeightRange = LevelsOf_SpawnHeightRange[levels[0] - 1];
+        // TODO: write this better
+        if (levels[0] - 1 < 0)
+        {
+            DestroyTimer = LevelsOf_DestroyTimer[0];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[0];
+        }
+        else
+        {
+            DestroyTimer = LevelsOf_DestroyTimer[levels[0] - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[levels[0] - 1];
+        }
 
         LevelTimerAndSpawn = levels[0];
         // TODO: Do we need this?

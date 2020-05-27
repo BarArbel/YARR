@@ -24,6 +24,7 @@ public abstract class ObjectFactory : MonoBehaviour
 
     // Game-Experiment settings
     protected bool IsNewGame;
+    protected bool IsStatic;
 
     private GameObject Prefab;
     private Sprite Sprite;
@@ -31,7 +32,7 @@ public abstract class ObjectFactory : MonoBehaviour
     protected int StartingDifficulty;
 
 
-    public void FactoryInit(int id, List<int> levels, GameObject prefab, Sprite sprite, bool isNewGame)
+    public void FactoryInit(int id, List<int> levels, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
     {
         ID = id;
         Prefab = prefab;
@@ -39,10 +40,11 @@ public abstract class ObjectFactory : MonoBehaviour
         IsLevelModified = false;
         SetLevels(levels);
         IsNewGame = isNewGame;
+        IsStatic = isStatic;
 
     }
   
-    public void FactoryInit(int id, List<int> levels, int startingDifficulty, GameObject prefab, Sprite sprite, bool isNewGame)
+    public void FactoryInit(int id, List<int> levels, int startingDifficulty, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
     {
         ID = id;
         Prefab = prefab;
@@ -51,6 +53,7 @@ public abstract class ObjectFactory : MonoBehaviour
         SetStartingDifficulty(startingDifficulty);
         SetLevels(levels);
         IsNewGame = isNewGame;
+        IsStatic = isStatic;
 
     }
 
@@ -92,9 +95,13 @@ public abstract class ObjectFactory : MonoBehaviour
         /*DDALevelSpawnHeightAndTimer = heightTimer;
         DDALevelPrecision = precision;
         DDALevelSpeedAndSpawnRate = speedspawn;*/
-        ModifyLevels(heightTimer, precision, speedspawn);
 
-        ModifyLevelSettings();
+        if (!IsStatic)
+        {
+            ModifyLevels(heightTimer, precision, speedspawn);
+        }
+        // Why do we need this thrice
+        //ModifyLevelSettings();
     }
 
     public IEnumerator StartSpawner()

@@ -462,7 +462,7 @@ public class GameManager : MonoBehaviour
                                 PlayerDifficIndexes[i][j] = lvlMean;
                         }
 
-                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound, false);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
@@ -471,7 +471,7 @@ public class GameManager : MonoBehaviour
                             for (int j = 0; j < 3; j++)
                                 PlayerDifficIndexes[i][j] = 2;
                         }
-                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound);
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound, false);
                     }
                 }
                 // Static
@@ -479,11 +479,11 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound, true);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound);
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound, true);
                     }
                 }
             }
@@ -511,7 +511,7 @@ public class GameManager : MonoBehaviour
                             for (int j = 0; j < 3; j++)
                                 PlayerDifficIndexes[i][j] = lvlMean;
                         }
-                        ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                        ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, false);
                     }
                     // Cooperative
                     else
@@ -523,7 +523,7 @@ public class GameManager : MonoBehaviour
                             for (int j = 0; j < 3; j++)
                                 PlayerDifficIndexes[i][j] = 2;
                         }
-                        ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound);
+                        ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, false);
                     }
                         
                 }
@@ -534,14 +534,14 @@ public class GameManager : MonoBehaviour
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                            ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, true);
                         }
                         // Cooperative
                         else
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound);
+                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, true);
                         }
                     }
             }
@@ -767,11 +767,27 @@ public class GameManager : MonoBehaviour
 
                     if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficIndexes[i][0] += LevelPrecision;
-                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        //TODO: redo this later
+                        if (PlayerDifficIndexes[i][0] + LevelPrecision  > 5)
+                        {
+                            PlayerDifficIndexes[i][0] = 5;
+                        }
+                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
+                        {
+                            PlayerDifficIndexes[i][0] = 1;
+                        }
+                        else
+                        {
+                            PlayerDifficIndexes[i][0] += LevelPrecision;
+                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                            DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
+                        }                        
+                        /*EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
-                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode);
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode); */
                     }
                 }
             
@@ -790,12 +806,30 @@ public class GameManager : MonoBehaviour
                     // Save difficulty updated from DDA 
                     if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficIndexes[i][0] += LevelPrecision;
-                        Debug.Log(LevelPrecision);
-                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                        Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
-                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);
+
+                        //TODO: redo this later
+                        if (PlayerDifficIndexes[i][0] + LevelPrecision > 5)
+                        {
+                            PlayerDifficIndexes[i][0] = 5;
+                        }
+                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
+                        {
+                            PlayerDifficIndexes[i][0] = 1;
+                        }
+                        else
+                        {
+                            PlayerDifficIndexes[i][0] += LevelPrecision;
+                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                            DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
+                    }
+                    /*PlayerDifficIndexes[i][0] += LevelPrecision;
+                    Debug.Log(LevelPrecision);
+                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);*/
                 }
                 }
         }
