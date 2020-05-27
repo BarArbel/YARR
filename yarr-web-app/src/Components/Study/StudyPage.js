@@ -16,8 +16,8 @@ import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
 import StudyInsightsMixed from '../Insights/StudyInsightsMixed'
-import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 
 const mapStateToProps = ({ user, study, experiment }) => {
   return {

@@ -30,7 +30,8 @@ export class ExperimentItem extends Component {
       disability: 0,
       characterType: 0,
       colorSettings: 0,
-      editExperiment: false,
+      interrupted: false,
+      editExperiment: false
     }
 
     this.handleEdit = this.handleEdit.bind(this)
@@ -40,6 +41,7 @@ export class ExperimentItem extends Component {
     this.handleSubmitEdit = this.handleSubmitEdit.bind(this)
     this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStartExperiment = this.handleStartExperiment.bind(this)
+    this.checkInterruptedInstances = this.checkInterruptedInstances.bind(this)
   }
 
   componentDidMount() {
@@ -54,6 +56,38 @@ export class ExperimentItem extends Component {
       colorSettings: ColorSettings,
       gameCode: GameCode
     })
+
+    this.checkInterruptedInstances()
+  }
+
+  checkInterruptedInstances() {
+    const { experimentId, userInfo, bearerKey } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/getInterruptedInstances?experimentId=${experimentId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json()).then(json => {
+      if (json.result === "Success") {
+        json.data.length && this.setState ({ interrupted: true})
+      }
+      else {
+        // No interrupted here        
+        console.log(json)
+      }
+    })
+      .catch(err => {
+        console.log(err)
+      })
+
   }
 
   handleDelete() {
@@ -134,6 +168,7 @@ export class ExperimentItem extends Component {
   }
 
   renderCard() {
+    const { interrupted } = this.state
     const { experimentId, studyId, thisExperiment } = this.props
     const gameCode = thisExperiment.GameCode
     const codeButtonText = gameCode === "null" ? "Start Experiment" : "View Game Code"
@@ -151,6 +186,7 @@ export class ExperimentItem extends Component {
           {this.props.children}
         </Link>
         <MDBBtn color={codeButtonColor} className={`login-btn codeButton ${greenColor}`} onClick={() => codeButtonFunction(experimentId)}>{codeButtonText}</MDBBtn>
+        {interrupted && <p className="interruptedIndicator">This experiment has unfinished games!</p>}
       </div>
     )
   }

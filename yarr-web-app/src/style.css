@@ -359,6 +359,13 @@ hr {
   margin-top: 10px;
 }
 
+.interruptedIndicator {
+  padding-top: 10px;
+  color: #FF9494;
+  font-size: 14px;
+  font-weight: bold;
+}
+
 .builderImage:hover {
   opacity: 1;
 }

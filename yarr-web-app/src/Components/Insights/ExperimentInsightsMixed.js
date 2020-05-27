@@ -57,8 +57,12 @@ class ExperimentInsightsMixed extends Component {
       .then(json => {
         if (json.result === "Success")
           this.setState({ data: json.data, names: json.names, dataLoaded: true })
+        else this.setState({ data: [], names: [], dataLoaded: true })
       })
-      .catch(err => console.log(err))
+      .catch(err => {
+        this.setState({ data: [], names: [], dataLoaded: true })
+        console.log(err)
+      })
   }
 
   render() {
@@ -71,7 +75,7 @@ class ExperimentInsightsMixed extends Component {
         {dataSet && <h6 style={{ textAlign: "center" }}>Experiment Breakdown</h6>}
 
         {
-          dataLoaded ?
+          dataLoaded && data.length ?
             (
               <div className="insightHolder">
                 <ComposedChart
@@ -94,9 +98,12 @@ class ExperimentInsightsMixed extends Component {
             )
             :
             (
+              !dataLoaded ? 
               <div className="barLoader">
                 <MoonLoader size={120} color={"#123abc"} loading={true} />
-              </div>
+              </div> 
+              :
+              <p style={{textAlign: "center", paddingTop: "20px"}}>No Data Collected</p>
             )
         }
       </div>

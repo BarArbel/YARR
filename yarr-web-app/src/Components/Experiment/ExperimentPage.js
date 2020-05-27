@@ -18,6 +18,9 @@ import { InterruptedInstances } from './InterruptedInstances'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+import StudyInsightsBars from '../Insights/StudyInsightsBars'
+import StudyInsightRadar from '../Insights/StudyInsightsRadar'
+import ExperimentInsightsMixed from '../Insights/ExperimentInsightsMixed'
 
 const mapStateToProps = ({ user, experiment }) => {
   return {
@@ -270,9 +273,10 @@ class ExperimentPage extends Component {
       RoundDuration,
       Disability,
       CharacterType,
-      ColorSettings,
+      ColorSettings
     } = experiment
     const studyId = this.props.match.params.studyId
+    const experimentId = this.props.match.params.experimentId
     const buttonText = Status === "Running" ? "STOP EXPERIMENT" : "START EXPERIMENT"
     const codeButtonColor = Status === "Running" ? "elegant" : "success"
     const endStartColor = Status === "Running" ? "yellowButton" : "greenButton"
@@ -379,10 +383,12 @@ class ExperimentPage extends Component {
               }
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
-              <StudyInsightsMirror studyId={studyId} />
-              <StudyInsightsMirror studyId={studyId} />
-              <StudyInsightsMirror studyId={studyId} />
-              <StudyInsightsMirror studyId={studyId} />
+              <div>
+                <StudyInsightsMirror studyId={studyId} />
+                <StudyInsightRadar studyId={studyId} />
+                <StudyInsightsBars studyId={studyId} />
+                <ExperimentInsightsMixed experimentId={experimentId} />
+              </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">
               <p>
