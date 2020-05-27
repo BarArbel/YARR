@@ -20,7 +20,8 @@ public class EnemyFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
-        int level = GetLevel();
+        List<int> levels = GetLevels();
+        Debug.Log("enemy factory levels = " + levels[2] + levels[2] + levels[1] + " player = " + GetID());
         DestroyTimer = 10f;
         Damage = 1;
 
@@ -33,46 +34,21 @@ public class EnemyFactory : ObjectFactory
         float[] LevelsOf_Speed = { 0, 1f, 1.5f, 2f, 2.5f, 3f };
         int[]   LevelsOf_TurnsAvailable = { 0, 3, 4, 5, 6, 6};
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
+ 
+        SpawnRateRange = LevelsOf_SpawnRateRange[levels[2] - 1];
+        Speed = LevelsOf_Speed[levels[2] - 1];
+        TurnsAvailable = LevelsOf_TurnsAvailable[levels[1] - 1];
+        TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[levels[1] - 1];
 
-        // Static
-        if (level != 0)
+        LevelPrecision = levels[1];
+        LevelSpeedAndSpawn = levels[2];
+        // TODO: Do we need this?
+        /*if (!IsLevelModified)
         {
-            Debug.Log("There are no static games, do u get here");
-            Debug.Log("level: " + level);
-            SpawnRateRange = LevelsOf_SpawnRateRange[level-1];
-            Speed = LevelsOf_Speed[level - 1];
-            TurnsAvailable = LevelsOf_TurnsAvailable[level - 1];
-            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[level - 1];
-
-        }
-        // Adaptive
-        else
-        {
-            if (!IsDDAInitiated)
-            {
-                IsDDAInitiated = true;
-                LevelSpeedAndSpawn = 2;
-                LevelPrecision = 2;
-            }
-
-            if (!(LevelSpeedAndSpawn == 1 && DDALevelSpeedAndSpawnRate == -1) && !(LevelSpeedAndSpawn == 6 && DDALevelSpeedAndSpawnRate == 1))
-            {
-                LevelSpeedAndSpawn += DDALevelSpeedAndSpawnRate;
-
-                SpawnRateRange = LevelsOf_SpawnRateRange[LevelSpeedAndSpawn - 1];
-                Speed = LevelsOf_Speed[LevelSpeedAndSpawn - 1];
-            }
-
-            if (!(LevelPrecision == 1 && DDALevelPrecision == -1) && !(LevelPrecision == 6 && DDALevelPrecision == 1))
-            {
-                LevelPrecision += DDALevelPrecision;
-
-                TurnsAvailable = LevelsOf_TurnsAvailable[LevelPrecision - 1];
-                TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[LevelPrecision - 1];
-            }    
-
-           
-        }
+            IsLevelModified = true;
+            LevelSpeedAndSpawn = 2;
+            LevelPrecision = 2;
+        }*/
     }
 
     protected override void Spawn()
