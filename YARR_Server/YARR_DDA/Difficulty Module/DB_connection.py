@@ -121,7 +121,7 @@ class DBconnection:
 
     async def get_gamemode(self, timestamp):
         query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) = " + str(timestamp) +
-                 " ORDER BY Timestamp DESC LIMIT 1")
+                 " LIMIT 1")
 
         try:
             async with self.pool.acquire() as con:

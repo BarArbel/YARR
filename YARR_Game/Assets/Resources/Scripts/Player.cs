@@ -135,7 +135,6 @@ public class Player : MonoBehaviour
         bool isSpriteDirectionRight, 
         float heldItemHeight)
     {
-        // TODO: nullify inventory and total inventory
         ID = id;
         Health = health;
         MaxHealth = health;

@@ -317,6 +317,17 @@ io.on('connection', async socket =>{
   socket.on('SyncInterruptedScene', (data) => {
     console.log("SyncInterruptedScene");
     console.log(data);
+
+    // Delete prev interrupted game code
+    const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
+    mysqlConnection.query(sql_del_gamecode, (error, results) => {
+      if (error || !results.length) {
+        // TODO: Take care of exception
+        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+      }
+    console.log(sql_del_gamecode);
+    });
+
     //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
     socket.emit('interrGameSettings', data);
   });
@@ -371,7 +382,8 @@ io.on('connection', async socket =>{
       }
 
       // Get left rounds data  
-      let sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' ORDER BY RoundNumber ASC;`;
+      let sql_roundsLeft = `SELECT * FROM ${process.env.DATABASE}.rounds where ExperimentId = '${data.ExperimentID}' 
+      and RoundNumber >= ${roundsDone} ORDER BY RoundNumber ASC;`;
       results = await query(sql_roundsLeft);
       if (!results.length) {
         // TODO: Take care of exception
@@ -384,6 +396,7 @@ io.on('connection', async socket =>{
           difficList.push(row["Difficulty"]);
 
         })
+
         console.log(modeList);
         console.log(difficList);
       }
@@ -402,15 +415,15 @@ io.on('connection', async socket =>{
         skin = results[0]["ColorSettings"];
       }
       
-      // Get players' positions and health (in the item section)
+      // Get players' positions and health (in the item section) and score (in the enemy section)
       let sql_pLoc = `
-      SELECT ts,pid,CoordX,CoordY,Item FROM
+      SELECT ts,pid,CoordX,CoordY,Item as Health,Enemy as Score FROM
       (select max(Timestamp) ts, PlayerID from 
           (SELECT * FROM ${process.env.DATABASE}.tracker_input_${table.time}_${table.id}  
             where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.tracker_input_${table.time}_${table.id})-1) as all_events
       Where playerID != 0 and Event = "playerLocHealth"
       group by 2) as latest_ts LEFT JOIN 
-      (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item 
+      (SELECT Timestamp, PlayerID pid, CoordX, CoordY, Item, Enemy 
       FROM 
         (SELECT * FROM ${process.env.DATABASE}.tracker_input_${table.time}_${table.id}  
           where Timestamp < (select max(timestamp) from ${process.env.DATABASE}.tracker_input_${table.time}_${table.id})-1) as all_events) as all_e  ON ts = Timestamp and PlayerID = pid
@@ -424,8 +437,12 @@ io.on('connection', async socket =>{
       }
       else {
         await results.map(row => {
-          playerLocList.push({ playerID: row["pid"], CoordX: row["CoordX"], CoordY: row["CoordY"], Health: row["Item"] });
+          playerLocList.push({ playerID: row["pid"], CoordX: row["CoordX"], CoordY: row["CoordY"], Health: row["Health"], Score: row["Score"] });
         });
+
+        // Ensure players are sorted by their ID
+        playerLocList.sort((a, b) => (a.playerID > b.playerID) ? 1 : -1);
+        console.log(playerLocList);
         initTimestamp = results[0]["ts"] - 1
       }
 
@@ -473,7 +490,8 @@ io.on('connection', async socket =>{
       }
       else {
         await results.map(row => {
-          heldPickupLocList.push({ Item: row["Item"], playerID: row["pid"] });
+          heldPickupLocList.push({ Item: row["Item"], playerID: row["PlayerID"] });
+          console.log("bleh bluh" + sql_hiLoc);
           console.log(heldPickupLocList);
         });
       }
@@ -575,7 +593,9 @@ io.on('connection', async socket =>{
     let isInterr = await checkIfInteruppted();
     if(isInterr === true) {
       console.log("THE GAME IS VERY MUCH INTERRUPTED");
-      setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+      console.log("expid: " + experimentId);
+      console.log("instid: "+ table.id);
+      setInterruptedGame(`${table.time}_${table.id}`, experimentId);
     }
   });
 });

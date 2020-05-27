@@ -13,6 +13,11 @@ public class ItemSink : Singleton
         return PlayerScores[gameObj.GetComponent<Player>().GetID()];
     }
 
+    public int GetPlayerScore(int ID)
+    {
+        return PlayerScores[ID];
+    }
+
     public int GetScoreSum ()
     {
         int ScoreSum = 0;
@@ -44,6 +49,17 @@ public class ItemSink : Singleton
         }
 
         PlayerScores[player.GetID()] += SingleScoreValue;
+        return true;
+    }
+
+    public bool SetInterrScore(Player player, int score)
+    {
+        if (PlayerScores.Length == 0)
+        {
+            return false;
+        }
+
+        PlayerScores[player.GetID()] = score;
         return true;
     }
 

@@ -64,8 +64,6 @@ namespace Project.Networking
 
             On("interruptedCorrect", (E) => {
                 Debug.Log("Correct");
-                Debug.Log(E.data["instanceId"].str);
-                Debug.Log(InstanceID);
                 if (E.data["instanceId"].str == InstanceID)
                 {
                     InterruptedInstanceID = E.data["interruptedInstanceId"].str;
@@ -109,12 +107,9 @@ namespace Project.Networking
             });
 
             On("interrGameSettings", (E) => {
-                Debug.Log("why u no happen interrGameSettings");
-                Debug.Log(InterruptedInstanceID);
-                Debug.Log(E.data["instanceId"].str);
                 if (E.data["instanceId"].str == InterruptedInstanceID)
                 {
-                    FindObjectOfType<GameManager>().ContinueExperiment(E.data);
+                    FindObjectOfType<GameManager>().InitInterrExperiment(E.data);
 
                 }
             });
