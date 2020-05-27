@@ -34,11 +34,29 @@ public class EnemyFactory : ObjectFactory
         float[] LevelsOf_Speed = { 0, 1f, 1.5f, 2f, 2.5f, 3f };
         int[]   LevelsOf_TurnsAvailable = { 0, 3, 4, 5, 6, 6};
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
- 
-        SpawnRateRange = LevelsOf_SpawnRateRange[levels[2] - 1];
-        Speed = LevelsOf_Speed[levels[2] - 1];
-        TurnsAvailable = LevelsOf_TurnsAvailable[levels[1] - 1];
-        TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[levels[1] - 1];
+
+        // TODO: write this better
+        if (levels[2] - 1 < 0)
+        {
+            SpawnRateRange = LevelsOf_SpawnRateRange[0];
+            Speed = LevelsOf_Speed[0];
+        }
+        else
+        {
+            SpawnRateRange = LevelsOf_SpawnRateRange[levels[2] - 1];
+            Speed = LevelsOf_Speed[levels[2] - 1];
+        }
+
+        if (levels[2] - 1 < 0)
+        {
+            TurnsAvailable = LevelsOf_TurnsAvailable[0];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[0];
+        }
+        else
+        {
+            TurnsAvailable = LevelsOf_TurnsAvailable[levels[1] - 1];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[levels[1] - 1];
+        }
 
         LevelPrecision = levels[1];
         LevelSpeedAndSpawn = levels[2];
