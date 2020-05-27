@@ -18,7 +18,7 @@ public class PowerupFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
-        int level = GetLevel();
+    /*    int level = GetLevel();
         Damage = 0;
         Speed = 0;
         SpawnRateRange = new int2(10, 20);
@@ -39,9 +39,9 @@ public class PowerupFactory : ObjectFactory
         // Adaptive
         else
         {
-            if (!IsDDAInitiated)
+            if (!IsLevelModified)
             {
-                IsDDAInitiated = true;
+                IsLevelModified = true;
                 LevelTimerAndSpawn = 3;
             }
 
@@ -53,7 +53,7 @@ public class PowerupFactory : ObjectFactory
             DestroyTimer = LevelsOf_DestroyTimer[LevelTimerAndSpawn - 1];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[LevelTimerAndSpawn - 1];
         }
-    }
+    */}
 
     protected override void Spawn()
     {

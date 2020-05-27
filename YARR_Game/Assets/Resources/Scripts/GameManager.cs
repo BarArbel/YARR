@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 {
     public enum GameMode { Cooperative, Competitive };
     public enum Skin { Color, Shape, Type };
-    public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6 };
+    public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6, LevelCount };
     public enum ColorBlindness { Colorful, Protanopia, Tritanopia};
     //DEBUG
     public bool StaticMode = true;
@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     private bool IsNewRound;
 
     // Difficulties carried from round to round
-    private List<int> PlayerDifficulties; 
+    private List<List<int>> PlayerDifficIndexes; 
 
     // Game settings
     private GameMode Mode;
@@ -226,6 +226,7 @@ public class GameManager : MonoBehaviour
     private void StartExperimet()
     {        
         CurrentRound = 1;
+        // RoundsDifficulties means adaptive/static1/static2/etc...
         InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
         RoundTimer = IsNewRound ? RoundLength : ContinuedTimestamp;
         InitMode();   
@@ -239,7 +240,6 @@ public class GameManager : MonoBehaviour
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
             DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
-            SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
 
             // Initialize round timer 
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
@@ -247,7 +247,8 @@ public class GameManager : MonoBehaviour
                 RoundTimer = RoundLength;
                 CurrentRound++;
             }
-            
+            SetMode(RoundsModes[CurrentRound-1], RoundsSkins, RoundsDifficulties[CurrentRound-1]);
+
         }
         if (CurrentRound == NumberOfRounds && RoundTimer <= 0)
         {
@@ -283,10 +284,16 @@ public class GameManager : MonoBehaviour
         PowerupFactories = new List<ObjectFactory>();
 
         // Initialize player difficulties
-        PlayerDifficulties = new List<int>();
+        PlayerDifficIndexes = new List<List<int>>();
         for (int i=0; i<NumberOfPlayers; i++)
         {
-            PlayerDifficulties.Add((int)difficulty);
+            List<int> diffics = new List<int>();
+
+            // TODO: change this hardcoded number
+            for (int j = 0; j < 3; j++)
+                diffics.Add((int)difficulty);
+
+            PlayerDifficIndexes.Add(diffics);
         }
 
         // Load ALL possible sprites
@@ -426,11 +433,14 @@ public class GameManager : MonoBehaviour
             GameObject enemyObj = Resources.Load<GameObject>("Prefabs/Enemy");
             int lvlsum = 0;
             int lvlMean;
+            Debug.Log("CurrentRound = " + CurrentRound);
             for (int i=0; i< NumberOfPlayers; i++)
             {
-                lvlsum += PlayerDifficulties[i];
+                // TODO: change this hardcoded number
+                for (int j = 0; j < 3; j++)
+                    lvlsum += PlayerDifficIndexes[i][j];
             }
-            lvlMean = (int)Math.Floor((double)(lvlsum / NumberOfPlayers));
+            lvlMean = (int)Math.Floor((double)(lvlsum / (NumberOfPlayers*3)));
             lvlMean = lvlMean < 2 ? 2 : lvlMean;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
@@ -441,19 +451,27 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        /*if (CurrentRound == 1)
+                        if (CurrentRound == 1)
                         {
-                            PlayerDifficulties[i] = 2;
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
                         }
                         else
                         {
-                            PlayerDifficulties[i] = lvlMean;
-                        }*/
-                        EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = lvlMean;
+                        }
+
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], IsNewRound);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
+                        }
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound);
                     }
                 }
                 // Static
@@ -461,11 +479,11 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], enemyObj, EnemySprites[EnemySprites.Count - 1], IsNewRound);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], IsNewRound);
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], enemyObj, EnemySprites[i], IsNewRound);
                     }
                 }
             }
@@ -477,19 +495,36 @@ public class GameManager : MonoBehaviour
                 // Adaptive
                 if (Difficulty == Level.Adaptive)
                 {
-                        if (Mode == GameMode.Competitive)
-                        {
+                    if (Mode == GameMode.Competitive)
+                    {
                         GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        // TODO: uncomment or delete after checking the new overloaded method
+                        //ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
                         }
-                        // Cooperative
                         else
                         {
-                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], IsNewRound);
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = lvlMean;
                         }
+                        ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                    }
+                    // Cooperative
+                    else
+                    {
+                        GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
+                        }
+                        ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound);
+                    }
                         
                 }
                     // Static
@@ -499,21 +534,21 @@ public class GameManager : MonoBehaviour
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                            ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
                         }
                         // Cooperative
                         else
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], IsNewRound);
+                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound);
                         }
                     }
             }
             
 
             //Initilazie Powerups
-            if (Mode == GameMode.Competitive)
+            /*if (Mode == GameMode.Competitive)
             {
                 GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                 PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
@@ -527,7 +562,7 @@ public class GameManager : MonoBehaviour
                     PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
                     PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
                 }
-            }
+            }*/
 
             // Initialize sink
             GameObject sink = GameObject.Find("ItemSink");
@@ -708,6 +743,11 @@ public class GameManager : MonoBehaviour
     public void NotificationDDAUpdate(JSONObject calcs)
     {
         Debug.Log(calcs);
+        //if ((int)calcs.list[1].list[1].n != 0 || (int)calcs.list[2].list[1].n != 0 || (int)calcs.list[3].list[1].n != 0)
+        if ((int)calcs.list[1].list[0].n != 0 || (int)calcs.list[2].list[0].n != 0 || (int)calcs.list[3].list[0].n != 0)
+        {
+            Debug.Log("Changed: " + calcs);
+        }
         int calcsIndex = (int)calcs.list[0].n;
         int LevelSpawnHeightAndTimer;
         int LevelPrecision;
@@ -716,20 +756,22 @@ public class GameManager : MonoBehaviour
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
             
-            for (int i = 1; i <= NumberOfPlayers; i++)
+            for (int i = 0; i < NumberOfPlayers; i++)
             {
-                if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i+1)
+                if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
                 {
                     LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
                     LevelPrecision =           (int)calcs.list[2].list[i].n;
                     LevelSpeedAndSpawnRate =   (int)calcs.list[3].list[i].n;
                     // Save difficulty updated from DDA 
-                   
-                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+
+                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficulties[i] += LevelPrecision;
+                        PlayerDifficIndexes[i][0] += LevelPrecision;
                         EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode);
                     }
                 }
             
@@ -746,15 +788,16 @@ public class GameManager : MonoBehaviour
                         LevelSpeedAndSpawnRate =    (int)calcs.list[3].list[i].n;
 
                     // Save difficulty updated from DDA 
-                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficulties[i] += LevelPrecision;
+                        PlayerDifficIndexes[i][0] += LevelPrecision;
                         Debug.Log(LevelPrecision);
                         EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    }
+                        Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);
                 }
-
+                }
         }
 
     }
