@@ -70,7 +70,7 @@ class StudyInsightsBars extends Component {
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Bar stackId="a" dataKey="Taken" fill="#89cff0" />
+                  <Bar stackId="a" dataKey="Captured" fill="#89cff0" />
                   <Bar stackId="a" dataKey="Missed" fill="#FF9494" />
                   <Bar stackId="b" dataKey="Hit" fill="#ffae42" />
                   <Bar stackId="b" dataKey="Avoid" fill="#82ca9d" />

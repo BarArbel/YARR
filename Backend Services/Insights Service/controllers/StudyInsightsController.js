@@ -1,15 +1,5 @@
-var mysql = require("mysql");
 var fetch = require("node-fetch");
-const { HOST, USER, PASSWORD, DATABASE } = process.env
-
-var connection = mysql.createConnection({
-  host: HOST,
-  user: USER,
-  password: PASSWORD,
-  database: DATABASE
-});
-
-connection.connect();
+const { connection } = require('../database.js');
 
 async function verifyRequest(req) {
   const { userInfo, bearerKey } = req.body
@@ -231,8 +221,8 @@ module.exports = {
         const compData = results[1 - coopIndex];
 
         let data = [
-          { name: "Coop Items", Taken: coopData.PercentItemsTaken, Missed: coopData.PercentItemsMissed }, 
-          { name: "Comp Items", Taken: compData.PercentItemsTaken, Missed: compData.PercentItemsMissed }, 
+          { name: "Coop Items", Captured: coopData.PercentItemsCaptured, Missed: coopData.PercentItemsMissed }, 
+          { name: "Comp Items", Captured: compData.PercentItemsCaptured, Missed: compData.PercentItemsMissed }, 
           { name: "Coop Enemies", Avoid: coopData.PercentEnemiesAvoid, Hit: coopData.PercentEnemiesHit, Blocked: coopData.PercentEnemiesBlock }, 
           { name: "Comp Enemies", Avoid: compData.PercentEnemiesAvoid, Hit: compData.PercentEnemiesHit, Blocked: compData.PercentEnemiesBlock }, 
         ];

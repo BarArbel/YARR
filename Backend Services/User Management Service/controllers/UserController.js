@@ -1,18 +1,7 @@
-var mysql      = require('mysql'),
-    crypto     = require('crypto'),
-    Validator  = require('validator'),
-    lodash     = require('lodash');
-
-const { HOST, USER, PASSWORD, DATABASE } = process.env
-
-var connection = mysql.createConnection({
-  host: HOST,
-  user: USER,
-  password : PASSWORD,
-  database : DATABASE
-});
-
-connection.connect();
+const lodash = require('lodash');
+const crypto = require('crypto');
+const Validator = require('validator');
+const { connection } = require('../database.js');
 
 function validateInput(data){
     let errors = {}

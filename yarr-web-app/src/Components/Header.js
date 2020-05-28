@@ -29,10 +29,7 @@ class Header extends Component {
       <div className="header">
         <header className="header-login-signup">
           <div className="header-limiter">
-            <h1><a href="/">YARR!</a></h1>
-            {/* <nav>
-              <a href="/" className="selected">Home</a>
-            </nav> */}
+          <a href="/"><img src={require('../Images/logo.png')} alt="Yarr!" id="logo"/></a>
             {isLogged ? 
               <ul>
                 <li>Hello {userInfo.firstName} {userInfo.lastName}</li>

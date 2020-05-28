@@ -1,15 +1,5 @@
-var mysql = require("mysql");
 var fetch = require("node-fetch");
-const { HOST, USER, PASSWORD, DATABASE } = process.env
-
-var connection = mysql.createConnection({
-  host: HOST,
-  user: USER,
-  password: PASSWORD,
-  database: DATABASE
-});
-
-connection.connect();
+const { connection } = require('../database.js');
 
 async function verifyRequest(req) {
   const { userInfo, bearerKey } = req.body
