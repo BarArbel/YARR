@@ -1,4 +1,5 @@
 require('dotenv').config()
+const fetch = require("node-fetch");
 const io = require('socket.io')(process.env.PORT);
 const mysqlConnection = require("./connection");
 const Table = require('./Classes/Table.js');
@@ -6,13 +7,11 @@ const util = require('util');
 const randexp = require('randexp').randexp;
 
 const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
-const { HOST, USER, PASSWORD, DATABASE } = process.env
+const { DATABASE } = process.env
 
 console.log('Server has started');
 
 const tables = [];
-const sockets = [];
-
 
 // Generate a game code for restarting an interrupted game
 async function generateInterrGameCode() {
@@ -537,6 +536,10 @@ io.on('connection', async socket =>{
     const select_query = `SELECT * FROM `
     const insert_query = `INSERT INTO ${DATABASE}.raw_data (InstanceID, ExperimentID, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode) VALUES ?`
     const drop_query = `DROP TABLE `
+    const json = {
+      experimentId: experimentId,
+      instanceId: `${table.time}_${table.id}`
+    }
 
     socket.broadcast.emit('gameEnded', `${instance_id}`);
 
@@ -584,6 +587,27 @@ io.on('connection', async socket =>{
     catch (error) {
       console.log(error)
     }
+
+    // after all queries are done, invoke analyzeData
+    fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(json)
+    }).then(res => res.json())
+      .then(json => {
+        if (json.result === "Success") {
+          //did good
+        }
+        else {
+          //did bad
+        }
+      })
+      .catch(err => {
+        //did very bad
+      });
   });
 
   socket.on('disconnect', async () => {
