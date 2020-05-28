@@ -62,14 +62,21 @@ class StudyPage extends Component {
       handleResetExperiments,
       handleToggleBuildExperiment
     } = this.props
+    const studyId = this.props.match.params.studyId
 
     handleResetExperiments()
     this.setRoutes()
     buildExperiment && handleToggleBuildExperiment()
-    this.fetchExperiments()
-    studies.length && this.setState({ studyLoaded: true })
-    !studies.length && this.fetchStudies()
-    this.fetchRawData()
+
+    if(studies && studies.length) {
+      const studyExists = studies.find(line => line.StudyId === studyId)
+      if (studyExists !== undefined) {
+        this.fetchExperiments()
+        this.fetchRawData()
+      }
+      this.setState({ studyLoaded: true })
+    } 
+    !studies.length && await this.fetchStudies()
   }
 
   setRoutes(){
@@ -116,7 +123,7 @@ class StudyPage extends Component {
 
   }
 
-  fetchStudies(){
+  async fetchStudies(){
     const {
       userInfo,
       bearerKey,
@@ -141,21 +148,25 @@ class StudyPage extends Component {
         if (json.result === "Success") {
           const studyExists = json.studies.find(line => line.StudyId === studyId)
           handleAddStudies(json.studies)
-          studyExists.length === 0 && this.props.history.push('/')
-          this.setState({ studyLoaded: true })
+          if(studyExists !== undefined) {
+            this.fetchExperiments()
+            this.fetchRawData()
+            this.setState({ studyLoaded: true })
+          }
+          else this.props.history.push('/')
         }
         else {
-          this.props.history.push('/')
           handleAddStudies([])
+          this.props.history.push('/')
         }
       })
       .catch(err => {
-        this.props.history.push('/')
         handleAddStudies([])
+        this.props.history.push('/')
       })
   }
 
-  fetchRawData() {
+  async fetchRawData() {
     const {
       userInfo,
       bearerKey
@@ -167,7 +178,7 @@ class StudyPage extends Component {
       bearerKey: bearerKey
     }
 
-    fetch(rawDataURL, {
+    await fetch(rawDataURL, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -314,10 +325,17 @@ class StudyPage extends Component {
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
               <div>
-                <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightRadar studyId={studyId} />
-                <StudyInsightsBars studyId={studyId} />
-                <StudyInsightsMixed studyId={studyId} />
+                { 
+                currStudy ?
+                <div>
+                  <StudyInsightsMirror studyId={studyId} />
+                  <StudyInsightRadar studyId={studyId} />
+                  <StudyInsightsBars studyId={studyId} />
+                  <StudyInsightsMixed studyId={studyId} />
+                </div>
+                :
+                null
+                }
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">

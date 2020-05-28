@@ -77,11 +77,10 @@ export class ExperimentItem extends Component {
       body: JSON.stringify(json)
     }).then(res => res.json()).then(json => {
       if (json.result === "Success") {
-        json.data.length && this.setState ({ interrupted: true})
+        json.data.length && this.setState ({ interrupted: true })
       }
       else {
         // No interrupted here        
-        console.log(json)
       }
     })
       .catch(err => {

@@ -1,8 +1,6 @@
 {
   "name": "yarr-web-app",
-  "homepage": "https://YARR-Shenkar.github.io/yarr",
   "version": "0.1.0",
-  "private": true,
   "dependencies": {
     "@material-ui/core": "^4.9.5",
     "@material-ui/lab": "^4.0.0-alpha.46",
@@ -54,8 +52,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^2.2.0"
   }
 }

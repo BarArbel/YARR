@@ -45,7 +45,6 @@ class HomePage extends Component {
       { name: 'Home', redirect: '/homePage', isActive: false },
     ]
     handleSetRoutes(routes)
-    this.getAllStudies()
   }
 
   getAllStudies() {
@@ -134,7 +133,7 @@ class HomePage extends Component {
 
   renderLogged(){
     const { studyLoaded } = this.props
-
+    this.getAllStudies()
     return (
       <div className = "homePage">
         <Header />
