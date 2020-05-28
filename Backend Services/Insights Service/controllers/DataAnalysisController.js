@@ -21,7 +21,7 @@ async function QueryA(){
 
 async function QueryB() {
   try {
-    let results = query(`insertQueryHereSQLQueenAverageDickCarryGoMidz`);
+    let results = query(`insertGreyGershonBoringQueryHere. Example: SELECT * FROM ModaotEvel`);
 
     // do stuff with results
     //insert query should be here
