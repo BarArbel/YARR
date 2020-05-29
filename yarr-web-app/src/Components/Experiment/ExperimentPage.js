@@ -33,6 +33,7 @@ const mapStateToProps = ({ user, experiment }) => {
 }
 
 class ExperimentPage extends Component {
+  _isMounted = false
   constructor(props) {
     super(props)
 
@@ -57,6 +58,7 @@ class ExperimentPage extends Component {
   }
 
   async componentDidMount() {
+    this._isMounted = true
     const { 
       userInfo, 
       bearerKey, 
@@ -93,6 +95,9 @@ class ExperimentPage extends Component {
           res.json().then(json => {
             if (json.result === "Success") {
               experiment = json.experiment
+              handleSelectExperiment(experiment)
+              handleSetExperiments([experiment])
+              this._isMounted && this.setState({ experimentLoaded: true })
             }
             else this.props.history.push('/')
           })
@@ -107,13 +112,16 @@ class ExperimentPage extends Component {
       const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
       experiment = experimentList.find(idCompare)
       !experiment && this.props.history.push('/')
+      handleSelectExperiment(experiment)
+      this._isMounted && this.setState({ experimentLoaded: true })
     }
     
     handleSetRoutes(routes)
-    handleSelectExperiment(experiment)
-    handleSetExperiments([experiment])
-    this.setState({ experimentLoaded: true })
     this.fetchRawData()
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   fetchRawData() {
@@ -138,20 +146,20 @@ class ExperimentPage extends Component {
     }).then(res => {
       res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
-          this.setState({ csvData: json.data, csvLoaded: true })
+          this._isMounted && this.setState({ csvData: json.data, csvLoaded: true })
         }
         else {
-          this.setState({ csvData: [], csvLoaded: true })
+          this._isMounted && this.setState({ csvData: [], csvLoaded: true })
         }
       })
     })
       .catch(err => {
-        this.setState({ csvData: [], csvLoaded: true })
+        this._isMounted && this.setState({ csvData: [], csvLoaded: true })
       })
   }
 
   notifyInterrupted() {
-    this.setState({ interrupted: true })
+    this._isMounted && this.setState({ interrupted: true })
   }
 
   handleStartExperiment() {

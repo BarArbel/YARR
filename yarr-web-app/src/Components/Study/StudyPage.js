@@ -32,6 +32,8 @@ const mapStateToProps = ({ user, study, experiment }) => {
 }
 
 class StudyPage extends Component {
+  _isMounted = false
+
   constructor(props) {
     super(props)
 
@@ -56,6 +58,7 @@ class StudyPage extends Component {
   }
 
   async componentDidMount() {
+    this._isMounted = true
     const { 
       studies,
       buildExperiment, 
@@ -74,9 +77,13 @@ class StudyPage extends Component {
         this.fetchExperiments()
         this.fetchRawData()
       }
-      this.setState({ studyLoaded: true })
+      this._isMounted && this.setState({ studyLoaded: true })
     } 
     !studies.length && await this.fetchStudies()
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   setRoutes(){
@@ -156,7 +163,7 @@ class StudyPage extends Component {
             if(studyExists !== undefined) {
               this.fetchExperiments()
               this.fetchRawData()
-              this.setState({ studyLoaded: true })
+              this._isMounted && this.setState({ studyLoaded: true })
             }
             else this.props.history.push('/')
           }
@@ -200,24 +207,24 @@ class StudyPage extends Component {
       if(res.status === 200){
         res.json().then(json => {
         if (json.result === "Success") {
-          this.setState({ csvData: json.data, csvLoaded: true })
+          this._isMounted && this.setState({ csvData: json.data, csvLoaded: true })
         }
         else {
-          this.setState({ csvData: [], csvLoaded: true })
+          this._isMounted && this.setState({ csvData: [], csvLoaded: true })
         }
         })
       }
-      else this.setState({ csvData: [], csvLoaded: true })
+      else this._isMounted && this.setState({ csvData: [], csvLoaded: true })
     })
     .catch(err => {
-      this.setState({ csvData: [], csvLoaded: true })
+      this._isMounted && this.setState({ csvData: [], csvLoaded: true })
     })
   }
 
   handleToggleEdit(editExperiment) {
     editExperiment ? (this.numberOfEdits += 1) : (this.numberOfEdits -= 1)
 
-    this.numberOfEdits > 0 ? this.setState({ editExperiment: true }) : this.setState({ editExperiment: false })
+    this.numberOfEdits > 0 ? this._isMounted && this.setState({ editExperiment: true }) : this._isMounted && this.setState({ editExperiment: false })
   }
 
   handleCreate() {

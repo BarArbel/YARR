@@ -11,6 +11,7 @@ const mapStateToProps = ({ user }) => {
 }
 
 class StudyInsightsMixed extends Component {
+  _isMounted = false
   constructor(props) {
     super(props)
     
@@ -31,6 +32,7 @@ class StudyInsightsMixed extends Component {
   }
 
   async componentDidMount() {
+    this._isMounted = true
     const { studyId, userInfo, bearerKey } = this.props
 
     const url = `https://yarr-insight-service.herokuapp.com/requestAllInsightMixed?researcherId=${userInfo.researcherId}&studyId=${studyId}`
@@ -51,28 +53,32 @@ class StudyInsightsMixed extends Component {
         res.json().then(json => {
           if (json.result === "Success"){
             this.dataSets = json.dataSets
-            this.setState({ dataSets: json.data, dataLoaded: true, experimentNames: json.experimentNames, names:json.names })
+            this._isMounted && this.setState({ dataSets: json.data, dataLoaded: true, experimentNames: json.experimentNames, names:json.names })
             this.setData(0)
           }
           else {
             this.dataSets = []
-            this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
+            this._isMounted && this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
           }
         })
       }
       else {
         this.dataSets = []
-        this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
+        this._isMounted && this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
       }
     })
     .catch(err => {
       this.dataSets = []
-      this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
+      this._isMounted && this.setState({ dataSets: [], dataLoaded: true, experimentNames: [], names: [] })
     })
   }
 
+  componentWillUnmount() {
+    this._isMounted = false
+  }
+
   handleTypeChange(event) {
-    this.setState({ selectedType: event.target.value })
+    this._isMounted && this.setState({ selectedType: event.target.value })
     this.setData(event.target.value)
   }
 
@@ -85,7 +91,7 @@ class StudyInsightsMixed extends Component {
       return null
     })
 
-    this.setState({ currData: this.dataSets[tempIndex], names: this.dataSets[tempIndex][0].names, dataLoaded: true })
+    this._isMounted && this.setState({ currData: this.dataSets[tempIndex], names: this.dataSets[tempIndex][0].names, dataLoaded: true })
   }
 
   renderWait() {

@@ -20,6 +20,7 @@ const mapStateToProps = ({ user, experiment }) => {
 }
 
 export class ExperimentItem extends Component {
+  _isMounted = false
   constructor(props) {
     super(props)
 
@@ -45,9 +46,10 @@ export class ExperimentItem extends Component {
   }
 
   componentDidMount() {
+    this._isMounted = true
     const { thisExperiment } = this.props
     const { Status, Title, Details, Disability, CharacterType, ColorSettings, GameCode } = thisExperiment
-    this.setState({
+    this._isMounted && this.setState({
       status: Status,
       title: Title,
       details: Details,
@@ -60,6 +62,10 @@ export class ExperimentItem extends Component {
     this.checkInterruptedInstances()
   }
 
+  componentWillUnmount() {
+    this._isMounted = false
+  }
+  
   checkInterruptedInstances() {
     const { experimentId, userInfo, bearerKey } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/getInterruptedInstances?experimentId=${experimentId}`
@@ -78,7 +84,7 @@ export class ExperimentItem extends Component {
     }).then(res => { 
       res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
-          json.data.length && this.setState({ interrupted: true })
+          json.data.length && this._isMounted && this.setState({ interrupted: true })
         }
         else {
           // No interrupted here        
@@ -113,13 +119,13 @@ export class ExperimentItem extends Component {
   handleEdit() {
     const { editExperiment } = this.state
     const { toggleEdit } = this.props
-    this.setState({ editExperiment: !editExperiment })
+    this._isMounted && this.setState({ editExperiment: !editExperiment })
     toggleEdit(!editExperiment)
   }
 
   handleSubmitEdit(updatedExperiment) {
     const { Title, Details, Disability, CharacterType, ColorSettings } = updatedExperiment
-    this.setState({
+    this._isMounted && this.setState({
       title: Title,
       details: Details,
       disability: Disability,
@@ -149,7 +155,7 @@ export class ExperimentItem extends Component {
       res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
-          this.setState({ gameCode: json.gameCode })
+          this._isMounted && this.setState({ gameCode: json.gameCode })
         }
     })
     })
