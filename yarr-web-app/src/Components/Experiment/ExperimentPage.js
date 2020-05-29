@@ -88,16 +88,25 @@ class ExperimentPage extends Component {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(json)
-      }).then(res => res.json()).then(json => {
-        if (json.result === "Success") {
-          experiment = json.experiment
+      }).then(res => {
+        if(res.status === 200) {
+          res.json().then(json => {
+            if (json.result === "Success") {
+              experiment = json.experiment
+            }
+            else this.props.history.push('/')
+          })
         }
+        else this.props.history.push('/')
       })
-      .catch(err => console.log(err))
-
-    } else {
+      .catch(err => {
+        this.props.history.push('/')
+      })
+    } 
+    else {
       const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
       experiment = experimentList.find(idCompare)
+      !experiment && this.props.history.push('/')
     }
     
     handleSetRoutes(routes)
@@ -126,8 +135,8 @@ class ExperimentPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => {
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           this.setState({ csvData: json.data, csvLoaded: true })
         }
@@ -135,6 +144,7 @@ class ExperimentPage extends Component {
           this.setState({ csvData: [], csvLoaded: true })
         }
       })
+    })
       .catch(err => {
         this.setState({ csvData: [], csvLoaded: true })
       })
@@ -160,12 +170,14 @@ class ExperimentPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
-      }
+    }).then(res => {
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
+        }
+      })
     })
-      .catch(err => console.log(err))
+    .catch(err => console.log(err))
   }
 
   handleStopExperiment() {
@@ -184,12 +196,14 @@ class ExperimentPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
-      }
+    }).then(res => {
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
+        }
+      })
     })
-      .catch(err => console.log(err))
+    .catch(err => console.log(err))
   }
 
   renderWaitForExperiment() {
