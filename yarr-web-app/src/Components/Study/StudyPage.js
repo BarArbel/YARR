@@ -109,18 +109,22 @@ class StudyPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleSetExperiments(json.experiments)
+    }).then(res =>{ 
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleSetExperiments(json.experiments)
+          }
+          else {
+            handleSetExperiments([])
+          }
+        })
       }
-      else {
-        handleSetExperiments([])
-      }
+      else handleSetExperiments([])
     })
-      .catch(err => {
-        handleSetExperiments([])
-      })
-
+    .catch(err => {
+      handleSetExperiments([])
+    })
   }
 
   async fetchStudies(){
@@ -143,27 +147,34 @@ class StudyPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
-        if (json.result === "Success") {
-          const studyExists = json.studies.find(line => line.StudyId === studyId)
-          handleAddStudies(json.studies)
-          if(studyExists !== undefined) {
-            this.fetchExperiments()
-            this.fetchRawData()
-            this.setState({ studyLoaded: true })
+    }).then(res => { 
+      if(res.status === 200){
+          res.json().then(json => {
+          if (json.result === "Success") {
+            const studyExists = json.studies.find(line => line.StudyId === studyId)
+            handleAddStudies(json.studies)
+            if(studyExists !== undefined) {
+              this.fetchExperiments()
+              this.fetchRawData()
+              this.setState({ studyLoaded: true })
+            }
+            else this.props.history.push('/')
           }
-          else this.props.history.push('/')
-        }
-        else {
-          handleAddStudies([])
-          this.props.history.push('/')
-        }
-      })
-      .catch(err => {
+          else {
+            handleAddStudies([])
+            this.props.history.push('/')
+          }
+        }) 
+      }
+      else {
         handleAddStudies([])
         this.props.history.push('/')
-      })
+      }
+    })
+    .catch(err => {
+      handleAddStudies([])
+      this.props.history.push('/')
+    })
   }
 
   async fetchRawData() {
@@ -185,16 +196,22 @@ class StudyPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
         if (json.result === "Success") {
           this.setState({ csvData: json.data, csvLoaded: true })
         }
         else {
+          this.setState({ csvData: [], csvLoaded: true })
         }
-      })
-      .catch(err => {
-      })
+        })
+      }
+      else this.setState({ csvData: [], csvLoaded: true })
+    })
+    .catch(err => {
+      this.setState({ csvData: [], csvLoaded: true })
+    })
   }
 
   handleToggleEdit(editExperiment) {
@@ -344,7 +361,11 @@ class StudyPage extends Component {
               </p>
               {
               csvLoaded && currStudy? 
-                (<CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink>) 
+                (
+                  csvData.length ? <CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink> 
+                  : 
+                  <p style={{ textAlign: "center", paddingTop: "25px" }}>No data collected</p>
+                ) 
               : 
                 (
                   <div style={{marginTop: '30px'}} className="barLoader">

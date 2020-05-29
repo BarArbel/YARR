@@ -46,12 +46,19 @@ class StudyInsightsBars extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
-        if (json.result === "Success")
-          this.setState({ data: json.data, dataLoaded: true })
-      })
-      .catch(err => console.log(err))
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
+          if (json.result === "Success")
+            this.setState({ data: json.data, dataLoaded: true })
+          else this.setState({ data: [], dataLoaded: true })
+        })
+      }
+      else this.setState({ data: [], dataLoaded: true })
+    })
+    .catch(err => {
+      this.setState({ data: [], dataLoaded: true })
+    })
   }
 
   render() {

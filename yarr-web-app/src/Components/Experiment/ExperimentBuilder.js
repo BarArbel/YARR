@@ -210,10 +210,10 @@ class ExperimentBuilder extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
-          if(editForm) {
+          if (editForm) {
             currExperiment.Title = title
             currExperiment.Details = details
             currExperiment.Disability = disability
@@ -232,11 +232,11 @@ class ExperimentBuilder extends Component {
           else {
             handleToggleBuildExperiment()
           }
-          console.log(json)
         }
         else {
         }
       })
+    })
       .catch(err => {
         console.log(err)
           // do something

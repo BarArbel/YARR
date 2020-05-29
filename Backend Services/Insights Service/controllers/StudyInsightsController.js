@@ -40,7 +40,7 @@ module.exports = {
     }
 
     if (!researcherId || !studyId ) {
-      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
         "StudyId": "${studyId}"},
         "msg": "A parameter is missing."}`);
       return;
@@ -48,7 +48,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM study_insights_mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
       else {
         let types = [];
@@ -123,7 +123,7 @@ module.exports = {
     }
 
     if (!researcherId || !studyId ) {
-      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
         "StudyId": "${studyId}"},
         "msg": "A parameter is missing."}`);
       return;
@@ -131,7 +131,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM study_insights_radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
       else {
         let data = []
@@ -160,7 +160,7 @@ module.exports = {
     }
 
     if (!researcherId || !studyId) {
-      res.status(400).send(`{"result": "Failure", "params": {"researcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"researcherId": "${researcherId}",
           "studyId": "${studyId}"},
           "msg": "A parameter is missing."}`);
       return;
@@ -168,7 +168,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM study_insights_mixed WHERE ResearcherId = "${researcherId}" AND StudyId = "${studyId}"`, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
       else {
         let dataSets = [];
@@ -203,7 +203,7 @@ module.exports = {
     }
 
     if (!researcherId || !studyId) {
-      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
         "StudyId": "${studyId}"},
         "msg": "A parameter is missing."}`);
       return;
@@ -211,7 +211,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM study_insights_bar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
       if(error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
 
       else {
@@ -242,7 +242,7 @@ module.exports = {
     }
 
     if(!studyId) {
-      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}"}, "msg": "A parameter is missing."}`);
+      res.status(204).send(`{"result": "Failure", "params": {"StudyId": "${studyId}"}, "msg": "A parameter is missing."}`);
       return;
     }
 
@@ -253,7 +253,7 @@ module.exports = {
 
     connection.query(sql, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "No insights for StudyId exist."}');
+        res.status(204).send('{"result": "Failure", "error": "No insights for StudyId exist."}');
       }
 
       else {

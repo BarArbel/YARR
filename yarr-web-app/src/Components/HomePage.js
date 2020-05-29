@@ -63,19 +63,20 @@ class HomePage extends Component {
       },
       body: JSON.stringify(json)
     })
-      .then(res => res.json())
-      .then(json => {
-        if (json.result === "Success") {
-          handleAddStudies(json.studies)
-        }
-        else {
-          handleAddStudies([])
-        }
-      })
-      .catch(err => {
-        console.log(err)
+    .then(res => { 
+      res.status === 200 && res.json().then(json => {
+      if (json.result === "Success") {
+        handleAddStudies(json.studies)
+      }
+      else {
         handleAddStudies([])
-      })
+      }
+      }) 
+    })
+    .catch(err => {
+      console.log(err)
+      handleAddStudies([])
+    })
   }
 
   handleToggleBuild() {

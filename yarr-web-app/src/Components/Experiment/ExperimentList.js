@@ -38,8 +38,8 @@ export class ExperimentList extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => {
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           handleSetExperiments(json.experiments)
         }
@@ -47,7 +47,8 @@ export class ExperimentList extends Component {
           handleSetExperiments([])
         }
       })
-      .catch(err => handleSetExperiments([]))
+    })
+    .catch(err => handleSetExperiments([]))
   }
 
   handleDelete(experimentId) {
@@ -66,12 +67,13 @@ export class ExperimentList extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-        .then(json => {
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
           if (json.result === "Success") {
             handleDeleteExperiment(experimentId)
           }
         })
+    })
     .catch(err => console.log(err))
   }
 

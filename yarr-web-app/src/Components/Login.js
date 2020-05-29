@@ -52,8 +52,8 @@ class Login extends Component {
           'Content-Type': 'application/json',
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-        .then(json => {
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
           handleSetVerifyFinished(true)
           if(json.result === "Verified"){
             this.setState({ msg: "Logged in successfully! Redirecting...", isMsg: true, error: false })
@@ -65,11 +65,12 @@ class Login extends Component {
           else {
             this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
           }
-        })
-      .catch(err => {
-        this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
-        handleSetVerifyFinished(true)
       })
+    })
+    .catch(err => {
+      this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
+      handleSetVerifyFinished(true)
+    })
   }
 
   render() {

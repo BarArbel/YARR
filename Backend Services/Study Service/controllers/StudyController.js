@@ -44,7 +44,7 @@ module.exports = {
     }
 
     if (!studyId) {
-      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      res.status(204).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
 
@@ -53,7 +53,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
       else if(!results.length) {
-        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No studies found."}`);
       }
       else {
         let { StudyId, ResearcherId, Title, StudyQuestions, Description } = results[0];
@@ -72,7 +72,7 @@ module.exports = {
     }
 
     if (!researcherId) {
-      res.status(400).send('{"result": "Faliure", "error": "ResearcherId is required."}');
+      res.status(204).send('{"result": "Faliure", "error": "ResearcherId is required."}');
       return;
     }
     connection.query(`SELECT * FROM studies WHERE ResearcherId = ${researcherId}`, (error, results) => {
@@ -80,7 +80,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
       else if(!results.length) {
-        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No studies found."}`);
       }
       else {
         let resultsStr = '{"result": "Success", "studies": ['
@@ -106,7 +106,7 @@ module.exports = {
     }
 
     if (!researcherId || !title || !studyQuestions) {
-      res.status(400).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"ResearcherId": "${researcherId}",
         "Title": "${title}", "StudyQuestions": "${studyQuestions}", "Description": "${description}"},
         "msg": "A parameter is missing."}`);
       return;
@@ -114,7 +114,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${researcherId}"`, (error, results) => {
       if(error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId does not exist."}');
         return;
       }
     });
@@ -139,11 +139,11 @@ module.exports = {
     }
 
     if(!studyId) {
-      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      res.status(204).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
     if(!title && !studyQuestions && !description) {
-      res.status(400).send('{"result": "Faliure", "error": "No parameters to update."}')
+      res.status(204).send('{"result": "Faliure", "error": "No parameters to update."}')
       return;
     }
 
@@ -166,7 +166,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
       else if(results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No studies found or there was nothing to update."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No studies found or there was nothing to update."}`);
       }
       else {
         res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
@@ -183,7 +183,7 @@ module.exports = {
     }
 
     if (!studyId) {
-      res.status(400).send('{"result": "Faliure", "error": "Study ID is required."}');
+      res.status(204).send('{"result": "Faliure", "error": "Study ID is required."}');
       return;
     }
 
@@ -193,7 +193,7 @@ module.exports = {
         return;
       }
       else if(results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No studies found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No studies found."}`);
         return;
       }
       else {

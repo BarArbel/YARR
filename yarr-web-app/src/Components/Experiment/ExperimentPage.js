@@ -383,12 +383,16 @@ class ExperimentPage extends Component {
               }
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="insights-tab">
-              <div>
-                <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightRadar studyId={studyId} />
-                <StudyInsightsBars studyId={studyId} />
-                <ExperimentInsightsMixed experimentId={experimentId} />
-              </div>
+              {
+                experiment && (
+                <div>
+                  <StudyInsightsMirror studyId={studyId} />
+                  <StudyInsightRadar studyId={studyId} />
+                  <StudyInsightsBars studyId={studyId} />
+                  <ExperimentInsightsMixed experimentId={experimentId} />
+                </div>
+                )
+              }
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="insights-tab">
               <p>

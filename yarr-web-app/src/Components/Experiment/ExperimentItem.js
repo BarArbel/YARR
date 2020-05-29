@@ -75,13 +75,15 @@ export class ExperimentItem extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        json.data.length && this.setState ({ interrupted: true })
-      }
-      else {
-        // No interrupted here        
-      }
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          json.data.length && this.setState({ interrupted: true })
+        }
+        else {
+          // No interrupted here        
+        }
+    })
     })
       .catch(err => {
         console.log(err)
@@ -143,13 +145,15 @@ export class ExperimentItem extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
-        this.setState({ gameCode: json.gameCode })
-      }
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
+          this.setState({ gameCode: json.gameCode })
+        }
     })
-      .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err))
   }
 
   handleViewGameCode() {

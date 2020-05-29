@@ -82,8 +82,8 @@ class SignIn extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res =>{ 
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           this.setState({msg: "Signup Completed", isMsg: true, signUp: false, error: false})
         }
@@ -91,7 +91,8 @@ class SignIn extends Component {
           this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true })
         }
       })
-      .catch(err => this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true }))
+    })
+    .catch(err => this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true }))
     
     event.preventDefault()
   }

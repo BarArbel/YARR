@@ -53,15 +53,18 @@ class ExperimentInsightsMixed extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
-        if (json.result === "Success")
-          this.setState({ data: json.data, names: json.names, dataLoaded: true })
-        else this.setState({ data: [], names: [], dataLoaded: true })
-      })
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
+          if (json.result === "Success")
+            this.setState({ data: json.data, names: json.names, dataLoaded: true })
+          else this.setState({ data: [], names: [], dataLoaded: true })
+        })
+      }
+      else this.setState({ data: [], names: [], dataLoaded: true })
+    })
       .catch(err => {
         this.setState({ data: [], names: [], dataLoaded: true })
-        console.log(err)
       })
   }
 

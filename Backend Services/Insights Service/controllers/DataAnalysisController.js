@@ -43,7 +43,7 @@ module.exports = {
     const { instanceId, experimentId } = req.body;
 
     if (!instanceId || !experimentId) {
-      res.status(400).send(`{"result": "Failure", "params": {"instanceId": "${instanceId}",
+      res.status(204).send(`{"result": "Failure", "params": {"instanceId": "${instanceId}",
           "experimentId": "${experimentId}"},
           "msg": "A parameter is missing."}`);
       return;
@@ -57,6 +57,6 @@ module.exports = {
     results === true? 
     res.status(200).send(`{"result": "Success"}`)
     :
-    res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)
+      res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)
   }
 }

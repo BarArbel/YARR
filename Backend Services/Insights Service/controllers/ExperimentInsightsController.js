@@ -40,7 +40,7 @@ module.exports = {
     }
 
     if (!researcherId || !experimentId) {
-      res.status(400).send(`{"result": "Failure", "params": {"researcherId": "${researcherId}",
+      res.status(204).send(`{"result": "Failure", "params": {"researcherId": "${researcherId}",
           "experimentId": "${experimentId}"},
           "msg": "A parameter is missing."}`);
       return;
@@ -48,7 +48,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM study_insights_mixed WHERE ResearcherId = "${researcherId}" AND ExperimentId = "${experimentId}"`, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "ResearcherId or ExperimentId does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or ExperimentId does not exist."}');
       }
       else {
         let tempRes = results.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
@@ -75,7 +75,7 @@ module.exports = {
     }
 
     if (!experimentId) {
-      res.status(400).send(`{"result": "Failure", "params": {"ExperimentId": "${experimentId}"}, "msg": "A parameter is missing."}`);
+      res.status(204).send(`{"result": "Failure", "params": {"ExperimentId": "${experimentId}"}, "msg": "A parameter is missing."}`);
       return;
     }
 
@@ -85,7 +85,7 @@ module.exports = {
 
     connection.query(sql, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "No insights for ExperimentId exist."}');
+        res.status(204).send('{"result": "Failure", "error": "No insights for ExperimentId exist."}');
       }
 
       else {

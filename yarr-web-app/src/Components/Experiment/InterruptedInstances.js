@@ -35,20 +35,20 @@ export class InterruptedInstances extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        json.data.length && notifyInterrupted()
-        this.setState({ instances: json.data , dataLoaded: true })
-      }
-      else {
-        // console.clear();
-        this.setState({ instances: [], dataLoaded: true })
-      }
-    })
-      .catch(err => {
-        // console.clear();
-        this.setState({ instances: [], dataLoaded: true })
+    }).then(res =>{ 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          json.data.length && notifyInterrupted()
+          this.setState({ instances: json.data , dataLoaded: true })
+        }
+        else {
+          this.setState({ instances: [], dataLoaded: true })
+        }
       })
+    })
+    .catch(err => {
+      this.setState({ instances: [], dataLoaded: true })
+    })
   }
 
   deleteInstance(instanceId) {
@@ -67,13 +67,15 @@ export class InterruptedInstances extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        const newList = instances.filter(i => i.InstanceId !== instanceId)
-        this.setState({ instances: newList })
-      }
-      else {
-      }
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          const newList = instances.filter(i => i.InstanceId !== instanceId)
+          this.setState({ instances: newList })
+        }
+        else {
+        } 
+      })
     })
       .catch(err => {
       })
