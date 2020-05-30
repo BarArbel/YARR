@@ -36,8 +36,8 @@ io.on('connection', async socket =>{
   // Initiate DDA calculations
   socket.on('initDDA', async data => {
     console.log("INIT DDA ARE WE GETTING HERE SON");
-    initLevel = data.InitLevel;
-    numOfPlayers = data.NumOfPlayers;
+    let initLevel = data.InitLevel;
+    let numOfPlayers = data.NumOfPlayers;
     console.log(data);
     console.log("lvl: " + initLevel + " num: "+ numOfPlayers);
     const pythonProcess = spawn(`${process.env.PYTHON}`, ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
