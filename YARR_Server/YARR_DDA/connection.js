@@ -1,13 +1,14 @@
 const mysql = require("mysql");
 
-const { HOST_PLATFORM, HOST_DDA, USER, PASSWORD, DATABASE_PLATFORM, DATABASE_DDA } = process.env
+const { HOST_PLATFORM, HOST_DDA, USER, PASSWORD, DATABASE_PLATFORM, DATABASE_DDA, PORT_DDA, PORT_PLATFORM } = process.env
 
 var mysqlConnection_platform = mysql.createConnection({
-    host: HOST_PLATFORM,
-    user: USER,
-    password: PASSWORD,
-    database: DATABASE_PLATFORM,
-    multipleStatements: true
+  host: HOST_PLATFORM,
+  port: PORT_PLATFORM,
+  user: USER,
+  password: PASSWORD,
+  database: DATABASE_PLATFORM,
+  multipleStatements: true
 });
 
 mysqlConnection_platform.connect((err) => {
@@ -21,6 +22,7 @@ mysqlConnection_platform.connect((err) => {
 
 var mysqlConnection_dda = mysql.createConnection({
   host: HOST_DDA,
+  port: PORT_DDA,
   user: USER,
   password: PASSWORD,
   database: DATABASE_DDA,

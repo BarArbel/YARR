@@ -51,7 +51,7 @@ class StudyInsightsMixed extends Component {
     }).then(res => { 
       if(res.status === 200){
         res.json().then(json => {
-          if (json.result === "Success"){
+          if (json.result === "Success") {
             this.dataSets = json.dataSets
             this._isMounted && this.setState({ dataSets: json.data, dataLoaded: true, experimentNames: json.experimentNames, names:json.names })
             this.setData(0)
@@ -85,13 +85,13 @@ class StudyInsightsMixed extends Component {
   setData(index) {
     const { experimentNames } = this.state
     let tempIndex
-
     this.dataSets.map((dataSet, i) => {
       tempIndex = dataSet[0].experimentTitle === experimentNames[index] ? i : tempIndex
       return null
     })
 
-    this._isMounted && this.setState({ currData: this.dataSets[tempIndex], names: this.dataSets[tempIndex][0].names, dataLoaded: true })
+    console.log(this.dataSets[tempIndex])
+    this._isMounted && this.setState({ currData: this.dataSets[tempIndex] })
   }
 
   renderWait() {
