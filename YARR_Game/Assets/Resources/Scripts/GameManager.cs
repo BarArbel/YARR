@@ -57,6 +57,10 @@ public class GameManager : MonoBehaviour
     private List<Sprite> EnemySprites;
     private List<Sprite> PowerupSprites;
 
+    // Prefabs
+    private List<GameObject> EnemyPrefabs;
+    private List<GameObject> PlayerPrefabs;
+
     // Input
     private List<KeyCode> RightMovement;
     private List<KeyCode> LeftMovement;
@@ -256,6 +260,10 @@ public class GameManager : MonoBehaviour
         ItemSinkColliderSize = new List<Vector2>();
         PowerupSprites = new List<Sprite>();
 
+        // Initialize lists of Prefabs
+        EnemyPrefabs = new List<GameObject>();
+        PlayerPrefabs = new List<GameObject>();
+
         // Initialize object factories lists
         EnemyFactories = new List<ObjectFactory>();
         ItemFactories = new List<ObjectFactory>();
@@ -283,6 +291,142 @@ public class GameManager : MonoBehaviour
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/Parrot2"));
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/Parrot3"));
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/ParrotGeneral"));
+
+        // Enemy Prefabs
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotBlue"));
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotGreen"));
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
+        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+
+        // Player Prefabs
+        switch (RoundsSkins)
+        {
+            case Skin.Color:
+                switch (BlindnessType)
+                {
+                    case ColorBlindness.Colorful:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/2 - CharacterBLUE"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/1 - CharacterGREEN"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/3 - CharacterRED"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotBlue"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotGreen"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Protanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/2 - CharacterBLUE"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/7 - CharacterYellow"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/3 - CharacterRED"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotBlue"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Tritanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/10 - CharacterPink"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/1 - CharacterGREEN"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/3 - CharacterRED"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotGreen"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case Skin.Shape:
+                switch (BlindnessType)
+                {
+                    case ColorBlindness.Colorful:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/13 - CharacterRED"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/14 - FlagSplitRED"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/15 - FlagTriangleRED"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/REDParrotFlagSplit"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/REDParrotFlagTriangle"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Protanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/16 - CharacterYellow"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/17 - FlagSplitYellow"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/18 - FlagTriangleYellow"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/YellowParrotFlagSplit"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/YellowParrotFlagTriangle"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Tritanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/19 - CharacterPink"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/20 - FlagSplitPink"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/21 - FlagTrianglePink"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/PinkParrotFlagSplit"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/PinkParrotFlagTriangle"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case Skin.Type:
+                switch (BlindnessType)
+                {
+                    case ColorBlindness.Colorful:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/4 - CharacterRED"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/5 - WheelsRED"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/6 - SpringRED"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/RedParrotWheels"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/RedParrotsSpring"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Protanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/7 - CharacterYellow"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/8 - WheelsYellow"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/9 - SpringYellow"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/YellowParrotWheels"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/YellowParrotsSpring"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    case ColorBlindness.Tritanopia:
+                        // Players
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/10 - CharacterPink"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/11 - WheelsPink"));
+                        PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/12 - SpringPink"));
+                        // Enemies
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/PinkParrotWheels"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrots Shape/PinkParrotsSpring"));
+                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                break;
+        }
 
         // Item sprites
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure1"));
@@ -400,10 +544,10 @@ public class GameManager : MonoBehaviour
             }
             PlayerFactory.PlayerFactoryInit(SpawnLocation, InitialHealth, MyItemsAmount, OthersItemsAmount,
                                             IsSpriteDirectionRight, HeldItemHeight, NumberOfPlayers,
-                                            GetPlayerSprites(), RightMovement, LeftMovement, JumpMovement, isNewGame);
+                                            PlayerPrefabs, RightMovement, LeftMovement, JumpMovement, isNewGame);
 
             // Initialize Enemy factories            
-            GameObject enemyObj = Resources.Load<GameObject>("Prefabs/Enemy");
+            GameObject enemyObj; //= Resources.Load<GameObject>("Prefabs/Enemy");
             int lvlsum = 0;
             int lvlMean;
             for (int i=0; i< NumberOfPlayers; i++)
@@ -429,10 +573,12 @@ public class GameManager : MonoBehaviour
                         {
                             PlayerDifficulties[i] = lvlMean;
                         }*/
-                        EnemyFactories[i].FactoryInit(-1, lvlMean, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                        EnemyFactories[i].FactoryInit(-1, lvlMean, EnemyPrefabs[EnemyPrefabs.Count - 1], EnemySprites[EnemySprites.Count - 1], isNewGame);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
+                        enemyObj = EnemyPrefabs[i];
+                        Debug.Log(enemyObj + " " + i);
                         EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], isNewGame);
                     }
                 }
@@ -441,10 +587,12 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
+                        enemyObj = EnemyPrefabs[i];
                         EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
+                        enemyObj = EnemyPrefabs[i];
                         EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], isNewGame);
                     }
                 }
