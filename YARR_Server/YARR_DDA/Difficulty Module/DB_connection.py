@@ -21,7 +21,7 @@ class DBconnection:
             self.timestamps.append(0)
 
         self.pool = await aiomysql.create_pool(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
-                                               host=os.getenv('HOST_DDA'), db=self.db,
+                                               host=os.getenv('HOST_DDA'), db=self.db, port=os.getenv('PORT_DDA'),
                                                auth_plugin='mysql_native_password')
 
         if await self.check_if_table_exist():
@@ -223,7 +223,7 @@ class DBconnection:
 
                 plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), user=os.getenv('USER'),
                                                   password=os.getenv('PASSWORD'), db=os.getenv('DATABASE_PLATFORM'),
-                                                  auth_plugin='mysql_native_password')
+                                                  port=os.getenv('PORT_PLATFORM'), auth_plugin='mysql_native_password')
                 plat_cur = await plat_con.cursor()
                 await plat_cur.executemany(insert_query, insert_vals)
                 await plat_con.commit()
