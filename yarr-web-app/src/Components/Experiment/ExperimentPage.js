@@ -60,7 +60,8 @@ class ExperimentPage extends Component {
   async componentDidMount() {
     this._isMounted = true
     const { 
-      userInfo, 
+      isLogged,
+      userInfo,
       bearerKey, 
       experimentList, 
       handleSetRoutes, 
@@ -75,49 +76,51 @@ class ExperimentPage extends Component {
       { name: 'Experiment', redirect: `/Study/${studyId}/Experiment/${experimentId}`, isActive: false }
     ]
 
-    let experiment = null
-    if(experimentList.length === 0) {
-      const url = `https://yarr-experiment-service.herokuapp.com/getExperiment?experimentId=${experimentId}`
-      const json = {
-        userInfo: userInfo,
-        bearerKey: bearerKey
+    if(isLogged) {      
+      let experiment = null
+      if(experimentList.length === 0) {
+        const url = `https://yarr-experiment-service.herokuapp.com/getExperiment?experimentId=${experimentId}`
+        const json = {
+          userInfo: userInfo,
+          bearerKey: bearerKey
+        }
+        
+        await fetch(url, {
+          method: "POST",
+          headers: {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(json)
+        }).then(res => {
+          if(res.status === 200) {
+            res.json().then(json => {
+              if (json.result === "Success") {
+                experiment = json.experiment
+                handleSelectExperiment(experiment)
+                handleSetExperiments([experiment])
+                this._isMounted && this.setState({ experimentLoaded: true })
+              }
+              else this.props.history.push('/')
+            })
+          }
+          else this.props.history.push('/')
+        })
+        .catch(err => {
+          this.props.history.push('/')
+        })
+      } 
+      else {
+        const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
+        experiment = experimentList.find(idCompare)
+        !experiment && this.props.history.push('/')
+        handleSelectExperiment(experiment)
+        this._isMounted && this.setState({ experimentLoaded: true })
       }
       
-      await fetch(url, {
-        method: "POST",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(json)
-      }).then(res => {
-        if(res.status === 200) {
-          res.json().then(json => {
-            if (json.result === "Success") {
-              experiment = json.experiment
-              handleSelectExperiment(experiment)
-              handleSetExperiments([experiment])
-              this._isMounted && this.setState({ experimentLoaded: true })
-            }
-            else this.props.history.push('/')
-          })
-        }
-        else this.props.history.push('/')
-      })
-      .catch(err => {
-        this.props.history.push('/')
-      })
-    } 
-    else {
-      const idCompare = i => parseInt(i.ExperimentId) === parseInt(experimentId)
-      experiment = experimentList.find(idCompare)
-      !experiment && this.props.history.push('/')
-      handleSelectExperiment(experiment)
-      this._isMounted && this.setState({ experimentLoaded: true })
+      handleSetRoutes(routes)
+      this.fetchRawData()
     }
-    
-    handleSetRoutes(routes)
-    this.fetchRawData()
   }
 
   componentWillUnmount() {
@@ -444,7 +447,7 @@ class ExperimentPage extends Component {
 
   render() {
     const { isLogged, experiment } = this.props
-    return experiment ? (isLogged ? (this.renderLogged()) : (<Redirect to='/' />)) : (null)
+    return isLogged ? (experiment ? this.renderLogged() : null ) : (<Redirect to='/' />)
   }
 }
 

@@ -61,25 +61,28 @@ class StudyPage extends Component {
     this._isMounted = true
     const { 
       studies,
+      isLogged,
       buildExperiment, 
       handleResetExperiments,
       handleToggleBuildExperiment
     } = this.props
     const studyId = this.props.match.params.studyId
 
-    handleResetExperiments()
-    this.setRoutes()
-    buildExperiment && handleToggleBuildExperiment()
-
-    if(studies && studies.length) {
-      const studyExists = studies.find(line => line.StudyId === studyId)
-      if (studyExists !== undefined) {
-        this.fetchExperiments()
-        this.fetchRawData()
-      }
-      this._isMounted && this.setState({ studyLoaded: true })
-    } 
-    !studies.length && await this.fetchStudies()
+    if(isLogged) {
+      handleResetExperiments()
+      this.setRoutes()
+      buildExperiment && handleToggleBuildExperiment()
+  
+      if(studies && studies.length) {
+        const studyExists = studies.find(line => line.StudyId === studyId)
+        if (studyExists !== undefined) {
+          this.fetchExperiments()
+          this.fetchRawData()
+        }
+        this._isMounted && this.setState({ studyLoaded: true })
+      } 
+      !studies.length && await this.fetchStudies()
+    }
   }
 
   componentWillUnmount() {
@@ -390,7 +393,7 @@ class StudyPage extends Component {
   render() {
     const { isLogged } = this.props
 
-    return isLogged ? (this.renderLogged()) : <Redirect to="/" />
+    return isLogged ? (this.renderLogged()) : <Redirect to='/' />
   }
 }
 

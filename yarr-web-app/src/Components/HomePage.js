@@ -40,11 +40,15 @@ class HomePage extends Component {
   }
 
   componentDidMount() {
-    const { handleSetRoutes } = this.props
+    const { handleSetRoutes, studies, isLogged } = this.props
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: false },
     ]
-    handleSetRoutes(routes)
+
+    if(isLogged) {
+      handleSetRoutes(routes)
+      studies.length === 0 && this.getAllStudies()
+    }
   }
 
   getAllStudies() {
@@ -74,7 +78,6 @@ class HomePage extends Component {
       }) 
     })
     .catch(err => {
-      console.log(err)
       handleAddStudies([])
     })
   }
@@ -134,7 +137,6 @@ class HomePage extends Component {
 
   renderLogged(){
     const { studyLoaded } = this.props
-    this.getAllStudies()
     return (
       <div className = "homePage">
         <Header />
