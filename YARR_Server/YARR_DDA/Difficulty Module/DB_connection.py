@@ -106,7 +106,8 @@ class DBconnection:
         await self.pool.wait_closed()
     
     async def get_timestamp(self):
-        query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
+        # query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
+        query = ("SELECT format(max(Timestamp), 3) FROM " + self.db + "." + self.tb)
 
         try:
             async with self.pool.acquire() as con:
@@ -120,8 +121,8 @@ class DBconnection:
             return None
 
     async def get_gamemode(self, timestamp):
-        query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) = " + str(timestamp) +
-                 " LIMIT 1")
+        query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) >= "
+                 + str(timestamp) + " ORDER BY Timestamp ASC LIMIT 1")
 
         try:
             async with self.pool.acquire() as con:
