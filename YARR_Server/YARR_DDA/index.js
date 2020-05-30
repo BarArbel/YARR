@@ -1,10 +1,11 @@
 require('dotenv').config()
-const io = require('socket.io')(process.env.PORT);
-const mysqlConnection = require("./connection");
+const io = require('socket.io')(process.env.PORT || 52300);
+const { mysqlConnection_platform, mysqlConnection_dda } = require("./connection");
 const util = require('util');
 const spawn = require("child_process").spawn;
 
-const query = util.promisify(mysqlConnection.query).bind(mysqlConnection);
+const query_platform = util.promisify(mysqlConnection_platform.query).bind(mysqlConnection_platform);
+const query_dda = util.promisify(mysqlConnection_dda.query).bind(mysqlConnection_dda);
 
 console.log('Server has started');
 
@@ -17,10 +18,10 @@ io.on('connection', async socket =>{
   socket.on('sendInstanceID', data => {
     tableTimeId = data.InstanceID;
     const sql = `SET SQL_SAFE_UPDATES=0;
-                 UPDATE  ${process.env.DATABASE}.instances SET DDAParity = true  where InstanceId = '${tableTimeId}' ;
+                 UPDATE  ${process.env.DATABASE_PLATFORM}.instances SET DDAParity = true  where InstanceId = '${tableTimeId}' ;
                  SET SQL_SAFE_UPDATES=1;   `;
     console.log(sql);
-    mysqlConnection.query(sql, (error, results) => {
+    mysqlConnection_platform.query(sql, (error, results) => {
         if (error || !results.length) {
           // TODO: Take care of exception
           socket.emit('cantUpdate', {message: "Couldn't update the instances table", instanceId: `${tableTimeId}`});
@@ -36,8 +37,8 @@ io.on('connection', async socket =>{
   // Initiate DDA calculations
   socket.on('initDDA', async data => {
     console.log("INIT DDA ARE WE GETTING HERE SON");
-    initLevel = data.InitLevel;
-    numOfPlayers = data.NumOfPlayers;
+    let initLevel = data.InitLevel;
+    let numOfPlayers = data.NumOfPlayers;
     console.log(data);
     console.log("lvl: " + initLevel + " num: "+ numOfPlayers);
     const pythonProcess = spawn(`${process.env.PYTHON}`, ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
@@ -57,10 +58,10 @@ io.on('connection', async socket =>{
 
   //Sending Data to the DDA table for game difficulty analysis
   socket.on('DDAinput', async data => {
-    const sql = `INSERT INTO ${process.env.DATABASE}.DDA_Input_${tableTimeId}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
+    const sql = `INSERT INTO ${process.env.DATABASE_DDA}.dda_input_${tableTimeId}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
     VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     
-    const { err, rows, fields } = await query(sql);
+    const { err, rows, fields } = await query_dda(sql);
     if(err) throw err;
     console.log("data was added");
     socket.broadcast.emit('DDAupdate', `${tableTimeId}`);
@@ -81,6 +82,6 @@ io.on('connection', async socket =>{
   socket.on('disconnect', () => {
     console.log('A player has disconnected');
     //delete tables[thisTableID];
-    socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.DDA_Input_${tableTimeId} finished the game`);
+    socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.dda_input_${tableTimeId} finished the game`);
   });
 });

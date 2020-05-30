@@ -1,19 +1,7 @@
-var mysql = require("mysql");
-const util = require('util');
 var fetch = require("node-fetch");
 const randexp = require('randexp').randexp;
+const { connection, query } = require('../database.js');
 
-const { HOST, USER, PASSWORD, DATABASE } = process.env
-
-var connection = mysql.createConnection({
-  host: HOST,
-  user: USER,
-  password: PASSWORD,
-  database: DATABASE
-});
-
-connection.connect();
-const query = util.promisify(connection.query).bind(connection);
 
 async function verifyRequest(req) {
   const { userInfo, bearerKey } = req.body
@@ -54,7 +42,7 @@ module.exports = {
     }
 
     if (!experimentId) {
-      res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
 
@@ -62,7 +50,7 @@ module.exports = {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (!results.length) {
-        res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
         let {
           ExperimentId,
@@ -110,7 +98,7 @@ module.exports = {
     }
 
     if (!experimentId) {
-      res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
 
@@ -119,7 +107,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
 
       else if (!results.length)
-        res.status(400).send(`{"result": "Failure", "error": "No instances found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No instances found."}`);
 
       else {
         const data = []
@@ -143,14 +131,14 @@ module.exports = {
     let resStr;
 
     if (!studyId) {
-      res.status(400).send('{"result": "Failure", "error": "Study ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "Study ID is required."}');
       return;
     }
 
     try {
       const results = await query(`SELECT * FROM experiments WHERE StudyId = "${studyId}"`);
       if (!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No experiments found."}`);
         return;
       }
 
@@ -217,7 +205,7 @@ module.exports = {
 
     if (studyId === undefined || !title || !details || characterType === undefined || !colorSettings === undefined
         || !roundsNumber || !roundsSettings || !roundDuration || disability === undefined) {
-      res.status(400).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
+      res.status(204).send(`{"result": "Failure", "params": {"StudyId": "${studyId}", "Title": "${title}", "Details": "${details}",
                             "CharacterType": "${characterType}", "ColorSettings": "${colorSettings}",
                             "RoundsNumber": "${roundsNumber}", "RoundsSettings": "${roundsSettings}"},
                             "RoundDuration": "${roundDuration}", "Disability": "${disability}",
@@ -227,7 +215,7 @@ module.exports = {
 
     connection.query(`SELECT * FROM studies WHERE studyId = "${studyId}"`, (error, results) => {
       if (error || !results.length) {
-        res.status(400).send('{"result": "Failure", "error": "Study does not exist."}');
+        res.status(204).send('{"result": "Failure", "error": "Study does not exist."}');
         return;
       }
     });
@@ -252,12 +240,11 @@ module.exports = {
                           "${results.insertId}", "${i}", "${roundsSettings[i].GameMode}", "${roundsSettings[i].Difficulty}")`,
                             (roundsError, results) => {
             if(roundsError) {
-              console.log(roundsError)
               errorMsg = true;
             }
           });
         }
-        errorMsg ? res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`) : res.status(200).send(`{"result": "Success"}`);
+        errorMsg ? res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(roundsError)}}`) : res.status(200).send(`{"result": "Success"}`);
       }
     });
   },
@@ -279,11 +266,11 @@ module.exports = {
     }
 
     if (!experimentId) {
-      res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
     if (!status && !title && !details && !disability && !characterType && !colorSettings) {
-      res.status(400).send('{"result": "Failure", "error": "No parameters to update."}');
+      res.status(204).send('{"result": "Failure", "error": "No parameters to update."}');
       return;
     }
 
@@ -314,7 +301,7 @@ module.exports = {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No experiments found or there was nothing to update."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No experiments found or there was nothing to update."}`);
       } else {
         res.status(200).send(`{"result": "Success", "params": ${JSON.stringify(results)}}`);
       }
@@ -330,7 +317,7 @@ module.exports = {
     }
 
     if (!experimentId) {
-      res.status(400).send('{"result": "Failure", "error": "Experiment ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "Experiment ID is required."}');
       return;
     }
 
@@ -338,7 +325,7 @@ module.exports = {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       } else if (results.affectedRows <= 0) {
-        res.status(400).send(`{"result": "Failure", "error": "No experiments found."}`);
+        res.status(204).send(`{"result": "Failure", "error": "No experiments found."}`);
       } else {
         res.status(200).send(`{"result": "Success", "error": "Experiment: ${experimentId} was deleted"}`);
       }
@@ -357,7 +344,7 @@ module.exports = {
     }
 
     if (experimentId === undefined || userInfo === undefined) {
-      res.status(400).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
+      res.status(204).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
       return;
     }
 
@@ -365,14 +352,14 @@ module.exports = {
     try {
       let queryRes = await query(`SELECT * FROM main_view WHERE ResearcherId = ${userInfo.researcherId} AND ExperimentId = ${experimentId}`);
       if(!queryRes.length) {
-        res.status(400).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
+        res.status(204).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
         return;
       }
       queryRes = await query(`SELECT * FROM experiments WHERE ExperimentId = ${experimentId}`);
       
       /* code already exists for this experiment */
       if (queryRes.length && queryRes[0].Status === "Running"){
-        res.status(400).send(`{"result": "Failure", "error": "Game code already exists for this experiment"}`);
+        res.status(204).send(`{"result": "Failure", "error": "Game code already exists for this experiment"}`);
         return;
       }
     }
@@ -407,7 +394,7 @@ module.exports = {
         else if (results.affectedRows > 0){
           res.status(200).send(`{"result": "Success", "gameCode": "${gameCode}"}`);
         }
-        else res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
+        else res.status(204).send(`{"result": "Failure"}`);
       }
     );
   },
@@ -421,7 +408,7 @@ module.exports = {
     }
 
     if (experimentId === undefined || userInfo === undefined) {
-      res.status(400).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
+      res.status(204).send(`{"result": "Failure", "error": "ExperimentId is required"}`);
       return;
     }
 
@@ -429,7 +416,7 @@ module.exports = {
     try {
       let queryRes = await query(`SELECT * FROM main_view WHERE ResearcherId = ${userInfo.researcherId} AND ExperimentId = ${experimentId}`);
       if (!queryRes.length) {
-        res.status(400).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
+        res.status(204).send(`{"result": "Failure", "error": "ExperimentId does not exist for this researcher"}`);
         return;
       }
     }
@@ -448,7 +435,7 @@ module.exports = {
         else if (results.affectedRows > 0) {
           res.status(200).send(`{"result": "Success"}`);
         }
-        else res.status(400).send(`{"result": "Failure", "error": "Experiment is not running or does not exists"}`);
+        else res.status(204).send(`{"result": "Failure", "error": "Experiment is not running or does not exists"}`);
         }
     );
   },
@@ -462,7 +449,7 @@ module.exports = {
     }
 
     if (!instanceId) {
-      res.status(400).send('{"result": "Failure", "error": "instance ID is required."}');
+      res.status(204).send('{"result": "Failure", "error": "instance ID is required."}');
       return;
     }
 
@@ -477,7 +464,6 @@ module.exports = {
       res.status(200).send(`{"result": "Success"}`);
     }
     catch (err) {
-      console.log(err)
       res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`);
     }
 

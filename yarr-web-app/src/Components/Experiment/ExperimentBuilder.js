@@ -210,10 +210,10 @@ class ExperimentBuilder extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
-          if(editForm) {
+          if (editForm) {
             currExperiment.Title = title
             currExperiment.Details = details
             currExperiment.Disability = disability
@@ -232,11 +232,11 @@ class ExperimentBuilder extends Component {
           else {
             handleToggleBuildExperiment()
           }
-          console.log(json)
         }
         else {
         }
       })
+    })
       .catch(err => {
         console.log(err)
           // do something
@@ -461,11 +461,16 @@ class ExperimentBuilder extends Component {
 
   renderVisualSettings() {
     const { characterType, disability, colorSettings } = this.state
-    const tempType = parseInt(characterType)
     const tempColor = parseInt(colorSettings)
+    const isFull = tempColor === 1 && disability !== 3
+    const shouldChangeType = parseInt(characterType) === 1 && !isFull
+    const tempType = shouldChangeType ? 2 : parseInt(characterType)
+
+    shouldChangeType === true && this.setState({ characterType: 2 })
 
     return(
       <div>
+        <div style={{ marginBottom: "50px", minHeight: "200px" }}>
         <label className="grey-text">
           Character Skin
         </label>
@@ -478,6 +483,7 @@ class ExperimentBuilder extends Component {
               name="characterType"
               type="radio"
               className="hideRadio"
+              disabled={!isFull ? "disabled" : ""}
               required
             />
             <label htmlFor="color" className="imageLableInput">
@@ -485,7 +491,7 @@ class ExperimentBuilder extends Component {
               <img
                 src={ require("../../Images/different_colors.png") }
                 alt="Characters differentiated by color"
-                className={tempType === 1 ? "selectedVisual builderImage inputImage" : "builderImage inputImage"}
+                className={tempType === 1 ? "selectedVisual builderImage inputImage" : !isFull ? "disabledImage inputImage" : "builderImage inputImage"}
               />
             </label>
           </div>
@@ -528,6 +534,7 @@ class ExperimentBuilder extends Component {
               </label>
           </div>
         </ul>
+        </div>
         {disability === "3" ? 
         (
             <div>
@@ -656,17 +663,17 @@ class ExperimentBuilder extends Component {
           <div className="form-row">
             {wizardIndex !== -1 ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" className="login-btn" onClick={() => this.handleChangeSection("back")}>Back</MDBBtn>
+                <MDBBtn color="elegant" className="login-btn builderButton" onClick={() => this.handleChangeSection("back")}>Back</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" className={`login-btn ${wizardIndex === -1 && "nextButton"}`} onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
+                <MDBBtn color="elegant" className={`login-btn ${wizardIndex !== -1 && "builderButton"} ${wizardIndex === -1 && "gotIt"}`} onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
               </div> : (null)
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" onClick={this.handleSubmit} className="login-btn">Save Experiment</MDBBtn>
+                <MDBBtn color="elegant" onClick={this.handleSubmit} className="login-btn builderButton">Save Experiment</MDBBtn>
               </div> : (null)
             }
           </div>

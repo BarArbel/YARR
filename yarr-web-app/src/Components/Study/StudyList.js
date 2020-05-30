@@ -37,14 +37,15 @@ class StudyList extends Component {
       },
       body: JSON.stringify(json)
     })
-    .then(res => res.json())
-      .then(json => {
+    .then(res => { 
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           handleAddStudies(json.studies)
         }
         else {
           handleAddStudies([])
         }
+    })
       })
       .catch(err => {
         handleAddStudies([])
@@ -66,13 +67,14 @@ class StudyList extends Component {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
           handleDeleteStudy(parseInt(studyId))
         }
-      })
-      .catch(err => console.log(err))
+      }) 
+    })
+    .catch(err => console.log(err))
   }
 
   handleEdit(study) {

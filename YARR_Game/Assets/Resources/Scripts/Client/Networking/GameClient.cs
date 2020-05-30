@@ -64,8 +64,6 @@ namespace Project.Networking
 
             On("interruptedCorrect", (E) => {
                 Debug.Log("Correct");
-                Debug.Log(E.data["instanceId"].str);
-                Debug.Log(InstanceID);
                 if (E.data["instanceId"].str == InstanceID)
                 {
                     InterruptedInstanceID = E.data["interruptedInstanceId"].str;
@@ -78,15 +76,6 @@ namespace Project.Networking
                 }
             });
 
-            // This piece of code is a curse. Don't awaken the spirit of the abyss please.
-            //On("correctCode", (E) => {
-            //    //if (E.data == InstanceID)
-            //    Debug.Log("fuck");
-            //    /*Debug.Log("What's going on" + E);
-            //    Debug.Log(E.data["instanceID"]);
-            //    GameObject.Find("CodeInputField").GetComponent<CodeValidator>().NotificationCorrectText();*/
-            //});
-
             On("newGameScene", (E) => {
                 if (E.data["instanceId"].str == InstanceID)
                 {
@@ -94,6 +83,17 @@ namespace Project.Networking
                     DataTransformer.initDDA();
                     SceneManager.LoadScene("Game");
                     DataTransformer.SyncNewScene(E.data);
+
+                }
+            });
+
+            On("interrGameScene", (E) => {
+                if (E.data["instanceId"].str == InterruptedInstanceID)
+                {
+                    Debug.Log(E);
+                    DataTransformer.initDDA();
+                    SceneManager.LoadScene("Game");
+                    DataTransformer.SyncInterruptedScene(E.data);
 
                 }
             });
@@ -107,9 +107,9 @@ namespace Project.Networking
             });
 
             On("interrGameSettings", (E) => {
-                if (E.data["instanceId"].str == InstanceID)
+                if (E.data["instanceId"].str == InterruptedInstanceID)
                 {
-                    FindObjectOfType<GameManager>().ContinueExperiment(E.data);
+                    FindObjectOfType<GameManager>().InitInterrExperiment(E.data);
 
                 }
             });

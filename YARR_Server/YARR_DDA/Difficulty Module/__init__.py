@@ -3,27 +3,35 @@ from difficulty_calc import DDAcalc
 import socketio
 import asyncio
 import time
-import os
 import sys
-from dotenv import load_dotenv
+import threading
 
-load_dotenv()
 number_of_players = 3
 starting_level = 2
 last_time = None
 sio = socketio.AsyncClient()
 instance_id = ""
-table_name = "DDA_Input_"
+table_name = "dda_input_"
 con = None
 calc = None
-host = os.getenv('HOST_SERVER')
-recv_port = os.getenv('PORT_SERVER')
+time_lock = threading.Lock()
+count_lock = threading.Lock()
 
 
 async def get_timestamp_and_gamemode():
     global con
 
-    fetch = await con.get_timestamp()
+    fetch = await con.get_timestamp_gamemode()
+    print("fetch: ", fetch)
+    sys.stdout.flush()
+    if fetch:
+        timestamp = fetch[0]
+        gamemode = fetch[1]
+    else:
+        timestamp = None
+        gamemode = None
+
+    """fetch = await con.get_timestamp()
     if fetch:
         timestamp = fetch[0]
     else:
@@ -34,9 +42,33 @@ async def get_timestamp_and_gamemode():
     if fetch:
         gamemode = fetch[0]
     else:
-        gamemode = None
+        gamemode = None"""
 
     return timestamp, gamemode
+
+
+def check_gamemode_and_levels(timestamp, gamemode):
+    global con, calc, number_of_players
+
+    if gamemode == "Competitive":
+        level = calc.player_levels[0]
+        are_different = False
+
+        for i in range(1, number_of_players):
+            if level != calc.player_levels[i]:
+                are_different = True
+                break
+
+        if are_different:
+            level = int(sum(calc.player_levels) / number_of_players)
+            if level < 1:
+                level = 1
+            elif level > 6:
+                level = 6
+
+            for i in range(number_of_players):
+                calc.player_levels[i] = level
+                con.timestamps[i] = timestamp
 
 
 async def get_data_from_db(timestamp, gamemode):
@@ -131,6 +163,7 @@ def calculate(total, timestamp, gamemode):
             player_level = calc.player_levels[player_id]
             if (level == 1 and player_level < 6) or (level == -1 and player_level > 1):
                 calc.player_levels[player_id] += level
+            if level != 0:
                 con.timestamps[player_id] = timestamp
 
     if gamemode == "Competitive":
@@ -140,6 +173,8 @@ def calculate(total, timestamp, gamemode):
         if (group_level == 1 and current_level < 6) or (group_level == -1 and current_level > 1):
             for player_id in range(number_of_players):
                 calc.player_levels[player_id] += group_level
+        if group_level != 0:
+            for player_id in range(number_of_players):
                 con.timestamps[player_id] = timestamp
 
     return calcs, group_level
@@ -159,14 +194,15 @@ async def insert_calculations_to_db(calcs, group_level, timestamp, gamemode):
 def create_game_json(calcs, group_level, gamemode):
     global con, number_of_players
 
+    count_lock.acquire()
     game_json = {
         "index": con.counter,
         "LevelSpawnHeightAndTimer": [],
         "LevelPrecision": [],
         "LevelSpeedAndSpawnRate": []
     }
-
     con.counter = con.counter + 1
+    count_lock.release()
 
     for player_id in range(number_of_players):
         if gamemode == "Cooperative":
@@ -196,28 +232,40 @@ async def on_ddaupdate(data):
 
     if data == instance_id:
         current_time = time.time()
-        timestamp, gamemode = await get_timestamp_and_gamemode()
-        if current_time > last_time + 5 and gamemode is not None:
+        # timestamp, gamemode = await get_timestamp_and_gamemode()
+        # print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
+        # sys.stdout.flush()
+        time_lock.acquire()
+        # if current_time > last_time + 5 and gamemode is not None:
+        if current_time > last_time + 5:
             last_time = current_time
-            print("entered with timestamp: ", timestamp)
+            time_lock.release()
+            timestamp, gamemode = await get_timestamp_and_gamemode()
+            print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
             sys.stdout.flush()
-            total = await get_data_from_db(timestamp, gamemode)
-            print(total)
-            sys.stdout.flush()
-            calcs, group_level = calculate(total, timestamp, gamemode)
-            print(calcs, group_level)
-            sys.stdout.flush()
-            await insert_calculations_to_db(calcs, group_level, timestamp, gamemode)
-            game_json = create_game_json(calcs, group_level, gamemode)
+            if gamemode is not None:
+                print("entered with timestamp: ", timestamp)
+                sys.stdout.flush()
+                check_gamemode_and_levels(timestamp, gamemode)
+                total = await get_data_from_db(timestamp, gamemode)
+                print(total)
+                sys.stdout.flush()
+                calcs, group_level = calculate(total, timestamp, gamemode)
+                print(calcs, group_level)
+                sys.stdout.flush()
+                await insert_calculations_to_db(calcs, group_level, timestamp, gamemode)
+                game_json = create_game_json(calcs, group_level, gamemode)
 
-            emit_json = {
-                "LvSettings": game_json,
-                "instanceId": instance_id
-            }
+                emit_json = {
+                    "LvSettings": game_json,
+                    "instanceId": instance_id
+                }
 
-            await sio.emit('LevelSettings', emit_json)
-            print("data sent to server: ", emit_json)
-            sys.stdout.flush()
+                await sio.emit('LevelSettings', emit_json)
+                print("data sent to server: ", emit_json)
+                sys.stdout.flush()
+        else:
+            time_lock.release()
 
 
 @sio.on("gameEnded")
@@ -263,15 +311,13 @@ async def init_vars(args):
 
 
 async def start_server(args):
-    global host, recv_port
-
     connected_to_server = False
 
     await init_vars(args)
 
     while not connected_to_server:
         try:
-            await sio.connect("http://" + host + ":" + recv_port)
+            await sio.connect("https://yarr-dda.herokuapp.com/")
         except:
             print("Failed to connect to data collector, trying again")
             sys.stdout.flush()

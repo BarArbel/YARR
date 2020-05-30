@@ -12,7 +12,7 @@ class DBconnection:
         self.newT_continueF = True
         self.counter = 0
         self.timestamps = []
-        self.db = os.getenv('DATABASE_DB')
+        self.db = os.getenv('DATABASE_DDA')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
@@ -20,8 +20,8 @@ class DBconnection:
         for i in range(number_of_players):
             self.timestamps.append(0)
 
-        self.pool = await aiomysql.create_pool(user=os.getenv('USER_DB'), password=os.getenv('PASSWORD_DB'),
-                                               host=os.getenv('HOST_DB'), db=self.db,
+        self.pool = await aiomysql.create_pool(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
+                                               host=os.getenv('HOST_DDA'), db=self.db, port=int(os.getenv('PORT_DDA')),
                                                auth_plugin='mysql_native_password')
 
         if await self.check_if_table_exist():
@@ -105,8 +105,9 @@ class DBconnection:
         self.pool.close()
         await self.pool.wait_closed()
     
-    async def get_timestamp(self):
-        query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
+    async def get_timestamp_gamemode(self):
+        # query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
+        query = ("SELECT format(max(Timestamp), 3), GameMode FROM " + self.db + "." + self.tb)
 
         try:
             async with self.pool.acquire() as con:
@@ -120,8 +121,8 @@ class DBconnection:
             return None
 
     async def get_gamemode(self, timestamp):
-        query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) = " + str(timestamp) +
-                 " ORDER BY Timestamp DESC LIMIT 1")
+        query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) >= "
+                 + str(timestamp) + " ORDER BY Timestamp ASC LIMIT 1")
 
         try:
             async with self.pool.acquire() as con:
@@ -220,5 +221,14 @@ class DBconnection:
                 for result in select_fetch:
                     insert_vals.append((experiment_id, instance_id) + result)
 
-                await cursor.executemany(insert_query, insert_vals)
-                await con.commit()
+                plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
+                                                  port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
+                                                  user=os.getenv('USER'), auth_plugin='mysql_native_password')
+                plat_cur = await plat_con.cursor()
+                await plat_cur.executemany(insert_query, insert_vals)
+                await plat_con.commit()
+                await plat_cur.close()
+                await plat_con.close()
+
+                # await cursor.executemany(insert_query, insert_vals)
+                # await con.commit()

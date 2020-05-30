@@ -81,8 +81,23 @@ public class PlayerFactory : MonoBehaviour
             for (int i = 0; i < playerSettings.Count; i++)
             {
                 int playerID = (int)playerSettings[i].x;
+                
                 GameObject playerObj = Instantiate(PlayerPrefab[playerID]);
+                if (playerObj)
+                {
+                    Debug.Log("player's " + i + " playerObj is correct!");
+                }
+
                 Player player = playerObj.GetComponent<Player>();
+                if (player)
+                {
+                    Debug.Log("player's " + i + " player is correct!");
+                }
+                // Init player properties
+                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+
+                Debug.Log("pid: " + playerID + " other inv: " + player.GetOthersItemInventory().Length);
+                Debug.Log("pid: " + playerID + " my inv: " + player.GetMyItemInventory().Length);
                 player.transform.SetParent(GameObject.Find("Map").transform);
                 // Init player health
                 player.SetHealth((int)playerSettings[i].w);
@@ -90,10 +105,10 @@ public class PlayerFactory : MonoBehaviour
                 playerObj.transform.position = new Vector3(playerSettings[i].y, playerSettings[i].z, 0);
 
                 playerObj.tag = "Player";
-                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[playerID];
 
-                // Init player properties
-                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[playerID];
+                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
+
             }
         }
     }

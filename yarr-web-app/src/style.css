@@ -350,13 +350,28 @@ hr {
   justify-content: flex-end;
 }
 
-.builderImage {
+#logo {
+  width: 125px;
+  height: 50px;
+  position: relative;
+  float: left;
+  bottom: 10px;
+}
+
+.builderImage, .disabledImage {
   height: 100%;
   width: 100%;
   opacity: 0.5;
   outline: 2px solid #608bd2;
   padding: 5px;
   margin-top: 10px;
+}
+
+.interruptedIndicator {
+  padding-top: 10px;
+  color: #FF9494;
+  font-size: 14px;
+  font-weight: bold;
 }
 
 .builderImage:hover {
@@ -474,9 +489,15 @@ hr {
   align-items: center;
 }
 
-.nextButton {
+.gotIt {
   position: relative;
-  bottom: 150px;
+  bottom: 125px;
+}
+
+.builderButton {
+  position: relative;
+  top: 15px;
+  margin-bottom: 35px;
 }
 
 .experimentExplanation {

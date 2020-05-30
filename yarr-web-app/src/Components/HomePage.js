@@ -40,12 +40,15 @@ class HomePage extends Component {
   }
 
   componentDidMount() {
-    const { handleSetRoutes } = this.props
+    const { handleSetRoutes, studies, isLogged } = this.props
     const routes = [
       { name: 'Home', redirect: '/homePage', isActive: false },
     ]
-    handleSetRoutes(routes)
-    this.getAllStudies()
+
+    if(isLogged) {
+      handleSetRoutes(routes)
+      studies.length === 0 && this.getAllStudies()
+    }
   }
 
   getAllStudies() {
@@ -64,19 +67,19 @@ class HomePage extends Component {
       },
       body: JSON.stringify(json)
     })
-      .then(res => res.json())
-      .then(json => {
-        if (json.result === "Success") {
-          handleAddStudies(json.studies)
-        }
-        else {
-          handleAddStudies([])
-        }
-      })
-      .catch(err => {
-        console.log(err)
+    .then(res => { 
+      res.status === 200 && res.json().then(json => {
+      if (json.result === "Success") {
+        handleAddStudies(json.studies)
+      }
+      else {
         handleAddStudies([])
-      })
+      }
+      }) 
+    })
+    .catch(err => {
+      handleAddStudies([])
+    })
   }
 
   handleToggleBuild() {
@@ -134,7 +137,6 @@ class HomePage extends Component {
 
   renderLogged(){
     const { studyLoaded } = this.props
-
     return (
       <div className = "homePage">
         <Header />

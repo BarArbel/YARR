@@ -18,7 +18,9 @@ public class ItemFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
-        int level = GetLevel();
+        List<int> levels = GetLevels();
+        Debug.Log("item factory levels = " + levels[0] +  levels[0] + " player = " + GetID());
+        int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;
         SpawnRateRange = new int2(10, 20);
@@ -30,33 +32,26 @@ public class ItemFactory : ObjectFactory
             new float2(-3, -2), new float2(-3, 0), new float2(-3, 2), new float2(0, 2), new float2(0, 3.5f), new float2(1, 3.5f)
         };
 
-        // Static Competitive/Cooperative
-        if (level != 0)
+        // TODO: write this better
+        if (levels[0] - 1 < 0)
         {
-            DestroyTimer = LevelsOf_DestroyTimer[level - 1];
-            SpawnHeightRange = LevelsOf_SpawnHeightRange[level - 1];
+            DestroyTimer = LevelsOf_DestroyTimer[0];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[0];
         }
-        // Adaptive 
         else
         {
-            if (!IsDDAInitiated)
+            DestroyTimer = LevelsOf_DestroyTimer[levels[0] - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[levels[0] - 1];
+        }
+
+        LevelTimerAndSpawn = levels[0];
+        // TODO: Do we need this?
+        /*if (!IsLevelModified)
             {
-                IsDDAInitiated = true;
+                IsLevelModified = true;
                 LevelTimerAndSpawn = 3;
             }
-
-            if (!(LevelTimerAndSpawn == 1 && DDALevelSpawnHeightAndTimer == -1) && !(LevelTimerAndSpawn == 6 && DDALevelSpawnHeightAndTimer == 1))
-            {
-                int mode = GetID() == -1 ? 1 : 0;
-                LevelTimerAndSpawn += DDALevelSpawnHeightAndTimer;
-                Event evnt = DDALevelSpawnHeightAndTimer > 0 ? Event.lvlUp : (DDALevelSpawnHeightAndTimer < 0 ? Event.lvlDown : Event.lvlStay);
-                DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, GetID(), 0, 0, 0, GetID(), mode);
-
-            }
-
-            DestroyTimer = LevelsOf_DestroyTimer[LevelTimerAndSpawn - 1];
-            SpawnHeightRange = LevelsOf_SpawnHeightRange[LevelTimerAndSpawn - 1];
-        }
+        }*/
     }
 
     protected override void Spawn()

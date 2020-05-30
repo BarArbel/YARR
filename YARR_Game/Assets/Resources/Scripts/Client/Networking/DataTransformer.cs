@@ -130,7 +130,7 @@ namespace Project.Networking
             // New game
             if (!settings.IsInterrupted)
             {
-                Debug.Log("settings:" + settings);
+                Debug.Log("settings:" + settings.ToString());
                 GameSocket.Emit("createTables");
                 GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
             }
@@ -167,6 +167,12 @@ namespace Project.Networking
             Debug.Log("SyncNewScene" + E);
             GameSocket.Emit("SyncNewScene", E);
         }
+
+        public static void SyncInterruptedScene(JSONObject E)
+        {
+            Debug.Log("SyncInterruptedScene" + E);
+            GameSocket.Emit("SyncInterruptedScene", E);
+        }
     }
 
 
@@ -201,7 +207,7 @@ public enum Event
         // DDA
         pickup,giveItem,revivePlayer,temporaryLose,revived,lose,dropitem,getDamaged,blockDamage,failPickup,fallAccidently,individualLoss,spawn,powerupSpawn,powerupTaken,powerupMissed,win,avoidDamage,
         // Tracker
-        enemyLoc,itemLoc,takenItemLoc,playerLocHealth,lvlUp,lvlDown,lvlStay,newRound,gameEnded
+        enemyLoc,itemLoc,takenItemLoc,playerLocHealth,lvlUp,lvlDown,lvlStay,newRound,gameEnded,playerClickCount
     }
 }
 

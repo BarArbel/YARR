@@ -29,6 +29,8 @@ class ExperimentInsightsMixed extends Component {
       dataLoaded: false
     }
 
+    this.renderWait = this.renderWait.bind(this)
+    this.renderData = this.renderData.bind(this)
   }
 
   async componentDidMount() {
@@ -53,50 +55,74 @@ class ExperimentInsightsMixed extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
-        if (json.result === "Success")
-          this.setState({ data: json.data, names: json.names, dataLoaded: true })
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
+          if (json.result === "Success")
+            this.setState({ data: json.data, names: json.names, dataLoaded: true })
+          else this.setState({ data: [], names: [], dataLoaded: true })
+        })
+      }
+      else this.setState({ data: [], names: [], dataLoaded: true })
+    })
+      .catch(err => {
+        this.setState({ data: [], names: [], dataLoaded: true })
       })
-      .catch(err => console.log(err))
+  }
+
+  renderWait() {
+    return (
+      <div className="barLoader">
+        <MoonLoader size={120} color={"#123abc"} loading={true} />
+      </div> 
+    )
+  }
+
+  renderData() {
+    const { dataSet } = this.props
+    const { data, names } = this.state
+
+    return (
+      <div className="insightHolder">
+        <ComposedChart
+          width={750}
+          height={450}
+          data={dataSet ? dataSet : data}
+          margin={{
+            top: 20, right: 20, bottom: 20, left: 20,
+          }}
+        >
+          <CartesianGrid stroke="#f5f5f5" />
+          <XAxis dataKey="time" height={50} />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Area dataKey={names[0]} fill="#8884d8" stroke="#8884d8" />
+          <Line type="monotone" dataKey={names[1]} stroke="#ff7300" />
+        </ComposedChart>
+      </div>
+    )
   }
 
   render() {
     const { dataSet } = this.props
-    const { data, names, dataLoaded } = this.state
+    const { data, dataLoaded } = this.state
 
     return (
       <div className="insightCard">
         {!dataSet && <h4 style={{ textAlign: "center" }}>Response to Difficulty Changes</h4>}
         {dataSet && <h6 style={{ textAlign: "center" }}>Experiment Breakdown</h6>}
-
         {
-          dataLoaded ?
+          dataLoaded && (data.length || dataSet) ?
             (
-              <div className="insightHolder">
-                <ComposedChart
-                  width={750}
-                  height={450}
-                  data={dataSet ? dataSet : data}
-                  margin={{
-                    top: 20, right: 20, bottom: 20, left: 20,
-                  }}
-                >
-                  <CartesianGrid stroke="#f5f5f5" />
-                  <XAxis dataKey="time" height={50} />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area dataKey={names[0]} fill="#8884d8" stroke="#8884d8" />
-                  <Line type="monotone" dataKey={names[1]} stroke="#ff7300" />
-                </ComposedChart>
-              </div>
+              this.renderData()
             )
             :
             (
-              <div className="barLoader">
-                <MoonLoader size={120} color={"#123abc"} loading={true} />
-              </div>
+              !dataLoaded ? 
+              this.renderWait()
+              :
+              <p style={{textAlign: "center", paddingTop: "20px"}}>No Data Collected</p>
             )
         }
       </div>

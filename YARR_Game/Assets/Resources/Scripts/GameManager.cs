@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
 {
     public enum GameMode { Cooperative, Competitive };
     public enum Skin { Color, Shape, Type };
-    public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6 };
+    public enum Level { Adaptive, Static1, Static2, Static3, Static4, Static5, Static6, LevelCount };
     public enum ColorBlindness { Colorful, Protanopia, Tritanopia};
     //DEBUG
     public bool StaticMode = true;
@@ -23,9 +23,10 @@ public class GameManager : MonoBehaviour
     private Skin RoundsSkins;
     private List<Level> RoundsDifficulties;
     private bool ExperimentStarted;
+    private bool IsNewRound;
 
     // Difficulties carried from round to round
-    private List<int> PlayerDifficulties; 
+    private List<List<int>> PlayerDifficIndexes; 
 
     // Game settings
     private GameMode Mode;
@@ -43,6 +44,7 @@ public class GameManager : MonoBehaviour
     // Continued game settings
     private bool IsNewGame;
     private float ContinuedTimestamp;
+    private List<int2> Scores;
     private List<float4> PlayerSettings;
     private List<float3> EnemySettings;
     private List<float3> ItemSettings;
@@ -83,6 +85,7 @@ public class GameManager : MonoBehaviour
     {
         ExperimentStarted = false;
         IsNewGame = true;
+        IsNewRound = true;
         // Test json structure
         if (rSettings.list[0].keys[0] != "numberOfPlayers"             || 
             rSettings.list[0].keys[1] != "roundLength"                 || 
@@ -126,10 +129,11 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    public bool ContinueExperiment(JSONObject rSettings)
+    public bool InitInterrExperiment(JSONObject rSettings)
     {
         ExperimentStarted = false;
         IsNewGame = false;
+        IsNewRound = false;
         // Test json structure
         if (rSettings.list[0].keys[0] != "numberOfPlayers"  ||
             rSettings.list[0].keys[1] != "roundLength"      ||
@@ -147,17 +151,17 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log("Hello ContinueExperiment");
+        Debug.Log("Hello InitInterrExperiment");
         Debug.Log(rSettings);
 
         // Experiment properties
         RoundTimer = 0;
         NumberOfRounds = rSettings.list[0].list[3].Count;
         NumberOfPlayers = (int)rSettings.list[0].list[0].n;
-        RoundLength = (float)rSettings.list[0].list[1].n;
+        RoundLength = rSettings.list[0].list[1].n;
         BlindnessType = (ColorBlindness)rSettings.list[0].list[2].n - 1;
         RoundsSkins = (Skin)rSettings.list[0].list[4].n - 1;
-        ContinuedTimestamp = (float)rSettings.list[0].list[6].n;
+        ContinuedTimestamp = rSettings.list[0].list[6].n;
 
         // Test json values
         if (NumberOfRounds < 1 || NumberOfPlayers < 1 || RoundLength == 0)
@@ -175,6 +179,9 @@ public class GameManager : MonoBehaviour
         ItemSettings = new List<float3>();
         HItemSettings = new List<int2>();
 
+        // Initialize score
+        Scores = new List<int2>();
+
         for (int i = 0; i < NumberOfRounds; i++)
         {
             RoundsModes.Add((GameMode)rSettings.list[0].list[3].list[i].n - 1);
@@ -184,25 +191,36 @@ public class GameManager : MonoBehaviour
         for (int i=0; i<NumberOfPlayers; i++)
         {
             JSONObject pData = rSettings.list[0].list[7];
-            PlayerSettings.Add(new float4(pData.list[0].n, pData.list[1].n, pData.list[2].n, pData.list[3].n));
+            PlayerSettings.Add(new float4(pData.list[i].list[0].n, pData.list[i].list[1].n, pData.list[i].list[2].n, pData.list[i].list[3].n));
+            Scores.Add(new int2((int)pData.list[i].list[0].n, (int)pData.list[i].list[4].n));
         }
 
         for (int i = 0; i < rSettings.list[0].list[8].Count; i++)
         {
             JSONObject eData = rSettings.list[0].list[8];
-            EnemySettings.Add(new float3(eData.list[0].n, eData.list[1].n, eData.list[2].n));
+            if (eData.list[i].list[0].n != 0)
+            {
+                EnemySettings.Add(new float3(eData.list[i].list[0].n, eData.list[i].list[1].n, eData.list[i].list[2].n));
+            }
         }
 
         for (int i = 0; i < rSettings.list[0].list[9].Count; i++)
         {
             JSONObject iData = rSettings.list[0].list[9];
-            ItemSettings.Add(new float3(iData.list[0].n, iData.list[1].n, iData.list[2].n));
+            if (iData.list[i].list[0].n != 0)
+            {
+                ItemSettings.Add(new float3(iData.list[i].list[0].n, iData.list[i].list[1].n, iData.list[i].list[2].n));
+            }
+                  
         }
 
         for (int i = 0; i < rSettings.list[0].list[10].Count; i++)
         {
             JSONObject hiData = rSettings.list[0].list[10];
-            HItemSettings.Add(new int2((int)hiData.list[0].n, (int)hiData.list[1].n));
+            if (hiData.list[i].list[0].n != 0)
+            {
+                HItemSettings.Add(new int2((int)hiData.list[i].list[0].n, (int)hiData.list[i].list[1].n));
+            }
         }
 
         StartExperimet();
@@ -210,12 +228,14 @@ public class GameManager : MonoBehaviour
     }
 
     private void StartExperimet()
-    {
-            InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
-            InitMode();
-            ExperimentStarted = true;
-            RoundTimer = RoundLength;
-            CurrentRound = 1;
+    {        
+        CurrentRound = 1;
+        // RoundsDifficulties means adaptive/static1/static2/etc...
+        InitGameManager(RoundsModes[0], RoundsSkins, RoundsDifficulties[0]);
+        RoundTimer = IsNewRound ? RoundLength : ContinuedTimestamp;
+        InitMode();   
+        ExperimentStarted = true;
+
     }
 
     private void StartNextRound()
@@ -224,13 +244,15 @@ public class GameManager : MonoBehaviour
         if (NumberOfRounds > 1 && CurrentRound < NumberOfRounds)
         {
             DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.newRound, -1, 0, 0, 0, 0, (int)GetMode());
-            SetMode(RoundsModes[CurrentRound], RoundsSkins, RoundsDifficulties[CurrentRound]);
+
+            // Initialize round timer 
             if (GameObject.FindGameObjectsWithTag("Player").Length != 0)
             {
                 RoundTimer = RoundLength;
                 CurrentRound++;
             }
-            
+            SetMode(RoundsModes[CurrentRound-1], RoundsSkins, RoundsDifficulties[CurrentRound-1]);
+
         }
         if (CurrentRound == NumberOfRounds && RoundTimer <= 0)
         {
@@ -270,10 +292,16 @@ public class GameManager : MonoBehaviour
         PowerupFactories = new List<ObjectFactory>();
 
         // Initialize player difficulties
-        PlayerDifficulties = new List<int>();
+        PlayerDifficIndexes = new List<List<int>>();
         for (int i=0; i<NumberOfPlayers; i++)
         {
-            PlayerDifficulties.Add((int)difficulty);
+            List<int> diffics = new List<int>();
+
+            // TODO: change this hardcoded number
+            for (int j = 0; j < 3; j++)
+                diffics.Add((int)difficulty);
+
+            PlayerDifficIndexes.Add(diffics);
         }
 
         // Load ALL possible sprites
@@ -534,7 +562,6 @@ public class GameManager : MonoBehaviour
         OthersItemsAmount = 1;
         if (DestroyFactoryMadeObjects() && DestroyFactories() && DestroyUI())
         {
-            bool isNewGame = (!IsNewGame && CurrentRound == 1) ? false : true;
 
             //  Initialize player factory
             PlayerFactory = gameObject.AddComponent(typeof(PlayerFactory)) as PlayerFactory;
@@ -544,17 +571,20 @@ public class GameManager : MonoBehaviour
             }
             PlayerFactory.PlayerFactoryInit(SpawnLocation, InitialHealth, MyItemsAmount, OthersItemsAmount,
                                             IsSpriteDirectionRight, HeldItemHeight, NumberOfPlayers,
-                                            PlayerPrefabs, RightMovement, LeftMovement, JumpMovement, isNewGame);
+                                            PlayerPrefabs, RightMovement, LeftMovement, JumpMovement, IsNewRound);
 
             // Initialize Enemy factories            
             GameObject enemyObj; //= Resources.Load<GameObject>("Prefabs/Enemy");
             int lvlsum = 0;
             int lvlMean;
+            Debug.Log("CurrentRound = " + CurrentRound);
             for (int i=0; i< NumberOfPlayers; i++)
             {
-                lvlsum += PlayerDifficulties[i];
+                // TODO: change this hardcoded number
+                for (int j = 0; j < 3; j++)
+                    lvlsum += PlayerDifficIndexes[i][j];
             }
-            lvlMean = (int)Math.Floor((double)(lvlsum / NumberOfPlayers));
+            lvlMean = (int)Math.Floor((double)(lvlsum / (NumberOfPlayers*3)));
             lvlMean = lvlMean < 2 ? 2 : lvlMean;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
@@ -565,21 +595,27 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        /*if (CurrentRound == 1)
+                        if (CurrentRound == 1)
                         {
-                            PlayerDifficulties[i] = 2;
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
                         }
                         else
                         {
-                            PlayerDifficulties[i] = lvlMean;
-                        }*/
-                        EnemyFactories[i].FactoryInit(-1, lvlMean, EnemyPrefabs[EnemyPrefabs.Count - 1], EnemySprites[EnemySprites.Count - 1], isNewGame);
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = lvlMean;
+                        }
+
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, EnemyPrefabs[EnemyPrefabs.Count - 1], EnemySprites[EnemySprites.Count - 1], IsNewRound, false);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        enemyObj = EnemyPrefabs[i];
-                        Debug.Log(enemyObj + " " + i);
-                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], enemyObj, EnemySprites[i], isNewGame);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
+                        }
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], EnemyPrefabs[i], EnemySprites[i], IsNewRound, false);
                     }
                 }
                 // Static
@@ -587,13 +623,11 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        enemyObj = EnemyPrefabs[i];
-                        EnemyFactories[i].FactoryInit(-1, (int)Difficulty, enemyObj, EnemySprites[EnemySprites.Count - 1], isNewGame);
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], EnemyPrefabs[i], EnemySprites[EnemySprites.Count - 1], IsNewRound, true);
                     }
                     if (Mode == GameMode.Cooperative)
                     {
-                        enemyObj = EnemyPrefabs[i];
-                        EnemyFactories[i].FactoryInit(i + 1, (int)Difficulty, enemyObj, EnemySprites[i], isNewGame);
+                        EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], EnemyPrefabs[i], EnemySprites[i], IsNewRound, true);
                     }
                 }
             }
@@ -605,19 +639,36 @@ public class GameManager : MonoBehaviour
                 // Adaptive
                 if (Difficulty == Level.Adaptive)
                 {
-                        if (Mode == GameMode.Competitive)
-                        {
+                    if (Mode == GameMode.Competitive)
+                    {
                         GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        // TODO: uncomment or delete after checking the new overloaded method
+                        //ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
                         }
-                        // Cooperative
                         else
                         {
-                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficulties[i], itemObj, ItemSprites[i], isNewGame);
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = lvlMean;
                         }
+                        ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, false);
+                    }
+                    // Cooperative
+                    else
+                    {
+                        GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        if (CurrentRound == 1)
+                        {
+                            for (int j = 0; j < 3; j++)
+                                PlayerDifficIndexes[i][j] = 2;
+                        }
+                        ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, false);
+                    }
                         
                 }
                     // Static
@@ -627,25 +678,25 @@ public class GameManager : MonoBehaviour
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, (int)Difficulty, itemObj, ItemSprites[ItemSprites.Count - 1], isNewGame);
+                            ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, true);
                         }
                         // Cooperative
                         else
                         {
                             GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
                             ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, ItemSprites[i], isNewGame);
+                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, true);
                         }
                     }
             }
             
 
             //Initilazie Powerups
-            if (Mode == GameMode.Competitive)
+            /*if (Mode == GameMode.Competitive)
             {
                 GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                 PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0], isNewGame);
+                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
             }
             else
             {
@@ -653,9 +704,9 @@ public class GameManager : MonoBehaviour
                 {
                     GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                     PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], isNewGame);
+                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
                 }
-            }
+            }*/
 
             // Initialize sink
             GameObject sink = GameObject.Find("ItemSink");
@@ -669,8 +720,10 @@ public class GameManager : MonoBehaviour
             GameObject canvas = GameObject.Find("Canvas");
             canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
 
-            if (!isNewGame)
+            // Interrupted game initializations
+            if (!IsNewRound)
             {
+                
                 // Spawn players
                 PlayerFactory.ContinuedGameSpawn(PlayerSettings);
                 GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
@@ -703,7 +756,7 @@ public class GameManager : MonoBehaviour
                     }
                 }
 
-                // spawn taken items
+                // spawn taken items and add score
                 for (int i = 0; i < HItemSettings.Count; i++)
                 {
                     GameObject heldItem;
@@ -725,9 +778,18 @@ public class GameManager : MonoBehaviour
                         {
                             playerObj.ContinuedGameTreasure(heldItem);
                         }
+
+                        // Add score
+                        if (playerObj.GetID() == Scores[i].x)
+                        {
+                            sink.GetComponent<ItemSink>().SetInterrScore(playerObj, Scores[i].y);
+                        }                            
                     }
                 }
-                    
+
+                // Interrupted round was initialized, next rounds will be new ones
+                IsNewRound = true;
+
             }
         }
     }
@@ -825,6 +887,11 @@ public class GameManager : MonoBehaviour
     public void NotificationDDAUpdate(JSONObject calcs)
     {
         Debug.Log(calcs);
+        //if ((int)calcs.list[1].list[1].n != 0 || (int)calcs.list[2].list[1].n != 0 || (int)calcs.list[3].list[1].n != 0)
+        if ((int)calcs.list[1].list[0].n != 0 || (int)calcs.list[2].list[0].n != 0 || (int)calcs.list[3].list[0].n != 0)
+        {
+            Debug.Log("Changed: " + calcs);
+        }
         int calcsIndex = (int)calcs.list[0].n;
         int LevelSpawnHeightAndTimer;
         int LevelPrecision;
@@ -833,20 +900,38 @@ public class GameManager : MonoBehaviour
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
             
-            for (int i = 1; i <= NumberOfPlayers; i++)
+            for (int i = 0; i < NumberOfPlayers; i++)
             {
-                if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i+1)
+                if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
                 {
                     LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
                     LevelPrecision =           (int)calcs.list[2].list[i].n;
                     LevelSpeedAndSpawnRate =   (int)calcs.list[3].list[i].n;
                     // Save difficulty updated from DDA 
-                   
-                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+
+                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficulties[i] += LevelPrecision;
-                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        //TODO: redo this later
+                        if (PlayerDifficIndexes[i][0] + LevelPrecision  > 5)
+                        {
+                            PlayerDifficIndexes[i][0] = 5;
+                        }
+                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
+                        {
+                            PlayerDifficIndexes[i][0] = 1;
+                        }
+                        else
+                        {
+                            PlayerDifficIndexes[i][0] += LevelPrecision;
+                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                            DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
+                        }                        
+                        /*EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                        Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode); */
                     }
                 }
             
@@ -863,15 +948,34 @@ public class GameManager : MonoBehaviour
                         LevelSpeedAndSpawnRate =    (int)calcs.list[3].list[i].n;
 
                     // Save difficulty updated from DDA 
-                    if (!(PlayerDifficulties[i] == 1 && LevelPrecision == -1) && !(PlayerDifficulties[i] == 6 && LevelPrecision == 1))
+                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
                     {
-                        PlayerDifficulties[i] += LevelPrecision;
-                        Debug.Log(LevelPrecision);
-                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    }
-                }
 
+                        //TODO: redo this later
+                        if (PlayerDifficIndexes[i][0] + LevelPrecision > 5)
+                        {
+                            PlayerDifficIndexes[i][0] = 5;
+                        }
+                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
+                        {
+                            PlayerDifficIndexes[i][0] = 1;
+                        }
+                        else
+                        {
+                            PlayerDifficIndexes[i][0] += LevelPrecision;
+                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                            DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
+                    }
+                    /*PlayerDifficIndexes[i][0] += LevelPrecision;
+                    Debug.Log(LevelPrecision);
+                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
+                    Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);*/
+                }
+                }
         }
 
     }
@@ -909,7 +1013,15 @@ public class GameManager : MonoBehaviour
                     break;
                 case playerLayer:
                     Player player = gameObjects[i].GetComponent<Player>();
-                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLocHealth, player, player.GetHealth(), 0, (int)GetMode());
+                    ItemSink sink = GameObject.Find("ItemSink").GetComponent<ItemSink>();
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLocHealth, player, player.GetHealth(), sink.GetPlayerScore(player.GetID()), (int)GetMode());
+
+                    // Send click count in the past 5 sec
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerClickCount, player, player.GetClickCounter(), 0, (int)GetMode());
+                    Debug.Log("ID: "+ player.GetID() + " clicks: " + player.GetClickCounter());
+
+                    // Reset clicks
+                    player.ResetClickCounter();
                     break;
                 default:
                     break;
@@ -970,11 +1082,11 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
-                //Debug.Log(RoundTimer);
             }
             else
             {
                 StartNextRound();
+
             }
         }
        

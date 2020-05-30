@@ -4,6 +4,7 @@ const   express       = require('express'),
         parser        = require('body-parser'),
         port          = process.env.PORT,
         StudyInsightsCtl = require('./controllers/StudyInsightsController.js'),
+        DataAnalysisCtl = require('./controllers/DataAnalysisController.js'),
         ExprInsightsCtl = require('./controllers/ExperimentInsightsController.js');
 
 app.set('port', port);
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 });
 
 // /*** Routes ***/
+app.post('/analyzeData', DataAnalysisCtl.analyzeData);
 app.post('/requestRawData', ExprInsightsCtl.requestRawData);
 app.post('/requestAllRawData', StudyInsightsCtl.requestAllRawData);
 app.post('/requestInsightBars', StudyInsightsCtl.requestInsightBars);

@@ -20,6 +20,7 @@ const mapStateToProps = ({ user, experiment }) => {
 }
 
 export class ExperimentItem extends Component {
+  _isMounted = false
   constructor(props) {
     super(props)
 
@@ -30,7 +31,8 @@ export class ExperimentItem extends Component {
       disability: 0,
       characterType: 0,
       colorSettings: 0,
-      editExperiment: false,
+      interrupted: false,
+      editExperiment: false
     }
 
     this.handleEdit = this.handleEdit.bind(this)
@@ -40,12 +42,14 @@ export class ExperimentItem extends Component {
     this.handleSubmitEdit = this.handleSubmitEdit.bind(this)
     this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStartExperiment = this.handleStartExperiment.bind(this)
+    this.checkInterruptedInstances = this.checkInterruptedInstances.bind(this)
   }
 
   componentDidMount() {
+    this._isMounted = true
     const { thisExperiment } = this.props
     const { Status, Title, Details, Disability, CharacterType, ColorSettings, GameCode } = thisExperiment
-    this.setState({
+    this._isMounted && this.setState({
       status: Status,
       title: Title,
       details: Details,
@@ -54,6 +58,43 @@ export class ExperimentItem extends Component {
       colorSettings: ColorSettings,
       gameCode: GameCode
     })
+
+    this.checkInterruptedInstances()
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
+  }
+  
+  checkInterruptedInstances() {
+    const { experimentId, userInfo, bearerKey } = this.props
+    const url = `https://yarr-experiment-service.herokuapp.com/getInterruptedInstances?experimentId=${experimentId}`
+    const json = {
+      userInfo: userInfo,
+      bearerKey: bearerKey
+    }
+
+    fetch(url, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(json)
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          json.data.length && this._isMounted && this.setState({ interrupted: true })
+        }
+        else {
+          // No interrupted here        
+        }
+    })
+    })
+      .catch(err => {
+        console.log(err)
+      })
+
   }
 
   handleDelete() {
@@ -78,13 +119,13 @@ export class ExperimentItem extends Component {
   handleEdit() {
     const { editExperiment } = this.state
     const { toggleEdit } = this.props
-    this.setState({ editExperiment: !editExperiment })
+    this._isMounted && this.setState({ editExperiment: !editExperiment })
     toggleEdit(!editExperiment)
   }
 
   handleSubmitEdit(updatedExperiment) {
     const { Title, Details, Disability, CharacterType, ColorSettings } = updatedExperiment
-    this.setState({
+    this._isMounted && this.setState({
       title: Title,
       details: Details,
       disability: Disability,
@@ -110,13 +151,15 @@ export class ExperimentItem extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
-        this.setState({ gameCode: json.gameCode })
-      }
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
+          this._isMounted && this.setState({ gameCode: json.gameCode })
+        }
     })
-      .catch(err => console.log(err))
+    })
+    .catch(err => console.log(err))
   }
 
   handleViewGameCode() {
@@ -134,6 +177,7 @@ export class ExperimentItem extends Component {
   }
 
   renderCard() {
+    const { interrupted } = this.state
     const { experimentId, studyId, thisExperiment } = this.props
     const gameCode = thisExperiment.GameCode
     const codeButtonText = gameCode === "null" ? "Start Experiment" : "View Game Code"
@@ -151,6 +195,7 @@ export class ExperimentItem extends Component {
           {this.props.children}
         </Link>
         <MDBBtn color={codeButtonColor} className={`login-btn codeButton ${greenColor}`} onClick={() => codeButtonFunction(experimentId)}>{codeButtonText}</MDBBtn>
+        {interrupted && <p className="interruptedIndicator">This experiment has unfinished games!</p>}
       </div>
     )
   }

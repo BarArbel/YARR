@@ -1,18 +1,7 @@
-var mysql      = require('mysql'),
-    crypto     = require('crypto'),
-    Validator  = require('validator'),
-    lodash     = require('lodash');
-
-const { HOST, USER, PASSWORD, DATABASE } = process.env
-
-var connection = mysql.createConnection({
-  host: HOST,
-  user: USER,
-  password : PASSWORD,
-  database : DATABASE
-});
-
-connection.connect();
+const lodash = require('lodash');
+const crypto = require('crypto');
+const Validator = require('validator');
+const { connection } = require('../database.js');
 
 function validateInput(data){
     let errors = {}
@@ -57,10 +46,9 @@ function validateInput(data){
 
 module.exports = {
   getResearcher: async(req, res) => {
-
     let { userName } = req.query;
     if(!userName){
-        res.status(400).send(`{"result": "Failure", "error": "userName is required"}`);
+      res.status(204).send(`{"result": "Failure", "error": "userName is required"}`);
         return;
     }
 
@@ -69,7 +57,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
       }
       else if(!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
+        res.status(204).send(`{"result": "Failure", "error": "No users found."}`); 
       }
       else {
         let { UserName, FirstName, LastName, Email } = results[0];
@@ -84,7 +72,7 @@ module.exports = {
 
     const { errors, isValid } = validateInput(req.body);
     if(!isValid){
-      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
+      res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(errors)}}`);
       return;
     }
 
@@ -98,35 +86,10 @@ module.exports = {
     });
   },
 
-  // updateResearcher: async(req, res) => {
-  //   let { userName, newPassword, oldPassword } = req.body;
-  // },
-
-  // deleteResearcher: async(req, res) => {
-  //   let { userName } = req.body;
-
-  //   if(!userName){
-  //     res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}"}, 
-  //     "msg": "A Parameter is missing."}`);
-  //     return;
-  //   }
-
-  //   connection.query(`DELETE FROM researchers WHERE UserName = "${userName}"`, (error, results) => {
-  //     if(error){
-  //       res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
-  //     }
-  //     else {
-  //       if(results.affectedRows > 0)
-  //         res.status(200).send(`{"result": "Success", "msg": "User: ${userName} was deleted."}`);
-  //       else res.status(400).send(`{"result": "Failure", "error": "No users found."}`); 
-  //     }
-  //   });
-  // },
-
   verifyResearcher: async(req, res) => {
     let { userName, password } = req.body;
     if(!userName || !password){
-      res.status(400).send(`{"result": "Failure", "params": {"userName":"${userName}","password": "${password}"}, 
+      res.status(204).send(`{"result": "Failure", "params": {"userName":"${userName}","password": "${password}"}, 
       "msg": "A Parameter is missing."}`);
       return;
     }
@@ -135,7 +98,7 @@ module.exports = {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`); 
       }
       else if(!results.length){
-        res.status(400).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`); 
+        res.status(204).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`); 
       }
       else{
         const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
@@ -154,7 +117,7 @@ module.exports = {
           const bearerKey = crypto.createHash('md5').update(tempStr).digest('hex');
           res.status(200).send(`{"result": "Verified", "bearerKey": "${bearerKey}", "userInfo": ${JSON.stringify(userInfo)}}`);
         }
-        else res.status(400).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`);
+        else res.status(204).send(`{"result": "Failure", "error": "BAD USER NAME AND/OR PASSWORD"}`);
 
       }
     });
@@ -164,29 +127,29 @@ module.exports = {
     const { userInfo, bearerKey } = req.body;
 
     if (!userInfo || !bearerKey || !userInfo.researcherId) {
-      res.status(400).send(`{"result": "Failure", "params": {"userInfo":"${JSON.stringify(userInfo)}", "bearerKey": "${bearerKey}"}, 
+      res.status(204).send(`{"result": "Failure", "params": {"userInfo":"${JSON.stringify(userInfo)}", "bearerKey": "${bearerKey}"}, 
       "msg": "A Parameter is missing."}`);
       return;
     }
 
-    const { researcherId } = userInfo
+    const { researcherId } = userInfo;
 
     connection.query(`SELECT * FROM researchers WHERE ResearcherId = "${researcherId}"`, (error, results) => {
       if (error) {
         res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(error)}}`);
       }
       else if (!results.length) {
-        res.status(400).send(`{"result": "Failure", "error": "NO SUCH USER"}`);
+        res.status(204).send(`{"result": "Failure", "error": "NO SUCH USER"}`);
       }
       else {
         const { ResearcherId, LastName, Email } = results[0];
 
-          const tempStr = `${Email}${ResearcherId}${LastName}`
+          const tempStr = `${Email}${ResearcherId}${LastName}`;
           const dbBearerKey = crypto.createHash('md5').update(tempStr).digest('hex');
           if(bearerKey === dbBearerKey){
             res.status(200).send(`{"result": "Success"}`);
           }
-          else res.status(400).send(`{"result": "Failure", "error": "BAD BEARER KEY"}`);
+          else res.status(204).send(`{"result": "Failure", "error": "BAD BEARER KEY"}`);
         }
     });
   }

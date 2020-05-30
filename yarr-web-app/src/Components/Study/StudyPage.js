@@ -16,8 +16,8 @@ import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
 import StudyInsightsMixed from '../Insights/StudyInsightsMixed'
-import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 
 const mapStateToProps = ({ user, study, experiment }) => {
   return {
@@ -32,6 +32,8 @@ const mapStateToProps = ({ user, study, experiment }) => {
 }
 
 class StudyPage extends Component {
+  _isMounted = false
+
   constructor(props) {
     super(props)
 
@@ -56,20 +58,35 @@ class StudyPage extends Component {
   }
 
   async componentDidMount() {
+    this._isMounted = true
     const { 
       studies,
+      isLogged,
       buildExperiment, 
       handleResetExperiments,
       handleToggleBuildExperiment
     } = this.props
+    const studyId = this.props.match.params.studyId
 
-    handleResetExperiments()
-    this.setRoutes()
-    buildExperiment && handleToggleBuildExperiment()
-    this.fetchExperiments()
-    studies.length && this.setState({ studyLoaded: true })
-    !studies.length && this.fetchStudies()
-    this.fetchRawData()
+    if(isLogged) {
+      handleResetExperiments()
+      this.setRoutes()
+      buildExperiment && handleToggleBuildExperiment()
+  
+      if(studies && studies.length) {
+        const studyExists = studies.find(line => line.StudyId === studyId)
+        if (studyExists !== undefined) {
+          this.fetchExperiments()
+          this.fetchRawData()
+        }
+        this._isMounted && this.setState({ studyLoaded: true })
+      } 
+      !studies.length && await this.fetchStudies()
+    }
+  }
+
+  componentWillUnmount() {
+    this._isMounted = false
   }
 
   setRoutes(){
@@ -102,21 +119,25 @@ class StudyPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        handleSetExperiments(json.experiments)
+    }).then(res =>{ 
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleSetExperiments(json.experiments)
+          }
+          else {
+            handleSetExperiments([])
+          }
+        })
       }
-      else {
-        handleSetExperiments([])
-      }
+      else handleSetExperiments([])
     })
-      .catch(err => {
-        handleSetExperiments([])
-      })
-
+    .catch(err => {
+      handleSetExperiments([])
+    })
   }
 
-  fetchStudies(){
+  async fetchStudies(){
     const {
       userInfo,
       bearerKey,
@@ -136,26 +157,37 @@ class StudyPage extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
-        if (json.result === "Success") {
-          const studyExists = json.studies.find(line => line.StudyId === studyId)
-          handleAddStudies(json.studies)
-          studyExists.length === 0 && this.props.history.push('/')
-          this.setState({ studyLoaded: true })
-        }
-        else {
-          this.props.history.push('/')
-          handleAddStudies([])
-        }
-      })
-      .catch(err => {
-        this.props.history.push('/')
+    }).then(res => { 
+      if(res.status === 200){
+          res.json().then(json => {
+          if (json.result === "Success") {
+            const studyExists = json.studies.find(line => line.StudyId === studyId)
+            handleAddStudies(json.studies)
+            if(studyExists !== undefined) {
+              this.fetchExperiments()
+              this.fetchRawData()
+              this._isMounted && this.setState({ studyLoaded: true })
+            }
+            else this.props.history.push('/')
+          }
+          else {
+            handleAddStudies([])
+            this.props.history.push('/')
+          }
+        }) 
+      }
+      else {
         handleAddStudies([])
-      })
+        this.props.history.push('/')
+      }
+    })
+    .catch(err => {
+      handleAddStudies([])
+      this.props.history.push('/')
+    })
   }
 
-  fetchRawData() {
+  async fetchRawData() {
     const {
       userInfo,
       bearerKey
@@ -167,29 +199,35 @@ class StudyPage extends Component {
       bearerKey: bearerKey
     }
 
-    fetch(rawDataURL, {
+    await fetch(rawDataURL, {
       method: "POST",
       headers: {
         "Accept": "application/json",
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
         if (json.result === "Success") {
-          this.setState({ csvData: json.data, csvLoaded: true })
+          this._isMounted && this.setState({ csvData: json.data, csvLoaded: true })
         }
         else {
+          this._isMounted && this.setState({ csvData: [], csvLoaded: true })
         }
-      })
-      .catch(err => {
-      })
+        })
+      }
+      else this._isMounted && this.setState({ csvData: [], csvLoaded: true })
+    })
+    .catch(err => {
+      this._isMounted && this.setState({ csvData: [], csvLoaded: true })
+    })
   }
 
   handleToggleEdit(editExperiment) {
     editExperiment ? (this.numberOfEdits += 1) : (this.numberOfEdits -= 1)
 
-    this.numberOfEdits > 0 ? this.setState({ editExperiment: true }) : this.setState({ editExperiment: false })
+    this.numberOfEdits > 0 ? this._isMounted && this.setState({ editExperiment: true }) : this._isMounted && this.setState({ editExperiment: false })
   }
 
   handleCreate() {
@@ -314,10 +352,17 @@ class StudyPage extends Component {
             </div>
             <div className="tab-pane fade" id="insights" role="tabpanel" aria-labelledby="contact-tab">
               <div>
-                <StudyInsightsMirror studyId={studyId} />
-                <StudyInsightRadar studyId={studyId} />
-                <StudyInsightsBars studyId={studyId} />
-                <StudyInsightsMixed studyId={studyId} />
+                { 
+                currStudy ?
+                <div>
+                  <StudyInsightsMirror studyId={studyId} />
+                  <StudyInsightRadar studyId={studyId} />
+                  <StudyInsightsBars studyId={studyId} />
+                  <StudyInsightsMixed studyId={studyId} />
+                </div>
+                :
+                null
+                }
               </div>
             </div>
             <div className="tab-pane fade" id="review" role="tabpanel" aria-labelledby="contact-tab">
@@ -326,7 +371,11 @@ class StudyPage extends Component {
               </p>
               {
               csvLoaded && currStudy? 
-                (<CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink>) 
+                (
+                  csvData.length ? <CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink> 
+                  : 
+                  <p style={{ textAlign: "center", paddingTop: "25px" }}>No data collected</p>
+                ) 
               : 
                 (
                   <div style={{marginTop: '30px'}} className="barLoader">
@@ -344,7 +393,7 @@ class StudyPage extends Component {
   render() {
     const { isLogged } = this.props
 
-    return isLogged ? (this.renderLogged()) : <Redirect to="/" />
+    return isLogged ? (this.renderLogged()) : <Redirect to='/' />
   }
 }
 

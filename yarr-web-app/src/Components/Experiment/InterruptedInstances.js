@@ -35,20 +35,20 @@ export class InterruptedInstances extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        json.data.length && notifyInterrupted()
-        this.setState({ instances: json.data , dataLoaded: true })
-      }
-      else {
-        // console.clear();
-        this.setState({ instances: [], dataLoaded: true })
-      }
-    })
-      .catch(err => {
-        // console.clear();
-        this.setState({ instances: [], dataLoaded: true })
+    }).then(res =>{ 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          json.data.length && notifyInterrupted()
+          this.setState({ instances: json.data , dataLoaded: true })
+        }
+        else {
+          this.setState({ instances: [], dataLoaded: true })
+        }
       })
+    })
+    .catch(err => {
+      this.setState({ instances: [], dataLoaded: true })
+    })
   }
 
   deleteInstance(instanceId) {
@@ -67,13 +67,15 @@ export class InterruptedInstances extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json()).then(json => {
-      if (json.result === "Success") {
-        const newList = instances.filter(i => i.InstanceId !== instanceId)
-        this.setState({ instances: newList })
-      }
-      else {
-      }
+    }).then(res => { 
+      res.status === 200 && res.json().then(json => {
+        if (json.result === "Success") {
+          const newList = instances.filter(i => i.InstanceId !== instanceId)
+          this.setState({ instances: newList })
+        }
+        else {
+        } 
+      })
     })
       .catch(err => {
       })
@@ -134,12 +136,17 @@ export class InterruptedInstances extends Component {
 
     return (
       <div className="interruptedInstances">
-        {instances.length && (
-          <div>
-            <hr style={{marginBottom: '25px'}}/>
-            <h4 className="centerText">Unfinished Games</h4>
-          </div>
-        )}
+        {
+          instances.length !== 0 ? 
+          (
+            <div>
+              <hr style={{marginBottom: '25px'}}/>
+              <h4 className="centerText">Unfinished Games</h4>
+            </div>
+          ) 
+          : 
+          null
+        }
         
         {dataLoaded ? 
           (instances.length ? instances.map((instance, index) => { return this.renderInstance(instance, index) }) : null)

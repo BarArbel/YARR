@@ -28,6 +28,8 @@ class StudyInsightRadar extends Component {
       dataLoaded: false
     }
 
+    this.renderWait = this.renderWait.bind(this)
+    this.renderData = this.renderData.bind(this)
     this.handleTypeChange = this.handleTypeChange.bind(this)
   }
 
@@ -47,14 +49,20 @@ class StudyInsightRadar extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => { 
+      if(res.status === 200){
+        res.json().then(json => {
         if (json.result === "Success") {
           this.setState({ data: json.data })
         }
         else this.setState({ data: [] })
       })
-      .catch(err => console.log(err))
+      }
+      else this.setState({ data: [] })
+    })
+    .catch(err => {
+      this.setState({ data: [] })
+    })
 
     this.setState({ dataLoaded: true })
   }
@@ -63,42 +71,52 @@ class StudyInsightRadar extends Component {
     this.setState({ selectedName: event.target.value })
   }
 
+  renderWait() {
+    return (
+      <div className="barLoader">
+        <MoonLoader size={120} color={"#123abc"} loading={true} />
+      </div> 
+    )
+  }
+  
+  renderData() {
+    const { data, names, selectedName } = this.state
+
+    return data.length ? 
+      (
+      <div>
+        <select
+          value={selectedName}
+          onChange={this.handleTypeChange}
+          className="form-control selectType"
+        >
+          {names.map((name, index) => {
+            return <option key={`option${name}`} value={index}>{name}</option>
+          })}
+        </select>
+          <div className="insightHolder">
+            <RadarChart cx={375} cy={230} outerRadius={175} width={1000} height={500} data={data}>
+              <PolarGrid />
+              <PolarAngleAxis dataKey="experiment" />
+              <PolarRadiusAxis domain={[0, 10]} />
+              <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              <Tooltip />
+            </RadarChart>
+          </div>
+      </div>
+    ) 
+    :
+    <p style={{ textAlign: "center", paddingTop: "25px" }}>No data collected</p>
+  }
+
   render() {
-    const { data, names, selectedName, dataLoaded } = this.state
+    const { dataLoaded } = this.state
 
     return (
       <div className="insightCard">
         <h4 style={{ textAlign: "center" }}>Most Engaging Game Mode</h4>
-        <div>
-          <select
-            value={selectedName}
-            onChange={this.handleTypeChange}
-            className="form-control selectType"
-          >
-            {names.map((name, index) => {
-              return <option key={`option${name}`} value={index}>{name}</option>
-            })}
-          </select>
-        </div>
         {
-          dataLoaded ? 
-          (
-            <div className="insightHolder">
-              <RadarChart cx={375} cy={230} outerRadius={175} width={1000} height={500} data={data}>
-                <PolarGrid />
-                <PolarAngleAxis dataKey="experiment" />
-                <PolarRadiusAxis domain={[0, 10]} />
-                <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
-                <Tooltip />
-              </RadarChart>
-            </div>
-          ) 
-          : 
-          (
-            <div className="barLoader">
-              <MoonLoader size={120} color={"#123abc"} loading={true} />
-            </div> 
-          )
+          dataLoaded ? this.renderData() : this.renderWait()
         }
       </div>
     )

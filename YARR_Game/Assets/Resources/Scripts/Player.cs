@@ -19,6 +19,7 @@ public class Player : MonoBehaviour
     private List<Item> TotalItemInventory;
     private float FixBoatTime;
     private int immuneTimer;
+    private int ClickCounter;
 
     // Identify accidental fall
     private bool FallSamplesReady;
@@ -44,6 +45,7 @@ public class Player : MonoBehaviour
     public int  GetHealth()                 { return Health; }
     public bool GetIsSpriteDirectionRight() { return IsSpriteDirectionRight; }
     public int  GetGameMode()               { return OthersItemInventory.Length == 0 ? 1 : 0;  }
+    public int  GetClickCounter ()          { return ClickCounter; }
 
     public Item[] GetMyItemInventory()
     {
@@ -66,6 +68,7 @@ public class Player : MonoBehaviour
         return totalInventory;
     }
     //Setters
+    public void ResetClickCounter () { ClickCounter = 0; }
     public bool SetHealth( )
     {
         if (MaxHealth <= 0 )
@@ -135,7 +138,6 @@ public class Player : MonoBehaviour
         bool isSpriteDirectionRight, 
         float heldItemHeight)
     {
-        // TODO: nullify inventory and total inventory
         ID = id;
         Health = health;
         MaxHealth = health;
@@ -416,7 +418,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void HandleInput()      // NOTE: not in the design
+    private void HandleInput()  
     {
        
         if (Health > 0)
@@ -424,11 +426,15 @@ public class Player : MonoBehaviour
             // Retrieve key presses for movement
             if (Input.GetKey(MoveLeftButton))
             {
-                Direction.x = -1f;               
+                Direction.x = -1f;
+                // Click counter
+                ClickCounter++;
             }
             else if (Input.GetKey(MoveRightButton))
             {
                 Direction.x = 1f;
+                // Click counter
+                ClickCounter++;
             }
 
             else if (!Input.GetKey(MoveRightButton) && !Input.GetKey(MoveLeftButton))
@@ -441,12 +447,15 @@ public class Player : MonoBehaviour
             {
 
                 IsJumping = true;
+                // Click counter
+                ClickCounter++;
             }
             else if (!Input.GetKeyDown(JumpButton))
             {
 
                 IsJumping = false;
             }
+
         }
     }
 
@@ -640,6 +649,7 @@ public class Player : MonoBehaviour
     {
         int playerLayer = LayerMask.NameToLayer("Player"); 
         Physics2D.IgnoreLayerCollision(playerLayer, playerLayer, true);
+        ClickCounter = 0;
     }
 
     // Update is called once per frame

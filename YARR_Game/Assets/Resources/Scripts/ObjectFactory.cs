@@ -10,10 +10,10 @@ public abstract class ObjectFactory : MonoBehaviour
     protected int DDALevelSpawnHeightAndTimer;
     protected int DDALevelPrecision;
     protected int DDALevelSpeedAndSpawnRate;
-    protected bool IsDDAInitiated;
+    protected bool IsLevelModified;
 
     private int ID;
-    private int Level;
+    private List<int> Levels;
     private int2 TempSpawnRate;
 
     protected int2 SpawnRateRange;
@@ -24,24 +24,44 @@ public abstract class ObjectFactory : MonoBehaviour
 
     // Game-Experiment settings
     protected bool IsNewGame;
+    protected bool IsStatic;
 
     private GameObject Prefab;
     private Sprite Sprite;
 
-    public void FactoryInit(int id, int level, GameObject prefab, Sprite sprite, bool isNewGame)
+    protected int StartingDifficulty;
+
+
+    public void FactoryInit(int id, List<int> levels, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
     {
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
-        IsDDAInitiated = false;
-        SetLevel(level);
+        IsLevelModified = false;
+        SetLevels(levels);
         IsNewGame = isNewGame;
+        IsStatic = isStatic;
+
+    }
+  
+    public void FactoryInit(int id, List<int> levels, int startingDifficulty, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
+    {
+        ID = id;
+        Prefab = prefab;
+        Sprite = sprite;
+        IsLevelModified = false;
+        SetStartingDifficulty(startingDifficulty);
+        SetLevels(levels);
+        IsNewGame = isNewGame;
+        IsStatic = isStatic;
 
     }
 
     // Getters
     public int          GetID()                 { return ID; }
-    public int          GetLevel()              { return Level; }
+    public List<int>    GetLevels()              { return Levels; }
+   
+    public int          GetStartingDifficulty() { return StartingDifficulty; }
     public int2         GetSpawnRateRange()     { return SpawnRateRange; }
     public float        GetDestroyTimer()       { return DestroyTimer; }
     public float2       GetSpawnHeightRange()   { return SpawnHeightRange; }
@@ -51,18 +71,37 @@ public abstract class ObjectFactory : MonoBehaviour
     public Sprite       GetSprite()             { return Sprite; }
 
     // Setters
-    public void SetLevel(int level)
+    public void SetLevels(List<int> levels)
     {
-        Level = level;
+        Levels = levels;
         ModifyLevelSettings();
+    }
+    public void ModifyLevels(int heightTimer, int precision, int speedspawn)
+    {
+        Levels[0] += heightTimer;
+        Levels[1] += precision;
+        Levels[2] += speedspawn;
+        ModifyLevelSettings();
+    }
+
+    public void SetStartingDifficulty(int difficulty)
+    {
+        StartingDifficulty = difficulty;
     }
 
     public void SetDDAChanges(int heightTimer, int precision, int speedspawn )
     {
-        DDALevelSpawnHeightAndTimer = heightTimer;
+        // TODO: delete these variables since we don't use them anymore
+        /*DDALevelSpawnHeightAndTimer = heightTimer;
         DDALevelPrecision = precision;
-        DDALevelSpeedAndSpawnRate = speedspawn;
-        ModifyLevelSettings();
+        DDALevelSpeedAndSpawnRate = speedspawn;*/
+
+        if (!IsStatic)
+        {
+            ModifyLevels(heightTimer, precision, speedspawn);
+        }
+        // Why do we need this thrice
+        //ModifyLevelSettings();
     }
 
     public IEnumerator StartSpawner()
