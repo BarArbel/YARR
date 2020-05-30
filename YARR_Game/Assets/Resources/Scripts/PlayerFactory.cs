@@ -16,7 +16,7 @@ public class PlayerFactory : MonoBehaviour
     private int PlayerCounter;
     private bool IsNewGame;
 
-    private GameObject PlayerPrefab;
+    private List<GameObject> PlayerPrefab;
     private List<Sprite> PlayerSprites;
     private List<KeyCode> RightMovement;
     private List<KeyCode> LeftMovement;
@@ -30,7 +30,7 @@ public class PlayerFactory : MonoBehaviour
         bool spriteDirection, 
         float itemHeight,
         int numberOfPlayers,
-        List<Sprite> playerSprites,
+        List<GameObject> PlayerPrefabs,
         List<KeyCode> rightMovement,
         List<KeyCode> leftMovement,
         List<KeyCode> jumpMovement,
@@ -46,14 +46,14 @@ public class PlayerFactory : MonoBehaviour
         NumberOfPlayers = numberOfPlayers;
         IsNewGame = isNewGame;
 
-        PlayerSprites = new List<Sprite>(playerSprites);
+        //PlayerSprites = new List<Sprite>(playerSprites);
         RightMovement = new List<KeyCode>(rightMovement);
         LeftMovement = new List<KeyCode>(leftMovement);
         JumpMovement = new List<KeyCode>(jumpMovement);
 
         // Unchangable initializations
         PlayerCounter = 0;
-        PlayerPrefab = Resources.Load<GameObject>("Prefabs/Player");
+        PlayerPrefab = new List<GameObject>(PlayerPrefabs);//Resources.Load<GameObject>("Prefabs/Player");
 
     }
 
@@ -62,12 +62,12 @@ public class PlayerFactory : MonoBehaviour
         for (int i = 0; i < NumberOfPlayers; i++)
         {
             PlayerCounter++;
-            GameObject playerObj = Instantiate(PlayerPrefab);
+            GameObject playerObj = Instantiate(PlayerPrefab[i]);
             Player player = playerObj.GetComponent<Player>();
             player.transform.SetParent(GameObject.Find("Map").transform);
            
             playerObj.tag = "Player";
-            playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
+            //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             // Init player properties
             player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
@@ -81,11 +81,13 @@ public class PlayerFactory : MonoBehaviour
             for (int i = 0; i < playerSettings.Count; i++)
             {
                 int playerID = (int)playerSettings[i].x;
-                GameObject playerObj = Instantiate(PlayerPrefab);
+                
+                GameObject playerObj = Instantiate(PlayerPrefab[playerID]);
                 if (playerObj)
                 {
                     Debug.Log("player's " + i + " playerObj is correct!");
                 }
+
                 Player player = playerObj.GetComponent<Player>();
                 if (player)
                 {
@@ -103,7 +105,9 @@ public class PlayerFactory : MonoBehaviour
                 playerObj.transform.position = new Vector3(playerSettings[i].y, playerSettings[i].z, 0);
 
                 playerObj.tag = "Player";
-                playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
+
+                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[playerID];
+                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             }
         }
