@@ -164,7 +164,7 @@ io.on('connection', async socket =>{
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
           VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time},     "running", false);`;
           console.log(sql2);
-          mysqlConnection.query(sql2, (error, results) => {
+          mysqlConnection_platform.query(sql2, (error, results) => {
             if (error || !results.length) {
               // TODO: Take care of exception
               socket.emit('unableToAddInstanceData', {message: "Adding instance data failed", instanceId: `${table.time}_${table.id}`});
