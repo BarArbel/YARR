@@ -1,22 +1,42 @@
 const mysql = require("mysql");
 
-const { HOST, USER, PASSWORD, DATABASE } = process.env
+const { HOST_PLATFORM, HOST_DDA, USER, PASSWORD, DATABASE_PLATFORM, DATABASE_DDA } = process.env
 
-var mysqlConnection = mysql.createConnection({
-    host: HOST,
+var mysqlConnection_platform = mysql.createConnection({
+    host: HOST_PLATFORM,
     user: USER,
     password: PASSWORD,
-    database: DATABASE,
+    database: DATABASE_PLATFORM,
     multipleStatements: true
 });
 
-mysqlConnection.connect((err) => {
+mysqlConnection_platform.connect((err) => {
     if(!err){
-        console.log("Connected");
+        console.log("Connected to platform DB");
     }else{
         console.log(err);
-        console.log("Connection Failed");
+        console.log("Connection to platform DB failed");
     }
 });
 
-module.exports = mysqlConnection;
+var mysqlConnection_dda = mysql.createConnection({
+  host: HOST_DDA,
+  user: USER,
+  password: PASSWORD,
+  database: DATABASE_DDA,
+  multipleStatements: true
+});
+
+mysqlConnection_dda.connect((err) => {
+  if(!err){
+      console.log("Connected to DDA DB");
+  }else{
+      console.log(err);
+      console.log("Connection to DDA DB failed");
+  }
+});
+
+module.exports = {
+  mysqlConnection_platform,
+  mysqlConnection_dda
+};

@@ -12,7 +12,7 @@ class DBconnection:
         self.newT_continueF = True
         self.counter = 0
         self.timestamps = []
-        self.db = os.getenv('DATABASE')
+        self.db = os.getenv('DATABASE_DDA')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
@@ -21,7 +21,7 @@ class DBconnection:
             self.timestamps.append(0)
 
         self.pool = await aiomysql.create_pool(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
-                                               host=os.getenv('HOST'), db=self.db,
+                                               host=os.getenv('HOST_DDA'), db=self.db,
                                                auth_plugin='mysql_native_password')
 
         if await self.check_if_table_exist():
@@ -221,5 +221,14 @@ class DBconnection:
                 for result in select_fetch:
                     insert_vals.append((experiment_id, instance_id) + result)
 
-                await cursor.executemany(insert_query, insert_vals)
-                await con.commit()
+                plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), user=os.getenv('USER'),
+                                                  password=os.getenv('PASSWORD'), db=os.getenv('DATABASE_PLATFORM'),
+                                                  auth_plugin='mysql_native_password')
+                plat_cur = await plat_con.cursor()
+                await plat_cur.executemany(insert_query, insert_vals)
+                await plat_con.commit()
+                await plat_cur.close()
+                await plat_con.close()
+
+                # await cursor.executemany(insert_query, insert_vals)
+                # await con.commit()
