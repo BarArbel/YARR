@@ -11,6 +11,7 @@
   "dependencies": {
     "dotenv": "^8.2.0",
     "mysql": "^2.18.1",
+    "node-fetch": "^2.6.0",
     "randexp": "^0.5.3",
     "shortid": "^2.2.15",
     "socket.io": "^2.3.0"

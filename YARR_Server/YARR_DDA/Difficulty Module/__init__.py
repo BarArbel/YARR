@@ -228,6 +228,8 @@ async def on_ddaupdate(data):
     if data == instance_id:
         current_time = time.time()
         timestamp, gamemode = await get_timestamp_and_gamemode()
+        print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
+        sys.stdout.flush()
         time_lock.acquire()
         if current_time > last_time + 5 and gamemode is not None:
             last_time = current_time
