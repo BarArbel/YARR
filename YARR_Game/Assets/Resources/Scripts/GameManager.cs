@@ -874,6 +874,7 @@ public class GameManager : MonoBehaviour
 
                     // Send click count in the past 5 sec
                     DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerClickCount, player, player.GetClickCounter(), 0, (int)GetMode());
+                    Debug.Log("ID: "+ player.GetID() + " clicks: " + player.GetClickCounter());
 
                     // Reset clicks
                     player.ResetClickCounter();

@@ -426,11 +426,15 @@ public class Player : MonoBehaviour
             // Retrieve key presses for movement
             if (Input.GetKey(MoveLeftButton))
             {
-                Direction.x = -1f;               
+                Direction.x = -1f;
+                // Click counter
+                ClickCounter++;
             }
             else if (Input.GetKey(MoveRightButton))
             {
                 Direction.x = 1f;
+                // Click counter
+                ClickCounter++;
             }
 
             else if (!Input.GetKey(MoveRightButton) && !Input.GetKey(MoveLeftButton))
@@ -443,6 +447,8 @@ public class Player : MonoBehaviour
             {
 
                 IsJumping = true;
+                // Click counter
+                ClickCounter++;
             }
             else if (!Input.GetKeyDown(JumpButton))
             {
@@ -450,8 +456,6 @@ public class Player : MonoBehaviour
                 IsJumping = false;
             }
 
-            // Click counter
-            ClickCounter++;
         }
     }
 
