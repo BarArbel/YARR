@@ -105,7 +105,7 @@ class DBconnection:
         self.pool.close()
         await self.pool.wait_closed()
     
-    async def get_timestamp(self):
+    async def get_timestamp_gamemode(self):
         # query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
         query = ("SELECT format(max(Timestamp), 3), GameMode FROM " + self.db + "." + self.tb)
 

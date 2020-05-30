@@ -21,7 +21,9 @@ count_lock = threading.Lock()
 async def get_timestamp_and_gamemode():
     global con
 
-    fetch = await con.get_timestamp()
+    fetch = await con.get_timestamp_gamemode()
+    print("fetch: ", fetch)
+    sys.stdout.flush()
     if fetch:
         timestamp = fetch[0]
         gamemode = fetch[1]
