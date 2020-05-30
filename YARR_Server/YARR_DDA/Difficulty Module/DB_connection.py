@@ -104,10 +104,11 @@ class DBconnection:
         await self.remove_dda_table()
         self.pool.close()
         await self.pool.wait_closed()
-    
+
     async def get_timestamp_gamemode(self):
-        # query = ("SELECT format(Timestamp, 3) FROM " + self.db + "." + self.tb + " ORDER BY Timestamp DESC LIMIT 1")
-        query = ("SELECT format(max(Timestamp), 3), GameMode FROM " + self.db + "." + self.tb)
+        query = ("SELECT format(Timestamp, 3), GameMode FROM " + self.db + "." + self.tb +
+                 " ORDER BY Timestamp DESC LIMIT 1")
+        # query = ("SELECT format(max(Timestamp), 3), GameMode FROM " + self.db + "." + self.tb)
 
         try:
             async with self.pool.acquire() as con:
@@ -120,7 +121,7 @@ class DBconnection:
             sys.stdout.flush()
             return None
 
-    async def get_gamemode(self, timestamp):
+    """async def get_gamemode(self, timestamp):
         query = ("SELECT GameMode FROM " + self.db + "." + self.tb + " WHERE format(Timestamp, 3) >= "
                  + str(timestamp) + " ORDER BY Timestamp ASC LIMIT 1")
 
@@ -133,7 +134,7 @@ class DBconnection:
         except Exception as e:
             print("get_gamemode exception: " + str(e))
             sys.stdout.flush()
-            return None
+            return None"""
 
     async def count_last_pickup_events(self, player_id, tstamp, limit):
         try:

@@ -232,17 +232,17 @@ async def on_ddaupdate(data):
 
     if data == instance_id:
         current_time = time.time()
-        # timestamp, gamemode = await get_timestamp_and_gamemode()
-        # print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
-        # sys.stdout.flush()
+        timestamp, gamemode = await get_timestamp_and_gamemode()
+        print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
+        sys.stdout.flush()
         time_lock.acquire()
-        # if current_time > last_time + 5 and gamemode is not None:
-        if current_time > last_time + 5:
+        if current_time > last_time + 5 and gamemode is not None:
+        # if current_time > last_time + 5:
             last_time = current_time
             time_lock.release()
-            timestamp, gamemode = await get_timestamp_and_gamemode()
-            print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
-            sys.stdout.flush()
+            # timestamp, gamemode = await get_timestamp_and_gamemode()
+            # print("timestamp: {0}, gamemode: {1}".format(timestamp, gamemode))
+            # sys.stdout.flush()
             if gamemode is not None:
                 print("entered with timestamp: ", timestamp)
                 sys.stdout.flush()
@@ -318,6 +318,7 @@ async def start_server(args):
     while not connected_to_server:
         try:
             await sio.connect("https://yarr-dda.herokuapp.com/")
+            # await sio.connect("http://127.0.0.1:52300")
         except:
             print("Failed to connect to data collector, trying again")
             sys.stdout.flush()
