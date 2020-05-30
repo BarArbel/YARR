@@ -158,6 +158,7 @@ def calculate(total, timestamp, gamemode):
             player_level = calc.player_levels[player_id]
             if (level == 1 and player_level < 6) or (level == -1 and player_level > 1):
                 calc.player_levels[player_id] += level
+            if level != 0:
                 con.timestamps[player_id] = timestamp
 
     if gamemode == "Competitive":
@@ -167,6 +168,8 @@ def calculate(total, timestamp, gamemode):
         if (group_level == 1 and current_level < 6) or (group_level == -1 and current_level > 1):
             for player_id in range(number_of_players):
                 calc.player_levels[player_id] += group_level
+        if group_level != 0:
+            for player_id in range(number_of_players):
                 con.timestamps[player_id] = timestamp
 
     return calcs, group_level
@@ -229,9 +232,9 @@ async def on_ddaupdate(data):
         if current_time > last_time + 5 and gamemode is not None:
             last_time = current_time
             time_lock.release()
-            check_gamemode_and_levels(timestamp, gamemode)
             print("entered with timestamp: ", timestamp)
             sys.stdout.flush()
+            check_gamemode_and_levels(timestamp, gamemode)
             total = await get_data_from_db(timestamp, gamemode)
             print(total)
             sys.stdout.flush()
@@ -304,7 +307,8 @@ async def start_server(args):
 
     while not connected_to_server:
         try:
-            await sio.connect("http://" + host + ":" + recv_port)
+            await sio.connect("https://yarr-dda.herokuapp.com/")
+            # await sio.connect("http://" + host + ":" + recv_port)
         except:
             print("Failed to connect to data collector, trying again")
             sys.stdout.flush()
