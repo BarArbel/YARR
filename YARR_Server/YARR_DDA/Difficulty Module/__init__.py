@@ -17,8 +17,8 @@ instance_id = ""
 table_name = "dda_input_"
 con = None
 calc = None
-host = os.getenv('HOST_SERVER')
-recv_port = os.getenv('PORT_SERVER')
+# host = os.getenv('HOST_SERVER')
+# recv_port = os.getenv('PORT_SERVER')
 time_lock = threading.Lock()
 count_lock = threading.Lock()
 
@@ -299,7 +299,7 @@ async def init_vars(args):
 
 
 async def start_server(args):
-    global host, recv_port
+    # global host, recv_port
 
     connected_to_server = False
 

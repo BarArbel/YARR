@@ -12,7 +12,7 @@ class DBconnection:
         self.newT_continueF = True
         self.counter = 0
         self.timestamps = []
-        self.db = os.getenv('DATABASE_DB')
+        self.db = os.getenv('DATABASE')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
 
@@ -20,8 +20,8 @@ class DBconnection:
         for i in range(number_of_players):
             self.timestamps.append(0)
 
-        self.pool = await aiomysql.create_pool(user=os.getenv('USER_DB'), password=os.getenv('PASSWORD_DB'),
-                                               host=os.getenv('HOST_DB'), db=self.db,
+        self.pool = await aiomysql.create_pool(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
+                                               host=os.getenv('HOST'), db=self.db,
                                                auth_plugin='mysql_native_password')
 
         if await self.check_if_table_exist():
