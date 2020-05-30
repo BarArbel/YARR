@@ -1,5 +1,5 @@
 require('dotenv').config()
-const fetch = require("node-fetch");
+//const fetch = require("node-fetch");
 const io = require('socket.io')(process.env.PORT);
 const mysqlConnection = require("./connection");
 const Table = require('./Classes/Table.js');
@@ -103,7 +103,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
+        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded','playerClickCount'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -128,7 +128,7 @@ io.on('connection', async socket =>{
       Timestamp float NOT NULL,
       Event enum(
         'pickup','giveItem','revivePlayer','temporaryLose','revived','lose','dropitem','getDamaged','blockDamage','failPickup','fallAccidently','individualLoss','spawn','powerupSpawn','powerupTaken','powerupMissed','win','avoidDamage',
-        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded'
+        'enemyLoc','itemLoc','takenItemLoc','playerLocHealth','lvlUp','lvlDown','lvlStay','newRound','gameEnded','playerClickCount'
       ) NOT NULL,
       PlayerID int unsigned DEFAULT NULL,
       CoordX float DEFAULT NULL,
@@ -588,8 +588,9 @@ io.on('connection', async socket =>{
       console.log(error)
     }
 
+    // TODO: Uncomment
     // after all queries are done, invoke analyzeData
-    fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
+    /*fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -607,7 +608,7 @@ io.on('connection', async socket =>{
       })
       .catch(err => {
         //did very bad
-      });
+      });*/
   });
 
   socket.on('disconnect', async () => {

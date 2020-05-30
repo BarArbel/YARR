@@ -871,6 +871,12 @@ public class GameManager : MonoBehaviour
                     Player player = gameObjects[i].GetComponent<Player>();
                     ItemSink sink = GameObject.Find("ItemSink").GetComponent<ItemSink>();
                     DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerLocHealth, player, player.GetHealth(), sink.GetPlayerScore(player.GetID()), (int)GetMode());
+
+                    // Send click count in the past 5 sec
+                    DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerClickCount, player, player.GetClickCounter(), 0, (int)GetMode());
+
+                    // Reset clicks
+                    player.ResetClickCounter();
                     break;
                 default:
                     break;
