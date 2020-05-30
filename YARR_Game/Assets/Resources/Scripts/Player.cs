@@ -6,6 +6,7 @@ using Project.Networking;
 using Event = Project.Networking.Event;
 using System.Collections;
 
+
 public class Player : MonoBehaviour
 {
     // Player properties
@@ -20,6 +21,9 @@ public class Player : MonoBehaviour
     private float FixBoatTime;
     private int immuneTimer;
     private int ClickCounter;
+
+    //Animation
+    private Animator animator;
 
     // Identify accidental fall
     private bool FallSamplesReady;
@@ -159,6 +163,9 @@ public class Player : MonoBehaviour
         EnemiesDistance2nd = new Dictionary<int, float>();
         ItemsDistance1st = new Dictionary<int, float>();
         ItemsDistance2nd = new Dictionary<int, float>();
+
+        // Initialize Animator
+        animator = GetComponent<Animator>();
     }
 
     // Food ID = -1
@@ -452,7 +459,7 @@ public class Player : MonoBehaviour
             }
             else if (!Input.GetKeyDown(JumpButton))
             {
-
+                animator.SetBool("Jump", IsJumping);
                 IsJumping = false;
             }
 
@@ -491,11 +498,12 @@ public class Player : MonoBehaviour
 
         // Left & Right movement
         rigidbody2D.velocity = new Vector2(Speed.x * Direction.x, rigidbody2D.velocity.y);
+        animator.SetFloat("Speed", Math.Abs(rigidbody2D.velocity.x));
 
         // Jump
         if (IsJumping && IsGrounded(boxCollider2D, MapLayer))
         {
-
+            animator.SetBool("Jump", IsJumping);
             rigidbody2D.velocity = new Vector2(rigidbody2D.velocity.x, Speed.y);
         }
 
