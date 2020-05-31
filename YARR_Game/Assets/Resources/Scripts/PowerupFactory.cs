@@ -66,7 +66,7 @@ public class PowerupFactory : ObjectFactory
         itemObj.transform.SetParent(GameObject.Find("Map").transform);
         itemObj.layer = itemLayer;
         itemObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
-        itemObj.GetComponent<Powerup>().PowerupInit(GetID(), DestroyTimer);
+        itemObj.GetComponent<Powerup>().PowerupInit(GetID(), 5f);
     }
 
     public override GameObject ContinuedGameSpawn(float3 objectSettings) { return null; }
