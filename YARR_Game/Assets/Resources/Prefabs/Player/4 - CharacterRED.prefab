@@ -1226,7 +1226,7 @@ GameObject:
   - component: {fileID: 7459600713969750086}
   - component: {fileID: 1280007544331178255}
   - component: {fileID: 2627930244541338763}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: 4 - CharacterRED
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1290,7 +1290,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 6}
@@ -1387,7 +1387,7 @@ BoxCollider2D:
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 6}
