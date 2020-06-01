@@ -1158,7 +1158,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 486de0d63042ea44e87f5739b2458669, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  url: ws://127.0.0.1:52301/socket.io/?EIO=4&transport=websocket
+  url: wss://yarr-game-control.herokuapp.com/socket.io/?EIO=4&transport=websocket
   autoConnect: 1
   reconnectDelay: 0
   ackExpirationTime: 1800
@@ -1176,7 +1176,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 356183618120f1f488510670f37c3ad6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  url: ws://127.0.0.1:52300/socket.io/?EIO=4&transport=websocket
+  url: wss://yarr-dda.herokuapp.com/socket.io/?EIO=4&transport=websocket
   autoConnect: 0
   reconnectDelay: 0
   ackExpirationTime: 1800
