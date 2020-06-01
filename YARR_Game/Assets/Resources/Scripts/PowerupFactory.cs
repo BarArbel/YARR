@@ -71,8 +71,8 @@ public class PowerupFactory : ObjectFactory
 
     public override GameObject ContinuedGameSpawn(float3 objectSettings) { return null; }
 
-        // Start is called before the first frame update
-        void Start()
+    // Start is called before the first frame update
+    void Start()
     {
         StartCoroutine(StartSpawner());
     }

@@ -2,11 +2,6 @@
 node_modules/
 .env
 *.csproj
-/YARR_Game/Library/*
-/YARR_Game/Logs/*
-/YARR_Game/obj/*
-/YARR_Game/Packages/*
-/YARR_Game/Temp/*
 .idea
 YARR_Game/.vs/YARR_Game/v15/Server/sqlite3/storage.ide
 YARR_Game/.vs/YARR_Game/v15/Server/sqlite3/storage.ide-shm
