@@ -76,7 +76,7 @@ class DBconnection:
 
     async def get_levels(self, number_of_players):
 
-        query = ("SELECT PlayerID, sum(Level) as sum_lv FROM " + self.db + "." + self.DDAtb + " GROUP BY PlayerID")
+        query = ("SELECT PlayerID, Level FROM " + self.db + "." + self.DDAtb)
 
         levels = []
         for i in range(number_of_players):
@@ -89,7 +89,9 @@ class DBconnection:
 
                 for result in fetch:
                     if result[0] is not None and result[1] is not None:
-                        levels[result[0] - 1] = result[1]
+                        if not (levels[result[0] - 1] == 6 and result[1] == 1) and\
+                                not (levels[result[0] - 1] == 1 and result[1] == -1):
+                            levels[result[0] - 1] += result[1]
 
         return levels
 
@@ -104,7 +106,7 @@ class DBconnection:
         await self.remove_dda_table()
         self.pool.close()
         await self.pool.wait_closed()
-
+    
     async def get_timestamp_gamemode(self):
         query = ("SELECT format(Timestamp, 3), GameMode FROM " + self.db + "." + self.tb +
                  " ORDER BY Timestamp DESC LIMIT 1")
@@ -113,8 +115,17 @@ class DBconnection:
         try:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
-                    await cursor.execute(query)
-                    fetch = await cursor.fetchone()
+                    """
+                    There is a bug for this specific query that sometimes the result returns empty although it
+                    shouldn't.
+                    So as long as the fetch result is None, it will keep trying until actual info from the table will
+                    be returned.
+                    """
+                    fetch = None
+                    while fetch is None:
+                        await cursor.execute(query)
+                        fetch = await cursor.fetchone()
+
                     return fetch
         except Exception as e:
             print("get_timestamp exception: " + str(e))
@@ -204,30 +215,33 @@ class DBconnection:
     async def insert_permanent_table(self, instance_id):
 
         select_query = ("SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
-        experiment_query = ("SELECT ExperimentId FROM " + self.db + ".instances WHERE InstanceId = '" +
-                            instance_id + "'")
+        experiment_query = ("SELECT ExperimentId FROM " + os.getenv('DATABASE_PLATFORM') +
+                            ".instances WHERE InstanceId = '" + instance_id + "'")
         insert_vals = []
-        insert_query = ("INSERT INTO " + self.db + ".dda_calculations (ExperimentId, InstanceId, PlayerID, Penalty, " +
-                        "Bonus, Skill, Level, Timestamp) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)")
+        insert_query = ("INSERT INTO " + os.getenv('DATABASE_PLATFORM') + ".dda_calculations " +
+                        "(ExperimentId, InstanceId, PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES " +
+                        "(%s, %s, %s, %s, %s, %s, %s, %s)")
 
         async with self.pool.acquire() as con:
             async with con.cursor() as cursor:
+                plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
+                                                  port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
+                                                  user=os.getenv('USER'), auth_plugin='mysql_native_password')
+                plat_cur = await plat_con.cursor()
+
                 await cursor.execute(select_query)
                 select_fetch = await cursor.fetchall()
 
-                await cursor.execute(experiment_query)
-                experiment_fetch = await cursor.fetchone()
+                await plat_cur.execute(experiment_query)
+                experiment_fetch = await plat_cur.fetchone()
                 experiment_id = experiment_fetch[0]
 
                 for result in select_fetch:
                     insert_vals.append((experiment_id, instance_id) + result)
 
-                plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
-                                                  port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
-                                                  user=os.getenv('USER'), auth_plugin='mysql_native_password')
-                plat_cur = await plat_con.cursor()
                 await plat_cur.executemany(insert_query, insert_vals)
                 await plat_con.commit()
+
                 await plat_cur.close()
                 await plat_con.close()
 
