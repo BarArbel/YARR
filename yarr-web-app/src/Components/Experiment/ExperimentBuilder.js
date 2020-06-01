@@ -1,12 +1,13 @@
-import React, { Component } from 'react'
-import { connect } from 'react-redux'
 import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
-import UserActions from '../../Actions/UserActions'
-import ExperimentActions from '../../Actions/ExperimentActions'
+import { connect } from 'react-redux'
+import React, { Component } from 'react'
 import "react-step-progress-bar/styles.css"
+import UserActions from '../../Actions/UserActions'
 import { ProgressBar, Step } from "react-step-progress-bar"
 import ExperimentExplanation from './ExperimentExplanation'
+import ExperimentActions from '../../Actions/ExperimentActions'
+import SnackbarActions from '../../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -180,7 +181,8 @@ class ExperimentBuilder extends Component {
       bearerKey,
       userInfo,
       handleUpdateExperiment,
-      handleToggleBuildExperiment
+      handleToggleBuildExperiment,
+      handleShowSnackbar
     } = this.props
     let url = 'https://yarr-experiment-service.herokuapp.com'
     url += editForm ? '/updateExperiment' : '/addExperiment'
@@ -211,36 +213,34 @@ class ExperimentBuilder extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          if (editForm) {
-            currExperiment.Title = title
-            currExperiment.Details = details
-            currExperiment.Disability = disability
-            currExperiment.CharacterType = characterType
-            currExperiment.ColorSettings = colorSettings
-            onSubmit(currExperiment)
-            handleUpdateExperiment(
-              currExperiment.ExperimentId,
-              currExperiment.Title,
-              currExperiment.Details,
-              currExperiment.Disability,
-              currExperiment.CharacterType,
-              currExperiment.ColorSettings
-            )
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Experiment Successfully ${editForm ? "Updated" : "Added"}`, severity: "success" })
+            if (editForm) {
+              currExperiment.Title = title
+              currExperiment.Details = details
+              currExperiment.Disability = disability
+              currExperiment.CharacterType = characterType
+              currExperiment.ColorSettings = colorSettings
+              onSubmit(currExperiment)
+              handleUpdateExperiment(
+                currExperiment.ExperimentId,
+                currExperiment.Title,
+                currExperiment.Details,
+                currExperiment.Disability,
+                currExperiment.CharacterType,
+                currExperiment.ColorSettings
+              )
+            }
+            else handleToggleBuildExperiment()
           }
-          else {
-            handleToggleBuildExperiment()
-          }
-        }
-        else {
-        }
-      })
+          else handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Experiment`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Experiment`, severity: "error" })
     })
-      .catch(err => {
-        console.log(err)
-          // do something
-      })
+    .catch(err => handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Experiment`, severity: "error" }))
   }
 
   handleChange(event) {
@@ -666,12 +666,12 @@ class ExperimentBuilder extends Component {
                 <MDBBtn color="elegant" className="login-btn builderButton" onClick={() => this.handleChangeSection("back")}>Back</MDBBtn>
               </div> : (null)
             }
-            {(wizardIndex !== 3 && (status === "Ready" || status === undefined)) ?
+            {(wizardIndex !== 3 && (status === "Ready" || status === "Stopped" || status === undefined)) ?
               <div className="text-center mt-4">
                 <MDBBtn color="elegant" className={`login-btn ${wizardIndex !== -1 && "builderButton"} ${wizardIndex === -1 && "gotIt"}`} onClick={() => this.handleChangeSection("next")}>{nextButton}</MDBBtn>
               </div> : (null)
             }
-            {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== undefined)) ?
+            {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== "Stopped" && status !== undefined)) ?
               <div className="text-center mt-4">
                 <MDBBtn color="elegant" onClick={this.handleSubmit} className="login-btn builderButton">Save Experiment</MDBBtn>
               </div> : (null)
@@ -690,4 +690,4 @@ ExperimentBuilder.propTypes = {
   bearerKey: PropTypes.string,
 };
 
-export default connect(mapStateToProps, { ...UserActions, ...ExperimentActions })(ExperimentBuilder)
+export default connect(mapStateToProps, { ...UserActions, ...ExperimentActions, ...SnackbarActions })(ExperimentBuilder)

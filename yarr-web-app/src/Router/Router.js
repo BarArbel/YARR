@@ -1,16 +1,17 @@
 import React from 'react'
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { Provider } from 'react-redux'
 import Login from '../Components/Login'
 import HomePage from '../Components/HomePage'
-import ExperimentPage from '../Components/Experiment/ExperimentPage'
 import StudyPage from '../Components/Study/StudyPage'
+import CustomSnackbar from '../Components/Utilities/CustomSnackbar'
+import ExperimentPage from '../Components/Experiment/ExperimentPage'
 import StudyInsightRadar from '../Components/Insights/StudyInsightsRadar'
-// const path = window.location.pathname
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 
 /* todo -> create a 404 component */
 const ReactRouter = ({ store }) => (
   <Provider store = {store}>
+    <CustomSnackbar />
     <Router>
       <Switch>
         <Route exact path = "/" component = {Login} />

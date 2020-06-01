@@ -1,9 +1,9 @@
+import { MDBBtn } from 'mdbreact'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
-import { MDBBtn } from 'mdbreact'
-import CustomSnackbar from './Utilities/CustomSnackbar'
 import ClipLoader from "react-spinners/ClipLoader"
+import SnackbarActions from '../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -23,14 +23,10 @@ class SignIn extends Component {
       lastName: "",
       password: "",
       confirmedPassword: "",
-      signUp: false,
-      isMsg: false,
-      error: false,
-      msg: "",
+      signUp: false
     }
 
     this.renderLogin = this.renderLogin.bind(this)
-    this.handleClose = this.handleClose.bind(this)
     this.handleChange = this.handleChange.bind(this)
     this.handleChangeForm = this.handleChangeForm.bind(this)
     this.handleLoginSubmit = this.handleLoginSubmit.bind(this)
@@ -55,6 +51,7 @@ class SignIn extends Component {
   }
 
   handleSignUpSubmit(event){
+    const { handleShowSnackbar } = this.props
     const { 
       userName, 
       password, 
@@ -83,17 +80,25 @@ class SignIn extends Component {
       },
       body: JSON.stringify(json)
     }).then(res =>{ 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          this.setState({msg: "Signup Completed", isMsg: true, signUp: false, error: false})
-        }
-        else {
-          this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true })
-        }
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: "Signup Completed", severity: "success" })
+          }
+          else {
+            handleShowSnackbar({ msg: "Signup Failed. Please try again.", severity: "error" })
+          }
+        })
+      }
+      else {
+        handleShowSnackbar({ msg: "Signup Failed. Please try again.", severity: "error" })
+      }
     })
-    .catch(err => this.setState({ msg: "Signup Failed. Please try again later.", isMsg: true, signUp: false, error: true }))
+    .catch(err => {
+      handleShowSnackbar({ msg: "Signup Failed. Please try again.", severity: "error" })
+    })
     
+    this.setState({ signUp: false })
     event.preventDefault()
   }
 
@@ -227,28 +232,15 @@ class SignIn extends Component {
       </form>
     )
   }
-  
-  handleClose(event, reason) {
-    if (reason === 'clickaway') {
-      return
-    }
-    this.setState({ isMsg: false })
-  }
 
   render() {
-    const { signUp, msg, isMsg, error } = this.state
+    const { signUp } = this.state
     const buttonText = signUp ? "Go back to Login" : "Don't have an account? Sign up here"
 
     return (
       <div className="signIn">
         {signUp ? this.renderSignUp() : this.renderLogin()}
         <button className="changeFormButton" onClick={this.handleChangeForm}>{buttonText}</button>
-        <CustomSnackbar
-          open={isMsg}
-          onClose={this.handleClose}
-          msg={msg}
-          severity={error ? "error" : "success"}
-        />
       </div>
     )
   }
@@ -258,4 +250,4 @@ SignIn.propTypes  = {
   verifyUser: PropTypes.func
 }
 
-export default connect(mapStateToProps)(SignIn)
+export default connect(mapStateToProps, { ...SnackbarActions })(SignIn)

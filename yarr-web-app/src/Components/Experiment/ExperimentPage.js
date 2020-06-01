@@ -15,12 +15,13 @@ import { confirmAlert } from 'react-confirm-alert'
 import ClipLoader from "react-spinners/ClipLoader"
 import UserActions from '../../Actions/UserActions'
 import { InterruptedInstances } from './InterruptedInstances'
-import ExperimentActions from '../../Actions/ExperimentActions'
-import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
-import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
 import StudyInsightsBars from '../Insights/StudyInsightsBars'
 import StudyInsightRadar from '../Insights/StudyInsightsRadar'
+import ExperimentActions from '../../Actions/ExperimentActions'
+import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
+import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 import ExperimentInsightsMixed from '../Insights/ExperimentInsightsMixed'
+import SnackbarActions from '../../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user, experiment }) => {
   return {
@@ -50,6 +51,7 @@ class ExperimentPage extends Component {
     this.renderLogged = this.renderLogged.bind(this)
     this.renderRounds = this.renderRounds.bind(this)
     this.fetchRawData = this.fetchRawData.bind(this)
+    this.renderExperiment = this.renderExperiment.bind(this)
     this.notifyInterrupted = this.notifyInterrupted.bind(this)
     this.handleViewGameCode = this.handleViewGameCode.bind(this)
     this.handleStopExperiment = this.handleStopExperiment.bind(this)
@@ -147,14 +149,17 @@ class ExperimentPage extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => {
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          this._isMounted && this.setState({ csvData: json.data, csvLoaded: true })
-        }
-        else {
-          this._isMounted && this.setState({ csvData: [], csvLoaded: true })
-        }
-      })
+      if(res.status === 200){
+        res.json().then(json => {
+          if (json.result === "Success") {
+            this._isMounted && this.setState({ csvData: json.data, csvLoaded: true })
+          }
+          else {
+            this._isMounted && this.setState({ csvData: [], csvLoaded: true })
+          }
+        })
+      }
+      else this._isMounted && this.setState({ csvData: [], csvLoaded: true })
     })
       .catch(err => {
         this._isMounted && this.setState({ csvData: [], csvLoaded: true })
@@ -166,7 +171,7 @@ class ExperimentPage extends Component {
   }
 
   handleStartExperiment() {
-    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus, handleShowSnackbar } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
     const json = {
       userInfo: userInfo,
@@ -182,17 +187,22 @@ class ExperimentPage extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => {
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
-        }
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Experiment ${experiment.Title} Is Now Running`, severity: "success" })
+            handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Running", gameCode: json.gameCode })
+          }
+          else handleShowSnackbar({ msg: `Failed To Start Experiment ${experiment.Title}`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To Start Experiment ${experiment.Title}`, severity: "error" })
     })
-    .catch(err => console.log(err))
+    .catch(err => handleShowSnackbar({ msg: `Failed To Start Experiment ${experiment.Title}`, severity: "error" }))
   }
 
   handleStopExperiment() {
-    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const { experiment, userInfo, bearerKey, handleChangeExperimentStatus, handleShowSnackbar } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/stopExperiment`
     const json = {
       userInfo: userInfo,
@@ -208,13 +218,18 @@ class ExperimentPage extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => {
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
-        }
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Experiment ${experiment.Title} Stopped`, severity: "success" })
+            handleChangeExperimentStatus(parseInt(experiment.ExperimentId), { status: "Stopped", gameCode: "null "})
+          }
+          else handleShowSnackbar({ msg: `Failed To Stop Experiment ${experiment.Title}`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To Stop Experiment ${experiment.Title}`, severity: "error" })
     })
-    .catch(err => console.log(err))
+    .catch(err => handleShowSnackbar({ msg: `Failed To Stop Experiment ${experiment.Title}`, severity: "error" }))
   }
 
   renderWaitForExperiment() {
@@ -283,20 +298,60 @@ class ExperimentPage extends Component {
     window.scrollTo(0, this.interruptedListRef.current.offsetTop);
   }
 
-  renderLogged() {
-    const { experiment, bearerKey, userInfo } = this.props
-    const { experimentLoaded, startStopFinished, interrupted, csvLoaded, csvData } = this.state
+  renderExperiment() {
+    const { interrupted } = this.state
+    const { bearerKey, userInfo, experiment, handleShowSnackbar } = this.props
     const disability = ["No disability", "Tetraplegia\\Quadriplegia", "Color blindness"]
-    const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
-    const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
     let {
       CreationDate,
       Status,
       Title,
       Details,
+      Disability,
+    } = experiment
+
+    return (
+      <div>
+        <div>
+          {interrupted && (
+            <button onClick={this.handleScrollToElement} className="buttonNoShow">
+              <article className="interruptedMsg">
+                <b>ATTENTION!</b>
+                <p>
+                  This experiment has unfinished game(s), use the game code(s) below to continue.
+                            </p>
+              </article>
+            </button>
+          )}
+          <h2>{Title}</h2>
+          <p>Created: {CreationDate}</p>
+          <p>Status: {Status}</p>
+          <p>Details: {Details}</p>
+          <p>Disability: {disability[Disability - 1]}</p>
+        </div>
+        <div ref={this.interruptedListRef}>
+          <InterruptedInstances
+            userInfo={userInfo}
+            bearerKey={bearerKey}
+            experimentId={experiment.ExperimentId}
+            notifyInterrupted={this.notifyInterrupted}
+            handleShowSnackbar={handleShowSnackbar}
+          />
+        </div>
+      </div>
+    ) 
+  }
+
+  renderLogged() {
+    const { experiment } = this.props
+    const { experimentLoaded, startStopFinished, interrupted, csvLoaded, csvData } = this.state
+    const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
+    const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
+    let {
+      Status,
+      Title,
       RoundsNumber,
       RoundDuration,
-      Disability,
       CharacterType,
       ColorSettings
     } = experiment
@@ -356,39 +411,7 @@ class ExperimentPage extends Component {
 
           <div className="tab-content" id="myTabContent">
             <div className="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-              {
-                experimentLoaded ? 
-                (
-                  <div>
-                    <div>
-                      {interrupted && (
-                          <button onClick={this.handleScrollToElement} className="buttonNoShow">
-                          <article className="interruptedMsg">
-                            <b>ATTENTION!</b>
-                            <p>
-                              This experiment has unfinished game(s), use the game code(s) below to continue.
-                            </p>
-                          </article>
-                        </button>
-                      )}
-                      <h2>{Title}</h2>
-                      <p>Created: {CreationDate}</p>
-                      <p>Status: {Status}</p>
-                      <p>Details: {Details}</p>
-                      <p>Disability: {disability[Disability - 1]}</p>
-                    </div>
-                    <div ref={this.interruptedListRef}>
-                      <InterruptedInstances 
-                      userInfo={userInfo} 
-                      bearerKey={bearerKey}
-                      experimentId={experiment.ExperimentId}
-                      notifyInterrupted={this.notifyInterrupted}
-                      />
-                    </div>
-                  </div>
-                ) 
-                : this.renderWaitForExperiment()
-              }
+              { experimentLoaded ? this.renderExperiment() : this.renderWaitForExperiment() }
             </div>
             <div className="tab-pane fade" id="gameSettings" role="tabpanel" aria-labelledby="gameSettings-tab">
               {
@@ -426,10 +449,10 @@ class ExperimentPage extends Component {
               {
                 csvLoaded && experimentLoaded ?
                   (
-                    csvData.length ?
-                  <CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink> 
-                  :
-                  <label>No raw data collected yet...</label>
+                    csvData.length !== 0 ?
+                    <CSVLink className="login-btn btn btn-primary" filename={fileName} data={csvData}>Download</CSVLink> 
+                    :
+                    <p style={{ textAlign: "center", paddingTop: "25px" }}>No raw data collected yet...</p>
                   )
                   :
                   (
@@ -451,4 +474,5 @@ class ExperimentPage extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...UserActions, ...ExperimentActions, ...BreadcrumbsActions })(ExperimentPage);
+export default connect(mapStateToProps, 
+  { ...UserActions, ...ExperimentActions, ...BreadcrumbsActions, ...SnackbarActions })(ExperimentPage);

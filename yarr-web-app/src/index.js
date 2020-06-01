@@ -16,7 +16,7 @@ const composedEnhancers = compose(middleware)
 const initialState = {}
 const store = createStore(rootReducer, initialState, composedEnhancers)
 
-ReactDOM.render(<ReactRouter store={store}/>, document.getElementById('root'))
+ReactDOM.render(<ReactRouter store={store} />, document.getElementById('root'))
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

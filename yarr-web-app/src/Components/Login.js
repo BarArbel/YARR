@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import  { Redirect } from 'react-router-dom'
 import UserActions from '../Actions/UserActions'
-import CustomSnackbar from './Utilities/CustomSnackbar'
+import SnackbarActions from '../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -18,31 +18,23 @@ const mapStateToProps = ({ user }) => {
 class Login extends Component {
   constructor(props){
     super(props)
-
-    this.state = {
-      isMsg: false,
-      error: false,
-      msg: "",
-    }
-
     this.verifyUser = this.verifyUser.bind(this)
-    this.handleClose = this.handleClose.bind(this)
   }
 
-  handleClose(event, reason) {
-    if (reason === 'clickaway') {
-      return
-    }
-    this.setState({ isMsg: false })
-  }
-  
   async verifyUser(userName, password){
     const url = 'https://yarr-user-management.herokuapp.com/verifyResearcher'
-    const { handleSetBearerKey, handleSetUser, handleSetVerifyFinished } = this.props
+    const { 
+      handleSetBearerKey, 
+      handleSetUser, 
+      handleSetVerifyFinished, 
+      handleShowSnackbar 
+    } = this.props
+    
     let json = {
       userName: userName,
       password: password,
     }
+
     handleSetVerifyFinished(false)
 
     await fetch(url, {
@@ -53,42 +45,43 @@ class Login extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-          handleSetVerifyFinished(true)
-          if(json.result === "Verified"){
-            this.setState({ msg: "Logged in successfully! Redirecting...", isMsg: true, error: false })
-            setTimeout(() => {
-              handleSetBearerKey(json.bearerKey)
-              handleSetUser(json.userInfo)
-            }, 3000);
-          }
-          else {
-            this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
-          }
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+            handleSetVerifyFinished(true)
+            if(json.result === "Verified"){
+              // this.setState({ , isMsg: true, error: false })
+              handleShowSnackbar({msg: "Logged in successfully! Redirecting...", severity: "success"})
+              setTimeout(() => {
+                handleSetBearerKey(json.bearerKey)
+                handleSetUser(json.userInfo)
+              }, 3000);
+            }
+            else {
+              handleShowSnackbar({ msg: "Logged Failed. Please try again.", severity: "error" })
+            }
+        })
+      }
+      else {
+        handleSetVerifyFinished(true)
+        handleShowSnackbar({ msg: "Logged Failed. Please try again.", severity: "error" })
+
+      }
     })
     .catch(err => {
-      this.setState({ msg: "Logged Failed. Please try again.", isMsg: true, error: true })
+      handleShowSnackbar({ msg: "Logged Failed. Please try again.", severity: "error" })
       handleSetVerifyFinished(true)
     })
   }
 
   render() {
     const { isLogged } = this.props
-    const { msg, isMsg, error } = this.state
     return isLogged ? (<Redirect to='/homePage'/>) : (
       <div className="loginHeader">
         <Header/>
         <SignIn verifyUser={this.verifyUser}/>
-        <CustomSnackbar
-          open={isMsg}
-          onClose={this.handleClose}
-          msg={msg}
-          severity={error ? "error" : "success"}
-        />
       </div>
     )
   }
 }
 
-export default connect(mapStateToProps, {...UserActions})(Login)
+export default connect(mapStateToProps, { ...UserActions, ...SnackbarActions})(Login)

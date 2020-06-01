@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import { withRouter } from "react-router"
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
+import SnackbarActions from '../../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -47,7 +48,9 @@ class StudyBuilder extends Component {
       currStudy, 
       onSubmit,
       handleUpdateStudy,
-      bearerKey
+      bearerKey,
+      handleAddStudy,
+      handleShowSnackbar
     } = this.props
     let url = 'https://yarr-study-service.herokuapp.com'
     url += editForm ? '/updateStudy' : '/addStudy'
@@ -72,29 +75,35 @@ class StudyBuilder extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          if(editForm) {
-            currStudy.Title = title
-            currStudy.Description = description
-            currStudy.StudyQuestions = studyQuestions
-            onSubmit(currStudy)
-            handleUpdateStudy(currStudy)
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Study ${title}  Successfully ${editForm ? "Updated" : "Added"}`, severity: "success" })
+            if(editForm) {
+              currStudy.Title = title
+              currStudy.Description = description
+              currStudy.StudyQuestions = studyQuestions
+              onSubmit(currStudy)
+              handleUpdateStudy(currStudy)
+            }
+            else {
+              const newStudy = {
+                StudyId: `${json.params.insertId}`,
+                Title: title,
+                Description: description,
+                StudyQuestions: studyQuestions
+              }
+              handleAddStudy(newStudy)
+              handleToggleBuildStudy()
+              this.props.history.push(`/study/${json.params.insertId}`)
+            }
           }
-          else {
-            handleToggleBuildStudy()
-            this.props.history.push(`/study/${json.params.insertId}`)
-          }
-        }
-        else {
-          // do something
-        }
-      })
+          else handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Study ${title}`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Study ${title}`, severity: "error" })
     })
-      .catch(err => {
-        console.log(err)
-          // do something
-      })
+    .catch(err => handleShowSnackbar({ msg: `Failed To ${editForm ? "Update" : "Add"} Study  ${title}`, severity: "error" }))
   }
 
   handleChange(event) {
@@ -182,4 +191,4 @@ StudyBuilder.propTypes = {
   bearerKey: PropTypes.string,
 }
 
-export default connect(mapStateToProps, { ...UserActions, ...StudyActions })(withRouter(StudyBuilder))
+export default connect(mapStateToProps, { ...UserActions, ...StudyActions, ...SnackbarActions })(withRouter(StudyBuilder))

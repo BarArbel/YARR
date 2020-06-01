@@ -1,4 +1,5 @@
 import { 
+  ADD_STUDY,
   ADD_STUDIES, 
   DELETE_STUDY, 
   UPDATE_STUDY,
@@ -38,6 +39,13 @@ export default (state = initialState, action) => {
       }
     }
 
+    case ADD_STUDY: {
+      return {
+        ...state,
+        studies: [...state.studies, action.data]
+      }
+    }
+    
     case UPDATE_STUDY: {
       let newList = state.studies.filter(i => parseInt(i.StudyId) !== parseInt(action.data.StudyId))
       newList.push(action.data)

@@ -3,12 +3,13 @@ import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import React, { Component } from 'react'
 import { MDBIcon, MDBBtn } from 'mdbreact'
+import CodeView from '../Utilities/CodeView'
 import { confirmAlert } from 'react-confirm-alert'
 import ExperimentBuilder from './ExperimentBuilder'
-import DeleteConfirmation from '../Utilities/DeleteConfirmation'
 import 'react-confirm-alert/src/react-confirm-alert.css'
+import DeleteConfirmation from '../Utilities/DeleteConfirmation'
 import ExperimentActions from "../../Actions/ExperimentActions"
-import CodeView from '../Utilities/CodeView'
+import SnackbarActions from '../../Actions/SnackbarActions'
 
 
 const mapStateToProps = ({ user, experiment }) => {
@@ -136,7 +137,7 @@ export class ExperimentItem extends Component {
   }
 
   handleStartExperiment(experimentId) {
-    const { userInfo, bearerKey, handleChangeExperimentStatus } = this.props
+    const { userInfo, bearerKey, handleChangeExperimentStatus, handleShowSnackbar, thisExperiment } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/startExperiment`
     const json = {
       userInfo: userInfo,
@@ -152,14 +153,19 @@ export class ExperimentItem extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
-          this._isMounted && this.setState({ gameCode: json.gameCode })
-        }
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Experiment ${thisExperiment.Title} Is Now Running`, severity: "success" })
+            handleChangeExperimentStatus(experimentId, { status: "Running", gameCode: json.gameCode })
+            this._isMounted && this.setState({ gameCode: json.gameCode })
+          }
+          else handleShowSnackbar({ msg: `Failed To Start Experiment ${thisExperiment.Title}`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To Start Experiment ${thisExperiment.Title}`, severity: "error" })
     })
-    })
-    .catch(err => console.log(err))
+      .catch(err => handleShowSnackbar({ msg: `Failed To Start Experiment ${thisExperiment.Title}`, severity: "error" }))
   }
 
   handleViewGameCode() {
@@ -184,12 +190,12 @@ export class ExperimentItem extends Component {
     const codeButtonColor = gameCode === "null" ? "success" : "elegant"
     const greenColor = gameCode === "null" ? "greenButton" : null
     const codeButtonFunction = gameCode === "null" ? this.handleStartExperiment : this.handleViewGameCode
-
+    
     return (
       <div className = "experimentItem">
         <div>
           <button onClick={this.handleDelete} className="invisButton"><MDBIcon className="trashIcon" icon="trash" /></button>
-          <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>
+          {thisExperiment.Status !== "Running" && <button onClick={this.handleEdit} className="invisButton"><MDBIcon className="editIcon" icon="edit" /></button>}
         </div>
         <Link to={`/study/${studyId}/experiment/${experimentId}`} className="linkHolder">
           {this.props.children}
@@ -231,4 +237,4 @@ ExperimentItem.propTypes = {
   handleDelete: PropTypes.func
 };
 
-export default connect(mapStateToProps, { ...ExperimentActions })(ExperimentItem)
+export default connect(mapStateToProps, { ...ExperimentActions, ...SnackbarActions })(ExperimentItem)

@@ -90,7 +90,6 @@ class StudyInsightsMixed extends Component {
       return null
     })
 
-    console.log(this.dataSets[tempIndex])
     this._isMounted && this.setState({ currData: this.dataSets[tempIndex] })
   }
 

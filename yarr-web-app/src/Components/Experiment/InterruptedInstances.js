@@ -36,24 +36,23 @@ export class InterruptedInstances extends Component {
       },
       body: JSON.stringify(json)
     }).then(res =>{ 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          json.data.length && notifyInterrupted()
-          this.setState({ instances: json.data , dataLoaded: true })
-        }
-        else {
-          this.setState({ instances: [], dataLoaded: true })
-        }
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            json.data.length && notifyInterrupted()
+            this.setState({ instances: json.data , dataLoaded: true })
+          }
+          else this.setState({ instances: [], dataLoaded: true })
+        })
+      }
+      else this.setState({ instances: [], dataLoaded: true })
     })
-    .catch(err => {
-      this.setState({ instances: [], dataLoaded: true })
-    })
+    .catch(err => this.setState({ instances: [], dataLoaded: true }))
   }
 
   deleteInstance(instanceId) {
     const { instances } = this.state
-    const { userInfo, bearerKey } = this.props
+    const { userInfo, bearerKey, handleShowSnackbar } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/deleteInterruptedInstance?instanceId=${instanceId}`
     const json = {
       userInfo: userInfo,
@@ -68,17 +67,19 @@ export class InterruptedInstances extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          const newList = instances.filter(i => i.InstanceId !== instanceId)
-          this.setState({ instances: newList })
-        }
-        else {
-        } 
-      })
+      if(res.status === 200) {
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Instance ${instanceId} Successfully Deleted`, severity: "success" })
+            const newList = instances.filter(i => i.InstanceId !== instanceId)
+            this.setState({ instances: newList })
+          }
+          else handleShowSnackbar({ msg: `Failed To Delete Instance ${instanceId}`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To Delete Instance ${instanceId}`, severity: "error" })
     })
-      .catch(err => {
-      })
+    .catch(err => handleShowSnackbar({ msg: `Failed To Delete Instance ${instanceId}`, severity: "error" }))
   }
 
   handleDelete(instanceId) {

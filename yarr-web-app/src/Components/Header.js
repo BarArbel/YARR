@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import UserActions from '../Actions/UserActions'
+import StudyActions from '../Actions/StudyActions'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -44,4 +45,4 @@ class Header extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...UserActions })(Header);
+export default connect(mapStateToProps, { ...UserActions, ...StudyActions })(Header);

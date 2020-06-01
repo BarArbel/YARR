@@ -3,6 +3,7 @@ import { connect } from "react-redux"
 import PropTypes from "prop-types"
 import ExperimentActions from "../../Actions/ExperimentActions"
 import ExperimentItem from "./ExperimentItem"
+import SnackbarActions from "../../Actions/SnackbarActions"
 
 const mapStateToProps = ({ experiment, user }) => {
   return {
@@ -52,7 +53,7 @@ export class ExperimentList extends Component {
   }
 
   handleDelete(experimentId) {
-    const { handleDeleteExperiment, userInfo, bearerKey } = this.props
+    const { handleDeleteExperiment, userInfo, bearerKey, handleShowSnackbar } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/deleteExperiment?experimentId=${experimentId}`
 
     const json = {
@@ -68,13 +69,18 @@ export class ExperimentList extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
+      if(res.status === 200) {
+        res.json().then(json => {
           if (json.result === "Success") {
+            handleShowSnackbar({ msg: `Experiment Successfully Deleted`, severity: "success" })
             handleDeleteExperiment(experimentId)
           }
+          else handleShowSnackbar({ msg: `Failed To Delete Experiment`, severity: "error" })
         })
+      }
+      else handleShowSnackbar({ msg: `Failed To Delete Experiment`, severity: "error" })
     })
-    .catch(err => console.log(err))
+    .catch(err => handleShowSnackbar({ msg: `Failed To Delete Experiment`, severity: "error" }))
   }
 
   eachExperiment(experiment, i) {
@@ -135,4 +141,4 @@ ExperimentList.propTypes = {
   actions: PropTypes.objectOf(PropTypes.object)
 }
 
-export default connect(mapStateToProps, { ...ExperimentActions })(ExperimentList)
+export default connect(mapStateToProps, { ...ExperimentActions, ...SnackbarActions })(ExperimentList)

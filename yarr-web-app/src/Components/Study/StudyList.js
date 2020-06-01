@@ -2,6 +2,7 @@ import StudyItem from './StudyItem'
 import { connect } from 'react-redux'
 import React, { Component } from 'react'
 import StudyActions from '../../Actions/StudyActions'
+import SnackbarActions from '../../Actions/SnackbarActions'
 
 const mapStateToProps = ({ user, study }) => {
   return {
@@ -17,7 +18,6 @@ class StudyList extends Component {
     super(props)
 
     this.eachStudy = this.eachStudy.bind(this)
-    this.handleEdit = this.handleEdit.bind(this)
     this.handleDelete = this.handleDelete.bind(this)
   }
 
@@ -53,7 +53,7 @@ class StudyList extends Component {
   }
 
   handleDelete(studyId) {
-    const { handleDeleteStudy, bearerKey, userInfo } = this.props
+    const { handleDeleteStudy, bearerKey, userInfo, handleShowSnackbar } = this.props
     const url = `https://yarr-study-service.herokuapp.com/deleteStudy?studyId=${studyId}`
     const json = {
       bearerKey: bearerKey,
@@ -68,17 +68,18 @@ class StudyList extends Component {
       },
       body: JSON.stringify(json)
     }).then(res => { 
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          handleDeleteStudy(parseInt(studyId))
-        }
-      }) 
+      if(res.status === 200){
+        res.json().then(json => {
+          if (json.result === "Success") {
+            handleDeleteStudy(parseInt(studyId))
+            handleShowSnackbar({ msg: `Study Successfully Deleted`, severity: "success" })
+          }
+          else handleShowSnackbar({ msg: `Failed To Delete Study`, severity: "error" })
+        })
+      }
+      else handleShowSnackbar({ msg: `Failed To Delete Study`, severity: "error" })
     })
-    .catch(err => console.log(err))
-  }
-
-  handleEdit(study) {
-    console.log(study)
+    .catch(err => handleShowSnackbar({ msg: `Failed To Delete Study`, severity: "error" }))
   }
 
   eachStudy(study, i) {
@@ -91,7 +92,6 @@ class StudyList extends Component {
         key={`study${i}`} 
         studyId={study.StudyId} 
         onDelete={this.handleDelete}
-        onEdit={this.handleEdit}
         study={study}
         toggleEdit={toggleEdit}
       >
@@ -116,4 +116,4 @@ class StudyList extends Component {
   }
 }
 
-export default connect(mapStateToProps, { ...StudyActions})(StudyList);
+export default connect(mapStateToProps, { ...StudyActions, ...SnackbarActions })(StudyList);
