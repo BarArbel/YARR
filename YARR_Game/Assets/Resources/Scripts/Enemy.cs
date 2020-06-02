@@ -105,7 +105,7 @@ public class Enemy : MonoBehaviour
         
         if (collider.gameObject.layer == playerLayer)
         {
-            DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
+            //DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
             Debug.Log(gameObject);
             Destroy(gameObject);
         }

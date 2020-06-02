@@ -77,6 +77,7 @@ io.on('connection', async socket =>{
   let refreshIntervalId;
   let experimentId;
   let stillAlive = false;
+  let studyId;
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
@@ -164,6 +165,7 @@ io.on('connection', async socket =>{
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
           VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time},     "running", false);`;
           console.log(sql2);
+          studyId = results[0]["StudyId"];
           mysqlConnection_platform.query(sql2, (error, results) => {
             if (error || !results.length) {
               // TODO: Take care of exception
@@ -206,6 +208,17 @@ io.on('connection', async socket =>{
           socket.broadcast.emit('message', `table ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} was created`);
           socket.broadcast.emit('message', `table ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} was created`);
         }
+    const sql2 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+    mysqlConnection_platform.query(sql2, (error, results) => {
+      if (error || !results.length) {
+        // TODO: Take care of exception
+        socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+      }
+      else {
+        studyId = results[0]["StudyId"];
+
+     } 
+  })
     })
 
     // Check if experiment is interrupted
@@ -350,7 +363,6 @@ io.on('connection', async socket =>{
     let heldPickupLocList = new Array();
     let enemyLocList = new Array();
     let pickupLocList = new Array();
-    //TODO: async all of that shit 
 
     console.log(data);
     try { 
@@ -538,7 +550,8 @@ io.on('connection', async socket =>{
     const drop_query = `DROP TABLE `
     const json = {
       experimentId: experimentId,
-      instanceId: `${table.time}_${table.id}`
+      instanceId: `${table.time}_${table.id}`,
+      studyId: studyId
     }
 
     socket.broadcast.emit('gameEnded', `${instance_id}`);
@@ -588,9 +601,8 @@ io.on('connection', async socket =>{
       console.log(error)
     }
 
-    // TODO: Uncomment
     // after all queries are done, invoke analyzeData
-    /*fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
+    fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -608,7 +620,7 @@ io.on('connection', async socket =>{
       })
       .catch(err => {
         //did very bad
-      });*/
+      });
   });
 
   socket.on('disconnect', async () => {

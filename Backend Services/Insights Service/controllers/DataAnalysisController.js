@@ -1,6 +1,6 @@
 const { query } = require('../database.js');
 
-async function ExpQueries(experimentId, InstanceID){
+async function ExpQueries(experimentId, InstanceId){
   try {
     let sql_percents = `
     INSERT INTO yarr.exp_insights_bar
@@ -177,13 +177,14 @@ async function ExpQueries(experimentId, InstanceID){
   return true;
 }
 
-async function StudyQueries() {
+async function StudyQueries(studyId) {
   try {
     let sql_percents = `
-    INSERT INTO study_insights_bar
-    select * from (
+    INSERT INTO yarr.study_insights_bar
+select * from
+    (select * from (
         select  ResearcherId, StudyId, GameMode, 
-                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsTaken,
+                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
                 100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
                 (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
                 (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
@@ -196,12 +197,12 @@ async function StudyQueries() {
                     if(Event = 'blockDamage' and Enemy!=0, 1,0) EnemyBlock,
                     if(Event = 'getDamaged' and Enemy!=0, 1,0) EnemyDamage,
                     ResearcherId, StudyId, GameMode
-            from raw_data_view 
+            from yarr.raw_data_view 
             where StudyId = ${studyId} and GameMode = 'Cooperative') as counter
         group by 1,2    ) coop_sums 
     union all 
     (select ResearcherId, StudyId, GameMode, 
-    (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsTaken,
+    (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
      100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
      (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
      (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
@@ -216,9 +217,9 @@ async function StudyQueries() {
                 ResearcherId, StudyId, GameMode
      from yarr.raw_data_view 
      where StudyId = ${studyId} and GameMode = 'Competitive') as counter
-    group by 1,2    )
+    group by 1,2    )) as new
     ON DUPLICATE KEY UPDATE Mode = VALUES(Mode), 
-							PercentItemsTaken = VALUES(PercentItemsTaken), 
+							PercentItemsCaptured = VALUES(PercentItemsCaptured), 
                             PercentItemsMissed= VALUES(PercentItemsMissed),
                             PercentEnemiesAvoid = VALUES(PercentEnemiesAvoid),
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
@@ -266,7 +267,79 @@ async function StudyQueries() {
     GROUP BY 1,2,3,5
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
+    let results = query(sql_eng_lvls);
 
+    let sql_eng_stats = `SET @rowindex := -1;
+    INSERT INTO yarr.study_insights_radar
+    WITH full_exp AS
+    (SELECT *
+    FROM
+        (SELECT *
+        from yarr.raw_data_view
+        LEFT JOIN (	SELECT ExperimentId eid, Title, RoundsNumber, RoundDuration, Disability, CharacterType, ColorSettings 
+              FROM yarr.experiments) as exps ON ExperimentId = exps.eid ) as exp_ext
+    LEFT JOIN (SELECT RoundId, ExperimentId expid, RoundNumber, GameMode gm, Difficulty  FROM yarr.rounds) rnds ON rnds.expid = eid ),
+    
+    full_rounds AS
+    (SELECT *
+    FROM
+        (SELECT *
+        from yarr.rounds
+        LEFT JOIN (	SELECT ExperimentId eid, StudyId, RoundsNumber
+              FROM yarr.experiments WHERE StudyId = ${studyId}) as exps ON ExperimentId = exps.eid ) as exp_ext
+    WHERE eid is not null ),
+    
+    i AS (
+      SELECT
+        @rowindex := @rowindex + 1 AS rowindex,
+        engagement_percent
+      FROM
+        yarr.engagement_levels
+      ORDER BY
+        engagement_percent
+    )
+    
+    select ResearcherId, StudyId,eid ExperimentId, Title ExperimentTitle, 
+    MAX(engagement_percent) HighestEngagement, 
+    AVG(engagement_percent) MeanEngagement,
+    (SELECT
+      AVG(i.engagement_percent) AS median
+    FROM
+      i
+    WHERE studyId = ${studyId}
+      AND i.rowindex IN (FLOOR(@rowindex / 2) , CEIL(@rowindex / 2))) MedianEngagement,
+    (SELECT engagement_percent
+    FROM (SELECT engagement_percent,count(*) occurs
+          FROM yarr.engagement_levels
+          where studyId = ${studyId}
+          GROUP BY 1
+          LIMIT 1
+         ) as oc) ModeEngagement,
+    MAX(engagement_percent)-MIN(engagement_percent) RangeEngagement,
+    (select count(*) 
+    from full_rounds
+    where GameMode = 2) RoundsAmountComp,
+    (select count(*) 
+    from full_rounds
+    where GameMode = 1)RoundsAmountCoop ,     
+    RoundDuration, RoundsNumber, CharacterType, Disability, ColorSettings
+    from full_exp
+    LEFT JOIN (select Playerid pid, engagement_percent from yarr.engagement_levels where studyId = ${studyId}) as el on pid = full_exp.playerId
+    where studyId = ${studyId}
+    group by 1,2,3,4,7,8,10,11,14,15,16
+    ON DUPLICATE KEY UPDATE ExperimentTitle = VALUES(ExperimentTitle),
+    HighestEngagement = VALUES(HighestEngagement),
+    MeanEngagement = VALUES(MeanEngagement),
+    MedianEngagement = VALUES(MedianEngagement),
+    ModeEngagement = VALUES(ModeEngagement),
+    RangeEngagement = VALUES(RangeEngagement),
+    RoundDuration = VALUES(RoundDuration),
+    RoundsNumber = VALUES(RoundsNumber), 
+    RoundsAmountComp = VALUES(RoundsAmountComp),
+    RoundsAmountCoop = VALUES(RoundsAmountCoop),
+    CharacterType = VALUES(CharacterType),
+    Disability = VALUES(Disability),
+    ColorSettings = VALUES(ColorSettings);`;
     let results = query(sql_eng_stats);
 
     // do stuff with results
@@ -286,7 +359,6 @@ async function StudyQueries() {
 
 module.exports = {
   analyzeData: async (req, res) => {
-    // TODO: find study ID to send here
     const { instanceId, experimentId, studyId } = req.body;
 
     if (!instanceId || !experimentId || studyId) {
@@ -296,9 +368,9 @@ module.exports = {
       return;
     }
 
-    let result = await ExpQueries(experimentId);
+    let result = await ExpQueries(experimentId, InstanceId);
     // can check if result's good here
-    result = await StudyQueries();
+    result = await StudyQueries(studyId);
 
 
     results === true? 
