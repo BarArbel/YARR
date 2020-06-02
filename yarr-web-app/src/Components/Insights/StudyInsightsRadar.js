@@ -98,7 +98,7 @@ class StudyInsightRadar extends Component {
             <RadarChart cx={375} cy={230} outerRadius={175} width={1000} height={500} data={data}>
               <PolarGrid />
               <PolarAngleAxis dataKey="experiment" />
-              <PolarRadiusAxis domain={[0, 10]} />
+              <PolarRadiusAxis domain={[0, 100]} />
               <Radar dataKey={names[selectedName]} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
               <Tooltip />
             </RadarChart>

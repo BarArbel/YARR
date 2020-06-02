@@ -166,8 +166,8 @@ class ExperimentPage extends Component {
       })
   }
 
-  notifyInterrupted() {
-    this._isMounted && this.setState({ interrupted: true })
+  notifyInterrupted(isInterrupted) {
+    this._isMounted && this.setState({ interrupted: isInterrupted })
   }
 
   handleStartExperiment() {

@@ -39,7 +39,7 @@ export class InterruptedInstances extends Component {
       if(res.status === 200) {
         res.json().then(json => {
           if (json.result === "Success") {
-            json.data.length && notifyInterrupted()
+            json.data.length && notifyInterrupted(true)
             this.setState({ instances: json.data , dataLoaded: true })
           }
           else this.setState({ instances: [], dataLoaded: true })
@@ -52,7 +52,7 @@ export class InterruptedInstances extends Component {
 
   deleteInstance(instanceId) {
     const { instances } = this.state
-    const { userInfo, bearerKey, handleShowSnackbar } = this.props
+    const { userInfo, bearerKey, handleShowSnackbar, notifyInterrupted } = this.props
     const url = `https://yarr-experiment-service.herokuapp.com/deleteInterruptedInstance?instanceId=${instanceId}`
     const json = {
       userInfo: userInfo,
@@ -72,6 +72,9 @@ export class InterruptedInstances extends Component {
           if (json.result === "Success") {
             handleShowSnackbar({ msg: `Instance ${instanceId} Successfully Deleted`, severity: "success" })
             const newList = instances.filter(i => i.InstanceId !== instanceId)
+            if(newList.length === 0 || newList === undefined) {
+              notifyInterrupted(false)
+            }
             this.setState({ instances: newList })
           }
           else handleShowSnackbar({ msg: `Failed To Delete Instance ${instanceId}`, severity: "error" })

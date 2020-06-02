@@ -46,7 +46,8 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM study_insights_mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
+    connection.query(`SELECT * FROM study_insights_mirror WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"
+      ORDER BY study_insights_mirror.AxisTime DESC`, (error, results) => {
       if(error || !results.length) {
         res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
@@ -74,19 +75,36 @@ module.exports = {
           });
 
           let dataSet = [];
-          
-          for (let j = 3; dataSet.length < tempData.length / tempNames.length; j += 3) {
+          let lastKnown = {}
+          for (let j = 0; j < tempData[0].time; j += 1) {
             let tempFiltered = tempData.filter(element => parseInt(element.time) === j);
-            let tempNames = []
-            tempFiltered.map(line => { 
-              tempNames.push(line.BreakdownName);
-              return null;
-            });
 
-            if (!tempFiltered || !tempFiltered.length) {
-              continue;
+            if (!tempFiltered || !tempFiltered.length || tempFiltered.length < 2) {
+              // find which one is undefined and set it to last known value
+              if (tempFiltered && tempFiltered.length) {
+                if (tempFiltered[0].BreakdownName === tempNames[0]) {
+                  tempFiltered.push({
+                    time: tempFiltered[0].time,
+                    value: lastKnown.length === 0 ? 0 : lastKnown.one,
+                    BreakdownName: tempNames[1]
+                  })
+                }
+                else {
+                  tempFiltered.push({
+                    time: tempFiltered[0].time,
+                    value: Object.keys(lastKnown).length === 0 ? 0 : lastKnown.zero,
+                    BreakdownName: tempNames[0]
+                  })
+                }
+              }
+              else continue;
             }
-  
+
+            else lastKnown = {
+              zero: tempFiltered[0].value,
+              one: tempFiltered[1].value,
+            }
+
             if (!dataSet.length) {
               dataSet.push({
                 type: types[i],

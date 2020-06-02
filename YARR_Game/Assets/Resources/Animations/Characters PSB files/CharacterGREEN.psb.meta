@@ -308,7 +308,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 1
     parentIndex: -1
-    spriteID: 
+    spriteID: 00000000000000000000000000000000
     layerID: 46
     mosaicPosition: {x: 0, y: 0}
   - name: Hat
@@ -343,7 +343,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 1
     parentIndex: 0
-    spriteID: 
+    spriteID: 00000000000000000000000000000000
     layerID: 19
     mosaicPosition: {x: 0, y: 0}
   - name: Upper Front Leg
@@ -364,7 +364,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 1
     parentIndex: 0
-    spriteID: 
+    spriteID: 00000000000000000000000000000000
     layerID: 15
     mosaicPosition: {x: 0, y: 0}
   - name: Body
@@ -378,7 +378,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 1
     parentIndex: 0
-    spriteID: 
+    spriteID: 00000000000000000000000000000000
     layerID: 10
     mosaicPosition: {x: 0, y: 0}
   - name: Back Upper Leg
@@ -399,7 +399,7 @@ ScriptedImporter:
     spriteName: 
     isGroup: 1
     parentIndex: 10
-    spriteID: 
+    spriteID: 00000000000000000000000000000000
     layerID: 7
     mosaicPosition: {x: 0, y: 0}
   characterData:

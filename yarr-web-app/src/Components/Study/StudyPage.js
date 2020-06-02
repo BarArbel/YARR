@@ -231,23 +231,7 @@ class StudyPage extends Component {
   }
 
   handleCreate() {
-    const { handleToggleBuildExperiment, buildExperiment, handleSetRoutes } = this.props
-    const index = this.props.match.params.studyId
-    let tempBuild = !buildExperiment
-
-    const routes = tempBuild ? 
-    [
-      { name: 'Home', redirect: '/homePage', isActive: true },
-      { name: 'Study', redirect: `/study/${index}`, isActive: true },
-      { name: 'Create Experiment', redirect: `/study/${index}`, isActive: false }
-    ] 
-    :
-    [
-      { name: 'Home', redirect: '/homePage', isActive: true },
-      { name: 'Study', redirect: `/study/${index}`, isActive: false }
-    ]
-
-    handleSetRoutes(routes)
+    const { handleToggleBuildExperiment } = this.props
     handleToggleBuildExperiment()
   }
 

@@ -145,7 +145,7 @@ class StudyInsightMirror extends Component {
                 <Legend />
                 {names.map((name, i) => {
                   let randomcolor = randomColor({ hue: hues[(selectedType * 2 + i) % 5], format: "hex", luminosity: "dark" })
-                  return <Line key={`key${name}`} dataKey={name} stroke={randomcolor} />
+                  return <Line type="monotone" key={`key${name}`} dataKey={name} stroke={randomcolor} />
                 })}
               </LineChart>
             </div>
