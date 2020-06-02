@@ -80,6 +80,7 @@ public class Player : MonoBehaviour
             return false;
         }
 
+        animator.SetBool("Dead", false);
         Health = MaxHealth;
         gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
         this.GetComponent<Transform>().Rotate(0, 0, -180, Space.Self);
@@ -112,15 +113,15 @@ public class Player : MonoBehaviour
         }
         Health-=enemy.GetDamage();
         spriteBrightness = (float)Health / (float)MaxHealth;
-        gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
+        //gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
 
         if (Health == 0)
         {
+            animator.SetBool("Dead",true);
             FindObjectOfType<GameManager>().NotificationPlayerDied(GetID());
             if (GetGameMode() == 0)
             {              
-                this.GetComponent<Transform>().Rotate(0, 0, 180, Space.Self);
                 DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.temporaryLose, player, 0, 0, GetGameMode());   
             }
             else
@@ -512,9 +513,7 @@ public class Player : MonoBehaviour
 
     void FixBoat(Player player)
     {
-        FixBoatTime = 0;
         player.SetHealth();
-
         //FindObjectOfType<GameManager>().NotificationPlayerRevived(GetID());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());

@@ -68,7 +68,7 @@ public class UI : MonoBehaviour
                 ScoresIdicators.Add( new GameObject("Score"));
                 InitScoreText(ScoresIdicators[i]);
                 ScoresIdicators[i].transform.position = new Vector3(HealthIdicators[i].transform.position.x+0.8f, HealthIdicators[i].transform.position.y-0.2f, 0);
-            }
+           }
         }
 
         // UI Debug
