@@ -24,6 +24,7 @@ public class GameManager : MonoBehaviour
     private List<Level> RoundsDifficulties;
     private bool ExperimentStarted;
     private bool IsNewRound;
+    private bool CountDownExecuted = true;
 
     // Difficulties carried from round to round
     private List<List<int>> PlayerDifficIndexes; 
@@ -553,7 +554,7 @@ public class GameManager : MonoBehaviour
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
-        GameObject.Find("Canvas").GetComponent<UI>().CountDown();
+        GameObject.Find("Canvas").GetComponent<UI>().CountDownStart();
         InitMode();
     }
 
@@ -1085,11 +1086,17 @@ public class GameManager : MonoBehaviour
             if (RoundTimer > 0)
             {
                 RoundTimer -= Time.deltaTime;
+                Debug.Log((int)RoundTimer);
+                if ((int)RoundTimer == 10 && CountDownExecuted)
+                {
+                    CountDownExecuted = false;
+                    GameObject.Find("Canvas").GetComponent<UI>().CountDownFinish();
+                }
             }
             else
             {
+                CountDownExecuted = true;
                 StartNextRound();
-
             }
         }
        

@@ -42,7 +42,7 @@ public class UI : MonoBehaviour
         countdownDisplay.transform.SetParent(canvas.transform);
         countdownDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         
-        CountDown();
+        CountDownStart();
 
         for (int i = 0; i< NumberOfPlayers; i++)
         {
@@ -145,18 +145,16 @@ public class UI : MonoBehaviour
         }
     }
 
-    public void CountDown()
+    public void CountDownStart()
     {
         countdownTime = 6;
         StartCoroutine(CountdownToStart());
     }
 
-    public IEnumerator CountdownToStart()
+    IEnumerator CountdownToStart()
     {
         Time.timeScale = 0;
         float pauseTime = Time.realtimeSinceStartup + countdownTime;
-        Debug.Log(Time.realtimeSinceStartup);
-        Debug.Log(pauseTime);
         while (Time.realtimeSinceStartup < pauseTime - 1)
         {
             countdownDisplay.GetComponent<Text>().text = ((int)(pauseTime - Time.realtimeSinceStartup)).ToString();
@@ -168,6 +166,30 @@ public class UI : MonoBehaviour
 
         yield return new WaitForSeconds(1f);
 
+        countdownDisplay.gameObject.SetActive(false);
+    }
+
+    public void CountDownFinish()
+    {
+        countdownTime = 10;
+        StartCoroutine(CountdownToFinish());
+    }
+
+    IEnumerator CountdownToFinish()
+    {
+        countdownDisplay.gameObject.SetActive(true);
+        while (countdownTime > 0)
+        {
+            countdownDisplay.GetComponent<Text>().text = countdownTime.ToString();
+            yield return new WaitForSeconds(1f);
+            countdownTime--;
+        }
+
+        countdownDisplay.GetComponent<Text>().fontSize = 100;
+        countdownDisplay.GetComponent<Text>().text = "Finished";
+
+        yield return new WaitForSeconds(1f);
+        countdownDisplay.GetComponent<Text>().fontSize = 300;
         countdownDisplay.gameObject.SetActive(false);
     }
 
