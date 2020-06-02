@@ -145,3 +145,13 @@ CREATE TABLE `yarr`.`instances` (
   `CreationTimestamp` float NOT NULL,
   `Status` enum('running','interrupted') NOT NULL,
   `DDAParity` BOOLEAN NOT NULL);
+
+CREATE TABLE IF NOT EXISTS `yarr`.`engagement_levels` (
+ResearcherId INT UNSIGNED NOT NULL, 
+StudyId INT UNSIGNED NOT NULL, 
+ExperimentID INT UNSIGNED NOT NULL, 
+InstanceId VARCHAR(45) NOT NULL, 
+PlayerID INT UNSIGNED NOT NULL, 
+engagement_percent FLOAT UNSIGNED NOT NULL, 
+round_id FLOAT UNSIGNED NOT NULL,
+PRIMARY KEY (ResearcherId, StudyId, ExperimentID, InstanceId,PlayerId,round_id));    
