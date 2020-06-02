@@ -553,6 +553,7 @@ public class GameManager : MonoBehaviour
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
+        GameObject.Find("Canvas").GetComponent<UI>().CountDown();
         InitMode();
     }
 
@@ -1041,6 +1042,8 @@ public class GameManager : MonoBehaviour
     {
         //EnemyFactories[playerID].FreezeSpawn(false);
     }
+
+
 
     // Start is called before the first frame update
     void Start()

@@ -14,6 +14,8 @@ public class UI : MonoBehaviour
     private List<GameObject> HealthIdicators;
     private List<GameObject> ScoresIdicators;
     private bool IsUIInit;
+    private GameObject countdownDisplay;
+    private int countdownTime;
 
     // UI Debug
     public GameObject DebugIndicator;
@@ -35,6 +37,12 @@ public class UI : MonoBehaviour
         InitialHealth = initialHealth;
         HealthPrefab = Resources.Load<GameObject>("Prefabs/HealthIndicator");
         PlayerSprites = new List<Sprite>(playerSprites);
+
+        countdownDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/countdownDisplay"), new Vector3(0, 0, 0), transform.rotation);
+        countdownDisplay.transform.SetParent(canvas.transform);
+        countdownDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        
+        CountDown();
 
         for (int i = 0; i< NumberOfPlayers; i++)
         {
@@ -135,6 +143,32 @@ public class UI : MonoBehaviour
         {
             debugText.text = debugText.text + ItemFactories[i].GETLEVELSTRING();
         }
+    }
+
+    public void CountDown()
+    {
+        countdownTime = 6;
+        StartCoroutine(CountdownToStart());
+    }
+
+    public IEnumerator CountdownToStart()
+    {
+        Time.timeScale = 0;
+        float pauseTime = Time.realtimeSinceStartup + countdownTime;
+        Debug.Log(Time.realtimeSinceStartup);
+        Debug.Log(pauseTime);
+        while (Time.realtimeSinceStartup < pauseTime - 1)
+        {
+            countdownDisplay.GetComponent<Text>().text = ((int)(pauseTime - Time.realtimeSinceStartup)).ToString();
+            yield return 0;
+        }
+        Time.timeScale = 1;
+
+        countdownDisplay.GetComponent<Text>().text = "GO!";
+
+        yield return new WaitForSeconds(1f);
+
+        countdownDisplay.gameObject.SetActive(false);
     }
 
     // Start is called before the first frame update
