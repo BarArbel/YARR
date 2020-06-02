@@ -148,7 +148,7 @@ def calculate(total, timestamp, gamemode):
         calcs["penalty"].append(penalty)
         calcs["bonus"].append(bonus)
 
-        skill = calc.calc_skill(penalty, bonus, total["pickupPlayerTotal"][player_id],
+        skill = calc.calc_skill(penalty, bonus, total["pickupPlayerTotal"][player_id], total["failPickup"][player_id],
                                 total["spawnPlayerItem"][player_id])
         if skill is None:
             calcs["skill"].append(-1)

@@ -900,7 +900,7 @@ public class GameManager : MonoBehaviour
 
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
-            
+            DDAIndex = calcsIndex;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
                 if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
