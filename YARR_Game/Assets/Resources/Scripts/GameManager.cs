@@ -553,6 +553,7 @@ public class GameManager : MonoBehaviour
         Mode = mode;
         SkinType = skin;
         Difficulty = difficulty;
+        GameObject.Find("Canvas").GetComponent<UI>().CountDown();
         InitMode();
     }
 
@@ -899,7 +900,7 @@ public class GameManager : MonoBehaviour
 
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
-            
+            DDAIndex = calcsIndex;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
                 if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
@@ -1041,6 +1042,8 @@ public class GameManager : MonoBehaviour
     {
         //EnemyFactories[playerID].FreezeSpawn(false);
     }
+
+
 
     // Start is called before the first frame update
     void Start()

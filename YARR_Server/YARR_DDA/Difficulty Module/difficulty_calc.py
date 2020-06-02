@@ -22,8 +22,9 @@ class DDAcalc:
 
         return round(penalty, 3), round(bonus, 3)
 
-    def calc_skill(self, penalty, bonus, pickup_player_total, spawn_player_item):
-        if spawn_player_item < 3:
+    def calc_skill(self, penalty, bonus, pickup_player_total, failed_pickup_player_total, spawn_player_item):
+        # if spawn_player_item < 3:
+        if pickup_player_total + failed_pickup_player_total < 3:
             return None
         else:
             skill = round(pickup_player_total / spawn_player_item, 3)
@@ -32,7 +33,7 @@ class DDAcalc:
             return skill
 
     def calc_difficulty(self, skill):
-        range_max = 66
+        range_max = 67
         range_min = 33
 
         return 1 if skill > range_max else (-1 if skill <= range_min else 0)
