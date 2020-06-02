@@ -19,7 +19,7 @@ async function ExpQueries(experimentId, InstanceId){
                     if(Event = 'blockDamage' and Enemy!=0, 1,0) EnemyBlock,
                     if(Event = 'getDamaged' and Enemy!=0, 1,0) EnemyDamage,
                     ExperimentID, GameMode
-            from raw_data 
+            from yarr.raw_data 
             where ExperimentID = ${experimentId} and GameMode = 'Cooperative') as counter
         group by 1,2    ) coop_sums 
     union all (
@@ -37,7 +37,7 @@ async function ExpQueries(experimentId, InstanceId){
           if(Event = 'blockDamage' and PlayerID!=0, 1,0) EnemyBlock,
           if(Event = 'getDamaged' and PlayerID!=0, 1,0) EnemyDamage,
                     ExperimentID, GameMode
-        from raw_data 
+        from yarr.raw_data 
         where ExperimentID = ${experimentId} and GameMode = 'Competitive') as counter
         group by 1,2    )
     ON DUPLICATE KEY UPDATE Mode = VALUES(Mode), 
@@ -342,6 +342,32 @@ select * from
     ColorSettings = VALUES(ColorSettings);`;
     let results = query(sql_eng_stats);
 
+
+    let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
+    WITH full_exp AS
+    (SELECT *
+    FROM
+        (SELECT *
+        from yarr.raw_data_view
+        LEFT JOIN (	SELECT ExperimentId eid, Title, RoundsNumber, RoundDuration, Disability, CharacterType, ColorSettings 
+              FROM yarr.experiments WHERE studyId = ${studyId}) as exps ON ExperimentId = exps.eid 
+              WHERE studyId = ${studyId} ) as exp_ext )
+    
+    SELECT 
+    ResearcherId,
+    StudyId,
+    ExperimentId,
+    Title ExperimentTitle,
+    FLOOR(Timestamp) TimeAxis,
+    FLOOR(AVG(IF(Event = 'playerClickCount',Item,0))) Clicks,
+    FLOOR(AVG(IF(Event = 'playerResponseTime',Item,0))) ResponseTime,
+    If(Event = 'lvlUp',1,IF(Event = 'lvlDown',-1,0)) DifficultyChange
+    FROM full_exp
+    GROUP BY 1,2,3,4,5,8
+    ON DUPLICATE KEY UPDATE Clicks = VALUES(Clicks),
+    ResponseTime = VALUES(ResponseTime),
+    DifficultyChange = VALUES(DifficultyChange);`;
+    let results = query(sql_clk_stats);
     // do stuff with results
     //insert query should be here
     results = query(`anotherQueryRightHeeeyah`);

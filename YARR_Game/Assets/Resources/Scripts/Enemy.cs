@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Project.Networking;
 using Event = Project.Networking.Event;
+using System;
+using System.Linq;
+using Random = UnityEngine.Random;
 
 public class Enemy : MonoBehaviour
 {
@@ -15,10 +18,21 @@ public class Enemy : MonoBehaviour
     private double RecalculationsAvailable;
     private Vector3 direction;
 
+    // Response time properties
+    private float ResponseTime;
+    private Dictionary<int, float> PlayersDistance1st;
+    private Dictionary<int, float> PlayerssDistance2nd;
+
     public bool EnemyInit(int id, int damage, float speed, double recalculationsAvailable, double timeBetweenPathRecalculation)
     {
         int target;
         int amountOfPlayers = GetAmountOfPlayers();
+
+        // Init response time properties
+        ResponseTime = 0;
+        PlayersDistance1st = new Dictionary<int, float>();
+        PlayerssDistance2nd = new Dictionary<int, float>(); 
+
         if (amountOfPlayers > 0)
         {
             // Is the game cooperative or competitive?
@@ -77,6 +91,77 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    // If get closer to enemy - it's accidental
+    // If get further from item - it's accidental 
+    bool IdentifyResponse()
+    {
+
+        // Identify first sample
+        if (PlayersDistance1st.Count == 0)
+        {
+            GameObject[] gameObjs = FindObjectsOfType<GameObject>();
+            for (int i = 0; i < gameObjs.Length; i++)
+            {
+                Player playerObj = gameObjs[i].GetComponent<Player>();
+
+                // Get player that matches enemy
+                if (gameObjs[i].GetComponent<Player>() != null &&
+                    (playerObj.GetID() == ID || playerObj.GetID() == -1) && playerObj.GetHealth() > 0)
+                {
+                    PlayersDistance1st.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                }
+            }
+
+            return false;
+        }
+
+        // Identify second sample
+        if (PlayerssDistance2nd.Count == 0)
+        {
+            GameObject[] gameObjs = FindObjectsOfType<GameObject>();
+            for (int i = 0; i < gameObjs.Length; i++)
+            {
+                Player playerObj = gameObjs[i].GetComponent<Player>();
+
+                // Check if object was sampled in the first sampling process
+                if (PlayersDistance1st.ContainsKey(gameObjs[i].GetInstanceID()))
+                {
+
+                    // Get player that matches enemy
+                    if (gameObjs[i].GetComponent<Player>() != null &&
+                    (playerObj.GetID() == ID || playerObj.GetID() == -1) && playerObj.GetHealth() > 0)
+                    {
+                        PlayerssDistance2nd.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
+                    }
+                }
+            }
+
+            // Are they getting further?
+            for (int i = 0; i < PlayerssDistance2nd.Count; i++)
+            {
+                int pInstanceID = PlayerssDistance2nd.Keys.ElementAt(i);
+                float item1stDistance = -1f;
+                if (PlayersDistance1st.TryGetValue(pInstanceID, out item1stDistance) && item1stDistance < PlayerssDistance2nd[pInstanceID])
+                {
+                    ResponseIdentified();
+                    return true;
+                }
+            }
+        }
+
+        PlayersDistance1st.Clear();
+        PlayerssDistance2nd.Clear();
+
+        return false;
+    }
+
+    void ResponseIdentified()
+    {
+        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerResponseTime, GetID(),0,0, (int)(ResponseTime*100), 0, GetGameMode());
+        Debug.Log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n playerResponseTime");
+        ResponseTime = -1;
+    }
+
     public void Movement()
     {
         // If there are turns left
@@ -131,5 +216,10 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         Movement();
+        if (ResponseTime != -1)
+        {
+            ResponseTime += Time.deltaTime;
+            IdentifyResponse();
+        }
     }
 }
