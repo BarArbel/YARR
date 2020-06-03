@@ -59,7 +59,7 @@ async function setInterruptedGame(instanceId, experimentId) {
   console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
-  // MIRI HERE IS A BIG SCREAMING COMMANT
+  // MIRI HERE IS A BIG SCREAMING COMMANTz
   let sql_add_instance = `INSERT INTO ${process.env.DATABASE_PLATFORM}.interupted_instances (InstanceId, ExperimentId, GameCode)
                                 VALUES ('${instanceId}',${parseInt(experimentId)},'${gameCode}');`;
   try {
