@@ -141,7 +141,7 @@ public class Enemy : MonoBehaviour
             {
                 int pInstanceID = PlayerssDistance2nd.Keys.ElementAt(i);
                 float item1stDistance = -1f;
-                if (PlayersDistance1st.TryGetValue(pInstanceID, out item1stDistance) && item1stDistance < PlayerssDistance2nd[pInstanceID])
+                if (PlayersDistance1st.TryGetValue(pInstanceID, out item1stDistance) && item1stDistance > PlayerssDistance2nd[pInstanceID])
                 {
                     ResponseIdentified();
                     return true;

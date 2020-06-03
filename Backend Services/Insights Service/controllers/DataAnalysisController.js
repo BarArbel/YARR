@@ -360,7 +360,7 @@ select * from
     Title ExperimentTitle,
     FLOOR(Timestamp) TimeAxis,
     FLOOR(AVG(IF(Event = 'playerClickCount',Item,0))) Clicks,
-    FLOOR(AVG(IF(Event = 'playerResponseTime',Item,0))) ResponseTime,
+    FLOOR(AVG(IF(Event = 'playerResponseTime',Item/100,0))) ResponseTime,
     If(Event = 'lvlUp',1,IF(Event = 'lvlDown',-1,0)) DifficultyChange
     FROM full_exp
     GROUP BY 1,2,3,4,5,8
