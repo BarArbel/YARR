@@ -18,7 +18,7 @@ const mapStateToProps = ({ user }) => {
   }
 }
 
-class StudyInsightsBars extends Component {
+class InsightsBars extends Component {
   constructor(props) {
     super(props)
 
@@ -33,9 +33,8 @@ class StudyInsightsBars extends Component {
   }
 
   async componentDidMount() {
-    const { studyId, userInfo, bearerKey } = this.props
+    const { userInfo, bearerKey, url } = this.props
 
-    const url = `https://yarr-insight-service.herokuapp.com/requestInsightBars?researcherId=${userInfo.researcherId}&studyId=${studyId}`
     const json = {
       userInfo: userInfo,
       bearerKey: bearerKey
@@ -113,4 +112,4 @@ class StudyInsightsBars extends Component {
   }
 }
 
-export default connect(mapStateToProps)(StudyInsightsBars)
+export default connect(mapStateToProps)(InsightsBars)

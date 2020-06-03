@@ -8,10 +8,10 @@ import { Redirect } from 'react-router-dom'
 import Skeleton from 'react-loading-skeleton'
 import Breadcrumbs from '../Utilities/Breadcrumbs'
 import MoonLoader from "react-spinners/MoonLoader"
+import InsightsBars from '../Insights/InsightsBars'
 import UserActions from '../../Actions/UserActions'
 import StudyActions from '../../Actions/StudyActions'
 import ExperimentList from '../Experiment/ExperimentList'
-import StudyInsightsBars from '../Insights/StudyInsightsBars'
 import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import ExperimentBuilder from '../Experiment/ExperimentBuilder'
@@ -300,12 +300,13 @@ class StudyPage extends Component {
   }
 
   renderLogged() {
-    const { studies, experimentsLoaded } = this.props
+    const { studies, experimentsLoaded, userInfo } = this.props
     const { studyLoaded, csvData, csvLoaded } = this.state
     const studyId = parseInt(this.props.match.params.studyId)
     const idCompare = i => parseInt(i.StudyId) === parseInt(studyId)
     const currStudy = studies.find(idCompare)
-    
+    const barsURL = `https://yarr-insight-service.herokuapp.com/requestInsightBars?researcherId=${userInfo.researcherId}&studyId=${studyId}`
+
     const fileName = currStudy ? `Study ${currStudy.Title} Raw Data.csv` : "tempName.csv"
 
     return (
@@ -341,7 +342,7 @@ class StudyPage extends Component {
                 <div>
                   <StudyInsightsMirror studyId={studyId} />
                   <StudyInsightRadar studyId={studyId} />
-                  <StudyInsightsBars studyId={studyId} />
+                  <InsightsBars url={barsURL} />
                   <StudyInsightsMixed studyId={studyId} />
                 </div>
                 :

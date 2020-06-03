@@ -91,7 +91,7 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,7,8
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
-    let results = query(sql_eng_lvls);
+    results = query(sql_eng_lvls);
 
 
     let sql_eng_percent = `INSERT INTO yarr.engagement_levels 
@@ -159,12 +159,12 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,6,7
     ORDER BY 5,7
     ON DUPLICATE KEY UPDATE engagement_percent = VALUES(engagement_percent);`;
-    let results = query(sql_eng_percent);
+    results = query(sql_eng_percent);
 
 
     // do stuff with results
     //insert query should be here
-    results = query(`anotherQueryRightHeeeyah`);
+    // results = query(`anotherQueryRightHeeeyah`);
 
     //etc....
   }
@@ -267,7 +267,7 @@ select * from
     GROUP BY 1,2,3,5
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
-    let results = query(sql_eng_lvls);
+    results = query(sql_eng_lvls);
 
     let sql_eng_stats = `SET @rowindex := -1;
     INSERT INTO yarr.study_insights_radar
@@ -340,8 +340,8 @@ select * from
     CharacterType = VALUES(CharacterType),
     Disability = VALUES(Disability),
     ColorSettings = VALUES(ColorSettings);`;
-    let results = query(sql_eng_stats);
-
+    
+    results = query(sql_eng_stats);
 
     let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
     WITH full_exp AS
@@ -367,10 +367,11 @@ select * from
     ON DUPLICATE KEY UPDATE Clicks = VALUES(Clicks),
     ResponseTime = VALUES(ResponseTime),
     DifficultyChange = VALUES(DifficultyChange);`;
-    let results = query(sql_clk_stats);
+    
+    results = query(sql_clk_stats);
     // do stuff with results
     //insert query should be here
-    results = query(`anotherQueryRightHeeeyah`);
+    // results = query(`anotherQueryRightHeeeyah`);
 
     //etc....
   }
@@ -402,6 +403,6 @@ module.exports = {
     results === true? 
     res.status(200).send(`{"result": "Success"}`)
     :
-      res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)
+    res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)
   }
 }

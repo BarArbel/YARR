@@ -14,8 +14,8 @@ import Breadcrumbs from '../Utilities/Breadcrumbs'
 import { confirmAlert } from 'react-confirm-alert'
 import ClipLoader from "react-spinners/ClipLoader"
 import UserActions from '../../Actions/UserActions'
+import InsightsBars from '../Insights/InsightsBars'
 import { InterruptedInstances } from './InterruptedInstances'
-import StudyInsightsBars from '../Insights/StudyInsightsBars'
 import StudyInsightRadar from '../Insights/StudyInsightsRadar'
 import ExperimentActions from '../../Actions/ExperimentActions'
 import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
@@ -343,7 +343,7 @@ class ExperimentPage extends Component {
   }
 
   renderLogged() {
-    const { experiment } = this.props
+    const { experiment, userInfo } = this.props
     const { experimentLoaded, startStopFinished, interrupted, csvLoaded, csvData } = this.state
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
@@ -363,6 +363,7 @@ class ExperimentPage extends Component {
     const codeButtonFunction = Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment
     const runningStyle = ({ color: "#4BB543", fontWeight: "bold" })
     const fileName = experiment ? `Experiment ${Title} Raw Data.csv` : "tempName.csv"
+    const barsURL = `https://yarr-insight-service.herokuapp.com/requestInsightBars?researcherId=${userInfo.researcherId}&studyId=${studyId}`
 
     return (
       <div className="studyPage">
@@ -436,7 +437,7 @@ class ExperimentPage extends Component {
                 <div>
                   <StudyInsightsMirror studyId={studyId} />
                   <StudyInsightRadar studyId={studyId} />
-                  <StudyInsightsBars studyId={studyId} />
+                  <InsightsBars url={barsURL} />
                   <ExperimentInsightsMixed experimentId={experimentId} />
                 </div>
                 )
