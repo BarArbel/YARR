@@ -376,6 +376,7 @@ select * from
     //etc....
   }
   catch (err) {
+    console.log(err)
     // shit hits the fans. actual fans, people, who cheer for the SQL Queen.
     return false;
   }
@@ -388,19 +389,19 @@ module.exports = {
   analyzeData: async (req, res) => {
     const { instanceId, experimentId, studyId } = req.body;
 
-    if (!instanceId || !experimentId || studyId) {
+    if (!instanceId || !experimentId || !studyId) {
       res.status(204).send(`{"result": "Failure", "params": {"instanceId": "${instanceId}",
           "experimentId": "${experimentId}"}, "studyId": "${studyId}"},
           "msg": "A parameter is missing."}`);
       return;
     }
 
-    let result = await ExpQueries(experimentId, InstanceId);
+    let result = await ExpQueries(experimentId, instanceId);
     // can check if result's good here
     result = await StudyQueries(studyId);
 
 
-    results === true? 
+    result === true? 
     res.status(200).send(`{"result": "Success"}`)
     :
     res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)

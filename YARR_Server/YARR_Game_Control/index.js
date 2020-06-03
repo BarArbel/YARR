@@ -5,7 +5,7 @@ const { mysqlConnection_platform, mysqlConnection_dda } = require("./connection"
 const Table = require('./Classes/Table.js');
 const util = require('util');
 const randexp = require('randexp').randexp;
-
+const fetch = require('node-fetch');
 const query_platform = util.promisify(mysqlConnection_platform.query).bind(mysqlConnection_platform);
 const query_dda = util.promisify(mysqlConnection_dda.query).bind(mysqlConnection_dda);
 
@@ -59,8 +59,9 @@ async function setInterruptedGame(instanceId, experimentId) {
   console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
+  // MIRI HERE IS A BIG SCREAMING COMMANT
   let sql_add_instance = `INSERT INTO ${process.env.DATABASE_PLATFORM}.interupted_instances (InstanceId, ExperimentId, GameCode)
-                                VALUES ('${instanceId}',${experimentId},'${gameCode}'); `;
+                                VALUES ('${instanceId}',${parseInt(experimentId)},'${gameCode}');`;
   try {
     await query_platform(sql_add_instance);
   }
@@ -153,7 +154,7 @@ io.on('connection', async socket =>{
   //Add information about instance
   socket.on('addInstanceMetaData', async data => {
     experimentId = data.ExperimentID;
-    const sql1 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
+    const sql1 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = ${parseInt(data.ExperimentID)} LIMIT 1;`;
     console.log(sql1);
     console.log(data);
     mysqlConnection_platform.query(sql1, (error, results) => {
@@ -163,7 +164,7 @@ io.on('connection', async socket =>{
         }
         else {
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
-          VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time},     "running", false);`;
+          VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time}, "running", false);`;
           console.log(sql2);
           studyId = results[0]["StudyId"];
           mysqlConnection_platform.query(sql2, (error, results) => {
@@ -555,14 +556,18 @@ io.on('connection', async socket =>{
     }
 
     socket.broadcast.emit('gameEnded', `${instance_id}`);
+    console.log("emit")
 
     try {
       let result = await query_platform(`SELECT ExperimentId FROM ${process.env.DATABASE_PLATFORM}.instances WHERE InstanceId = '${instance_id}'`)
       let experiment_id = result[0].ExperimentId
       let values = []
+      console.log("1")
 
       try {
         let dda_select = await query_dda(select_query + dda_table)
+        console.log("2")
+
         if (dda_select.length) {
           dda_select.map(row => {
             let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
@@ -571,6 +576,8 @@ io.on('connection', async socket =>{
         }
 
         let tracker_select = await query_platform(select_query + tracker_table)
+        console.log("3")
+
         if (tracker_select.length) {
           tracker_select.map(row => {
             let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
@@ -581,6 +588,7 @@ io.on('connection', async socket =>{
         if (values.length) {
           try {
             let insert_result = await query_platform(insert_query, [values])
+            console.log("4")
             if (!insert_result.affectedRows) {
               console.log(`no new rows inserted to ${permanent_table}`)
             }
@@ -594,8 +602,12 @@ io.on('connection', async socket =>{
         console.log(select_error)
       }
 
-      let dda_drop = await query_dda(drop_query + dda_table)
-      let tracker_drop = await query_platform(drop_query + tracker_table)
+      let dda_drop = query_dda(drop_query + dda_table)
+      console.log("5")
+
+      let tracker_drop = query_platform(drop_query + tracker_table)
+      console.log("6")
+
     }
     catch (error) {
       console.log(error)
@@ -609,17 +621,18 @@ io.on('connection', async socket =>{
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(json)
-    }).then(res => res.json())
-      .then(json => {
+    }).then(res => {
+      res.status === 200 && res.json().then(json => {
         if (json.result === "Success") {
-          //did good
+          console.log("here! good")
         }
         else {
-          //did bad
+          console.log("here! bad")
         }
       })
+    })
       .catch(err => {
-        //did very bad
+        console.log("here! very bad")
       });
   });
 
