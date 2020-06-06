@@ -46,8 +46,10 @@ async function ExpQueries(experimentId, InstanceId){
                             PercentEnemiesAvoid = VALUES(PercentEnemiesAvoid),
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_percents);
     let results = await query(sql_percents);
+    console.log(results);
 
 
     let sql_eng_lvls = `INSERT INTO yarr.exp_insights_mirror
@@ -92,8 +94,10 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,7,8
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_lvls);
     results = await query(sql_eng_lvls);
+    console.log(results);
 
 
     let sql_eng_percent = `INSERT INTO yarr.engagement_levels 
@@ -161,8 +165,10 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,6,7
     ORDER BY 5,7
     ON DUPLICATE KEY UPDATE engagement_percent = VALUES(engagement_percent);`;
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_percent);
     results = await query(sql_eng_percent);
+    console.log(results);
 
 
     // do stuff with results
@@ -227,7 +233,10 @@ async function StudyQueries(studyId) {
                             PercentEnemiesAvoid = VALUES(PercentEnemiesAvoid),
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
+    console.log(sql_percents);
     let results = await query(sql_percents);
+    console.log(results);
 
     let sql_eng_lvls = `INSERT INTO yarr.study_insights_mirror
     WITH eng AS 
@@ -270,7 +279,10 @@ async function StudyQueries(studyId) {
     GROUP BY 1,2,3,5
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
+    console.log(sql_eng_lvls);
     results = await query(sql_eng_lvls);
+    console.log(results);
 
     let sql_eng_stats = `SET @rowindex := -1;
     INSERT INTO yarr.study_insights_radar
@@ -343,8 +355,10 @@ async function StudyQueries(studyId) {
     CharacterType = VALUES(CharacterType),
     Disability = VALUES(Disability),
     ColorSettings = VALUES(ColorSettings);`;
-    
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
+    console.log(sql_eng_stats);
     results = await query(sql_eng_stats);
+    console.log(results);
 
     let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
     WITH full_exp AS
@@ -370,8 +384,10 @@ async function StudyQueries(studyId) {
     ON DUPLICATE KEY UPDATE Clicks = VALUES(Clicks),
     ResponseTime = VALUES(ResponseTime),
     DifficultyChange = VALUES(DifficultyChange);`;
-    
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
+    console.log(sql_clk_stats);
     results = await query(sql_clk_stats);
+    console.log(results);
     // do stuff with results
     //insert query should be here
     // results = query(`anotherQueryRightHeeeyah`);
