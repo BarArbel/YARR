@@ -284,7 +284,7 @@ async function StudyQueries(studyId) {
     results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
-    let sql_eng_stats = `SET @rowindex := -1;
+    /*let sql_eng_stats = `SET @rowindex := -1;
     INSERT INTO yarr.study_insights_radar
     WITH full_exp AS
     (SELECT * FROM
@@ -354,10 +354,10 @@ async function StudyQueries(studyId) {
     CharacterType = VALUES(CharacterType),
     Disability = VALUES(Disability),
     ColorSettings = VALUES(ColorSettings);`;
-    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");*/
     //console.log(sql_eng_stats);
-    results = await query(sql_eng_stats.replace('\n', " "));
-    console.log(results);
+    //results = await query(sql_eng_stats.replace('\n', " "));
+    //console.log(results);
 
     let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
     WITH full_exp AS
