@@ -222,28 +222,29 @@ class DBconnection:
                         "(ExperimentId, InstanceId, PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES " +
                         "(%s, %s, %s, %s, %s, %s, %s, %s)")
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
-                                                  port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
-                                                  user=os.getenv('USER'), auth_plugin='mysql_native_password')
-                plat_cur = await plat_con.cursor()
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
+                                                      port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
+                                                      user=os.getenv('USER'), auth_plugin='mysql_native_password')
+                    plat_cur = await plat_con.cursor()
 
-                await cursor.execute(select_query)
-                select_fetch = await cursor.fetchall()
+                    await cursor.execute(select_query)
+                    select_fetch = await cursor.fetchall()
 
-                await plat_cur.execute(experiment_query)
-                experiment_fetch = await plat_cur.fetchone()
-                experiment_id = experiment_fetch[0]
+                    await plat_cur.execute(experiment_query)
+                    experiment_fetch = await plat_cur.fetchone()
+                    experiment_id = experiment_fetch[0]
 
-                for result in select_fetch:
-                    insert_vals.append((experiment_id, instance_id) + result)
+                    for result in select_fetch:
+                        insert_vals.append((experiment_id, instance_id) + result)
 
-                await plat_cur.executemany(insert_query, insert_vals)
-                await plat_con.commit()
+                    await plat_cur.executemany(insert_query, insert_vals)
+                    await plat_con.commit()
 
-                await plat_cur.close()
-                await plat_con.close()
-
-                # await cursor.executemany(insert_query, insert_vals)
-                # await con.commit()
+                    await plat_cur.close()
+                    await plat_con.close()
+        except Exception as e:
+            print("insert_permanent exception:" + str(e))
+            sys.stdout.flush()
