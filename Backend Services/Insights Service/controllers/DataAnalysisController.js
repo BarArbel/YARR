@@ -46,6 +46,7 @@ async function ExpQueries(experimentId, InstanceId){
                             PercentEnemiesAvoid = VALUES(PercentEnemiesAvoid),
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
+    console.log(sql_percents);
     let results = await query(sql_percents);
 
 
@@ -91,6 +92,7 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,7,8
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
+    console.log(sql_eng_lvls);
     results = await query(sql_eng_lvls);
 
 
@@ -159,6 +161,7 @@ async function ExpQueries(experimentId, InstanceId){
     GROUP BY 1,2,3,4,5,6,7
     ORDER BY 5,7
     ON DUPLICATE KEY UPDATE engagement_percent = VALUES(engagement_percent);`;
+    console.log(sql_eng_percent);
     results = await query(sql_eng_percent);
 
 
@@ -181,7 +184,7 @@ async function StudyQueries(studyId) {
   try {
     let sql_percents = `
     INSERT INTO yarr.study_insights_bar
-select * from
+    select * from
     (select * from (
         select  ResearcherId, StudyId, GameMode, 
                 (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
@@ -405,6 +408,6 @@ module.exports = {
     result === true? 
     res.status(200).send(`{"result": "Success"}`)
     :
-    res.status(204).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`)
+    res.status(204).send(`{"result": "Failure"}`)
   }
 }
