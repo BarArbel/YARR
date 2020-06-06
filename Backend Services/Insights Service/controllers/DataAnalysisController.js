@@ -387,6 +387,7 @@ select * from
 
 module.exports = {
   analyzeData: async (req, res) => {
+    console.log(req.body);
     const { instanceId, experimentId, studyId } = req.body;
 
     if (!instanceId || !experimentId || !studyId) {
