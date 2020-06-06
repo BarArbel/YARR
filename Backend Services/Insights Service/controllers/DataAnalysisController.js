@@ -48,7 +48,7 @@ async function ExpQueries(experimentId, InstanceId){
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_percents);
-    let results = await query(sql_percents);
+    let results = await query(sql_percents.replace('\n', " "));
     console.log(results);
 
 
@@ -96,7 +96,7 @@ async function ExpQueries(experimentId, InstanceId){
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_lvls);
-    results = await query(sql_eng_lvls);
+    results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
 
@@ -167,7 +167,7 @@ async function ExpQueries(experimentId, InstanceId){
     ON DUPLICATE KEY UPDATE engagement_percent = VALUES(engagement_percent);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_percent);
-    results = await query(sql_eng_percent);
+    results = await query(sql_eng_percent.replace('\n', " "));
     console.log(results);
 
 
@@ -235,7 +235,7 @@ async function StudyQueries(studyId) {
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_percents);
-    let results = await query(sql_percents);
+    let results = await query(sql_percents.replace('\n', " "));
     console.log(results);
 
     let sql_eng_lvls = `INSERT INTO yarr.study_insights_mirror
@@ -281,7 +281,7 @@ async function StudyQueries(studyId) {
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_lvls);
-    results = await query(sql_eng_lvls);
+    results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
     let sql_eng_stats = `SET @rowindex := -1;
@@ -357,7 +357,7 @@ async function StudyQueries(studyId) {
     ColorSettings = VALUES(ColorSettings);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_eng_stats);
-    results = await query(sql_eng_stats);
+    results = await query(sql_eng_stats.replace('\n', " "));
     console.log(results);
 
     let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
@@ -386,7 +386,7 @@ async function StudyQueries(studyId) {
     DifficultyChange = VALUES(DifficultyChange);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     console.log(sql_clk_stats);
-    results = await query(sql_clk_stats);
+    results = await query(sql_clk_stats.replace('\n', " "));
     console.log(results);
     // do stuff with results
     //insert query should be here
