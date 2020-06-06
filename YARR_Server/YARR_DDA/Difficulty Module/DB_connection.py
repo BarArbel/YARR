@@ -22,7 +22,7 @@ class DBconnection:
 
         self.pool = await aiomysql.create_pool(user=os.getenv('USER'), password=os.getenv('PASSWORD'),
                                                host=os.getenv('HOST_DDA'), db=self.db, port=int(os.getenv('PORT_DDA')),
-                                               auth_plugin='mysql_native_password')
+                                               auth_plugin='mysql_native_password', autocommit=True)
 
         if await self.check_if_table_exist():
             await self.init_timestamps()
