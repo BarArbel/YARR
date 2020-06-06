@@ -284,9 +284,9 @@ async function StudyQueries(studyId) {
     results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
-    /*let sql_eng_stats = `SET @rowindex := -1;
+    let sql_eng_stats = `SET @rowindex := -1;
     INSERT INTO yarr.study_insights_radar
-    WITH full_exp AS
+    (WITH full_exp AS
     (SELECT * FROM
         (SELECT *
         from yarr.raw_data_view
@@ -340,7 +340,7 @@ async function StudyQueries(studyId) {
     from full_exp
     LEFT JOIN (select Playerid pid, engagement_percent from yarr.engagement_levels where studyId = ${studyId}) as el on pid = full_exp.playerId
     where studyId = ${studyId}
-    group by 1,2,3,4,7,8,10,11,14,15,16
+    group by 1,2,3,4,7,8,10,11,14,15,16)
     ON DUPLICATE KEY UPDATE ExperimentTitle = VALUES(ExperimentTitle),
     HighestEngagement = VALUES(HighestEngagement),
     MeanEngagement = VALUES(MeanEngagement),
@@ -354,9 +354,9 @@ async function StudyQueries(studyId) {
     CharacterType = VALUES(CharacterType),
     Disability = VALUES(Disability),
     ColorSettings = VALUES(ColorSettings);`;
-    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");*/
+    console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
     //console.log(sql_eng_stats);
-    //results = await query(sql_eng_stats.replace('\n', " "));
+    results = await query(sql_eng_stats.replace('\n', " "));
     //console.log(results);
 
     let sql_clk_stats = `INSERT INTO yarr.study_insights_mixed
