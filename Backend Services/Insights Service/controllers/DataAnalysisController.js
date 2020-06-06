@@ -47,7 +47,7 @@ async function ExpQueries(experimentId, InstanceId){
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_percents);
+    //console.log(sql_percents);
     let results = await query(sql_percents.replace('\n', " "));
     console.log(results);
 
@@ -95,7 +95,7 @@ async function ExpQueries(experimentId, InstanceId){
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_eng_lvls);
+    //console.log(sql_eng_lvls);
     results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
@@ -166,7 +166,7 @@ async function ExpQueries(experimentId, InstanceId){
     ORDER BY 5,7
     ON DUPLICATE KEY UPDATE engagement_percent = VALUES(engagement_percent);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_eng_percent);
+    //console.log(sql_eng_percent);
     results = await query(sql_eng_percent.replace('\n', " "));
     console.log(results);
 
@@ -234,7 +234,7 @@ async function StudyQueries(studyId) {
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
                             PercentEnemiesBlock = VALUES(PercentEnemiesBlock);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_percents);
+    //console.log(sql_percents);
     let results = await query(sql_percents.replace('\n', " "));
     console.log(results);
 
@@ -280,15 +280,14 @@ async function StudyQueries(studyId) {
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_eng_lvls);
+    //console.log(sql_eng_lvls);
     results = await query(sql_eng_lvls.replace('\n', " "));
     console.log(results);
 
     let sql_eng_stats = `SET @rowindex := -1;
     INSERT INTO yarr.study_insights_radar
     WITH full_exp AS
-    (SELECT *
-    FROM
+    (SELECT * FROM
         (SELECT *
         from yarr.raw_data_view
         LEFT JOIN (	SELECT ExperimentId eid, Title, RoundsNumber, RoundDuration, Disability, CharacterType, ColorSettings 
@@ -356,7 +355,7 @@ async function StudyQueries(studyId) {
     Disability = VALUES(Disability),
     ColorSettings = VALUES(ColorSettings);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_eng_stats);
+    //console.log(sql_eng_stats);
     results = await query(sql_eng_stats.replace('\n', " "));
     console.log(results);
 
@@ -385,7 +384,7 @@ async function StudyQueries(studyId) {
     ResponseTime = VALUES(ResponseTime),
     DifficultyChange = VALUES(DifficultyChange);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
-    console.log(sql_clk_stats);
+    //console.log(sql_clk_stats);
     results = await query(sql_clk_stats.replace('\n', " "));
     console.log(results);
     // do stuff with results
@@ -406,7 +405,7 @@ async function StudyQueries(studyId) {
 
 module.exports = {
   analyzeData: async (req, res) => {
-    console.log(req.body);
+    //console.log(req.body);
     const { instanceId, experimentId, studyId } = req.body;
 
     if (!instanceId || !experimentId || !studyId) {
