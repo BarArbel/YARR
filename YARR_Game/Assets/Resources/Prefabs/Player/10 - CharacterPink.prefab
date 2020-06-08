@@ -803,6 +803,36 @@ MonoBehaviour:
     m_Extent: {x: 0.8090254, y: 1.6184691, z: 0}
   m_UseBatching: 1
   m_AlwaysUpdate: 1
+--- !u!1 &4602233633188048686
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8920105949491609081}
+  m_Layer: 0
+  m_Name: InventoryPlaceHolder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8920105949491609081
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4602233633188048686}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 2.5, y: 7, z: 0}
+  m_LocalScale: {x: 0.35019997, y: 0.35019997, z: 0.35019997}
+  m_Children: []
+  m_Father: {fileID: 6758905285509169518}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5026685894137898887
 GameObject:
   m_ObjectHideFlags: 0
@@ -1151,6 +1181,7 @@ Transform:
   - {fileID: 1752489722204302567}
   - {fileID: 7199974444372175021}
   - {fileID: 9172563689565553309}
+  - {fileID: 8920105949491609081}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

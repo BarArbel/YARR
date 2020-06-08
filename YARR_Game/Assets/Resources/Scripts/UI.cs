@@ -43,7 +43,7 @@ public class UI : MonoBehaviour
         countdownDisplay.transform.SetParent(canvas.transform);
         countdownDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
 
-        gameModDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/GameModeDisplay"), new Vector3(0, -5.5f, 0), transform.rotation);
+        gameModDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/GameModeDisplay"), new Vector3(9, -5.5f, 0), transform.rotation);
         gameModDisplay.transform.SetParent(canvas.transform);
         gameModDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
         if (Mode == GameManager.GameMode.Competitive)
@@ -70,11 +70,11 @@ public class UI : MonoBehaviour
             InitScoreText(ScoresIdicators[0]);
             ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 1.5f), -5.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
-            //GameObject.Find("BackGround").GetComponent<Image>().color = new Color(255, 255, 0);
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(255, 255, 0);
         }
         else
         {
-            //GameObject.Find("BackGround").GetComponent<Image>().color = new Color(0, 0, 0);
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
             for (int i = 0; i < NumberOfPlayers; i++)
            {
                 ScoresIdicators.Add( new GameObject("Score"));
@@ -82,7 +82,6 @@ public class UI : MonoBehaviour
                 ScoresIdicators[i].transform.position = new Vector3(HealthIdicators[i].transform.position.x+0.8f, HealthIdicators[i].transform.position.y-0.2f, 0);
            }
         }
-        Debug.Log("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // UI Debug
         DebugIndicator = new GameObject("DEBUGMODE");
         Difficulty = difficulty;
@@ -96,7 +95,6 @@ public class UI : MonoBehaviour
         debugText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         debugText.text = "DEBUG \n" + Mode.ToString() + "\n" + Difficulty.ToString();
         debugText.GetComponent<RectTransform>().localScale = new Vector3(0.8f, 0.8f, 0.8f);
-        Debug.Log("THHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHERE");
         EnemyFactories = enemyFactories;
         ItemFactories = itemFactories;
     }

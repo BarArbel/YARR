@@ -21,6 +21,7 @@ public class Player : MonoBehaviour
     private float FixBoatTime;
     private int immuneTimer;
     private int ClickCounter;
+    private Transform InventoryPlaceHolder;
 
     //Animation
     private Animator animator;
@@ -157,6 +158,7 @@ public class Player : MonoBehaviour
         MyItemInventory = new Item[myItemsAmount];
         OthersItemInventory = new Item[othersItemsAmount];
         TotalItemInventory = new List<Item>();
+        InventoryPlaceHolder = this.gameObject.transform.Find("InventoryPlaceHolder");
 
         // Initialize accidental fall parameters
         FallSamplesReady = false;
@@ -298,7 +300,7 @@ public class Player : MonoBehaviour
         int index = 0;
         foreach (Item item in TotalItemInventory)
         {
-            item.transform.position = new Vector3(this.transform.position.x, this.transform.position.y + (height * index), 0);
+            item.transform.position = new Vector3(InventoryPlaceHolder.position.x, InventoryPlaceHolder.position.y + (height * index), 0);
             index++;
         }
     }
