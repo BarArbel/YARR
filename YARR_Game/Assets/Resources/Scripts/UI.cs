@@ -1,11 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UI : MonoBehaviour
 {
-
     private GameManager.GameMode Mode;
     private int NumberOfPlayers;
     int InitialHealth;
@@ -15,7 +15,9 @@ public class UI : MonoBehaviour
     private List<GameObject> ScoresIdicators;
     private bool IsUIInit;
     private GameObject countdownDisplay;
+    private GameObject gameModDisplay;
     private int countdownTime;
+    private GameObject backGround;
 
     // UI Debug
     public GameObject DebugIndicator;
@@ -30,7 +32,6 @@ public class UI : MonoBehaviour
         GameObject canvas = GameObject.Find("Canvas");        
         HealthIdicators = new List<GameObject>();
         ScoresIdicators = new List<GameObject>();
-
         IsUIInit = true;
         Mode = mode;
         NumberOfPlayers = numberOfPlayers;
@@ -41,9 +42,18 @@ public class UI : MonoBehaviour
         countdownDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/countdownDisplay"), new Vector3(0, 0, 0), transform.rotation);
         countdownDisplay.transform.SetParent(canvas.transform);
         countdownDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
-        
+
+        gameModDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/GameModeDisplay"), new Vector3(0, -5.5f, 0), transform.rotation);
+        gameModDisplay.transform.SetParent(canvas.transform);
+        gameModDisplay.GetComponent<RectTransform>().localScale = new Vector3(1, 1, 1);
+        if (Mode == GameManager.GameMode.Competitive)
+            gameModDisplay.GetComponent<Text>().text = "Competitive";
+        else
+            gameModDisplay.GetComponent<Text>().text = "Competitive";
+
         CountDownStart();
 
+        
         for (int i = 0; i< NumberOfPlayers; i++)
         {
             HealthIdicators.Add(Instantiate(HealthPrefab, new Vector3(BotLeftCorner + ((float)i * 1.5f), -4.6f, 0), transform.rotation));
@@ -57,20 +67,22 @@ public class UI : MonoBehaviour
         if (Mode == GameManager.GameMode.Cooperative)
         {
             ScoresIdicators.Add(new GameObject("Score"));
-            InitScoreText(ScoresIdicators[0]);            
+            InitScoreText(ScoresIdicators[0]);
             ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 1.5f), -5.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
+            //GameObject.Find("BackGround").GetComponent<Image>().color = new Color(255, 255, 0);
         }
         else
         {
-           for (int i = 0; i < NumberOfPlayers; i++)
+            //GameObject.Find("BackGround").GetComponent<Image>().color = new Color(0, 0, 0);
+            for (int i = 0; i < NumberOfPlayers; i++)
            {
                 ScoresIdicators.Add( new GameObject("Score"));
                 InitScoreText(ScoresIdicators[i]);
                 ScoresIdicators[i].transform.position = new Vector3(HealthIdicators[i].transform.position.x+0.8f, HealthIdicators[i].transform.position.y-0.2f, 0);
            }
         }
-
+        Debug.Log("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
         // UI Debug
         DebugIndicator = new GameObject("DEBUGMODE");
         Difficulty = difficulty;
@@ -84,7 +96,7 @@ public class UI : MonoBehaviour
         debugText.font = Resources.GetBuiltinResource<Font>("Arial.ttf");
         debugText.text = "DEBUG \n" + Mode.ToString() + "\n" + Difficulty.ToString();
         debugText.GetComponent<RectTransform>().localScale = new Vector3(0.8f, 0.8f, 0.8f);
-
+        Debug.Log("THHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHERE");
         EnemyFactories = enemyFactories;
         ItemFactories = itemFactories;
     }
@@ -172,6 +184,8 @@ public class UI : MonoBehaviour
     public void CountDownFinish()
     {
         countdownTime = 10;
+        countdownDisplay.transform.localPosition = new Vector3(0, 200, -3500);
+        countdownDisplay.GetComponent<Text>().fontSize = 40;
         StartCoroutine(CountdownToFinish());
     }
 
@@ -185,10 +199,12 @@ public class UI : MonoBehaviour
             countdownTime--;
         }
 
+        countdownDisplay.transform.localPosition = new Vector3(0, 0, -3500);
         countdownDisplay.GetComponent<Text>().fontSize = 100;
         countdownDisplay.GetComponent<Text>().text = "Finished";
 
         yield return new WaitForSeconds(1f);
+        
         countdownDisplay.GetComponent<Text>().fontSize = 300;
         countdownDisplay.gameObject.SetActive(false);
     }

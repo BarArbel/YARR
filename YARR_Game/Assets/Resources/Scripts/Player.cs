@@ -82,7 +82,7 @@ public class Player : MonoBehaviour
 
         animator.SetBool("Dead", false);
         Health = MaxHealth;
-        gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
+        //gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
         this.GetComponent<Transform>().Rotate(0, 0, -180, Space.Self);
         return true;
     }
