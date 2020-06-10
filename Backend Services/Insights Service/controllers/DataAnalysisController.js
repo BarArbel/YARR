@@ -6,7 +6,7 @@ async function ExpQueries(experimentId, InstanceId){
     INSERT INTO yarr.exp_insights_bar
     select * from (
         select  ExperimentID, GameMode, 
-                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsTaken,
+                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
                 100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
                 (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
                 (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
@@ -24,7 +24,7 @@ async function ExpQueries(experimentId, InstanceId){
         group by 1,2    ) coop_sums 
     union all (
     select ExperimentID, GameMode, 
-          (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsTaken,
+          (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
           100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
           (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
           (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
@@ -41,7 +41,7 @@ async function ExpQueries(experimentId, InstanceId){
         where ExperimentID = ${experimentId} and GameMode = 'Competitive') as counter
         group by 1,2    )
     ON DUPLICATE KEY UPDATE Mode = VALUES(Mode), 
-							              PercentItemsTaken = VALUES(PercentItemsTaken), 
+                            PercentItemsCaptured = VALUES(PercentItemsCaptured), 
                             PercentItemsMissed= VALUES(PercentItemsMissed),
                             PercentEnemiesAvoid = VALUES(PercentEnemiesAvoid),
                             PercentEnemiesHit = VALUES(PercentEnemiesHit),
