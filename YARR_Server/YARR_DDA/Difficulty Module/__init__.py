@@ -359,8 +359,8 @@ async def start_server(args):
     # Connected to DDA server.
     while not connected_to_server:
         try:
-            # await sio.connect("https://yarr-dda.herokuapp.com/")
-            await sio.connect("http://127.0.0.1:52300")
+            await sio.connect("https://yarr-dda.herokuapp.com/")
+            # await sio.connect("http://127.0.0.1:52300")
         except:
             print("Failed to connect to data collector, trying again")
             sys.stdout.flush()
