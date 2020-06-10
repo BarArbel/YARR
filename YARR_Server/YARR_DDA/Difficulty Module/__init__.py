@@ -66,41 +66,18 @@ async def get_data_from_db(timestamp, gamemode):
     global con, number_of_players
 
     total = {
-        "pickupPlayerTotal": [],
-        "pickupOther": [],
+        "pickup": [],
         "giveItem": [],
         "revivePlayer": [],
-        "temporaryLose": [],
-        "revived": [],
-        "lose": [],
-        "dropItem": [],
         "getDamaged": [],
-        "avoidDamage": [],
         "blockDamage": [],
         "failPickup": [],
-        "fallAccidently": [],
-        "individualLoss": [],
-        "spawnPlayerItem": [],
-        "spawnEnemy": []
+        "spawn": []
     }
 
     for player_id in range(number_of_players):
         for event in total:
-            temp_event = event
-            temp_spawn_item_flag = False
-            temp_player_flag = True
-
-            if event == "pickupPlayerTotal" or event == "pickupOther":
-                temp_event = "pickup"
-                if event == "pickupOther":
-                    temp_player_flag = False
-            elif event == "spawnPlayerItem" or event == "spawnEnemy":
-                temp_event = "spawn"
-                if event == "spawnPlayerItem":
-                    temp_spawn_item_flag = True
-
-            fetch = await con.count_total_player_events(temp_event, player_id + 1, timestamp, temp_spawn_item_flag,
-                                                        temp_player_flag, gamemode)
+            fetch = await con.count_total_player_events(event, player_id + 1, timestamp, gamemode)
 
             if fetch == -1:
                 return None
@@ -127,20 +104,20 @@ def calculate(total, timestamp, gamemode):
 
         # Calculate player penalty and bonus
         if gamemode == "Cooperative":
-            penalty, bonus = calc.calc_penalty_and_bonus(total["pickupPlayerTotal"][player_id],
+            penalty, bonus = calc.calc_penalty_and_bonus(total["pickup"][player_id],
                                                          total["giveItem"][player_id],
                                                          total["revivePlayer"][player_id],
                                                          total["getDamaged"][player_id],
                                                          total["blockDamage"][player_id])
         else:
-            penalty, bonus = calc.calc_penalty_and_bonus(total["pickupPlayerTotal"][player_id], 0, 0,
+            penalty, bonus = calc.calc_penalty_and_bonus(total["pickup"][player_id], 0, 0,
                                                          total["getDamaged"][player_id], 0)
         calcs["penalty"].append(penalty)
         calcs["bonus"].append(bonus)
 
         # Calculate player skill
-        skill = calc.calc_skill(penalty, bonus, total["pickupPlayerTotal"][player_id], total["failPickup"][player_id],
-                                total["spawnPlayerItem"][player_id])
+        skill = calc.calc_skill(penalty, bonus, total["pickup"][player_id], total["failPickup"][player_id],
+                                total["spawn"][player_id])
         # If skill is None it means not enough data as been collected yet for the player.
         # Set the player level to stay as it is now - 0.
         if skill is None:

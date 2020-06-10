@@ -142,8 +142,8 @@ class DBconnection:
             sys.stdout.flush()
             return None
 
-    # Count the total occurrences of a game event for a player.
-    async def count_total_player_events(self, event, player_id, tstamp, spawn_item_flag, player_flag, gamemode):
+    # Count the total occurrences of a game event for a player in a given time frame.
+    async def count_total_player_events(self, event, player_id, tstamp, gamemode):
 
         try:
             query = ("SELECT count(Event) FROM " + self.db + "." + self.tb + " WHERE Event = '" + event +
@@ -151,16 +151,13 @@ class DBconnection:
                      " AND format(Timestamp, 3) <= " + str(tstamp) + " AND PlayerID = " + str(player_id) +
                      " AND GameMode = '" + gamemode + "'")
 
+            # If event is pickup - count only items belonging to player.
             if event == "pickup" and gamemode == "Cooperative":
-                if player_flag is True:
-                    query += (" AND Item = " + str(player_id))
-                else:
-                    query += (" AND Item != " + str(player_id))
+                query += " AND Item = " + str(player_id)
+            # If event is spawn - count only item spawns.
             elif event == "spawn":
-                if spawn_item_flag is True:
-                    query += " AND Enemy = 0"
-                else:
-                    query += " AND Item = 0"
+                query += " AND Enemy = 0"
+                # In competitive items are not set for a specific player.
                 if gamemode == "Competitive":
                     query = query.replace(" AND PlayerID = " + str(player_id), "")
 
