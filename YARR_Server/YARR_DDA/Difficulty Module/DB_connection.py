@@ -140,7 +140,7 @@ class DBconnection:
         except Exception as e:
             print("get_timestamp exception: " + str(e))
             sys.stdout.flush()
-            return None, None
+            return None
 
     # Count the total occurrences of a game event for a player.
     async def count_total_player_events(self, event, player_id, tstamp, spawn_item_flag, player_flag, gamemode):
