@@ -49,7 +49,7 @@ public class UI : MonoBehaviour
         if (Mode == GameManager.GameMode.Competitive)
             gameModDisplay.GetComponent<Text>().text = "Competitive";
         else
-            gameModDisplay.GetComponent<Text>().text = "Competitive";
+            gameModDisplay.GetComponent<Text>().text = "Cooperative";
 
         CountDownStart();
 
@@ -70,11 +70,11 @@ public class UI : MonoBehaviour
             InitScoreText(ScoresIdicators[0]);
             ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 1.5f), -5.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
-            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(255, 255, 0);
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.203f,0.796f,0.521f);
         }
         else
         {
-            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = Color.HSVToRGB(0.43f, 0.48f, 1);
             for (int i = 0; i < NumberOfPlayers; i++)
            {
                 ScoresIdicators.Add( new GameObject("Score"));
