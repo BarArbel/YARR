@@ -24,7 +24,6 @@ class InsightsBars extends Component {
 
     this.state = {
       data: [],
-      names: [],
       dataLoaded: false
     }
 
@@ -32,7 +31,7 @@ class InsightsBars extends Component {
     this.renderData = this.renderData.bind(this)
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { userInfo, bearerKey, url } = this.props
 
     const json = {

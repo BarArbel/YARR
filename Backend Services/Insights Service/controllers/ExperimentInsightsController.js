@@ -65,6 +65,65 @@ module.exports = {
     });
   },
 
+  requestInsightBars: async (req, res) => {
+    const { experimentId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (!experimentId) {
+      res.status(204).send(`{"result": "Failure", "params": {"ExperimentId": "${experimentId}"},
+        "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    connection.query(`SELECT * FROM study_insights_bar WHERE ExperimentID = "${experimentId}"`, (error, results) => {
+      if (error || !results.length) {
+        res.status(204).send('{"result": "Failure", "error": "ResearcherId or ExperimentId does not exist."}');
+      }
+
+      else {
+        let data;
+
+        if (results.length > 1) {
+          const { Mode } = results[0];
+          const coopIndex = Mode === "Coopertive" ? 0 : 1
+          const coopData = results[coopIndex];
+          const compData = results[1 - coopIndex];
+
+          data = [
+            { name: "Coop Items", Captured: coopData.PercentItemsCaptured, Missed: coopData.PercentItemsMissed },
+            { name: "Comp Items", Captured: compData.PercentItemsCaptured, Missed: compData.PercentItemsMissed },
+            { name: "Coop Enemies", Avoid: coopData.PercentEnemiesAvoid, Hit: coopData.PercentEnemiesHit, Blocked: coopData.PercentEnemiesBlock },
+            { name: "Comp Enemies", Avoid: compData.PercentEnemiesAvoid, Hit: compData.PercentEnemiesHit, Blocked: compData.PercentEnemiesBlock },
+          ];
+        }
+
+        /* Only one mode played */
+        else {
+          const { Mode } = results[0];
+          const tempData = results[0];
+          if (Mode === "Cooperative") {
+            data = [
+              { name: "Coop Items", Captured: tempData.PercentItemsCaptured, Missed: tempData.PercentItemsMissed },
+              { name: "Coop Enemies", Avoid: tempData.PercentEnemiesAvoid, Hit: tempData.PercentEnemiesHit, Blocked: tempData.PercentEnemiesBlock },
+            ];
+          }
+          else {
+            data = [
+              { name: "Comp Items", Captured: tempData.PercentItemsCaptured, Missed: tempData.PercentItemsMissed },
+              { name: "Comp Enemies", Avoid: tempData.PercentEnemiesAvoid, Hit: tempData.PercentEnemiesHit, Blocked: tempData.PercentEnemiesBlock },
+            ];
+          }
+        }
+
+        res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
+      }
+    });
+  },
+
   requestRawData: async (req, res) => {
     const { experimentId } = req.query;
     const verified = await verifyRequest(req);

@@ -233,17 +233,39 @@ module.exports = {
       }
 
       else {
-        const { Mode } = results[0];
-        const coopIndex = Mode === "coop" ? 0 : 1
-        const coopData = results[coopIndex];
-        const compData = results[1 - coopIndex];
+        let data;
 
-        let data = [
-          { name: "Coop Items", Captured: coopData.PercentItemsCaptured, Missed: coopData.PercentItemsMissed }, 
-          { name: "Comp Items", Captured: compData.PercentItemsCaptured, Missed: compData.PercentItemsMissed }, 
-          { name: "Coop Enemies", Avoid: coopData.PercentEnemiesAvoid, Hit: coopData.PercentEnemiesHit, Blocked: coopData.PercentEnemiesBlock }, 
-          { name: "Comp Enemies", Avoid: compData.PercentEnemiesAvoid, Hit: compData.PercentEnemiesHit, Blocked: compData.PercentEnemiesBlock }, 
-        ];
+        if(results.length > 1){
+          const { Mode } = results[0];
+          const coopIndex = Mode === "Coopertive" ? 0 : 1
+          const coopData = results[coopIndex];
+          const compData = results[1 - coopIndex];
+  
+          data = [
+            { name: "Coop Items", Captured: coopData.PercentItemsCaptured, Missed: coopData.PercentItemsMissed }, 
+            { name: "Comp Items", Captured: compData.PercentItemsCaptured, Missed: compData.PercentItemsMissed }, 
+            { name: "Coop Enemies", Avoid: coopData.PercentEnemiesAvoid, Hit: coopData.PercentEnemiesHit, Blocked: coopData.PercentEnemiesBlock }, 
+            { name: "Comp Enemies", Avoid: compData.PercentEnemiesAvoid, Hit: compData.PercentEnemiesHit, Blocked: compData.PercentEnemiesBlock }, 
+          ];
+        }
+
+        /* Only one mode played */
+        else {
+          const { Mode } = results[0];
+          const tempData = results[0];
+          if(Mode === "Cooperative") {
+            data = [
+              { name: "Coop Items", Captured: tempData.PercentItemsCaptured, Missed: tempData.PercentItemsMissed },
+              { name: "Coop Enemies", Avoid: tempData.PercentEnemiesAvoid, Hit: tempData.PercentEnemiesHit, Blocked: tempData.PercentEnemiesBlock },
+            ];
+          }
+          else {
+            data = [
+              { name: "Comp Items", Captured: tempData.PercentItemsCaptured, Missed: tempData.PercentItemsMissed },
+              { name: "Comp Enemies", Avoid: tempData.PercentEnemiesAvoid, Hit: tempData.PercentEnemiesHit, Blocked: tempData.PercentEnemiesBlock },
+            ];
+          }
+        }
 
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
       }
