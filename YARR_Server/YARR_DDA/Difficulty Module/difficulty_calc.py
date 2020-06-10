@@ -4,16 +4,17 @@ class DDAcalc:
         self.player_levels = []
         for i in range(number_of_players):
             self.player_levels.append(starting_level)
+        # If levels isn't empty it means the game instance was interrupted and the player's levels aren't the
+        # starting level.
         if len(levels) != 0:
             for i in range(number_of_players):
                 self.player_levels[i] += levels[i]
 
-    def calc_penalty_and_bonus(self, pickup_player_total, give_item, revive_player, get_damaged, block_damage,
-                               fall_accidently):
+    # Calculate penalty and bonus for a player.
+    def calc_penalty_and_bonus(self, pickup_player_total, give_item, revive_player, get_damaged, block_damage):
 
         get_damaged_penalty = (0.4 * pickup_player_total) * get_damaged
-        fall_accidently_penalty = (0.01 * pickup_player_total) * fall_accidently
-        penalty = get_damaged_penalty #+ fall_accidently_penalty
+        penalty = get_damaged_penalty
 
         give_item_bonus = (0.2 * pickup_player_total) * give_item
         revive_player_bonus = (0.2 * pickup_player_total) * revive_player
@@ -22,8 +23,8 @@ class DDAcalc:
 
         return round(penalty, 3), round(bonus, 3)
 
+    # Calculate skill for a player
     def calc_skill(self, penalty, bonus, pickup_player_total, failed_pickup_player_total, spawn_player_item):
-        # if spawn_player_item < 3:
         if pickup_player_total + failed_pickup_player_total < 3:
             return None
         else:
@@ -32,6 +33,7 @@ class DDAcalc:
             skill = skill - penalty + bonus
             return skill
 
+    # Calculate a player's difficulty change.
     def calc_difficulty(self, skill):
         range_max = 67
         range_min = 33
