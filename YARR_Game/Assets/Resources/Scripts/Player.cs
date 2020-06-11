@@ -414,7 +414,7 @@ public class Player : MonoBehaviour
     void OnTriggerStay2D(Collider2D collider)
     {
         int playerCollisionLayer = LayerMask.NameToLayer("pCollision");
-        if (collider != null && collider.gameObject.layer == playerCollisionLayer)
+        if (collider != null && collider.gameObject.layer == playerCollisionLayer && FixBoatTime >=0)
         {
             Player otherPlayer = collider.transform.parent.gameObject.GetComponent<Player>();
             if (OthersItemInventory.Length != 0 && otherPlayer.GetComponent<Player>().GetHealth() == 0)
@@ -424,6 +424,9 @@ public class Player : MonoBehaviour
             if (FixBoatTime >= 3f)
             {
                 FixBoat(otherPlayer.GetComponent<Player>());
+
+                // Reset revival
+                FixBoatTime = -1f;
             }
         }
     }
