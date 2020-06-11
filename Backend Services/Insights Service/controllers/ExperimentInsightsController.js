@@ -31,6 +31,106 @@ async function verifyRequest(req) {
 }
 
 module.exports = {
+  requestInsightMirror: async (req, res) => {
+    const { experimentId } = req.query;
+    const verified = await verifyRequest(req);
+    if (!verified) {
+      res.status(403).send('{"result": "Faliure", "error": "Unauthorized request"}');
+      return;
+    }
+
+    if (!experimentId) {
+      res.status(204).send(`{"result": "Failure", "params": {"ExperimentId": "${experimentId}"},
+        "msg": "A parameter is missing."}`);
+      return;
+    }
+
+    connection.query(`SELECT * FROM exp_insights_mirror WHERE ExperimentID = "${experimentId}"
+      ORDER BY exp_insights_mirror.AxisTime DESC`, (error, results) => {
+      if (error || !results.length) {
+        res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}');
+      }
+      else {
+        let types = [];
+        let dataSets = [];
+
+        results.map(line => {
+          !types.find(element => { return element === line.BreakdownType }) && types.push(line.BreakdownType);
+          return null;
+        })
+
+        for (let i = 0; i < types.length; ++i) {
+          const filteredData = results.filter(element => { return element.BreakdownType === types[i] });
+          const tempData = [];
+          const tempNames = [];
+          filteredData.map(element => {
+            tempData.push({
+              time: parseInt(element.AxisTime),
+              value: parseInt(element.AxisEngagement),
+              BreakdownName: element.BreakdownName
+            });
+            !tempNames.find(name => name === element.BreakdownName) && tempNames.push(element.BreakdownName);
+            return null;
+          });
+
+          let dataSet = [];
+          let lastKnown = {}
+          for (let j = 0; j < tempData[0].time; j += 1) {
+            let tempFiltered = tempData.filter(element => parseInt(element.time) === j);
+
+            if (!tempFiltered || !tempFiltered.length || tempFiltered.length < 2) {
+              // find which one is undefined and set it to last known value
+              if (tempFiltered && tempFiltered.length) {
+                if (tempFiltered[0].BreakdownName === tempNames[0]) {
+                  tempFiltered.push({
+                    time: tempFiltered[0].time,
+                    value: lastKnown.length === 0 ? 0 : lastKnown.one,
+                    BreakdownName: tempNames[1]
+                  })
+                }
+                else {
+                  tempFiltered.push({
+                    time: tempFiltered[0].time,
+                    value: Object.keys(lastKnown).length === 0 ? 0 : lastKnown.zero,
+                    BreakdownName: tempNames[0]
+                  })
+                }
+              }
+              else continue;
+            }
+
+            else lastKnown = {
+              zero: tempFiltered[0].value,
+              one: tempFiltered[1].value,
+            }
+
+            if (!dataSet.length) {
+              dataSet.push({
+                type: types[i],
+                time: 0,
+                [tempFiltered[0].BreakdownName]: 0,
+                [tempFiltered[1].BreakdownName]: 0,
+                names: tempNames
+              });
+            }
+
+            dataSet.push({
+              type: types[i],
+              time: parseInt(tempFiltered[0].time),
+              [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+              [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
+              names: tempNames
+            });
+          }
+
+          dataSets.push(dataSet);
+        }
+
+        res.status(200).send(`{"result": "Success", "types": ${JSON.stringify(types)}, "dataSets": ${JSON.stringify(dataSets)}}`);
+      }
+    });
+  },
+
   requestInsightMixed: async (req, res) => {
     const { researcherId, experimentId } = req.query;
     const verified = await verifyRequest(req);
@@ -79,7 +179,7 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM study_insights_bar WHERE ExperimentID = "${experimentId}"`, (error, results) => {
+    connection.query(`SELECT * FROM exp_insights_bar WHERE ExperimentID = "${experimentId}"`, (error, results) => {
       if (error || !results.length) {
         res.status(204).send('{"result": "Failure", "error": "ResearcherId or ExperimentId does not exist."}');
       }

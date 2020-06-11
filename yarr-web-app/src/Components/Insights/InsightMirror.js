@@ -13,7 +13,7 @@ const mapStateToProps = ({ user }) => {
   }
 }
 
-class StudyInsightMirror extends Component {
+class InsightMirror extends Component {
   constructor(props){
     super(props)
 
@@ -33,15 +33,15 @@ class StudyInsightMirror extends Component {
     this.handleTypeChange = this.handleTypeChange.bind(this)
   }
 
-  async componentDidMount() {
-    const { studyId, userInfo, bearerKey } = this.props
+  componentDidMount() {
+    const { userInfo, bearerKey, url } = this.props
 
-    const url = `https://yarr-insight-service.herokuapp.com/requestInsightMirror?researcherId=${userInfo.researcherId}&studyId=${studyId}`
     const json = {
       userInfo: userInfo,
       bearerKey: bearerKey
     }
-    await fetch(url, {
+
+    fetch(url, {
       method: "POST",
       headers: {
         "Accept": "application/json",
@@ -53,6 +53,7 @@ class StudyInsightMirror extends Component {
         res.json().then(json => {
           if(json.result === "Success") {
             this.dataSets = json.dataSets
+            console.log(this.dataSets)
             this.setState({ selectedType: 0, types: json.types })
             this.setData(0)
           }
@@ -139,13 +140,13 @@ class StudyInsightMirror extends Component {
                 />
                 <YAxis
                   type="number"
-                  label={{ value: 'Engagement', angle: -90, position: 'insideLeft', offset: 0 }}
+                  label={{ value: 'Clicks Per Second', angle: -90, position: 'insideLeft', offset: 0 }}
                 />
                 <Tooltip />
                 <Legend />
                 {names.map((name, i) => {
                   let randomcolor = randomColor({ hue: hues[(selectedType * 2 + i) % 5], format: "hex", luminosity: "dark" })
-                  return <Line type="monotone" key={`key${name}`} dataKey={name} stroke={randomcolor} />
+                  return <Line connectNulls={true} type="monotone" key={`key${name}`} dataKey={name} stroke={randomcolor} />
                 })}
               </LineChart>
             </div>
@@ -162,7 +163,7 @@ class StudyInsightMirror extends Component {
 
     return (
       <div className="insightCard">
-        <h4 style={{textAlign: "center"}}>Engagement Over Time</h4>
+        <h4 style={{textAlign: "center"}}>Clicks Per Second Over Time</h4>
         {
           dataLoaded ? this.renderData() : this.renderWait()
         }
@@ -171,4 +172,4 @@ class StudyInsightMirror extends Component {
   }
 }
 
-export default connect(mapStateToProps)(StudyInsightMirror)
+export default connect(mapStateToProps)(InsightMirror)

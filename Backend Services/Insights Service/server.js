@@ -25,10 +25,12 @@ app.use((req, res, next) => {
 app.post('/analyzeData', DataAnalysisCtl.analyzeData);
 app.post('/requestRawData', ExprInsightsCtl.requestRawData);
 app.post('/requestAllRawData', StudyInsightsCtl.requestAllRawData);
-app.post('/requestInsightBars', StudyInsightsCtl.requestInsightBars);
+app.post('/requestStudyInsightBars', StudyInsightsCtl.requestInsightBars);
+app.post('/requestExperimentInsightBars', ExprInsightsCtl.requestInsightBars);
 app.post('/requestInsightRadar', StudyInsightsCtl.requestInsightRadar);
 app.post('/requestInsightMixed', ExprInsightsCtl.requestInsightMixed);
-app.post('/requestInsightMirror', StudyInsightsCtl.requestInsightMirror);
+app.post('/requestStudyInsightMirror', StudyInsightsCtl.requestInsightMirror);
+app.post('/requestExperimentInsightMirror', ExprInsightsCtl.requestInsightMirror);
 app.post('/requestAllInsightMixed', StudyInsightsCtl.requestAllInsightMixed);
 
 app.all('*', (req, res) => {

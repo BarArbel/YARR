@@ -15,13 +15,11 @@ import { confirmAlert } from 'react-confirm-alert'
 import ClipLoader from "react-spinners/ClipLoader"
 import UserActions from '../../Actions/UserActions'
 import InsightsBars from '../Insights/InsightsBars'
-import { InterruptedInstances } from './InterruptedInstances'
-import StudyInsightRadar from '../Insights/StudyInsightsRadar'
-import ExperimentActions from '../../Actions/ExperimentActions'
-import StudyInsightsMirror from '../Insights/StudyInsightsMirror'
-import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
-import ExperimentInsightsMixed from '../Insights/ExperimentInsightsMixed'
+import InsightMirror from '../Insights/InsightMirror'
 import SnackbarActions from '../../Actions/SnackbarActions'
+import { InterruptedInstances } from './InterruptedInstances'
+import ExperimentActions from '../../Actions/ExperimentActions'
+import BreadcrumbsActions from '../../Actions/BreadcrumbsActions'
 
 const mapStateToProps = ({ user, experiment }) => {
   return {
@@ -343,7 +341,7 @@ class ExperimentPage extends Component {
   }
 
   renderLogged() {
-    const { experiment, userInfo } = this.props
+    const { experiment } = this.props
     const { experimentLoaded, startStopFinished, interrupted, csvLoaded, csvData } = this.state
     const colorSettings = ["Full spectrum vision", "Red-green color blindness", "Blue-yellow color blindness"]
     const characterType = ["Characters differentiated by color", "Characters differentiated by shapes", "Characters differentiated by design"]
@@ -355,7 +353,6 @@ class ExperimentPage extends Component {
       CharacterType,
       ColorSettings
     } = experiment
-    const studyId = this.props.match.params.studyId
     const experimentId = this.props.match.params.experimentId
     const buttonText = Status === "Running" ? "STOP EXPERIMENT" : "START EXPERIMENT"
     const codeButtonColor = Status === "Running" ? "elegant" : "success"
@@ -363,7 +360,8 @@ class ExperimentPage extends Component {
     const codeButtonFunction = Status === "Running" ? this.handleStopExperiment : this.handleStartExperiment
     const runningStyle = ({ color: "#4BB543", fontWeight: "bold" })
     const fileName = experiment ? `Experiment ${Title} Raw Data.csv` : "tempName.csv"
-    const barsURL = `https://yarr-insight-service.herokuapp.com/requestInsightBars?researcherId=${userInfo.researcherId}&studyId=${studyId}`
+    const barsURL = `https://yarr-insight-service.herokuapp.com/requestExperimentInsightBars?experimentId=${experimentId}`
+    const mirrorURL = `https://yarr-insight-service.herokuapp.com/requestExperimentInsightMirror?experimentId=${experimentId}`
 
     return (
       <div className="studyPage">
@@ -435,10 +433,8 @@ class ExperimentPage extends Component {
               {
                 experiment && (
                 <div>
-                  <StudyInsightsMirror studyId={studyId} />
-                  <StudyInsightRadar studyId={studyId} />
+                  <InsightMirror url={mirrorURL} />
                   <InsightsBars url={barsURL} />
-                  <ExperimentInsightsMixed experimentId={experimentId} />
                 </div>
                 )
               }
