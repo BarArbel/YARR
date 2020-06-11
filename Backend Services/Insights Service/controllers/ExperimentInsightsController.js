@@ -50,6 +50,7 @@ module.exports = {
       if (error || !results.length) {
         res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}');
       }
+
       else {
         let types = [];
         let dataSets = [];
@@ -74,53 +75,84 @@ module.exports = {
           });
 
           let dataSet = [];
-          let lastKnown = {}
           for (let j = 0; j < tempData[0].time; j += 1) {
             let tempFiltered = tempData.filter(element => parseInt(element.time) === j);
+            
+            if (!tempFiltered || !tempFiltered.length) {
+              continue;
+            }
 
-            if (!tempFiltered || !tempFiltered.length || tempFiltered.length < 2) {
-              // find which one is undefined and set it to last known value
-              if (tempFiltered && tempFiltered.length) {
-                if (tempFiltered[0].BreakdownName === tempNames[0]) {
-                  tempFiltered.push({
-                    time: tempFiltered[0].time,
-                    value: lastKnown.length === 0 ? 0 : lastKnown.one,
-                    BreakdownName: tempNames[1]
-                  })
+            if (!dataSet.length) {   
+              switch (tempNames.length) {
+                case 1: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    names: tempNames
+                  });
+                  break;
                 }
-                else {
-                  tempFiltered.push({
-                    time: tempFiltered[0].time,
-                    value: Object.keys(lastKnown).length === 0 ? 0 : lastKnown.zero,
-                    BreakdownName: tempNames[0]
-                  })
+
+                case 2: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    [tempNames[1]]: 0,
+                    names: tempNames
+                  });
+                  break;
                 }
+
+                case 3: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    [tempNames[1]]: 0,
+                    [tempNames[2]]: 0,
+                    names: tempNames
+                  });
+                  break;
+                }
+              } 
+            }
+
+            switch (tempFiltered.length) {
+              case 1: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  names: tempNames
+                });
+                break;
               }
-              else continue;
-            }
+              
+              case 2: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
+                  names: tempNames
+                });
+                break;
+              }
 
-            else lastKnown = {
-              zero: tempFiltered[0].value,
-              one: tempFiltered[1].value,
+              case 3: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
+                  [tempFiltered[2].BreakdownName]: tempFiltered[2].value,
+                  names: tempNames
+                });
+                break;
+              }
             }
-
-            if (!dataSet.length) {
-              dataSet.push({
-                type: types[i],
-                time: 0,
-                [tempFiltered[0].BreakdownName]: 0,
-                [tempFiltered[1].BreakdownName]: 0,
-                names: tempNames
-              });
-            }
-
-            dataSet.push({
-              type: types[i],
-              time: parseInt(tempFiltered[0].time),
-              [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
-              [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
-              names: tempNames
-            });
           }
 
           dataSets.push(dataSet);

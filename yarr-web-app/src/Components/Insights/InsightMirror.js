@@ -1,10 +1,12 @@
-import React, { Component } from 'react'
+import randomColor from 'randomcolor'
 import { connect } from 'react-redux'
+import React, { Component } from 'react'
+import { MDBIcon } from 'mdbreact'
+import MuTooltip from '@material-ui/core/Tooltip'
+import MoonLoader from "react-spinners/MoonLoader"
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts'
-import MoonLoader from "react-spinners/MoonLoader"
-import randomColor from 'randomcolor'
 
 const mapStateToProps = ({ user }) => {
   return {
@@ -53,7 +55,6 @@ class InsightMirror extends Component {
         res.json().then(json => {
           if(json.result === "Success") {
             this.dataSets = json.dataSets
-            console.log(this.dataSets)
             this.setState({ selectedType: 0, types: json.types })
             this.setData(0)
           }
@@ -82,9 +83,8 @@ class InsightMirror extends Component {
   setData(index) {
     const { types } = this.state
     let tempIndex
-
     this.dataSets.map((dataSet, i) => {
-      tempIndex = dataSet[0].type === types[index] ? i : tempIndex
+      tempIndex = dataSet[0].types === types[index] ? i : tempIndex
       return null
     })
 
@@ -163,7 +163,16 @@ class InsightMirror extends Component {
 
     return (
       <div className="insightCard">
-        <h4 style={{textAlign: "center"}}>Clicks Per Second Over Time</h4>
+        <div style={{ marginBottom: '20px' }}>
+          <h4 style={{ textAlign: 'center' }}>
+            Clicks Over Time
+            <MuTooltip title={"Collected every 5 seconds"}>
+              <div className="clicksInfoIcon">
+                <MDBIcon icon="info-circle"/>
+              </div>
+            </MuTooltip>
+          </h4>
+        </div>
         {
           dataLoaded ? this.renderData() : this.renderWait()
         }

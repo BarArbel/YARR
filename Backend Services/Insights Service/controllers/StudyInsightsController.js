@@ -60,68 +60,99 @@ module.exports = {
           return null;
         })
 
-        for (let i = 0; i < types.length; ++i){
+        for (let i = 0; i < types.length; ++i) {
           const filteredData = results.filter(element => { return element.BreakdownType === types[i] });
           const tempData = [];
           const tempNames = [];
           filteredData.map(element => {
-            tempData.push({ 
-              time: parseInt(element.AxisTime), 
-              value: parseInt(element.AxisEngagement), 
-              BreakdownName: element.BreakdownName 
+            tempData.push({
+              time: parseInt(element.AxisTime),
+              value: parseInt(element.AxisEngagement),
+              BreakdownName: element.BreakdownName
             });
             !tempNames.find(name => name === element.BreakdownName) && tempNames.push(element.BreakdownName);
             return null;
           });
 
           let dataSet = [];
-          let lastKnown = {}
           for (let j = 0; j < tempData[0].time; j += 1) {
             let tempFiltered = tempData.filter(element => parseInt(element.time) === j);
 
-            if (!tempFiltered || !tempFiltered.length || tempFiltered.length < 2) {
-              // find which one is undefined and set it to last known value
-              if (tempFiltered && tempFiltered.length) {
-                if (tempFiltered[0].BreakdownName === tempNames[0]) {
-                  tempFiltered.push({
-                    time: tempFiltered[0].time,
-                    value: lastKnown.length === 0 ? 0 : lastKnown.one,
-                    BreakdownName: tempNames[1]
-                  })
-                }
-                else {
-                  tempFiltered.push({
-                    time: tempFiltered[0].time,
-                    value: Object.keys(lastKnown).length === 0 ? 0 : lastKnown.zero,
-                    BreakdownName: tempNames[0]
-                  })
-                }
-              }
-              else continue;
-            }
-
-            else lastKnown = {
-              zero: tempFiltered[0].value,
-              one: tempFiltered[1].value,
+            if (!tempFiltered || !tempFiltered.length) {
+              continue;
             }
 
             if (!dataSet.length) {
-              dataSet.push({
-                type: types[i],
-                time: 0,
-                [tempFiltered[0].BreakdownName]: 0,
-                [tempFiltered[1].BreakdownName]: 0,
-                names: tempNames
-              });
+              switch (tempNames.length) {
+                case 1: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    names: tempNames
+                  });
+                  break;
+                }
+
+                case 2: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    [tempNames[1]]: 0,
+                    names: tempNames
+                  });
+                  break;
+                }
+
+                case 3: {
+                  dataSet.push({
+                    types: types[i],
+                    time: 0,
+                    [tempNames[0]]: 0,
+                    [tempNames[1]]: 0,
+                    [tempNames[2]]: 0,
+                    names: tempNames
+                  });
+                  break;
+                }
+              }
             }
-  
-            dataSet.push({
-              type: types[i],
-              time: parseInt(tempFiltered[0].time),
-              [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
-              [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
-              names: tempNames
-            });
+
+            switch (tempFiltered.length) {
+              case 1: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  names: tempNames
+                });
+                break;
+              }
+
+              case 2: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
+                  names: tempNames
+                });
+                break;
+              }
+
+              case 3: {
+                dataSet.push({
+                  types: types[i],
+                  time: parseInt(tempFiltered[0].time),
+                  [tempFiltered[0].BreakdownName]: tempFiltered[0].value,
+                  [tempFiltered[1].BreakdownName]: tempFiltered[1].value,
+                  [tempFiltered[2].BreakdownName]: tempFiltered[2].value,
+                  names: tempNames
+                });
+                break;
+              }
+            }
           }
 
           dataSets.push(dataSet);

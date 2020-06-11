@@ -130,10 +130,10 @@ class StudyInsightsMixed extends Component {
 
   render() {
     const { dataLoaded } = this.state
-
+    
     return (
       <div className="insightCard">
-        <h4 style={{ textAlign: "center" }}>Response to Difficulty Changes</h4>
+        <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>Response to Difficulty Changes</h4>
         {
           dataLoaded ? this.renderData()  : this.renderWait()
         }

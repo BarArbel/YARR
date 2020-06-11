@@ -358,6 +358,14 @@ hr {
   bottom: 10px;
 }
 
+.clicksInfoIcon {
+  position: relative;
+  display: inline;
+  font-size: 18px;
+  bottom: 10px;
+  left: 1%;
+}
+
 .builderImage, .disabledImage {
   height: 100%;
   width: 100%;

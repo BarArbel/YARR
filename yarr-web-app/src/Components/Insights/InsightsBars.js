@@ -102,7 +102,7 @@ class InsightsBars extends Component {
 
     return (
       <div className="insightCard">
-        <h4 style={{ textAlign: "center" }}>Player Performance</h4>
+        <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>Player Performance</h4>
         {
           dataLoaded ? this.renderData() : this.renderWait()
         }

@@ -114,7 +114,7 @@ class StudyInsightRadar extends Component {
 
     return (
       <div className="insightCard">
-        <h4 style={{ textAlign: "center" }}>Most Engaging Game Mode</h4>
+        <h4 style={{ textAlign: 'center', marginBottom: '20px' }}>Most Engaging Game Mode</h4>
         {
           dataLoaded ? this.renderData() : this.renderWait()
         }

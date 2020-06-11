@@ -242,10 +242,10 @@ class StudyPage extends Component {
     const currStudy = studies.find(idCompare)
 
     return currStudy ? (
-      <div style={{marginTop: "25px"}}>
-        <h2>{currStudy.Title}</h2>
-        <p><b>Study Questions:</b> <br/>{currStudy.StudyQuestions}</p>
-        <p><b>Description:</b> <br/> {currStudy.Description}</p>
+      <div style={{ marginTop: "25px" }}>
+        <h2 style={{ fontWeight: 'bold' }}>{currStudy.Title}</h2>
+        <p style={{marginTop: '10px'}}><b>Study Questions:</b> <br/>{currStudy.StudyQuestions}</p>
+        {currStudy.Description.length !== 0 && <p style={{ marginTop: '10px' }}><b>Description:</b> <br/> {currStudy.Description}</p>}
       </div>
     ) : (null)
   }
