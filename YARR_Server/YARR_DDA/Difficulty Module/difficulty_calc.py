@@ -24,8 +24,14 @@ class DDAcalc:
         return round(penalty, 3), round(bonus, 3)
 
     # Calculate skill for a player
-    def calc_skill(self, penalty, bonus, pickup_player_total, failed_pickup_player_total, spawn_player_item):
-        if pickup_player_total + failed_pickup_player_total < 3:
+    def calc_skill(self, penalty, bonus, pickup_group, pickup_player_total, failed_pickup_player_total,
+                   spawn_player_item, gamemode):
+        # Wait for enough items to spawn for each player before calculating skill level for the player.
+        if gamemode == "Cooperative" and pickup_player_total + failed_pickup_player_total < 3:
+            return None
+        # In competitive the items aren't specific to an individual player and failPickup event only happens when all
+        # the players fail to pickup - so we look at the first items for the entire group.
+        elif gamemode == "Competitive" and sum(pickup_group) + failed_pickup_player_total < 3:
             return None
         else:
             skill = round(pickup_player_total / spawn_player_item, 3)

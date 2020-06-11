@@ -160,6 +160,10 @@ class DBconnection:
                 # In competitive items are not set for a specific player.
                 if gamemode == "Competitive":
                     query = query.replace(" AND PlayerID = " + str(player_id), "")
+            # In competitive mode failPickup is not related to a specific player.
+            # If a treasure disappears before any player picks it up - all the players get failPickup
+            elif event == "failPickup" and gamemode == "Competitive":
+                query = query.replace(" AND PlayerID = " + str(player_id), "")
 
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:

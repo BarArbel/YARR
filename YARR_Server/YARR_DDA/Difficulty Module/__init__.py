@@ -116,8 +116,8 @@ def calculate(total, timestamp, gamemode):
         calcs["bonus"].append(bonus)
 
         # Calculate player skill
-        skill = calc.calc_skill(penalty, bonus, total["pickup"][player_id], total["failPickup"][player_id],
-                                total["spawn"][player_id])
+        skill = calc.calc_skill(penalty, bonus, total["pickup"], total["pickup"][player_id],
+                                total["failPickup"][player_id], total["spawn"][player_id], gamemode)
         # If skill is None it means not enough data as been collected yet for the player.
         # Set the player level to stay as it is now - 0.
         if skill is None:
