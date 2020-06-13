@@ -24,7 +24,7 @@ namespace Project.Networking
             settings.InitTimestamp = 0f;
             settings.InitLevel = 0;
             settings.NumOfPlayers = 0;
-    }
+        }
 
         public static void SetExperimentID         (string expID)     { settings.ExperimentID = expID; }        
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
@@ -113,10 +113,15 @@ namespace Project.Networking
             // [A-Z] A new game
             if (Char.IsLetter(userInput[0]))
             {
+                Debug.Log("4");
+                Debug.Log(settings);
                 GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
+                Debug.Log(GameSocket.socket);
             }
             else if (Char.IsDigit(userInput[0]))
             {
+                Debug.Log("4");
+                Debug.Log(settings);
                 GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
             }
 

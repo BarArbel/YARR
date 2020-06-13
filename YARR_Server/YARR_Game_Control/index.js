@@ -254,6 +254,7 @@ io.on('connection', async socket =>{
 
   //Sending new game code for a verification
   socket.on('newCodeInput', async data => {
+    console.log("5");
     const sql = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where GameCode = '${data.Code}' LIMIT 1 ;`;
     mysqlConnection_platform.query(sql, (error, results) => {
       if (error || !results.length) {
@@ -573,11 +574,9 @@ io.on('connection', async socket =>{
       let result = await query_platform(`SELECT ExperimentId FROM ${process.env.DATABASE_PLATFORM}.instances WHERE InstanceId = '${instance_id}'`)
       let experiment_id = result[0].ExperimentId
       let values = []
-      console.log("1")
 
       try {
         let dda_select = await query_dda(select_query + dda_table)
-        console.log("2")
 
         if (dda_select.length) {
           dda_select.map(row => {
@@ -587,7 +586,6 @@ io.on('connection', async socket =>{
         }
 
         let tracker_select = await query_platform(select_query + tracker_table)
-        console.log("3")
 
         if (tracker_select.length) {
           tracker_select.map(row => {
@@ -599,7 +597,6 @@ io.on('connection', async socket =>{
         if (values.length) {
           try {
             let insert_result = await query_platform(insert_query, [values])
-            console.log("4")
             if (!insert_result.affectedRows) {
               console.log(`no new rows inserted to ${permanent_table}`)
             }
@@ -614,10 +611,8 @@ io.on('connection', async socket =>{
       }
 
       let dda_drop = query_dda(drop_query + dda_table)
-      console.log("5")
 
       let tracker_drop = query_platform(drop_query + tracker_table)
-      console.log("6")
 
     }
     catch (error) {

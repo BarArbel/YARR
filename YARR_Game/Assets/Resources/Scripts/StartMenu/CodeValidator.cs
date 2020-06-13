@@ -86,6 +86,9 @@ public class CodeValidator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        GameClient GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
+        GameSocket.Connect();
+
         //DataTransformer.SetGameConnection();
         prevInputValue = gameObject.GetComponent<TMP_InputField>().text;        
         isNewCorrect = false;
