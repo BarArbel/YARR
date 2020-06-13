@@ -79,14 +79,16 @@ io.on('connection', async socket =>{
   let experimentId;
   let stillAlive = false;
   let studyId;
+  let experimentState = 0;
 
   tables.push(table);
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
 
   async function checkIfInteruppted() {
-    if(stillAlive === false) {
+    if(stillAlive === false && experimentState == 1) {
       console.log(`instance: ${table.time}_${table.id} is dead`);      
       clearInterval(refreshIntervalId);
+      experimentState = 0;
       console.log("returning true");
       return true;
     }
@@ -176,16 +178,19 @@ io.on('connection', async socket =>{
        } 
     })
 
-    // Check if experiment is interrupted
-    refreshIntervalId = setInterval( async () => {
-      console.log(`checking stillAlive: ${stillAlive}`);
-      let isInterr = await checkIfInteruppted();
-      console.log("is it interrupted?" + isInterr);
-      if (isInterr === true) {
-        console.log("THE GAME IS VERY MUCH INTERRUPTED");
-        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
-      }
-    }, 30000);
+    if (experimentState = 0) {
+      experimentState = 1;
+      // Check if experiment is interrupted
+      refreshIntervalId = setInterval( async () => {
+          console.log(`checking stillAlive: ${stillAlive}`);
+          let isInterr = await checkIfInteruppted();
+          console.log("is it interrupted?" + isInterr);
+          if (isInterr === true) {
+            console.log("THE GAME IS VERY MUCH INTERRUPTED");
+            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+          }
+        }, 30000);
+    }
   });
 
   //Add information about instance
@@ -222,14 +227,17 @@ io.on('connection', async socket =>{
   })
     })
 
-    // Check if experiment is interrupted
-    refreshIntervalId = setInterval( async () => {
-      let isInterr = await checkIfInteruppted();
-      if(isInterr === true) {
-        console.log("THE GAME IS VERY MUCH INTERRUPTED");
-        setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
-      }
-    }, 30000);
+    if (experimentState = 0) {
+      experimentState = 1;
+      // Check if experiment is interrupted
+      refreshIntervalId = setInterval( async () => {
+          let isInterr = await checkIfInteruppted();
+          if(isInterr === true) {
+            console.log("THE GAME IS VERY MUCH INTERRUPTED");
+            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+          }
+        }, 30000);
+    }  
   });
 
   //Sending Data to the Tracker table for experiment analysis
@@ -539,8 +547,11 @@ io.on('connection', async socket =>{
 
   socket.on('gameEnded', async () => {
     // insert DDa + Tracker into perma table
-    clearInterval(refreshIntervalId);
-    console.log("game ended")
+    if (experimentState = 1) {
+      experimentState = 0;
+      clearInterval(refreshIntervalId);
+      console.log("game ended")
+    }
 
     const instance_id = `${table.time}_${table.id}`
     const dda_table = `${process.env.DATABASE_DDA}.dda_input_${instance_id}`

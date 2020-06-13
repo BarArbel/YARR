@@ -426,7 +426,7 @@ public class Player : MonoBehaviour
                 FixBoat(otherPlayer.GetComponent<Player>());
 
                 // Reset revival
-                FixBoatTime = -1f;
+                //FixBoatTime = -1f;
             }
         }
     }

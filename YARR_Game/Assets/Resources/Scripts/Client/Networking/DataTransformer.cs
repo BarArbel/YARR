@@ -106,6 +106,7 @@ namespace Project.Networking
 
         public static void codeInput(string userInput)
         {
+            Debug.Log("3");
             settings.Code = userInput;
             // Check if it's a new game or not
             // [0-9] An interrupted game

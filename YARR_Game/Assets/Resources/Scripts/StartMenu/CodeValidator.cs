@@ -23,9 +23,11 @@ public class CodeValidator : MonoBehaviour
 
     bool ValidateText()
     {
+        Debug.Log("1");
         string code = rgx.Replace(currInputValue, "");
         if (code.Length != codeLen)
         {
+            Debug.Log("1.5");
             // Indicate wrong game code
             gameObject.GetComponent<Image>().color = wrongValueColor;
             isNewCorrect = false;
@@ -34,6 +36,7 @@ public class CodeValidator : MonoBehaviour
             return false;
         }
 
+        Debug.Log("2");
         DataTransformer.codeInput(code);
         return true;
     }
