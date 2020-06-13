@@ -56,19 +56,19 @@ public class UI : MonoBehaviour
         
         for (int i = 0; i< NumberOfPlayers; i++)
         {
-            HealthIdicators.Add(Instantiate(HealthPrefab, new Vector3(BotLeftCorner + ((float)i * 1.5f), -4.6f, 0), transform.rotation));
+            HealthIdicators.Add(Instantiate(HealthPrefab, new Vector3(BotLeftCorner + ((float)i * 2.5f), -5.4f, 0), transform.rotation));
 
             HealthIdicators[i].transform.SetParent(canvas.transform);
             HealthIdicators[i].GetComponent<Image>().sprite = PlayerSprites[i];
             HealthIdicators[i].GetComponentInChildren<Text>().text = InitialHealth.ToString();
-            HealthIdicators[i].GetComponent<RectTransform>().localScale = new Vector3(0.05f, 0.05f, 0.05f);
+            HealthIdicators[i].GetComponent<RectTransform>().localScale = new Vector3(0.12f, 0.12f, 0.12f);
         }
 
         if (Mode == GameManager.GameMode.Cooperative)
         {
             ScoresIdicators.Add(new GameObject("Score"));
             InitScoreText(ScoresIdicators[0]);
-            ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 1.5f), -5.5f, 0);
+            ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 3f), -6.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
             GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.203f,0.796f,0.521f);
         }

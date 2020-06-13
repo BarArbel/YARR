@@ -742,7 +742,7 @@ GameObject:
   - component: {fileID: 2343814424699371462}
   - component: {fileID: 4919612778914941177}
   m_Layer: 0
-  m_Name: REDParrotFlagSplit
+  m_Name: RedParrotFlagSplit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -757,7 +757,7 @@ Transform:
   m_GameObject: {fileID: 7257869899921618241}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.33, y: -1.92, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_Children:
   - {fileID: 4198432821951930850}
   - {fileID: 1042299895030134155}

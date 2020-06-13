@@ -353,7 +353,7 @@ GameObject:
   - component: {fileID: 8502452628246679459}
   - component: {fileID: 3657225025832627109}
   m_Layer: 0
-  m_Name: REDParrotSpring
+  m_Name: RedParrotSpring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -368,7 +368,7 @@ Transform:
   m_GameObject: {fileID: 2006349439641527402}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -7.02, y: -2.62, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_Children:
   - {fileID: 1537381728289684684}
   - {fileID: 6966733142598942827}

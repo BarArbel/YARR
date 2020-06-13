@@ -146,7 +146,7 @@ GameObject:
   - component: {fileID: 4798520991188956537}
   - component: {fileID: 270312669440663721}
   m_Layer: 0
-  m_Name: REDParrotFlagTriangle
+  m_Name: RedParrotFlagTriangle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -161,7 +161,7 @@ Transform:
   m_GameObject: {fileID: 2692115387390706913}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.33, y: -1.92, z: 0}
-  m_LocalScale: {x: 0.15, y: 0.15, z: 0.15}
+  m_LocalScale: {x: 0.25, y: 0.25, z: 0.25}
   m_Children:
   - {fileID: 6730253670183491707}
   - {fileID: 3987640682264588803}
