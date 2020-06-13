@@ -925,86 +925,87 @@ public class GameManager : MonoBehaviour
     public void NotificationDDAUpdate(JSONObject calcs)
     {
         Debug.Log(calcs);
-        //if ((int)calcs.list[1].list[1].n != 0 || (int)calcs.list[2].list[1].n != 0 || (int)calcs.list[3].list[1].n != 0)
-        if ((int)calcs.list[1].list[0].n != 0 || (int)calcs.list[2].list[0].n != 0 || (int)calcs.list[3].list[0].n != 0)
-        {
-            Debug.Log("Changed: " + calcs);
-        }
+
         int calcsIndex = (int)calcs.list[0].n;
         int LevelSpawnHeightAndTimer;
         int LevelPrecision;
         int LevelSpeedAndSpawnRate;
 
+        // Since spawn, height, timer, precision and speed are all the same values, we'll store them all in a variable that represents them all
+        int LevelGeneral;
         if (Mode == GameMode.Cooperative && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
+            // DDAIndex is the latest change to the level that was recieved and updated 
             DDAIndex = calcsIndex;
             for (int i = 0; i < NumberOfPlayers; i++)
             {
+                // Assuming the enemy factory and the item factory both belong to the corresponding player
                 if (EnemyFactories[i].GetID() == ItemFactories[i].GetID() && ItemFactories[i].GetID() == i + 1)
                 {
+                    // Save difficulty updated from DDA for the specific player
                     LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
-                    LevelPrecision =           (int)calcs.list[2].list[i].n;
-                    LevelSpeedAndSpawnRate =   (int)calcs.list[3].list[i].n;
-                    // Save difficulty updated from DDA 
-
-                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
+                    LevelPrecision = (int)calcs.list[2].list[i].n;
+                    LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+                    LevelGeneral = LevelPrecision;
+                    // Assuming the new change is in range
+                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelGeneral == 1))
                     {
                         //TODO: redo this later
-                        if (PlayerDifficIndexes[i][0] + LevelPrecision  > 5)
+                        if (PlayerDifficIndexes[i][0] + LevelGeneral > 5)
                         {
                             PlayerDifficIndexes[i][0] = 5;
                         }
-                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
+                        else if (PlayerDifficIndexes[i][0] + LevelGeneral < 1)
                         {
                             PlayerDifficIndexes[i][0] = 1;
                         }
                         else
                         {
-                            PlayerDifficIndexes[i][0] += LevelPrecision;
-                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
+                            PlayerDifficIndexes[i][0] += LevelGeneral;
+                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                            Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
                             DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
-                        }                        
+                        }
                         /*EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
                         Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
                         DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode); */
                     }
                 }
-            
+
             }
         }
 
         if (Mode == GameMode.Competitive && calcs.keys[0] == "index" && DDAIndex < calcsIndex)
         {
-                DDAIndex = calcsIndex;
-                for (int i = 0; i < NumberOfPlayers; i++)
+            DDAIndex = calcsIndex;
+            for (int i = 0; i < NumberOfPlayers; i++)
+            {
+                LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
+                LevelPrecision = (int)calcs.list[2].list[i].n;
+                LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+                LevelGeneral = LevelPrecision;
+                // Save difficulty updated from DDA 
+                if (!(PlayerDifficIndexes[i][0] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelGeneral == 1))
                 {
-                        LevelSpawnHeightAndTimer =  (int)calcs.list[1].list[i].n;
-                        LevelPrecision =            (int)calcs.list[2].list[i].n;
-                        LevelSpeedAndSpawnRate =    (int)calcs.list[3].list[i].n;
 
-                    // Save difficulty updated from DDA 
-                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelPrecision == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelPrecision == 1))
+                    //TODO: redo this later
+                    if (PlayerDifficIndexes[i][0] + LevelGeneral > 5)
                     {
-
-                        //TODO: redo this later
-                        if (PlayerDifficIndexes[i][0] + LevelPrecision > 5)
-                        {
-                            PlayerDifficIndexes[i][0] = 5;
-                        }
-                        else if (PlayerDifficIndexes[i][0] + LevelPrecision < 1)
-                        {
-                            PlayerDifficIndexes[i][0] = 1;
-                        }
-                        else
-                        {
-                            PlayerDifficIndexes[i][0] += LevelPrecision;
-                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                            Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
-                            DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
+                        PlayerDifficIndexes[i][0] = 5;
+                    }
+                    else if (PlayerDifficIndexes[i][0] + LevelGeneral < 1)
+                    {
+                        PlayerDifficIndexes[i][0] = 1;
+                    }
+                    else
+                    {
+                        PlayerDifficIndexes[i][0] += LevelGeneral;
+                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                        Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
+                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
                     }
                     /*PlayerDifficIndexes[i][0] += LevelPrecision;
                     Debug.Log(LevelPrecision);
@@ -1013,7 +1014,7 @@ public class GameManager : MonoBehaviour
                     Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
                     DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);*/
                 }
-                }
+            }
         }
 
     }
