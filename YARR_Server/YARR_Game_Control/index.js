@@ -100,7 +100,7 @@ io.on('connection', async socket =>{
     }
   }
 
-  socket.on('testerino', async () => {
+  socket.on('testerino', () => {
     console.log("TEST");
   });
 

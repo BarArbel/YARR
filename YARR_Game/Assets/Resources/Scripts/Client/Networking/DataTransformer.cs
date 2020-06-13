@@ -30,7 +30,7 @@ namespace Project.Networking
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
         public static void SetIsInterrupted         (bool isInterr)   { settings.IsInterrupted = isInterr; }
         public static void SetInitTimestamp        (float time)       { settings.InitTimestamp = time; }
-        public static void SetGameConnection        ()                { GameSocket.Connect(); }
+        public static void SetGameConnection        ()                { Debug.Log("SetGameConnection"); GameSocket.Connect(); }
         public static void SetDisconnect ()
         {
             if (DDASocket.IsConnected)
