@@ -10,7 +10,7 @@ namespace Project.Networking
     public static class DataTransformer
     {
         static SocketIOComponent DDASocket;
-        static SocketIOComponent GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
+        static SocketIOComponent GameSocket = null;
         static DataGameSnapShot data = new DataGameSnapShot();
         static ExperimentSettings settings = new ExperimentSettings();
 
@@ -30,7 +30,15 @@ namespace Project.Networking
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
         public static void SetIsInterrupted         (bool isInterr)   { settings.IsInterrupted = isInterr; }
         public static void SetInitTimestamp        (float time)       { settings.InitTimestamp = time; }
-        public static void SetGameConnection        ()                { Debug.Log("SetGameConnection"); GameSocket.Connect(); }
+        public static void SetGameConnection ()
+        {
+            if (GameSocket == null || GameSocket.IsConnected == false)
+            {
+                GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
+                Debug.Log("SetGameConnection");
+                GameSocket.Connect();
+            }           
+        }
         public static void SetDisconnect ()
         {
             if (DDASocket.IsConnected)
@@ -44,6 +52,7 @@ namespace Project.Networking
                 GameSocket.Emit("gameEnded");
                 Debug.Log("game ended");
                 GameSocket.Close();
+                GameSocket = null;
             }
         }
 
@@ -115,9 +124,7 @@ namespace Project.Networking
             {
                 Debug.Log("4");
                 Debug.Log(settings.ToString());
-                GameSocket.Emit("testerino");
                 GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
-                GameSocket.Emit("testerino");
             }
             else if (Char.IsDigit(userInput[0]))
             {

@@ -82,6 +82,7 @@ io.on('connection', async socket =>{
   let experimentState = 0;
 
   tables.push(table);
+  console.log("Send Instanceid to game");
   socket.emit('instanceId', { id: `${table.time}_${table.id}` });
 
   async function checkIfInteruppted() {
@@ -99,10 +100,6 @@ io.on('connection', async socket =>{
       return false;
     }
   }
-
-  socket.on('testerino', () => {
-    console.log("TEST");
-  });
 
   socket.on('createTables', async () => {
     //Creating table for each experiment   
@@ -182,7 +179,7 @@ io.on('connection', async socket =>{
        } 
     })
 
-    if (experimentState = 0) {
+    if (experimentState == 0) {
       experimentState = 1;
       // Check if experiment is interrupted
       refreshIntervalId = setInterval( async () => {
@@ -231,7 +228,7 @@ io.on('connection', async socket =>{
   })
     })
 
-    if (experimentState = 0) {
+    if (experimentState == 0) {
       experimentState = 1;
       // Check if experiment is interrupted
       refreshIntervalId = setInterval( async () => {
@@ -653,6 +650,7 @@ io.on('connection', async socket =>{
     console.log('A player has disconnected');
     //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
     socket.broadcast.emit('message', `table ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} finished the game`);
+    console.log("experimentState: "+ experimentState);
     let isInterr = await checkIfInteruppted();
     if(isInterr === true) {
       console.log("THE GAME IS VERY MUCH INTERRUPTED");

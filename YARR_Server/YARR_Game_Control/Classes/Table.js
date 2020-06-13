@@ -4,8 +4,7 @@ module.exports = class Table {
     constructor(){
         var tempID = shortID.generate();
         this.time = Date.now();
-        tempID = tempID.replace('-', '');
-        tempID = tempID.replace('_', '');
-        this.id = tempID;
+        this.id = tempID.replace('-', '');
+        this.id = tempID.replace('_', '');
     }
 }

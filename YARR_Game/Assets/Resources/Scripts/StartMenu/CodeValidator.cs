@@ -86,8 +86,8 @@ public class CodeValidator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        Debug.Log("Start from SetGameConnection");
         DataTransformer.SetGameConnection();
-
         prevInputValue = gameObject.GetComponent<TMP_InputField>().text;        
         isNewCorrect = false;
         isInterruptedCorrect = false;

@@ -1159,7 +1159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   url: wss://yarr-game-control.herokuapp.com/socket.io/?EIO=4&transport=websocket
-  autoConnect: 1
+  autoConnect: 0
   reconnectDelay: 0
   ackExpirationTime: 1800
   pingInterval: 25
