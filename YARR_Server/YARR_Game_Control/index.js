@@ -100,6 +100,10 @@ io.on('connection', async socket =>{
     }
   }
 
+  socket.on('testerino', async () => {
+    console.log("TEST");
+  });
+
   socket.on('createTables', async () => {
     //Creating table for each experiment   
     const sql = `CREATE TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} (
@@ -255,6 +259,7 @@ io.on('connection', async socket =>{
   //Sending new game code for a verification
   socket.on('newCodeInput', async data => {
     console.log("5");
+    console.log(data);
     const sql = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where GameCode = '${data.Code}' LIMIT 1 ;`;
     mysqlConnection_platform.query(sql, (error, results) => {
       if (error || !results.length) {

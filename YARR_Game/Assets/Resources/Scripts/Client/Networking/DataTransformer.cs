@@ -114,9 +114,10 @@ namespace Project.Networking
             if (Char.IsLetter(userInput[0]))
             {
                 Debug.Log("4");
-                Debug.Log(settings);
+                Debug.Log(settings.ToString());
+                GameSocket.Emit("testerino");
                 GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
-                Debug.Log(GameSocket.socket);
+                GameSocket.Emit("testerino");
             }
             else if (Char.IsDigit(userInput[0]))
             {
