@@ -391,11 +391,16 @@ public class Player : MonoBehaviour
                 {
                     // Competitive mode
                     immuneTimer = 5;
+                    collider.GetComponent<Powerup>().SetPickedUp();
+                    gameObject.GetComponentsInChildren<Animator>()[1].SetBool("Aura", true);
+                    Destroy(collider.gameObject);
                     StartCoroutine(Countdown());
                 }
                 else
                 {
                     // Cooperative mode
+                    collider.GetComponent<Powerup>().SetPickedUp();
+                    Destroy(collider.gameObject);
                     GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("Player");
                     foreach (var g in gameObjects)
                     {
@@ -654,6 +659,7 @@ public class Player : MonoBehaviour
 
             immuneTimer--;
         }
+        gameObject.GetComponentsInChildren<Animator>()[1].SetBool("Aura", false);
     }
 
     // Start is called before the first frame update
