@@ -315,17 +315,15 @@ class ExperimentPage extends Component {
             <button onClick={this.handleScrollToElement} className="buttonNoShow">
               <article className="interruptedMsg">
                 <b>ATTENTION!</b>
-                <p>
-                  This experiment has unfinished game(s), use the game code(s) below to continue.
-                            </p>
+                <p>This experiment has unfinished game(s), use the game code(s) below to continue.</p>
               </article>
             </button>
           )}
-          <h2>{Title}</h2>
-          <p>Created: {CreationDate}</p>
-          <p>Status: {Status}</p>
-          <p>Details: {Details}</p>
-          <p>Disability: {disability[Disability - 1]}</p>
+          <h2><b>{Title}</b></h2>
+          <p><b>Created</b>: {CreationDate}</p>
+          <p><b>Status</b>: {Status}</p>
+          <p><b>Details</b>: {Details}</p>
+          <p><b>Disability</b>: {disability[Disability - 1]}</p>
         </div>
         <div ref={this.interruptedListRef}>
           <InterruptedInstances
@@ -417,11 +415,11 @@ class ExperimentPage extends Component {
                 experimentLoaded ? 
                 (
                   <div>
-                    <p>Character skin: {characterType[CharacterType - 1]}</p>
-                    <p>Color settings: {colorSettings[ColorSettings - 1]}</p>
-                    <p>Round Duration: {RoundDuration} seconds</p>
-                    <p>Number of rounds: {RoundsNumber}</p>
-                    <p>Rounds:</p>
+                    <p><b>Character skin</b>: {characterType[CharacterType - 1]}</p>
+                    <p><b>Color settings</b>: {colorSettings[ColorSettings - 1]}</p>
+                    <p><b>Round Duration</b>: {RoundDuration} seconds</p>
+                    <p><b>Number of rounds</b>: {RoundsNumber}</p>
+                    <p><b>Rounds:</b></p>
                     {this.renderRounds()}
                   </div>
                 )
