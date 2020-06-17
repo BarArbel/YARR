@@ -500,7 +500,7 @@ public class GameManager : MonoBehaviour
         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
 
         //Powerup sprites
-        PowerupSprites.Add(Resources.Load<Sprite>("Sprites/Kraken"));
+        PowerupSprites.Add(Resources.Load<Sprite>("Sprites/Powerup"));
 
         // Item sink sprites
         ItemSinkSprites.Add(Resources.Load<Sprite>("Sprites/Gold"));
@@ -709,32 +709,32 @@ public class GameManager : MonoBehaviour
                     }
                         
                 }
-                    // Static
+                // Static
+                else
+                {
+                    if (Mode == GameMode.Competitive)
+                    {
+                        GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, true);
+                    }
+                    // Cooperative
                     else
                     {
-                        if (Mode == GameMode.Competitive)
-                        {
-                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, true);
-                        }
-                        // Cooperative
-                        else
-                        {
-                            GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
-                            ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                            ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, true);
-                        }
+                        GameObject itemObj = Resources.Load<GameObject>("Prefabs/Treasure");
+                        ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
+                        ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, true);
                     }
+                }
             }
-            
+
 
             //Initilazie Powerups
-            /*if (Mode == GameMode.Competitive)
+            if (Mode == GameMode.Competitive)
             {
                 GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                 PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                PowerupFactories[0].FactoryInit(-1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
+                PowerupFactories[0].FactoryInit(-1, PlayerDifficIndexes[0], itemObj, PowerupSprites[0], IsNewRound, true);
             }
             else
             {
@@ -742,9 +742,9 @@ public class GameManager : MonoBehaviour
                 {
                     GameObject itemObj = Resources.Load<GameObject>("Prefabs/Powerup");
                     PowerupFactories.Add(gameObject.AddComponent(typeof(PowerupFactory)) as PowerupFactory);
-                    PowerupFactories[i].FactoryInit(i + 1, (int)Difficulty, itemObj, PowerupSprites[0], IsNewRound);
+                    PowerupFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, PowerupSprites[0], IsNewRound,true);
                 }
-            }*/
+            }
 
             // Initialize sink
             GameObject sink = GameObject.Find("ItemSink");
