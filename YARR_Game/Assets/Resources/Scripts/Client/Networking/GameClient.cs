@@ -102,7 +102,6 @@ namespace Project.Networking
                 if (E.data["instanceId"].str == InstanceID)
                 {
                     FindObjectOfType<GameManager>().InitExperiment(E.data);
-
                 }
             });
 

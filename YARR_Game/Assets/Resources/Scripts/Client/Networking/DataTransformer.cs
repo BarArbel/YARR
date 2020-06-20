@@ -22,6 +22,7 @@ namespace Project.Networking
             settings.InterruptedInstanceID = "";
             settings.IsInterrupted = false;
             settings.InitTimestamp = 0f;
+            settings.TimeSpentBeforeGameStart = 0f;
             settings.InitLevel = 0;
             settings.NumOfPlayers = 0;
         }
@@ -30,6 +31,7 @@ namespace Project.Networking
         public static void SetInterruptedInstanceID (string interrID) { settings.InterruptedInstanceID = interrID; }
         public static void SetIsInterrupted         (bool isInterr)   { settings.IsInterrupted = isInterr; }
         public static void SetInitTimestamp        (float time)       { settings.InitTimestamp = time; }
+        public static void SetTimeSpent            (float time)       { settings.TimeSpentBeforeGameStart = time; }
         public static void SetGameConnection ()
         {
             if (GameSocket == null || GameSocket.IsConnected == false)
@@ -59,7 +61,7 @@ namespace Project.Networking
 
         public static void sendDDA(float time,Event eventOccurred, Player player,int item,int enemy,int gameMode)
         {
-            data.Time = settings.InitTimestamp+time;
+            data.Time = settings.InitTimestamp+time-settings.TimeSpentBeforeGameStart;
             data.Event = eventOccurred;
             data.PlayerID = player.GetID();
             data.CoordX = player.transform.position.x;
@@ -73,7 +75,7 @@ namespace Project.Networking
 
         public static void sendDDA(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
         {
-            data.Time = settings.InitTimestamp+time;
+            data.Time = settings.InitTimestamp+time - settings.TimeSpentBeforeGameStart;
             data.Event = eventOccurred;
             data.PlayerID = PlayerID;
             data.CoordX = CoordX;
@@ -87,7 +89,7 @@ namespace Project.Networking
 
         public static void sendTracker(float time, Event eventOccurred, Player player, int item, int enemy, int gameMode)
         {
-            data.Time = settings.InitTimestamp+time;
+            data.Time = settings.InitTimestamp+time - settings.TimeSpentBeforeGameStart;
             data.Event = eventOccurred;
             data.PlayerID = player.GetID();
             data.CoordX = player.transform.position.x;
@@ -101,7 +103,7 @@ namespace Project.Networking
 
         public static void sendTracker(float time, Event eventOccurred, int PlayerID, float CoordX, float CoordY, int item, int enemy, int gameMode)
         {
-            data.Time = settings.InitTimestamp+time;
+            data.Time = settings.InitTimestamp+time - settings.TimeSpentBeforeGameStart;
             data.Event = eventOccurred;
             data.PlayerID = PlayerID;
             data.CoordX = CoordX;
@@ -212,6 +214,7 @@ namespace Project.Networking
         public string InterruptedInstanceID;
         public bool IsInterrupted;
         public float InitTimestamp;
+        public float TimeSpentBeforeGameStart;
         public int InitLevel;
         public int NumOfPlayers;
     }

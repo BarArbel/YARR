@@ -1086,33 +1086,8 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        DataTransformer.SetTimeSpent(Time.realtimeSinceStartup);
         InvokeRepeating("TrackObjLocation", 5.0f, 5.0f);
-        //DEBUG
-        /*Level lvl;
-        GameMode gm;
-        if (StaticMode)
-        {
-            lvl = Level.Static3;
-        }
-        else
-        {
-            lvl = Level.Adaptive;
-        }
-
-        if (CoopMode)
-        {
-            gm = GameMode.Cooperative;
-        }
-        else
-        {
-            gm = GameMode.Competitive;
-        }
-
-        //DEBUG//
-        NumberOfPlayers = 3;
-        InitGameManager(gm, Skin.Color, lvl);*/
-        //InitGameManager(3, GameMode.Cooperative, Skin.Color, Level.Adaptive);
-        //SetMode(3, GameMode.Competitive, Skin.Color, Level.Adaptive);
     }
 
     // Update is called once per frame
