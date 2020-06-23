@@ -157,8 +157,8 @@ public class Enemy : MonoBehaviour
 
     void ResponseIdentified()
     {
+        // TODO: tweak response time
         DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerResponseTime, GetID(),0,0, (int)(ResponseTime*100), 0, GetGameMode());
-        Debug.Log("YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n playerResponseTime");
         ResponseTime = -1;
     }
 
@@ -191,7 +191,6 @@ public class Enemy : MonoBehaviour
         if (collider.gameObject.layer == playerLayer)
         {
             //DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.avoidDamage, ID, transform.position.x, transform.position.y, 0, GetID(), GetGameMode());
-            Debug.Log(gameObject);
             Destroy(gameObject);
         }
     }

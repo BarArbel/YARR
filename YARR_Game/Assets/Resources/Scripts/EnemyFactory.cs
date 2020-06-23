@@ -18,8 +18,10 @@ public class EnemyFactory : ObjectFactory
         return "P:" + GetID().ToString() + " spd:" + LevelSpeedAndSpawn.ToString() + " spn:" + LevelSpeedAndSpawn.ToString() + " prsn:" + LevelPrecision.ToString() + "\n";
     }
 
+    // Here the change happens according to DDA decisions 
     protected override void ModifyLevelSettings()
     {
+        // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
         List<int> levels = GetLevels();
         Debug.Log("enemy factory levels = " + levels[2] + levels[2] + levels[1] + " player = " + GetID());
         DestroyTimer = 10f;
@@ -47,7 +49,7 @@ public class EnemyFactory : ObjectFactory
             Speed = LevelsOf_Speed[levels[2] - 1];
         }
 
-        if (levels[2] - 1 < 0)
+        if (levels[1] - 1 < 0)
         {
             TurnsAvailable = LevelsOf_TurnsAvailable[0];
             TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[0];

@@ -76,11 +76,11 @@ public abstract class ObjectFactory : MonoBehaviour
         Levels = levels;
         ModifyLevelSettings();
     }
-    public void ModifyLevels(int heightTimer, int precision, int speedspawn)
+    public void ModifyLevels(int LevelGeneral)
     {
-        Levels[0] += heightTimer;
-        Levels[1] += precision;
-        Levels[2] += speedspawn;
+        Levels[0] += LevelGeneral;
+        Levels[1] += LevelGeneral;
+        Levels[2] += LevelGeneral;
         ModifyLevelSettings();
     }
 
@@ -89,7 +89,7 @@ public abstract class ObjectFactory : MonoBehaviour
         StartingDifficulty = difficulty;
     }
 
-    public void SetDDAChanges(int heightTimer, int precision, int speedspawn )
+    public void SetDDAChanges(int LevelGeneral)
     {
         // TODO: delete these variables since we don't use them anymore
         /*DDALevelSpawnHeightAndTimer = heightTimer;
@@ -98,10 +98,8 @@ public abstract class ObjectFactory : MonoBehaviour
 
         if (!IsStatic)
         {
-            ModifyLevels(heightTimer, precision, speedspawn);
+            ModifyLevels(LevelGeneral);
         }
-        // Why do we need this thrice
-        //ModifyLevelSettings();
     }
 
     public IEnumerator StartSpawner()

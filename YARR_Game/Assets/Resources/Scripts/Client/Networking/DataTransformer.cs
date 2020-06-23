@@ -117,21 +117,16 @@ namespace Project.Networking
 
         public static void codeInput(string userInput)
         {
-            Debug.Log("3");
             settings.Code = userInput;
             // Check if it's a new game or not
             // [0-9] An interrupted game
             // [A-Z] A new game
             if (Char.IsLetter(userInput[0]))
             {
-                Debug.Log("4");
-                Debug.Log(settings.ToString());
                 GameSocket.Emit("newCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
             }
             else if (Char.IsDigit(userInput[0]))
             {
-                Debug.Log("4");
-                Debug.Log(settings);
                 GameSocket.Emit("interruptedCodeInput", new JSONObject(JsonUtility.ToJson(settings)));
             }
 
@@ -146,7 +141,6 @@ namespace Project.Networking
             // New game
             if (!settings.IsInterrupted)
             {
-                Debug.Log("settings:" + settings.ToString());
                 GameSocket.Emit("createTables");
                 GameSocket.Emit("addInstanceMetaData", new JSONObject(JsonUtility.ToJson(settings)));
             }

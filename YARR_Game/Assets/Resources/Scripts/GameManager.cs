@@ -962,8 +962,8 @@ public class GameManager : MonoBehaviour
                         else
                         {
                             PlayerDifficIndexes[i][0] += LevelGeneral;
-                            EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
-                            ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                            EnemyFactories[i].SetDDAChanges(LevelGeneral);
+                            ItemFactories[i].SetDDAChanges(LevelGeneral);
                             Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
                             DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
                         }
@@ -1002,8 +1002,8 @@ public class GameManager : MonoBehaviour
                     else
                     {
                         PlayerDifficIndexes[i][0] += LevelGeneral;
-                        EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
-                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelGeneral, LevelSpeedAndSpawnRate);
+                        EnemyFactories[i].SetDDAChanges(LevelGeneral);
+                        ItemFactories[i].SetDDAChanges(LevelGeneral);
                         Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
                         DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
                     }
@@ -1057,7 +1057,6 @@ public class GameManager : MonoBehaviour
 
                     // Send click count in the past 5 sec
                     DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerClickCount, player, player.GetClickCounter(), 0, (int)GetMode());
-                    Debug.Log("ID: "+ player.GetID() + " clicks: " + player.GetClickCounter());
 
                     // Reset clicks
                     player.ResetClickCounter();

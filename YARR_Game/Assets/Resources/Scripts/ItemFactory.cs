@@ -16,10 +16,12 @@ public class ItemFactory : ObjectFactory
         return "P:" + GetID().ToString() + " tmr:" + LevelTimerAndSpawn.ToString() + " spn:" + LevelTimerAndSpawn.ToString() +  "\n";
     }
 
+    // Here the change happens according to DDA decisions 
     protected override void ModifyLevelSettings()
     {
+        // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
         List<int> levels = GetLevels();
-        Debug.Log("item factory levels = " + levels[0] +  levels[0] + " player = " + GetID());
+        Debug.Log("Levels: " + levels.ToString() + " : " + levels[0]+levels[1]+levels[2]);
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;
@@ -33,6 +35,7 @@ public class ItemFactory : ObjectFactory
         };
 
         // TODO: write this better
+        // general level = Difficulty indexes carried from round to round
         if (levels[0] - 1 < 0)
         {
             DestroyTimer = LevelsOf_DestroyTimer[0];
