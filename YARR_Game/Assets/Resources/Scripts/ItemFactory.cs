@@ -21,7 +21,7 @@ public class ItemFactory : ObjectFactory
     {
         // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
         List<int> levels = GetLevels();
-        Debug.Log("Levels: " + levels.ToString() + " : " + levels[0]+levels[1]+levels[2]);
+        Debug.Log("Levels: " + levels[0]+levels[1]+levels[2] + " player = " + GetID());
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;

@@ -23,7 +23,6 @@ public class EnemyFactory : ObjectFactory
     {
         // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
         List<int> levels = GetLevels();
-        Debug.Log("enemy factory levels = " + levels[2] + levels[2] + levels[1] + " player = " + GetID());
         DestroyTimer = 10f;
         Damage = 1;
 

@@ -965,6 +965,7 @@ public class GameManager : MonoBehaviour
                             EnemyFactories[i].SetDDAChanges(LevelGeneral);
                             ItemFactories[i].SetDDAChanges(LevelGeneral);
                             Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
+                            Debug.Log("Player " + (i + 1) + " Level Update: " + evnt);
                             DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
                         }
                         /*EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
