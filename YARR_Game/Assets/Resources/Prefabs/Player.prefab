@@ -45,7 +45,7 @@ GameObject:
   - component: {fileID: 1634035409645940791}
   m_Layer: 9
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -128,9 +128,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 086615fb67694f248bda8171de46a626, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MoveRightButton: 0
-  MoveLeftButton: 0
-  JumpButton: 0
+  MovementAxis: 
+  JumpButton: 
   Speed: {x: 5, y: 50}
   Direction: {x: 0, y: 0}
   IsJumping: 0

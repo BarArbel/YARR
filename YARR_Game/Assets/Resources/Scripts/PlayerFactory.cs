@@ -18,9 +18,8 @@ public class PlayerFactory : MonoBehaviour
 
     private List<GameObject> PlayerPrefab;
     private List<Sprite> PlayerSprites;
-    private List<KeyCode> RightMovement;
-    private List<KeyCode> LeftMovement;
-    private List<KeyCode> JumpMovement;
+    private List<string> Movement;
+    private List<string> Jump;
 
     public void PlayerFactoryInit( 
         Vector2 coords, 
@@ -31,9 +30,8 @@ public class PlayerFactory : MonoBehaviour
         float itemHeight,
         int numberOfPlayers,
         List<GameObject> PlayerPrefabs,
-        List<KeyCode> rightMovement,
-        List<KeyCode> leftMovement,
-        List<KeyCode> jumpMovement,
+        List<string> Movement,
+        List<string> Jump,
         bool isNewGame
         )
     {
@@ -47,9 +45,8 @@ public class PlayerFactory : MonoBehaviour
         IsNewGame = isNewGame;
 
         //PlayerSprites = new List<Sprite>(playerSprites);
-        RightMovement = new List<KeyCode>(rightMovement);
-        LeftMovement = new List<KeyCode>(leftMovement);
-        JumpMovement = new List<KeyCode>(jumpMovement);
+        this.Movement = new List<string>(Movement);
+        this.Jump = new List<string>(Jump);
 
         // Unchangable initializations
         PlayerCounter = 0;
@@ -70,7 +67,7 @@ public class PlayerFactory : MonoBehaviour
             //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             // Init player properties
-            player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+            player.PlayerInit(Movement[i], Jump[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
         }
     }
 
@@ -94,7 +91,7 @@ public class PlayerFactory : MonoBehaviour
                     Debug.Log("player's " + i + " player is correct!");
                 }
                 // Init player properties
-                player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
+                player.PlayerInit(Movement[i],Jump[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
 
                 Debug.Log("pid: " + playerID + " other inv: " + player.GetOthersItemInventory().Length);
                 Debug.Log("pid: " + playerID + " my inv: " + player.GetMyItemInventory().Length);
