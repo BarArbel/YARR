@@ -106,7 +106,7 @@ public class Enemy : MonoBehaviour
 
                 // Get player that matches enemy
                 if (gameObjs[i].GetComponent<Player>() != null &&
-                    (playerObj.GetID() == ID || playerObj.GetID() == -1) && playerObj.GetHealth() > 0)
+                    (playerObj.GetID() == ID || GetID() == -1) && playerObj.GetHealth() > 0)
                 {
                     PlayersDistance1st.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
                 }
@@ -129,7 +129,7 @@ public class Enemy : MonoBehaviour
 
                     // Get player that matches enemy
                     if (gameObjs[i].GetComponent<Player>() != null &&
-                    (playerObj.GetID() == ID || playerObj.GetID() == -1) && playerObj.GetHealth() > 0)
+                    (playerObj.GetID() == ID || GetID() == -1) && playerObj.GetHealth() > 0)
                     {
                         PlayerssDistance2nd.Add(gameObjs[i].GetInstanceID(), Math.Abs(Vector3.Distance(gameObjs[i].transform.position, transform.position)));
                     }
@@ -158,7 +158,8 @@ public class Enemy : MonoBehaviour
     void ResponseIdentified()
     {
         // TODO: tweak response time
-        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerResponseTime, GetID(),0,0, (int)(ResponseTime*100), 0, GetGameMode());
+        Debug.Log("Response: " + ResponseTime * 1000);
+        DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerResponseTime, GetID(),0,0, (int)(ResponseTime*1000), 0, GetGameMode());
         ResponseTime = -1;
     }
 

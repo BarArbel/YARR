@@ -37,7 +37,7 @@ public class EnemyFactory : ObjectFactory
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
 
         // TODO: write this better
-        if (levels[2] - 1 < 0)
+        if (levels[2] - 1 < 1)
         {
             SpawnRateRange = LevelsOf_SpawnRateRange[0];
             Speed = LevelsOf_Speed[0];
@@ -48,7 +48,7 @@ public class EnemyFactory : ObjectFactory
             Speed = LevelsOf_Speed[levels[2] - 1];
         }
 
-        if (levels[1] - 1 < 0)
+        if (levels[1] - 1 < 1)
         {
             TurnsAvailable = LevelsOf_TurnsAvailable[0];
             TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[0];

@@ -36,7 +36,7 @@ public class ItemFactory : ObjectFactory
 
         // TODO: write this better
         // general level = Difficulty indexes carried from round to round
-        if (levels[0] - 1 < 0)
+        if (levels[0] - 1 < 1)
         {
             DestroyTimer = LevelsOf_DestroyTimer[0];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[0];
