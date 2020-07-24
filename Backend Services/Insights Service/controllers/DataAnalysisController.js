@@ -313,7 +313,7 @@ async function StudyQueries(studyId) {
         engagement_percent
     )
     
-    select ResearcherId, StudyId,eid ExperimentId, Title ExperimentTitle, 
+    select ResearcherId, StudyId,eid ExperimentId, 
     MAX(engagement_percent) HighestEngagement, 
     AVG(engagement_percent) MeanEngagement,
     (SELECT
@@ -341,8 +341,7 @@ async function StudyQueries(studyId) {
     LEFT JOIN (select Playerid pid, engagement_percent from yarr.engagement_levels where studyId = ${studyId}) as el on pid = full_exp.playerId
     where studyId = ${studyId}
     group by 1,2,3,4,7,8,10,11,14,15,16)
-    ON DUPLICATE KEY UPDATE ExperimentTitle = VALUES(ExperimentTitle),
-    HighestEngagement = VALUES(HighestEngagement),
+    ON DUPLICATE KEY UPDATE HighestEngagement = VALUES(HighestEngagement),
     MeanEngagement = VALUES(MeanEngagement),
     MedianEngagement = VALUES(MedianEngagement),
     ModeEngagement = VALUES(ModeEngagement),
@@ -373,7 +372,6 @@ async function StudyQueries(studyId) {
     ResearcherId,
     StudyId,
     ExperimentId,
-    Title ExperimentTitle,
     FLOOR(Timestamp) TimeAxis,
     FLOOR(AVG(IF(Event = 'playerClickCount',Item,0))) Clicks,
     FLOOR(AVG(IF(Event = 'playerResponseTime',Item/100,0))) ResponseTime,

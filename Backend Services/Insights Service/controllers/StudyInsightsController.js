@@ -185,15 +185,22 @@ module.exports = {
       else {
         let data = []
         results.map(line => {
-          data.push({
-            experiment: line.ExperimentTitle,
-            highest: parseInt(line.HighestEngagement),
-            mean: parseInt(line.MeanEngagement),
-            median: parseInt(line.MedianEngagement),
-            mode: parseInt(line.ModeEngagement),
-            range: parseInt(line.RangeEngagement)
+          connection.query(`SELECT Title FROM experiments WHERE ExperimentId = "${line.ExperimentId}"`, (error, title_res) => {
+            if (error || !title_res.length) {
+              res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}')
+            }
+            else {
+              data.push({
+                experiment: title_res[0].Title,
+                highest: parseInt(line.HighestEngagement),
+                mean: parseInt(line.MeanEngagement),
+                median: parseInt(line.MedianEngagement),
+                mode: parseInt(line.ModeEngagement),
+                range: parseInt(line.RangeEngagement)
+              });
+              return null;
+            }
           });
-          return null;
         });
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
       }
@@ -224,21 +231,40 @@ module.exports = {
         let experimentNames = [];
         let names = ["Difficulty", "ResponseTime"];
         let tempResults = results;
-        while(tempResults.length) {
-          let data = [];
-          let filteredResults = tempResults.filter(line => line.ExperimentTitle === tempResults[0].ExperimentTitle);
-          tempResults = tempResults.filter(line => line.ExperimentTitle !== tempResults[0].ExperimentTitle);
-          experimentNames.push(filteredResults[0].ExperimentTitle);
-          filteredResults = filteredResults.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
-          let currDiff = 0;
-          filteredResults.map(line => {
-            currDiff += parseInt(line.DifficultyChange);
-            data.push({ time: line.TimeAxis, ResponseTime: line.ResponseTime, Difficulty: currDiff, experimentTitle: line.ExperimentTitle });
-          });
-
-          dataSets.push(data);
+        let experiments = "";
+        let experimentIds = [];
+        for(i = 0; i < tempResults.length; ++i) {
+          if(!experimentIds.includes(tempResults[i].ExperimentId)) {
+            experimentIds.push(tempResults[i].ExperimentId);
+            experiments.append("ExperimentId = " + tempResults[i].ExperimentId + " OR ");
+          }
         }
-        res.status(200).send(`{"result": "Success", "dataSets": ${JSON.stringify(dataSets)}, "experimentNames": ${JSON.stringify(experimentNames)}, "names": ${JSON.stringify(names)}}`);
+        // Remove the last " OR " from the string
+        experiments = experiments.slice(0, -4);
+        let title_query = "SELECT ExperimentId, Title FROM experiments WHERE" + experiments;
+        connection.query(title_query, (error, title_res) => {
+          if (error || !title_res.length) {
+            res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}');
+          }
+          else {
+            while(tempResults.length) {
+              let data = [];
+              let filteredResults = tempResults.filter(line => line.ExperimentId === title_res[0].ExperimentId);
+              tempResults = tempResults.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
+              title_res = title_res.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
+              experimentNames.push(title_res[0].Title);
+              filteredResults = filteredResults.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
+              let currDiff = 0;
+              filteredResults.map(line => {
+                currDiff += parseInt(line.DifficultyChange);
+                data.push({ time: line.TimeAxis, ResponseTime: line.ResponseTime, Difficulty: currDiff, experimentTitle: title_res[0].Title });
+              });
+
+              dataSets.push(data);
+            }
+            res.status(200).send(`{"result": "Success", "dataSets": ${JSON.stringify(dataSets)}, "experimentNames": ${JSON.stringify(experimentNames)}, "names": ${JSON.stringify(names)}}`);
+          }
+        });
       }
     });
   },
