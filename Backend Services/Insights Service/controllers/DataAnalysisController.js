@@ -340,7 +340,7 @@ async function StudyQueries(studyId) {
     from full_exp
     LEFT JOIN (select Playerid pid, engagement_percent from yarr.engagement_levels where studyId = ${studyId}) as el on pid = full_exp.playerId
     where studyId = ${studyId}
-    group by 1,2,3,4,7,8,10,11,14,15,16)
+    group by 1,2,3,6,7,9,10,13,14,15)
     ON DUPLICATE KEY UPDATE HighestEngagement = VALUES(HighestEngagement),
     MeanEngagement = VALUES(MeanEngagement),
     MedianEngagement = VALUES(MedianEngagement),
@@ -377,7 +377,7 @@ async function StudyQueries(studyId) {
     FLOOR(AVG(IF(Event = 'playerResponseTime',Item/100,0))) ResponseTime,
     If(Event = 'lvlUp',1,IF(Event = 'lvlDown',-1,0)) DifficultyChange
     FROM full_exp
-    GROUP BY 1,2,3,4,5,8
+    GROUP BY 1,2,3,4,7
     ON DUPLICATE KEY UPDATE Clicks = VALUES(Clicks),
     ResponseTime = VALUES(ResponseTime),
     DifficultyChange = VALUES(DifficultyChange);`;
