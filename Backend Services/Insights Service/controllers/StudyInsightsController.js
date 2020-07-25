@@ -236,7 +236,7 @@ module.exports = {
         for(i = 0; i < tempResults.length; ++i) {
           if(!experimentIds.includes(tempResults[i].ExperimentId)) {
             experimentIds.push(tempResults[i].ExperimentId);
-            experiments.append("ExperimentId = " + tempResults[i].ExperimentId + " OR ");
+            experiments = experiments.concat(`ExperimentId = ${tempResults[i].ExperimentId} OR `);
           }
         }
         // Remove the last " OR " from the string
