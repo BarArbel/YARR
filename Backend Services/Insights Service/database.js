@@ -11,8 +11,8 @@ var connection = mysql.createConnection({
 });
 
 connection.connect();
-const query = util.promisify(connection.query).bind(connection);
+const promisify_query = util.promisify(connection.query).bind(connection);
 
 module.exports = {
-  connection, query
+  connection, promisify_query
 }

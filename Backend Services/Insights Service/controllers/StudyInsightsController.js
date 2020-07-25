@@ -1,5 +1,6 @@
 var fetch = require("node-fetch");
-const { connection } = require('../database.js');
+const { connection, promisify_query } = require('../database.js');
+const { query } = require("express");
 
 async function verifyRequest(req) {
   const { userInfo, bearerKey } = req.body
@@ -178,33 +179,36 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM study_insights_radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`, (error, results) => {
-      if (error || !results.length) {
+    try{
+      const radar_result = await promisify_query(`SELECT * FROM study_insights_radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`);
+      if(!radar_result.length) {
         res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
       }
       else {
-        let data = []
-        results.map(line => {
-          connection.query(`SELECT Title FROM experiments WHERE ExperimentId = "${line.ExperimentId}"`, (error, title_res) => {
-            if (error || !title_res.length) {
-              res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}')
-            }
-            else {
-              data.push({
-                experiment: title_res[0].Title,
-                highest: parseInt(line.HighestEngagement),
-                mean: parseInt(line.MeanEngagement),
-                median: parseInt(line.MedianEngagement),
-                mode: parseInt(line.ModeEngagement),
-                range: parseInt(line.RangeEngagement)
-              });
-              return null;
-            }
-          });
+        let data = [];
+        radar_result.map(async line => {
+          let title_result = await promisify_query(`SELECT Title FROM experiments WHERE ExperimentId = "${line.ExperimentId}"`);
+          if(!title_result.length) {
+            res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}')
+          }
+          else {
+            data.push({
+              experiment: title_result[0].Title,
+              highest: parseInt(line.HighestEngagement),
+              mean: parseInt(line.MeanEngagement),
+              median: parseInt(line.MedianEngagement),
+              mode: parseInt(line.ModeEngagement),
+              range: parseInt(line.RangeEngagement)
+            })
+          }
         });
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
       }
-    });
+    }
+    catch(err){
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`);
+      return;
+    }
   },
 
   requestAllInsightMixed: async (req, res) => {
