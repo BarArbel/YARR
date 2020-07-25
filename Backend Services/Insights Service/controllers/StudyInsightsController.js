@@ -251,8 +251,8 @@ module.exports = {
               let data = [];
               let filteredResults = tempResults.filter(line => line.ExperimentId === title_res[0].ExperimentId);
               tempResults = tempResults.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
-              title_res = title_res.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
               experimentNames.push(title_res[0].Title);
+              title_res = title_res.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
               filteredResults = filteredResults.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
               let currDiff = 0;
               filteredResults.map(line => {
