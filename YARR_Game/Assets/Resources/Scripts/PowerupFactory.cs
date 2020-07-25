@@ -18,8 +18,8 @@ public class PowerupFactory : ObjectFactory
 
     protected override void ModifyLevelSettings()
     {
-        List<int> levels = GetLevels();
-        Debug.Log("item factory levels = " + levels[0] + levels[0] + " player = " + GetID());
+        int level = GetLevels();
+        Debug.Log("item factory levels = " + level + " player = " + GetID());
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;
@@ -33,18 +33,18 @@ public class PowerupFactory : ObjectFactory
         };
 
         // TODO: write this better
-        if (levels[0] - 1 < 0)
+        if (level - 1 < 0)
         {
             DestroyTimer = LevelsOf_DestroyTimer[0];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[0];
         }
         else
         {
-            DestroyTimer = LevelsOf_DestroyTimer[levels[0] - 1];
-            SpawnHeightRange = LevelsOf_SpawnHeightRange[levels[0] - 1];
+            DestroyTimer = LevelsOf_DestroyTimer[level - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[level - 1];
         }
 
-        LevelTimerAndSpawn = levels[0];
+        LevelTimerAndSpawn = level;
         // TODO: Do we need this?
         /*if (!IsLevelModified)
             {

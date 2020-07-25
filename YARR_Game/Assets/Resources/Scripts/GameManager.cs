@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
     private bool CountDownExecuted = true;
 
     // Difficulties carried from round to round
-    private List<List<int>> PlayerDifficIndexes; 
+    private int[] PlayerDifficIndexes; 
 
     // Game settings
     private GameMode Mode;
@@ -293,16 +293,10 @@ public class GameManager : MonoBehaviour
         PowerupFactories = new List<ObjectFactory>();
 
         // Initialize player difficulties
-        PlayerDifficIndexes = new List<List<int>>();
+        PlayerDifficIndexes = new int[NumberOfPlayers];
         for (int i=0; i<NumberOfPlayers; i++)
         {
-            List<int> diffics = new List<int>();
-
-            // TODO: change this hardcoded number
-            for (int j = 0; j < 3; j++)
-                diffics.Add((int)difficulty);
-
-            PlayerDifficIndexes.Add(diffics);
+            PlayerDifficIndexes[i] = (int)difficulty;
         }
 
         // Load ALL possible sprites
@@ -618,9 +612,7 @@ public class GameManager : MonoBehaviour
             Debug.Log("CurrentRound = " + CurrentRound);
             for (int i=0; i< NumberOfPlayers; i++)
             {
-                // TODO: change this hardcoded number
-                for (int j = 0; j < 3; j++)
-                    lvlsum += PlayerDifficIndexes[i][j];
+                    lvlsum += PlayerDifficIndexes[i];
             }
             lvlMean = (int)Math.Floor((double)(lvlsum / (NumberOfPlayers*3)));
             lvlMean = lvlMean < 2 ? 2 : lvlMean;
@@ -631,17 +623,16 @@ public class GameManager : MonoBehaviour
                 // Adaptive
                 if (Difficulty == Level.Adaptive)
                 {
+
                     if (Mode == GameMode.Competitive)
                     {
                         if (CurrentRound == 1)
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = 2;
+                                PlayerDifficIndexes[i] = 2;
                         }
                         else
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = lvlMean;
+                                PlayerDifficIndexes[i] = lvlMean;
                         }
 
                         EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, EnemyPrefabs[EnemyPrefabs.Count - 1], EnemySprites[EnemySprites.Count - 1], IsNewRound, false);
@@ -650,8 +641,7 @@ public class GameManager : MonoBehaviour
                     {
                         if (CurrentRound == 1)
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = 2;
+                                PlayerDifficIndexes[i] = 2;
                         }
                         EnemyFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], EnemyPrefabs[i], EnemySprites[i], IsNewRound, false);
                     }
@@ -685,13 +675,11 @@ public class GameManager : MonoBehaviour
                         //ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
                         if (CurrentRound == 1)
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = 2;
+                                PlayerDifficIndexes[i] = 2;
                         }
                         else
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = lvlMean;
+                                PlayerDifficIndexes[i] = lvlMean;
                         }
                         ItemFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound, false);
                     }
@@ -702,8 +690,7 @@ public class GameManager : MonoBehaviour
                         ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
                         if (CurrentRound == 1)
                         {
-                            for (int j = 0; j < 3; j++)
-                                PlayerDifficIndexes[i][j] = 2;
+                                PlayerDifficIndexes[i] = 2;
                         }
                         ItemFactories[i].FactoryInit(i + 1, PlayerDifficIndexes[i], itemObj, ItemSprites[i], IsNewRound, false);
                     }
@@ -948,20 +935,21 @@ public class GameManager : MonoBehaviour
                     LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
                     LevelGeneral = LevelPrecision;
                     // Assuming the new change is in range
-                    if (!(PlayerDifficIndexes[i][0] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelGeneral == 1))
+                    if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
                     {
                         //TODO: redo this later
-                        if (PlayerDifficIndexes[i][0] + LevelGeneral > 5)
+                        // PlayerDifficIndexes is the current index, in a static game it doesn't show what it's supposed to be next
+                        if (PlayerDifficIndexes[i] + LevelGeneral > 5)
                         {
-                            PlayerDifficIndexes[i][0] = 5;
+                            PlayerDifficIndexes[i] = 5;
                         }
-                        else if (PlayerDifficIndexes[i][0] + LevelGeneral < 1)
+                        else if (PlayerDifficIndexes[i] + LevelGeneral < 1)
                         {
-                            PlayerDifficIndexes[i][0] = 1;
+                            PlayerDifficIndexes[i] = 1;
                         }
                         else
                         {
-                            PlayerDifficIndexes[i][0] += LevelGeneral;
+                            PlayerDifficIndexes[i] += LevelGeneral;
                             EnemyFactories[i].SetDDAChanges(LevelGeneral);
                             ItemFactories[i].SetDDAChanges(LevelGeneral);
                             Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
@@ -988,21 +976,21 @@ public class GameManager : MonoBehaviour
                 LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
                 LevelGeneral = LevelPrecision;
                 // Save difficulty updated from DDA 
-                if (!(PlayerDifficIndexes[i][0] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i][0] == 6 && LevelGeneral == 1))
+                if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
                 {
 
                     //TODO: redo this later
-                    if (PlayerDifficIndexes[i][0] + LevelGeneral > 5)
+                    if (PlayerDifficIndexes[i] + LevelGeneral > 5)
                     {
-                        PlayerDifficIndexes[i][0] = 5;
+                        PlayerDifficIndexes[i] = 5;
                     }
-                    else if (PlayerDifficIndexes[i][0] + LevelGeneral < 1)
+                    else if (PlayerDifficIndexes[i] + LevelGeneral < 1)
                     {
-                        PlayerDifficIndexes[i][0] = 1;
+                        PlayerDifficIndexes[i] = 1;
                     }
                     else
                     {
-                        PlayerDifficIndexes[i][0] += LevelGeneral;
+                        PlayerDifficIndexes[i] += LevelGeneral;
                         EnemyFactories[i].SetDDAChanges(LevelGeneral);
                         ItemFactories[i].SetDDAChanges(LevelGeneral);
                         Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);

@@ -13,7 +13,7 @@ public abstract class ObjectFactory : MonoBehaviour
     protected bool IsLevelModified;
 
     private int ID;
-    private List<int> Levels;
+    private int Level;
     private int2 TempSpawnRate;
 
     protected int2 SpawnRateRange;
@@ -32,26 +32,26 @@ public abstract class ObjectFactory : MonoBehaviour
     protected int StartingDifficulty;
 
 
-    public void FactoryInit(int id, List<int> levels, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
+    public void FactoryInit(int id, int level, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
     {
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
         IsLevelModified = false;
-        SetLevels(levels);
+        SetLevels(level);
         IsNewGame = isNewGame;
         IsStatic = isStatic;
 
     }
   
-    public void FactoryInit(int id, List<int> levels, int startingDifficulty, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
+    public void FactoryInit(int id, int level, int startingDifficulty, GameObject prefab, Sprite sprite, bool isNewGame, bool isStatic)
     {
         ID = id;
         Prefab = prefab;
         Sprite = sprite;
         IsLevelModified = false;
         SetStartingDifficulty(startingDifficulty);
-        SetLevels(levels);
+        SetLevels(level);
         IsNewGame = isNewGame;
         IsStatic = isStatic;
 
@@ -59,7 +59,7 @@ public abstract class ObjectFactory : MonoBehaviour
 
     // Getters
     public int          GetID()                 { return ID; }
-    public List<int>    GetLevels()              { return Levels; }
+    public int          GetLevels()              { return Level; }
    
     public int          GetStartingDifficulty() { return StartingDifficulty; }
     public int2         GetSpawnRateRange()     { return SpawnRateRange; }
@@ -71,16 +71,14 @@ public abstract class ObjectFactory : MonoBehaviour
     public Sprite       GetSprite()             { return Sprite; }
 
     // Setters
-    public void SetLevels(List<int> levels)
+    public void SetLevels(int level)
     {
-        Levels = levels;
+        Level = level;
         ModifyLevelSettings();
     }
     public void ModifyLevels(int LevelGeneral)
     {
-        Levels[0] += LevelGeneral;
-        Levels[1] += LevelGeneral;
-        Levels[2] += LevelGeneral;
+        Level += LevelGeneral;
         ModifyLevelSettings();
     }
 
