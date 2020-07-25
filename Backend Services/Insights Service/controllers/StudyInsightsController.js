@@ -183,26 +183,30 @@ module.exports = {
       const radar_result = await promisify_query(`SELECT * FROM study_insights_radar WHERE ResearcherId = "${researcherId}" AND studyId = "${studyId}"`);
       if(!radar_result.length) {
         res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        return;
       }
       else {
         let data = [];
-        radar_result.map(async line => {
-          let title_result = await promisify_query(`SELECT Title FROM experiments WHERE ExperimentId = "${line.ExperimentId}"`);
+        let title_result;
+        for(let i = 0; i < radar_result.length; ++i) {
+          title_result = await promisify_query(`SELECT Title FROM experiments WHERE ExperimentId = "${radar_result[i].ExperimentId}"`);
           if(!title_result.length) {
             res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}')
+            return;
           }
           else {
             data.push({
               experiment: title_result[0].Title,
-              highest: parseInt(line.HighestEngagement),
-              mean: parseInt(line.MeanEngagement),
-              median: parseInt(line.MedianEngagement),
-              mode: parseInt(line.ModeEngagement),
-              range: parseInt(line.RangeEngagement)
+              highest: parseInt(radar_result[i].HighestEngagement),
+              mean: parseInt(radar_result[i].MeanEngagement),
+              median: parseInt(radar_result[i].MedianEngagement),
+              mode: parseInt(radar_result[i].ModeEngagement),
+              range: parseInt(radar_result[i].RangeEngagement)
             })
           }
-        });
+        }
         res.status(200).send(`{"result": "Success", "data": ${JSON.stringify(data)}}`);
+        return;
       }
     }
     catch(err){
