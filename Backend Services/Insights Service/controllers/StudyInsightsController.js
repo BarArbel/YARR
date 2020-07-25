@@ -230,17 +230,20 @@ module.exports = {
       return;
     }
 
-    connection.query(`SELECT * FROM study_insights_mixed WHERE ResearcherId = "${researcherId}" AND StudyId = "${studyId}"`, (error, results) => {
-      if (error || !results.length) {
+    try {
+      const mixed_result = await promisify_query(`SELECT * FROM study_insights_mixed WHERE ResearcherId = "${researcherId}" AND StudyId = "${studyId}"`);
+      if(!mixed_result.length) {
         res.status(204).send('{"result": "Failure", "error": "ResearcherId or StudyId does not exist."}');
+        return;
       }
       else {
         let dataSets = [];
         let experimentNames = [];
         let names = ["Difficulty", "ResponseTime"];
-        let tempResults = results;
+        let tempResults = mixed_result;
         let experiments = "";
         let experimentIds = [];
+
         for(i = 0; i < tempResults.length; ++i) {
           if(!experimentIds.includes(tempResults[i].ExperimentId)) {
             experimentIds.push(tempResults[i].ExperimentId);
@@ -249,32 +252,42 @@ module.exports = {
         }
         // Remove the last " OR " from the string
         experiments = experiments.slice(0, -4);
-        let title_query = "SELECT ExperimentId, Title FROM experiments WHERE" + experiments;
-        connection.query(title_query, (error, title_res) => {
-          if (error || !title_res.length) {
-            res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}');
-          }
-          else {
-            while(tempResults.length) {
-              let data = [];
-              let filteredResults = tempResults.filter(line => line.ExperimentId === title_res[0].ExperimentId);
-              tempResults = tempResults.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
-              experimentNames.push(title_res[0].Title);
-              title_res = title_res.filter(line => line.ExperimentId !== title_res[0].ExperimentId);
-              filteredResults = filteredResults.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
-              let currDiff = 0;
-              filteredResults.map(line => {
-                currDiff += parseInt(line.DifficultyChange);
-                data.push({ time: line.TimeAxis, ResponseTime: line.ResponseTime, Difficulty: currDiff, experimentTitle: title_res[0].Title });
-              });
 
-              dataSets.push(data);
+        let title_query = "SELECT ExperimentId, Title FROM experiments WHERE " + experiments;
+        let title_result = await promisify_query(title_query);
+        if(!title_result.length) {
+          res.status(204).send('{"result": "Failure", "error": "ExperimentId does not exist."}');
+          return;
+        }
+        else {
+          while(tempResults.length) {
+            let data = [];
+            let filteredResults = tempResults.filter(line => line.ExperimentId === title_result[0].ExperimentId);
+            experimentNames.push(title_result[0].Title);
+            tempResults = tempResults.filter(line => line.ExperimentId !== title_result[0].ExperimentId);
+            filteredResults = filteredResults.sort((a, b) => parseInt(a.TimeAxis) - parseInt(b.TimeAxis));
+            let currDiff = 0;
+            for(let i = 0; i < filteredResults.length; ++i) {
+              currDiff += parseInt(filteredResults[i].DifficultyChange);
+              data.push({
+                time: filteredResults[i].TimeAxis,
+                ResponseTime: filteredResults[i].ResponseTime,
+                Difficulty: currDiff,
+                experimentTitle: title_result[0].Title
+              });
             }
-            res.status(200).send(`{"result": "Success", "dataSets": ${JSON.stringify(dataSets)}, "experimentNames": ${JSON.stringify(experimentNames)}, "names": ${JSON.stringify(names)}}`);
+            title_result = title_result.filter(line => line.ExperimentId !== title_result[0].ExperimentId);
+            dataSets.push(data);
           }
-        });
+          res.status(200).send(`{"result": "Success", "dataSets": ${JSON.stringify(dataSets)}, "experimentNames": ${JSON.stringify(experimentNames)}, "names": ${JSON.stringify(names)}}`);
+          return;
+        }
       }
-    });
+    }
+    catch(err){
+      res.status(400).send(`{"result": "Failure", "error": ${JSON.stringify(err)}}`);
+      return;
+    }
   },
 
   requestInsightBars: async(req, res) => {
