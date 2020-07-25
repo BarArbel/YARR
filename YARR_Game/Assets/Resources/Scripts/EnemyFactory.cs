@@ -22,7 +22,7 @@ public class EnemyFactory : ObjectFactory
     protected override void ModifyLevelSettings()
     {
         // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
-        List<int> levels = GetLevels();
+        int level = GetLevels();
         DestroyTimer = 10f;
         Damage = 1;
 
@@ -37,30 +37,30 @@ public class EnemyFactory : ObjectFactory
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
 
         // TODO: write this better
-        if (levels[2] - 1 < 1)
+        if (level - 1 < 1)
         {
             SpawnRateRange = LevelsOf_SpawnRateRange[0];
             Speed = LevelsOf_Speed[0];
         }
         else
         {
-            SpawnRateRange = LevelsOf_SpawnRateRange[levels[2] - 1];
-            Speed = LevelsOf_Speed[levels[2] - 1];
+            SpawnRateRange = LevelsOf_SpawnRateRange[level - 1];
+            Speed = LevelsOf_Speed[level - 1];
         }
 
-        if (levels[1] - 1 < 1)
+        if (level - 1 < 1)
         {
             TurnsAvailable = LevelsOf_TurnsAvailable[0];
             TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[0];
         }
         else
         {
-            TurnsAvailable = LevelsOf_TurnsAvailable[levels[1] - 1];
-            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[levels[1] - 1];
+            TurnsAvailable = LevelsOf_TurnsAvailable[level - 1];
+            TimeBetweenPathRecalculation = LevelsOf_TimeBetweenPathRecalculation[level - 1];
         }
 
-        LevelPrecision = levels[1];
-        LevelSpeedAndSpawn = levels[2];
+        LevelPrecision = level;
+        LevelSpeedAndSpawn = level;
         // TODO: Do we need this?
         /*if (!IsLevelModified)
         {

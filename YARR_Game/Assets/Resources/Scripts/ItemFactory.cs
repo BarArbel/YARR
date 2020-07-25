@@ -20,8 +20,8 @@ public class ItemFactory : ObjectFactory
     protected override void ModifyLevelSettings()
     {
         // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
-        List<int> levels = GetLevels();
-        Debug.Log("Levels: " + levels[0]+levels[1]+levels[2] + " player = " + GetID());
+        int level = GetLevels();
+        Debug.Log("Level: " + level + " player = " + GetID());
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;
@@ -36,18 +36,18 @@ public class ItemFactory : ObjectFactory
 
         // TODO: write this better
         // general level = Difficulty indexes carried from round to round
-        if (levels[0] - 1 < 1)
+        if (level - 1 < 1)
         {
             DestroyTimer = LevelsOf_DestroyTimer[0];
             SpawnHeightRange = LevelsOf_SpawnHeightRange[0];
         }
         else
         {
-            DestroyTimer = LevelsOf_DestroyTimer[levels[0] - 1];
-            SpawnHeightRange = LevelsOf_SpawnHeightRange[levels[0] - 1];
+            DestroyTimer = LevelsOf_DestroyTimer[level - 1];
+            SpawnHeightRange = LevelsOf_SpawnHeightRange[level - 1];
         }
 
-        LevelTimerAndSpawn = levels[0];
+        LevelTimerAndSpawn = level;
         // TODO: Do we need this?
         /*if (!IsLevelModified)
             {
