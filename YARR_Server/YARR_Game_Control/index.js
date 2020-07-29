@@ -32,7 +32,7 @@ async function generateInterrGameCode() {
       }
     }
     catch(err) {
-      //What to do?
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
       return;
     }
   }
@@ -41,7 +41,6 @@ async function generateInterrGameCode() {
 
 // Set a game that stopped abruptly as an interrupted instance
 async function setInterruptedGame(instanceId, experimentId) {
-  console.log("I'm trying to take care of interruption:");
   let gameCode
   // Update instance as Interrupted instead of running
   let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
@@ -51,21 +50,21 @@ async function setInterruptedGame(instanceId, experimentId) {
     await query_platform(sql_update_instance);
   }
   catch(err) {
-    throw err;
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+    return;
   }
   // Generate game code
   gameCode = await generateInterrGameCode();
-  console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
-  // MIRI HERE IS A BIG SCREAMING COMMANTz
   let sql_add_instance = `INSERT INTO ${process.env.DATABASE_PLATFORM}.interupted_instances (InstanceId, ExperimentId, GameCode)
                                 VALUES ('${instanceId}',${parseInt(experimentId)},'${gameCode}');`;
   try {
     await query_platform(sql_add_instance);
   }
   catch(err) {
-    throw err;
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+    return;
   }
   // TODO: Notify DDA? close module?
 }
@@ -124,7 +123,8 @@ io.on('connection', async socket =>{
       socket.broadcast.emit('message', `table ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} was created`);
     }
     catch(err) {
-      throw err;
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      return;
     }
 
     const sql2 = `CREATE TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} (
@@ -149,7 +149,15 @@ io.on('connection', async socket =>{
       socket.broadcast.emit('message', `table ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} was created`);
     }
     catch (err) {
-      throw err;
+      try{
+        await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
+      }
+      catch (err2) {
+        socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+        return;
+      }
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      return;
     }
   });
 
@@ -161,8 +169,15 @@ io.on('connection', async socket =>{
     console.log(data);
     mysqlConnection_platform.query(sql1, (error, results) => {
         if (error || !results.length) {
-          // TODO: Take care of exception
-          socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+          try{
+            await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
+            await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
+          }
+          catch (err2) {
+            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+            return;
+          }
+          socket.emit('errorMenu', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
         }
         else {
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)

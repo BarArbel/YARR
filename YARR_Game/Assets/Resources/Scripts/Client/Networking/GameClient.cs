@@ -113,6 +113,10 @@ namespace Project.Networking
                 }
             });
 
+            On("errorMenu", (E) => {
+                SceneManager.LoadScene("Game");
+            });
+
         }
     }
 }
