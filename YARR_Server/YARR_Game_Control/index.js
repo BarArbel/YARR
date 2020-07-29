@@ -1,5 +1,4 @@
 require('dotenv').config()
-//const fetch = require("node-fetch");
 const io = require('socket.io')(process.env.PORT || 52301);
 const { mysqlConnection_platform, mysqlConnection_dda } = require("./connection");
 const Table = require('./Classes/Table.js');
