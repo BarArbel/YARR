@@ -13,7 +13,7 @@ console.log('Server has started');
 const tables = [];
 
 // Generate a game code for restarting an interrupted game
-async function generateInterrGameCode() {
+async function generateInterrGameCode(socket) {
   const pattern = '^[0-9][A-Z0-9]{5}';
   let found = true;
   let gameCode;
@@ -40,7 +40,7 @@ async function generateInterrGameCode() {
 }
 
 // Set a game that stopped abruptly as an interrupted instance
-async function setInterruptedGame(instanceId, experimentId) {
+async function setInterruptedGame(instanceId, experimentId, socket) {
   console.log("I'm trying to take care of interruption:");
   let gameCode
   // Update instance as Interrupted instead of running
@@ -55,7 +55,7 @@ async function setInterruptedGame(instanceId, experimentId) {
     return;
   }
   // Generate game code
-  gameCode = await generateInterrGameCode();
+  gameCode = await generateInterrGameCode(socket);
   console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
@@ -68,6 +68,19 @@ async function setInterruptedGame(instanceId, experimentId) {
     socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
     return;
   }
+}
+
+// Take care of DB access exception
+async function exceptionDBAccess(msg, table, err, socket) {
+  try{
+    await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
+    await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
+  }
+  catch (err2) {
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err2 });
+    return;
+  }
+  socket.emit('errorMenu', {message: msg, 'error': err});
 }
 
 io.on('connection', async socket =>{
@@ -170,25 +183,16 @@ io.on('connection', async socket =>{
     console.log(data);
     mysqlConnection_platform.query(sql1, async (error, results) => {
         if (error || !results.length) {
-          try{
-            await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
-            await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
-          }
-          catch (err2) {
-            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err2 });
-            return;
-          }
-          socket.emit('errorMenu', {message: "There's no experiment with such ID", 'error': err});
+          exceptionDBAccess("There's no experiment with such ID", table, err, socket)
         }
         else {
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
           VALUES  (${results[0]["StudyId"]},${results[0]["ExperimentId"]},"${table.time}_${table.id}",${table.time}, "running", false);`;
           console.log(sql2);
           studyId = results[0]["StudyId"];
-          mysqlConnection_platform.query(sql2, (error, results) => {
+          mysqlConnection_platform.query(sql2, async (error, results) => {
             if (error || !results.length) {
-              // TODO: Take care of exception
-              socket.emit('unableToAddInstanceData', {message: "Adding instance data failed", instanceId: `${table.time}_${table.id}`});
+              exceptionDBAccess("Adding instance data failed", table, err, socket)
             }});
 
        } 
@@ -203,7 +207,7 @@ io.on('connection', async socket =>{
           console.log("is it interrupted?" + isInterr);
           if (isInterr === true) {
             console.log("THE GAME IS VERY MUCH INTERRUPTED");
-            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, socket);
           }
         }, 30000);
     }
@@ -233,8 +237,7 @@ io.on('connection', async socket =>{
     const sql2 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
     mysqlConnection_platform.query(sql2, (error, results) => {
       if (error || !results.length) {
-        // TODO: Take care of exception
-        socket.emit('noAvailableExpData', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+        exceptionDBAccess("There's no experiment with such ID", table, err, socket);
       }
       else {
         studyId = results[0]["StudyId"];
@@ -250,7 +253,7 @@ io.on('connection', async socket =>{
           let isInterr = await checkIfInteruppted();
           if(isInterr === true) {
             console.log("THE GAME IS VERY MUCH INTERRUPTED");
-            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID);
+            setInterruptedGame(`${table.time}_${table.id}`, data.ExperimentID, socket);
           }
         }, 30000);
     }  
@@ -261,7 +264,9 @@ io.on('connection', async socket =>{
     const sql = `INSERT INTO ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
       VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     const { err, rows, fields } = await query_platform(sql)
-    if(err) throw err;
+    if(err) {
+      exceptionDBAccess("Unable to add tracker data", table, err, socket);
+    }
     console.log("data was added");
     console.log("changing StillAlive to true");
     stillAlive = true;
@@ -315,8 +320,7 @@ io.on('connection', async socket =>{
 
     mysqlConnection_platform.query(sql1, (error, results) => {
       if (error || !results.length) {
-        // TODO: Take care of exception
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         for (row in results) {
@@ -328,8 +332,7 @@ io.on('connection', async socket =>{
     const sql2 = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
     mysqlConnection_platform.query(sql2, (error, results) => {
       if (error || !results.length) {
-        // TODO: Take care of exception
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         roundDuration = results[0]["RoundDuration"];
@@ -349,7 +352,6 @@ io.on('connection', async socket =>{
   socket.on('SyncNewScene', (data) => {
     console.log("SyncNewScene");
     console.log(data);
-    //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
     socket.emit('newGameSettings', data);
   });
 
@@ -361,13 +363,11 @@ io.on('connection', async socket =>{
     const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE_PLATFORM}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
     mysqlConnection_platform.query(sql_del_gamecode, (error, results) => {
       if (error || !results.length) {
-        // TODO: Take care of exception
-        socket.emit('noAvailableRoundData', {message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}`});
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
     console.log(sql_del_gamecode);
     });
 
-    //socket.broadcast.emit('newGameSettings', {fuckyou: "fuckoff"});
     socket.emit('interrGameSettings', data);
   });
 
@@ -397,9 +397,8 @@ io.on('connection', async socket =>{
       let sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
       let results = await query_platform(sql_roundsNumber);
       if (!results.length) {
-        // TODO: Take care of exception
+        exceptionDBAccess("There's no experiment with such ID", table, err, socket);
         console.log(sql_roundsNumber);
-        socket.emit('noAvailableExpData', { message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}` });
       }
       else {
         roundsNumber = results[0]["RoundsNumber"];
@@ -410,9 +409,7 @@ io.on('connection', async socket =>{
       let sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} where Event = 'newRound';`;
       results = await query_platform(sql_roundsDone);
       if (!results.length) {
-        // TODO: Take care of exception
-        console.log(sql_roundsDone);
-        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         roundsDone = results[0]["RoundsDone"];
@@ -424,9 +421,7 @@ io.on('connection', async socket =>{
       and RoundNumber >= ${roundsDone} ORDER BY RoundNumber ASC;`;
       results = await query_platform(sql_roundsLeft);
       if (!results.length) {
-        // TODO: Take care of exception
-        console.log(sql_roundsLeft);
-        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         await results.map(row => {
@@ -443,9 +438,7 @@ io.on('connection', async socket =>{
       let sql_expr_settings = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
       results = await query_platform(sql_expr_settings);
       if (!results.length) {
-        // TODO: Take care of exception
-        console.log(sql_expr_settings);
-        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         roundDuration = results[0]["RoundDuration"];
@@ -469,9 +462,7 @@ io.on('connection', async socket =>{
       console.log("PLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOC\n" + sql_pLoc);
       results = await query_platform(sql_pLoc);
       if (!results.length) {
-        // TODO: Take care of exception
-        console.log(sql_pLoc);
-        socket.emit('noAvailableRoundData', { message: "There are no rounds that match this experiment", instanceId: `${table.time}_${table.id}` });
+        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
       }
       else {
         await results.map(row => {
@@ -491,7 +482,6 @@ io.on('connection', async socket =>{
       results = await query_platform(sql_eLoc);
 
       if (!results.length) {
-        // TODO: Take care of exception
         console.log(sql_eLoc);
         enemyLocList.push({ Enemy: 0, CoordX: 0, CoordY: 0 });      }
       else {
@@ -506,7 +496,6 @@ io.on('connection', async socket =>{
       
       results = await query_platform(sql_iLoc);
       if (!results.length) {
-        // TODO: Take care of exception
         console.log(sql_iLoc);
         pickupLocList.push({ Item: 0, CoordX: 0, CoordY: 0 });
       }
@@ -522,7 +511,6 @@ io.on('connection', async socket =>{
     
       results = await query_platform(sql_hiLoc);
       if (!results.length) {
-        // TODO: Take care of exception
         console.log(sql_hiLoc);
         heldPickupLocList.push({ Item: 0, playerID: 0 });
       }
@@ -534,7 +522,9 @@ io.on('connection', async socket =>{
         });
       }
     }
-    catch (err) {console.log("fuck");}
+    catch (err) {
+      exceptionDBAccess("Couldn't retrieve interrupted game data.", table, err, socket);
+    }
     console.log(  {numberOfPlayers:  numOfPlayers, 
                   roundLength:      roundDuration, 
                   blindness:        colorBlindness, 
@@ -619,12 +609,12 @@ io.on('connection', async socket =>{
             }
           }
           catch (insert_error) {
-            console.log(insert_error)
+            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
           }
         }
       }
       catch (select_error) {
-        console.log(select_error)
+        socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
       }
 
       let dda_drop = query_dda(drop_query + dda_table)
@@ -633,7 +623,7 @@ io.on('connection', async socket =>{
 
     }
     catch (error) {
-      console.log(error)
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
     }
 
     // after all queries are done, invoke analyzeData
@@ -650,6 +640,7 @@ io.on('connection', async socket =>{
           console.log("here! good")
         }
         else {
+          // TODO: Take care of exception
           console.log("here! bad")
           console.log(json);
 
@@ -657,13 +648,13 @@ io.on('connection', async socket =>{
       })
     })
       .catch(err => {
+        // TODO: Take care of exception
         console.log("here! very bad")
       });
   });
 
   socket.on('disconnect', async () => {
     console.log('A player has disconnected');
-    //socket.broadcast.emit('message', `table ${process.env.DATABASE}.DDA_Input_${table.time}_${table.id} finished the game`);
     socket.broadcast.emit('message', `table ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} finished the game`);
     console.log("experimentState: "+ experimentState);
     let isInterr = await checkIfInteruppted();
@@ -671,7 +662,7 @@ io.on('connection', async socket =>{
       console.log("THE GAME IS VERY MUCH INTERRUPTED");
       console.log("expid: " + experimentId);
       console.log("instid: "+ table.id);
-      setInterruptedGame(`${table.time}_${table.id}`, experimentId);
+      setInterruptedGame(`${table.time}_${table.id}`, experimentId, socket);
     }
   });
 });
