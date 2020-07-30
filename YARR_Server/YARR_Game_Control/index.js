@@ -41,6 +41,7 @@ async function generateInterrGameCode() {
 
 // Set a game that stopped abruptly as an interrupted instance
 async function setInterruptedGame(instanceId, experimentId) {
+  console.log("I'm trying to take care of interruption:");
   let gameCode
   // Update instance as Interrupted instead of running
   let sql_update_instance = `SET SQL_SAFE_UPDATES=0;
@@ -55,6 +56,7 @@ async function setInterruptedGame(instanceId, experimentId) {
   }
   // Generate game code
   gameCode = await generateInterrGameCode();
+  console.log("wow what a great code: " + gameCode);
   
   // Add instance to interrupted instances
   let sql_add_instance = `INSERT INTO ${process.env.DATABASE_PLATFORM}.interupted_instances (InstanceId, ExperimentId, GameCode)
@@ -66,7 +68,6 @@ async function setInterruptedGame(instanceId, experimentId) {
     socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
     return;
   }
-  // TODO: Notify DDA? close module?
 }
 
 io.on('connection', async socket =>{
@@ -167,17 +168,17 @@ io.on('connection', async socket =>{
     const sql1 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = ${parseInt(data.ExperimentID)} LIMIT 1;`;
     console.log(sql1);
     console.log(data);
-    mysqlConnection_platform.query(sql1, (error, results) => {
+    mysqlConnection_platform.query(sql1, async (error, results) => {
         if (error || !results.length) {
           try{
             await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
             await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
           }
           catch (err2) {
-            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err2 });
             return;
           }
-          socket.emit('errorMenu', {message: "There's no experiment with such ID", instanceId: `${table.time}_${table.id}`});
+          socket.emit('errorMenu', {message: "There's no experiment with such ID", 'error': err});
         }
         else {
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
