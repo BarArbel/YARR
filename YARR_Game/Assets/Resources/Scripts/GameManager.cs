@@ -65,9 +65,11 @@ public class GameManager : MonoBehaviour
     private List<GameObject> PlayerPrefabs;
 
     // Input
-    private List<KeyCode> RightMovement;
-    private List<KeyCode> LeftMovement;
-    private List<KeyCode> JumpMovement;
+    //private List<KeyCode> RightMovement;
+    //private List<KeyCode> LeftMovement;
+    //private List<KeyCode> JumpMovement;
+    List<string> Movement;
+    List<string> Jump;
 
     // Additional player spawner settings
     private Vector2 SpawnLocation;
@@ -343,6 +345,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/2 - CharacterBLUE"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/1 - CharacterGREEN"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/3 - CharacterRED"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureBLUE"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureGREEN"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureRED"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Protanopia:
                         // Players
@@ -358,6 +365,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/2 - CharacterBLUE"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/7 - CharacterYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/3 - CharacterRED"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureBLUE"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOW"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureRED"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Tritanopia:
                         // Players
@@ -373,6 +385,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/10 - CharacterPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/1 - CharacterGREEN"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/3 - CharacterRED"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINK"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureGREEN"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureRED"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     default:
                         break;
@@ -395,13 +412,17 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/13 - CharacterRED"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/14 - FlagSplitRED"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/15 - FlagTriangleRED"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDFlagSplit"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDFlagTriangle"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Protanopia:
                         // Players
                         PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/16 - CharacterYellow"));
                         PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/17 - FlagSplitYellow"));
                         PlayerPrefabs.Add(Resources.Load<GameObject>("Prefabs/Player/18 - FlagTriangleYellow"));
-                        EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
                         // Enemies
                         EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
                         EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/Parrots Shape/YellowParrotFlagSplit"));
@@ -411,6 +432,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/16 - CharacterYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/17 - FlagSplitYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/18 - FlagTriangleYellow"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWFlagSplit"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWFlagTriangle"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Tritanopia:
                         // Players
@@ -426,6 +452,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/19 - CharacterPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/20 - FlagSplitPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/21 - FlagTrianglePink"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKFlagSplit"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKFlagTriangle"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     default:
                         break;
@@ -448,6 +479,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/4 - CharacterRED"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/5 - WheelsRED"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/6 - SpringRED"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDWheel"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDSpring"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Protanopia:
                         // Players
@@ -463,6 +499,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/7 - CharacterYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/8 - WheelsYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/9 - SpringYellow"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWWheel"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWSpring"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     case ColorBlindness.Tritanopia:
                         // Players
@@ -478,6 +519,11 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/10 - CharacterPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/11 - WheelsPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/12 - SpringPink"));
+                        //Treasures
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKWheel"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKSpring"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
                         break;
                     default:
                         break;
@@ -488,10 +534,10 @@ public class GameManager : MonoBehaviour
         }
 
         // Item sprites
-        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure1"));
-        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure2"));
-        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure3"));
-        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
+        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure1"));
+        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure2"));
+        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure3"));
+        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
 
         //Powerup sprites
         PowerupSprites.Add(Resources.Load<Sprite>("Sprites/Powerup"));
@@ -504,31 +550,40 @@ public class GameManager : MonoBehaviour
         ItemSinkColliderSize.Add(new Vector2(2f, 3f));
 
         // Initialize lists of buttons
-        RightMovement = new List<KeyCode>();
-        LeftMovement = new List<KeyCode>();
-        JumpMovement = new List<KeyCode>();
+        //RightMovement = new List<KeyCode>();
+        //LeftMovement = new List<KeyCode>();
+        //JumpMovement = new List<KeyCode>();
+
+        Movement = new List<string>();
+        Jump = new List<string>();
 
         // Load prefered buttons in the order of players
         // Player 1
-        RightMovement.Add(KeyCode.RightArrow);
+        //RightMovement.Add(KeyCode.RightArrow);
+        Movement.Add("JS1X");
         // Player 2
-        RightMovement.Add(KeyCode.D);
+        //RightMovement.Add(KeyCode.D);
+        Movement.Add("JS2X");
         // Player 3
-        RightMovement.Add(KeyCode.L);
+        //RightMovement.Add(KeyCode.L);
+        Movement.Add("JS3X");
 
         // Player 1
-        LeftMovement.Add(KeyCode.LeftArrow);
+        //LeftMovement.Add(KeyCode.LeftArrow);
         // Player 2
-        LeftMovement.Add(KeyCode.A);
+        //LeftMovement.Add(KeyCode.A);
         // Player 3
-        LeftMovement.Add(KeyCode.K);
+        //LeftMovement.Add(KeyCode.K);
 
         // Player 1
-        JumpMovement.Add(KeyCode.Space);
+        //JumpMovement.Add(KeyCode.Space);
+        Jump.Add("JS1Y");
         // Player 2
-        JumpMovement.Add(KeyCode.W);
+        //JumpMovement.Add(KeyCode.W);
+        Jump.Add("JS2Y");
         // Player 3
-        JumpMovement.Add(KeyCode.O);
+        //JumpMovement.Add(KeyCode.O);
+        Jump.Add("JS3Y");
 
         // TODO: Add keys dynamically according to input from user
 
@@ -603,7 +658,7 @@ public class GameManager : MonoBehaviour
             }
             PlayerFactory.PlayerFactoryInit(SpawnLocation, InitialHealth, MyItemsAmount, OthersItemsAmount,
                                             IsSpriteDirectionRight, HeldItemHeight, NumberOfPlayers,
-                                            PlayerPrefabs, RightMovement, LeftMovement, JumpMovement, IsNewRound);
+                                            PlayerPrefabs, Movement, Jump, IsNewRound);
 
             // Initialize Enemy factories            
             GameObject enemyObj; //= Resources.Load<GameObject>("Prefabs/Enemy");
@@ -651,7 +706,7 @@ public class GameManager : MonoBehaviour
                 {
                     if (Mode == GameMode.Competitive)
                     {
-                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], EnemyPrefabs[i], EnemySprites[EnemySprites.Count - 1], IsNewRound, true);
+                        EnemyFactories[i].FactoryInit(-1, PlayerDifficIndexes[i], EnemyPrefabs[EnemyPrefabs.Count - 1], EnemySprites[EnemySprites.Count - 1], IsNewRound, true);
                     }
                     if (Mode == GameMode.Cooperative)
                     {

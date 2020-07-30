@@ -34,9 +34,8 @@ public class Player : MonoBehaviour
     private Dictionary<int, float> ItemsDistance2nd;
 
     // Game input
-    public KeyCode MoveRightButton;
-    public KeyCode MoveLeftButton;
-    public KeyCode JumpButton;
+    public string MovementAxis;
+    public string JumpButton;
 
     // Movement
     public Vector2 Speed; 
@@ -134,9 +133,8 @@ public class Player : MonoBehaviour
     }
 
     public void PlayerInit(
-        KeyCode moveRight, 
-        KeyCode moveLeft, 
-        KeyCode jump, 
+        string Movment, 
+        string Jump, 
         int id, 
         int health, 
         int myItemsAmount,
@@ -149,10 +147,9 @@ public class Player : MonoBehaviour
         MaxHealth = health;
         HeldItemHeight = heldItemHeight;
         IsSpriteDirectionRight = isSpriteDirectionRight;
-    
-        MoveRightButton = moveRight;
-        MoveLeftButton = moveLeft;
-        JumpButton = jump;
+
+        MovementAxis = Movment;
+        JumpButton = Jump;
 
         // Initialize inventories
         MyItemInventory = new Item[myItemsAmount];
@@ -442,33 +439,31 @@ public class Player : MonoBehaviour
         if (Health > 0)
         {          
             // Retrieve key presses for movement
-            if (Input.GetKey(MoveLeftButton))
+            if (Input.GetAxis(MovementAxis) < -0.9)
             {
                 Direction.x = -1f;
                 // Click counter
                 ClickCounter++;
             }
-            else if (Input.GetKey(MoveRightButton))
+            else if (Input.GetAxis(MovementAxis) > 0.9)
             {
                 Direction.x = 1f;
                 // Click counter
                 ClickCounter++;
             }
-
-            else if (!Input.GetKey(MoveRightButton) && !Input.GetKey(MoveLeftButton))
+            else
             {
                 Direction.x = 0f;
             }
 
             // Retrieve key presses for jump
-            if (Input.GetKeyDown(JumpButton))
-            {
-
+            if (Input.GetAxis(JumpButton) > 0.5)
+            {                
                 IsJumping = true;
                 // Click counter
                 ClickCounter++;
             }
-            else if (!Input.GetKeyDown(JumpButton))
+            else if (Input.GetAxis(JumpButton) < 0.5)
             {
                 animator.SetBool("Jump", IsJumping);
                 IsJumping = false;
