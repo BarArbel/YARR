@@ -986,8 +986,8 @@ public class GameManager : MonoBehaviour
                 {
                     // Save difficulty updated from DDA for the specific player
                     LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
-                    LevelPrecision = (int)calcs.list[2].list[i].n;
-                    LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+                    LevelPrecision = (int)calcs.list[1].list[i].n;
+                    LevelSpeedAndSpawnRate = (int)calcs.list[1].list[i].n;
                     LevelGeneral = LevelPrecision;
                     // Assuming the new change is in range
                     if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
@@ -1027,8 +1027,8 @@ public class GameManager : MonoBehaviour
             for (int i = 0; i < NumberOfPlayers; i++)
             {
                 LevelSpawnHeightAndTimer = (int)calcs.list[1].list[i].n;
-                LevelPrecision = (int)calcs.list[2].list[i].n;
-                LevelSpeedAndSpawnRate = (int)calcs.list[3].list[i].n;
+                LevelPrecision = (int)calcs.list[1].list[i].n;
+                LevelSpeedAndSpawnRate = (int)calcs.list[1].list[i].n;
                 LevelGeneral = LevelPrecision;
                 // Save difficulty updated from DDA 
                 if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
