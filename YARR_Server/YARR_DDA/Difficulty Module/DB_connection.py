@@ -36,17 +36,23 @@ class DBconnection:
         # If true - get the last timestamp for each player's level change.
         # else - create the instance's temporary DDA table.
         exists = None
-        while exists is None:
+        tries = 10
+        while exists is None and tries > 0:
             exists = await self.check_if_table_exist()
+            tries -= 1
         if exists:
             ret_flag = False
-            while ret_flag is False:
+            tries = 10
+            while ret_flag is False and tries > 0:
                 ret_flag = await self.init_timestamps()
+                tries -= 1
             self.newT_continueF = False
         else:
             ret_flag = False
-            while ret_flag is False:
+            tries = 10
+            while ret_flag is False and tries > 0:
                 ret_flag = await self.create_dda_table()
+                tries -= 1
 
     # Checks if the instance's temporary DDA table already exists.
     async def check_if_table_exist(self):
@@ -155,8 +161,10 @@ class DBconnection:
     # Close connection to the DB.
     async def close_connection(self):
         ret_flag = False
-        while ret_flag is False:
+        tries = 10
+        while ret_flag is False and tries > 0:
             ret_flag = await self.remove_dda_table()
+            tries -= 1
         self.pool.close()
         await self.pool.wait_closed()
 
@@ -250,7 +258,8 @@ class DBconnection:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
                     connected = False
-                    while not connected:
+                    tries = 10
+                    while not connected and tries > 0:
                         try:
                             plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'),
                                                               db=os.getenv('DATABASE_PLATFORM'),
@@ -260,35 +269,46 @@ class DBconnection:
                                                               auth_plugin='mysql_native_password')
                             plat_cur = await plat_con.cursor()
 
-                        except:
+                        except Exception as con_e:
+                            tries -= 1
                             if plat_con:
                                 plat_con.close()
+                            if tries == 0:
+                                raise con_e
 
                         else:
                             connected = True
 
                     select_fetch = None
-                    while select_fetch is None:
+                    tries = 10
+                    while select_fetch is None and tries > 0:
                         try:
                             await cursor.execute(select_query)
                             select_fetch = await cursor.fetchall()
 
-                        except:
+                        except Exception as sel_e:
+                            tries -= 1
                             select_fetch = None
+                            if tries == 0:
+                                raise sel_e
 
                         else:
                             if not select_fetch:
                                 select_fetch = None
 
                     experiment_fetch = None
-                    while experiment_fetch is None:
+                    tries = 10
+                    while experiment_fetch is None and tries > 0:
                         try:
                             await plat_cur.execute(experiment_query)
                             experiment_fetch = await plat_cur.fetchone()
                             experiment_id = experiment_fetch[0]
 
-                        except:
+                        except Exception as exp_e:
+                            tries -= 1
                             experiment_fetch = None
+                            if tries == 0:
+                                raise exp_e
 
                         else:
                             if not experiment_fetch:
@@ -298,13 +318,17 @@ class DBconnection:
                         insert_vals.append((experiment_id, instance_id) + result)
 
                     inserted = False
-                    while not inserted:
+                    tries = 10
+                    while not inserted and tries > 10:
                         try:
                             await plat_cur.executemany(insert_query, insert_vals)
                             await plat_con.commit()
 
-                        except:
+                        except Exception as ins_e:
+                            tries -= 1
                             inserted = False
+                            if tries == 0:
+                                raise ins_e
 
                         else:
                             inserted = True
