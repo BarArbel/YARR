@@ -626,7 +626,8 @@ io.on('connection', async socket =>{
       socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
     }
 
-   while(true) {
+   let fetch_accomplished = false; 
+   while(!fetch_accomplished) {
         // after all queries are done, invoke analyzeData
         fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
           method: 'POST',
@@ -639,11 +640,11 @@ io.on('connection', async socket =>{
           res.status === 200 && res.json().then(json => {
             if (json.result === "Success") {
               console.log("here! good")
-              break; 
             }
           })
+          fetch_accomplished = true;
         }).catch(err => {
-          continue;
+          fetch_accomplished = false;
         });
   
     }
