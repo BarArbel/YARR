@@ -183,7 +183,7 @@ io.on('connection', async socket =>{
     console.log(data);
     mysqlConnection_platform.query(sql1, async (error, results) => {
         if (error || !results.length) {
-          exceptionDBAccess("There's no experiment with such ID", table, err, socket)
+          exceptionDBAccess("There's no experiment with such ID", table, error, socket)
         }
         else {
           const sql2 = `INSERT INTO ${process.env.DATABASE_PLATFORM}.instances (StudyId, ExperimentId, InstanceId, CreationTimestamp, Status, DDAParity)
@@ -237,7 +237,7 @@ io.on('connection', async socket =>{
     const sql2 = `SELECT ExperimentId, StudyId FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
     mysqlConnection_platform.query(sql2, (error, results) => {
       if (error || !results.length) {
-        exceptionDBAccess("There's no experiment with such ID", table, err, socket);
+        exceptionDBAccess("There's no experiment with such ID", table, error, socket);
       }
       else {
         studyId = results[0]["StudyId"];
@@ -320,7 +320,7 @@ io.on('connection', async socket =>{
 
     mysqlConnection_platform.query(sql1, (error, results) => {
       if (error || !results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, error, socket);
       }
       else {
         for (row in results) {
@@ -332,7 +332,7 @@ io.on('connection', async socket =>{
     const sql2 = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
     mysqlConnection_platform.query(sql2, (error, results) => {
       if (error || !results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, error, socket);
       }
       else {
         roundDuration = results[0]["RoundDuration"];
@@ -363,7 +363,7 @@ io.on('connection', async socket =>{
     const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE_PLATFORM}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
     mysqlConnection_platform.query(sql_del_gamecode, (error, results) => {
       if (error || !results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, error, socket);
       }
     console.log(sql_del_gamecode);
     });
@@ -397,7 +397,7 @@ io.on('connection', async socket =>{
       let sql_roundsNumber = `SELECT RoundsNumber FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1;`;
       let results = await query_platform(sql_roundsNumber);
       if (!results.length) {
-        exceptionDBAccess("There's no experiment with such ID", table, err, socket);
+        exceptionDBAccess("There's no experiment with such ID", table, "err", socket);
         console.log(sql_roundsNumber);
       }
       else {
@@ -409,7 +409,7 @@ io.on('connection', async socket =>{
       let sql_roundsDone = `SELECT count(*) RoundsDone FROM ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} where Event = 'newRound';`;
       results = await query_platform(sql_roundsDone);
       if (!results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, "err", socket);
       }
       else {
         roundsDone = results[0]["RoundsDone"];
@@ -421,7 +421,7 @@ io.on('connection', async socket =>{
       and RoundNumber >= ${roundsDone} ORDER BY RoundNumber ASC;`;
       results = await query_platform(sql_roundsLeft);
       if (!results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, "err", socket);
       }
       else {
         await results.map(row => {
@@ -438,7 +438,7 @@ io.on('connection', async socket =>{
       let sql_expr_settings = `SELECT * FROM ${process.env.DATABASE_PLATFORM}.experiments where ExperimentId = '${data.ExperimentID}' LIMIT 1 ;`;
       results = await query_platform(sql_expr_settings);
       if (!results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, "err", socket);
       }
       else {
         roundDuration = results[0]["RoundDuration"];
@@ -462,7 +462,7 @@ io.on('connection', async socket =>{
       console.log("PLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOCPLOC\n" + sql_pLoc);
       results = await query_platform(sql_pLoc);
       if (!results.length) {
-        exceptionDBAccess("There are no rounds that match this experiment", table, err, socket);
+        exceptionDBAccess("There are no rounds that match this experiment", table, "err", socket);
       }
       else {
         await results.map(row => {
