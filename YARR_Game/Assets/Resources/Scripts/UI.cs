@@ -127,7 +127,7 @@ public class UI : MonoBehaviour
     {
         ItemSink sink = GameObject.Find("ItemSink").GetComponent<ItemSink>();
         GameObject[] playerObjs = GameObject.FindGameObjectsWithTag("Player");
-        if (Mode == GameManager.GameMode.Competitive)
+        if (Mode == GameManager.GameMode.Competitive && playerObjs.Length != 0)
         {
             for (int i = 0; i < NumberOfPlayers; i++)
             {
