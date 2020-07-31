@@ -263,7 +263,9 @@ io.on('connection', async socket =>{
   socket.on('TrackerInput', async data => {
     const sql = `INSERT INTO ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id}(Timestamp,Event,PlayerID,CoordX,CoordY,Item,Enemy,GameMode) 
       VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
-    const { err, rows, fields } = await query_platform(sql)
+      console.log("data to insert");
+      console.log(sql);
+      const { err, rows, fields } = await query_platform(sql)
     if(err) {
       exceptionDBAccess("Unable to add tracker data", table, err, socket);
     }
