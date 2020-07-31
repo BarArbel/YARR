@@ -626,31 +626,27 @@ io.on('connection', async socket =>{
       socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
     }
 
-    // after all queries are done, invoke analyzeData
-    fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(json)
-    }).then(res => {
-      res.status === 200 && res.json().then(json => {
-        if (json.result === "Success") {
-          console.log("here! good")
-        }
-        else {
-          // TODO: Take care of exception
-          console.log("here! bad")
-          console.log(json);
-
-        }
-      })
-    })
-      .catch(err => {
-        // TODO: Take care of exception
-        console.log("here! very bad")
-      });
+   while(true) {
+        // after all queries are done, invoke analyzeData
+        fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(json)
+        }).then(res => {
+          res.status === 200 && res.json().then(json => {
+            if (json.result === "Success") {
+              console.log("here! good")
+              break;
+            }
+          })
+        }).catch(err => {
+          continue;
+        });
+  
+    }
   });
 
   socket.on('disconnect', async () => {
