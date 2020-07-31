@@ -274,6 +274,7 @@ class DBconnection:
                             if plat_con:
                                 plat_con.close()
                             if tries == 0:
+                                print_flush("insert_permanent exception: platform db connection")
                                 raise con_e
 
                         else:
@@ -290,6 +291,7 @@ class DBconnection:
                             tries -= 1
                             select_fetch = None
                             if tries == 0:
+                                print_flush("insert_permanent exception: select query")
                                 raise sel_e
 
                         else:
@@ -308,6 +310,7 @@ class DBconnection:
                             tries -= 1
                             experiment_fetch = None
                             if tries == 0:
+                                print_flush("insert_permanent exception: experiment query")
                                 raise exp_e
 
                         else:
@@ -328,6 +331,7 @@ class DBconnection:
                             tries -= 1
                             inserted = False
                             if tries == 0:
+                                print_flush("insert_permanent exception: insert query")
                                 raise ins_e
 
                         else:
