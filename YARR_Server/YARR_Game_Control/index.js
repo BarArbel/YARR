@@ -192,7 +192,7 @@ io.on('connection', async socket =>{
           studyId = results[0]["StudyId"];
           mysqlConnection_platform.query(sql2, async (error, results) => {
             if (error || !results.length) {
-              exceptionDBAccess("Adding instance data failed", table, err, socket)
+              exceptionDBAccess("Adding instance data failed", table, error, socket)
             }});
 
        } 
