@@ -12,7 +12,6 @@ class DDAcalc:
 
     # Calculate penalty and bonus for a player.
     def calc_penalty_and_bonus(self, pickup_player_total, give_item, revive_player, get_damaged, block_damage):
-
         get_damaged_penalty = (0.4 * pickup_player_total) * get_damaged
         penalty = get_damaged_penalty
 

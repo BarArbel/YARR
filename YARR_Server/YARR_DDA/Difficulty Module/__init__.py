@@ -1,4 +1,4 @@
-from DB_connection import DBconnection
+from DB_connection import DBconnection, print_flush
 from difficulty_calc import DDAcalc
 import socketio
 import asyncio
@@ -79,7 +79,7 @@ async def get_data_from_db(timestamp, gamemode):
         for event in total:
             fetch = await con.count_total_player_events(event, player_id + 1, timestamp, gamemode)
 
-            if fetch == -1:
+            if fetch is None:
                 return None
             else:
                 total[event].append(fetch[0])
@@ -182,12 +182,16 @@ async def insert_calculations_to_db(calcs, group_level, timestamp, gamemode):
 
     # The calculations for each individual player.
     for player_id in range(number_of_players):
-        await con.insert_dda_table(player_id + 1, calcs["penalty"][player_id], calcs["bonus"][player_id],
-                                   calcs["skill"][player_id], calcs["level"][player_id], timestamp)
+        ret_flag = False
+        while ret_flag is False:
+            ret_flag = await con.insert_dda_table(player_id + 1, calcs["penalty"][player_id], calcs["bonus"][player_id],
+                                                  calcs["skill"][player_id], calcs["level"][player_id], timestamp)
 
     # For competitive mode insert another row for the group level.
     if gamemode == "Competitive":
-        await con.insert_dda_table(0, 0.0, 0.0, 0.0, group_level, timestamp)
+        ret_flag = False
+        while ret_flag is False:
+            ret_flag = await con.insert_dda_table(0, 0.0, 0.0, 0.0, group_level, timestamp)
 
 
 # Build the json format to send back to the game.
@@ -197,9 +201,7 @@ def create_game_json(calcs, group_level, gamemode):
     count_lock.acquire()
     game_json = {
         "index": con.counter,
-        "LevelSpawnHeightAndTimer": [],
-        "LevelPrecision": [],
-        "LevelSpeedAndSpawnRate": []
+        "levels": []
     }
     con.counter = con.counter + 1
     count_lock.release()
@@ -208,21 +210,16 @@ def create_game_json(calcs, group_level, gamemode):
     # In competitive mode the changes for all the players have the same level and change together.
     for player_id in range(number_of_players):
         if gamemode == "Cooperative":
-            game_json["LevelSpawnHeightAndTimer"].append(calcs["level"][player_id])
-            game_json["LevelPrecision"].append(calcs["level"][player_id])
-            game_json["LevelSpeedAndSpawnRate"].append(calcs["level"][player_id])
+            game_json["levels"].append(calcs["level"][player_id])
         else:
-            game_json["LevelSpawnHeightAndTimer"].append(group_level)
-            game_json["LevelPrecision"].append(group_level)
-            game_json["LevelSpeedAndSpawnRate"].append(group_level)
+            game_json["levels"].append(group_level)
 
     return game_json
 
 
 @sio.event
 def connect():
-    print('Connected successfully to data collector')
-    sys.stdout.flush()
+    print_flush('Connected successfully to data collector')
 
 
 # New data was added to the DB
@@ -288,19 +285,19 @@ async def on_gameended(data):
     # If my game instance as ended
     if data == instance_id:
         # Transfer all the calculations data to a permanent table in the platform's DB.
-        await con.insert_permanent_table(instance_id)
+        ret_insert = False
+        while not ret_insert:
+            ret_insert = await con.insert_permanent_table(instance_id)
         # Close DB connection and delete temporary tables in the DDA DB.
         await con.close_connection()
-        print("dda closing")
-        sys.stdout.flush()
+        print_flush("dda closing")
         # Close connection to server.
         await sio.disconnect()
 
 
 @sio.event
 def disconnect():
-    print('Disconnected from data collector')
-    sys.stdout.flush()
+    print_flush('Disconnected from data collector')
 
 
 # Init global vars
@@ -318,13 +315,14 @@ async def init_vars(args):
     # Check is the game instance is a new one or an interrupted one
     if con.newT_continueF:
         # If the instance is a game continuation calculate the player levels.
-        levels = await con.get_levels(number_of_players)
+        levels = None
+        while levels is None:
+            levels = await con.get_levels(number_of_players)
     else:
         levels = []
     calc = DDAcalc(number_of_players, starting_level, levels)
     last_time = time.time()
-    print("done init_vars")
-    sys.stdout.flush()
+    print_flush("done init_vars")
 
 
 # Main loop for the DDA
@@ -337,10 +335,8 @@ async def start_server(args):
     while not connected_to_server:
         try:
             await sio.connect("https://yarr-dda.herokuapp.com/")
-            # await sio.connect("http://127.0.0.1:52300")
         except:
-            print("Failed to connect to data collector, trying again")
-            sys.stdout.flush()
+            print_flush("Failed to connect to data collector, trying again")
         else:
             connected_to_server = True
 

@@ -6,6 +6,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+# Print and flush stdout
+def print_flush(string):
+    print(string)
+    sys.stdout.flush()
+
+
 class DBconnection:
 
     def __init__(self, table_name):
@@ -15,6 +21,7 @@ class DBconnection:
         self.db = os.getenv('DATABASE_DDA')
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
+        self.pool = None
 
     # __init__ can't be async so this function need's to be called after an object of the class is created.
     async def init_extender(self, number_of_players):
@@ -28,44 +35,60 @@ class DBconnection:
         # Check if the instance's temporary DDA table already exists - and if so it means the instance was interrupted.
         # If true - get the last timestamp for each player's level change.
         # else - create the instance's temporary DDA table.
-        if await self.check_if_table_exist():
-            await self.init_timestamps()
+        exists = None
+        while exists is None:
+            exists = await self.check_if_table_exist()
+        if exists:
+            ret_flag = False
+            while ret_flag is False:
+                ret_flag = await self.init_timestamps()
             self.newT_continueF = False
         else:
-            await self.create_dda_table()
+            ret_flag = False
+            while ret_flag is False:
+                ret_flag = await self.create_dda_table()
 
     # Checks if the instance's temporary DDA table already exists.
     async def check_if_table_exist(self):
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute("SHOW TABLES")
+                    fetch = await cursor.fetchall()
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute("SHOW TABLES")
-                fetch = await cursor.fetchall()
+                    for result in fetch:
+                        if result[0] == self.DDAtb:
+                            return True
 
-                for result in fetch:
-                    if result[0] == self.DDAtb:
-                        return True
+                    return False
 
-                return False
+        except Exception as e:
+            print_flush("check_if_table_exist exception: " + str(e))
+            return None
 
     # Sets the timestamp for each player's last level change in case the game instance was interrupted.
     async def init_timestamps(self):
-
         query = ("SELECT PlayerID, format(max(Timestamp), 3) as max_ts FROM " + self.db + "." + self.DDAtb +
                  " WHERE Level != 0 GROUP BY PlayerID")
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
-                fetch = await cursor.fetchall()
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    fetch = await cursor.fetchall()
 
-                for result in fetch:
-                    if result[0] is not None and result[1] is not None:
-                        self.timestamps[result[0] - 1] = result[1]
+                    for result in fetch:
+                        if result[0] is not None and result[1] is not None:
+                            self.timestamps[result[0] - 1] = result[1]
+
+                    return True
+
+        except Exception as e:
+            print_flush("init_timestamps exception: " + str(e))
+            return False
 
     # Create the instance's temporary DDA table.
     async def create_dda_table(self):
-
         query = ("CREATE TABLE `" + self.db + "`.`" + self.DDAtb + "` ("
                  "`Id` INT UNSIGNED NOT NULL AUTO_INCREMENT,"
                  "`PlayerID` INT UNSIGNED NOT NULL,"
@@ -77,43 +100,63 @@ class DBconnection:
                  "PRIMARY KEY (`Id`))"
                  "DEFAULT CHARACTER SET = UTF8MB4;")
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+
+                    return True
+
+        except Exception as e:
+            print_flush("create_dda_table: " + str(e))
+            return False
 
     # Calculate the player's level when the game instance was interrupted.
     async def get_levels(self, number_of_players):
-
         query = ("SELECT PlayerID, Level FROM " + self.db + "." + self.DDAtb + " ORDER BY Timestamp ASC")
 
         levels = []
         for i in range(number_of_players):
             levels.append(0)
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
-                fetch = await cursor.fetchall()
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+                    fetch = await cursor.fetchall()
 
-                for result in fetch:
-                    if result[0] != 0 and result[0] is not None and result[1] is not None:
-                        if not (levels[result[0] - 1] == 6 and result[1] == 1) and\
-                                not (levels[result[0] - 1] == 1 and result[1] == -1):
-                            levels[result[0] - 1] += result[1]
+                    for result in fetch:
+                        if result[0] != 0 and result[0] is not None and result[1] is not None:
+                            if not (levels[result[0] - 1] == 6 and result[1] == 1) and\
+                                    not (levels[result[0] - 1] == 1 and result[1] == -1):
+                                levels[result[0] - 1] += result[1]
 
-        return levels
+                    return levels
+
+        except Exception as e:
+            print_flush("get_levels exception: " + str(e))
+            return None
 
     # Delete the temporary DDA table.
     async def remove_dda_table(self):
         query = ("DROP TABLE `" + self.db + "`.`" + self.DDAtb + "`")
 
-        async with self.pool.acquire() as con:
-            async with con.cursor() as cursor:
-                await cursor.execute(query)
+        try:
+            async with self.pool.acquire() as con:
+                async with con.cursor() as cursor:
+                    await cursor.execute(query)
+
+                    return True
+
+        except Exception as e:
+            print_flush("remove_dda_table exception: " + str(e))
+            return False
 
     # Close connection to the DB.
     async def close_connection(self):
-        await self.remove_dda_table()
+        ret_flag = False
+        while ret_flag is False:
+            ret_flag = await self.remove_dda_table()
         self.pool.close()
         await self.pool.wait_closed()
 
@@ -137,48 +180,46 @@ class DBconnection:
                         fetch = await cursor.fetchone()
 
                     return fetch
+
         except Exception as e:
-            print("get_timestamp exception: " + str(e))
-            sys.stdout.flush()
+            print_flush("get_timestamp_gamemode exception: " + str(e))
             return None
 
     # Count the total occurrences of a game event for a player in a given time frame.
     async def count_total_player_events(self, event, player_id, tstamp, gamemode):
+        query = ("SELECT count(Event) FROM " + self.db + "." + self.tb + " WHERE Event = '" + event +
+                 "' AND format(Timestamp, 3) > " + str(self.timestamps[player_id - 1]) +
+                 " AND format(Timestamp, 3) <= " + str(tstamp) + " AND PlayerID = " + str(player_id) +
+                 " AND GameMode = '" + gamemode + "'")
+
+        # If event is pickup - count only items belonging to player.
+        if event == "pickup" and gamemode == "Cooperative":
+            query += " AND Item = " + str(player_id)
+        # If event is spawn - count only item spawns.
+        elif event == "spawn":
+            query += " AND Enemy = 0"
+            # In competitive items are not set for a specific player.
+            if gamemode == "Competitive":
+                query = query.replace(" AND PlayerID = " + str(player_id), "")
+        # In competitive mode failPickup is not related to a specific player.
+        # If a treasure disappears before any player picks it up - all the players get failPickup
+        elif event == "failPickup" and gamemode == "Competitive":
+            query = query.replace(" AND PlayerID = " + str(player_id), "")
 
         try:
-            query = ("SELECT count(Event) FROM " + self.db + "." + self.tb + " WHERE Event = '" + event +
-                     "' AND format(Timestamp, 3) > " + str(self.timestamps[player_id - 1]) +
-                     " AND format(Timestamp, 3) <= " + str(tstamp) + " AND PlayerID = " + str(player_id) +
-                     " AND GameMode = '" + gamemode + "'")
-
-            # If event is pickup - count only items belonging to player.
-            if event == "pickup" and gamemode == "Cooperative":
-                query += " AND Item = " + str(player_id)
-            # If event is spawn - count only item spawns.
-            elif event == "spawn":
-                query += " AND Enemy = 0"
-                # In competitive items are not set for a specific player.
-                if gamemode == "Competitive":
-                    query = query.replace(" AND PlayerID = " + str(player_id), "")
-            # In competitive mode failPickup is not related to a specific player.
-            # If a treasure disappears before any player picks it up - all the players get failPickup
-            elif event == "failPickup" and gamemode == "Competitive":
-                query = query.replace(" AND PlayerID = " + str(player_id), "")
-
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
                     await cursor.execute(query)
                     fetch = await cursor.fetchone()
+
                     return fetch
 
         except Exception as e:
-            print("count_total exception: " + str(e))
-            sys.stdout.flush()
-            return [-1]
+            print_flush("count_total_player_events exception: " + str(e))
+            return None
 
     # Insert data to temporary DDA table.
     async def insert_dda_table(self, player_id, penalty, bonus, skill, level, timestamp):
-
         query = ("INSERT INTO " + self.db + "." + self.DDAtb +
                  "(PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES (" + str(player_id) + ", " + str(penalty) +
                  ", " + str(bonus) + ", " + str(skill) + ", " + str(level) + ", " + str(timestamp) + ")")
@@ -188,13 +229,15 @@ class DBconnection:
                 async with con.cursor() as cursor:
                     await cursor.execute(query)
                     await con.commit()
+
+                    return True
+
         except Exception as e:
-            print("insert_dda exception: " + str(e))
-            sys.stdout.flush()
+            print_flush("insert_dda_table exception: " + str(e))
+            return False
 
     # Transfer all the data from the temporary table to a permanent one in the platform's DB.
     async def insert_permanent_table(self, instance_id):
-
         select_query = ("SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
         experiment_query = ("SELECT ExperimentId FROM " + os.getenv('DATABASE_PLATFORM') +
                             ".instances WHERE InstanceId = '" + instance_id + "'")
@@ -206,26 +249,71 @@ class DBconnection:
         try:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
-                    plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'), db=os.getenv('DATABASE_PLATFORM'),
-                                                      port=int(os.getenv('PORT_PLATFORM')), password=os.getenv('PASSWORD'),
-                                                      user=os.getenv('USER'), auth_plugin='mysql_native_password')
-                    plat_cur = await plat_con.cursor()
+                    connected = False
+                    while not connected:
+                        try:
+                            plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'),
+                                                              db=os.getenv('DATABASE_PLATFORM'),
+                                                              port=int(os.getenv('PORT_PLATFORM')),
+                                                              password=os.getenv('PASSWORD'),
+                                                              user=os.getenv('USER'),
+                                                              auth_plugin='mysql_native_password')
+                            plat_cur = await plat_con.cursor()
 
-                    await cursor.execute(select_query)
-                    select_fetch = await cursor.fetchall()
+                        except:
+                            if plat_con:
+                                plat_con.close()
 
-                    await plat_cur.execute(experiment_query)
-                    experiment_fetch = await plat_cur.fetchone()
-                    experiment_id = experiment_fetch[0]
+                        else:
+                            connected = True
+
+                    select_fetch = None
+                    while select_fetch is None:
+                        try:
+                            await cursor.execute(select_query)
+                            select_fetch = await cursor.fetchall()
+
+                        except:
+                            select_fetch = None
+
+                        else:
+                            if not select_fetch:
+                                select_fetch = None
+
+                    experiment_fetch = None
+                    while experiment_fetch is None:
+                        try:
+                            await plat_cur.execute(experiment_query)
+                            experiment_fetch = await plat_cur.fetchone()
+                            experiment_id = experiment_fetch[0]
+
+                        except:
+                            experiment_fetch = None
+
+                        else:
+                            if not experiment_fetch:
+                                experiment_fetch = None
 
                     for result in select_fetch:
                         insert_vals.append((experiment_id, instance_id) + result)
 
-                    await plat_cur.executemany(insert_query, insert_vals)
-                    await plat_con.commit()
+                    inserted = False
+                    while not inserted:
+                        try:
+                            await plat_cur.executemany(insert_query, insert_vals)
+                            await plat_con.commit()
+
+                        except:
+                            inserted = False
+
+                        else:
+                            inserted = True
 
                     await plat_cur.close()
                     await plat_con.close()
+
+                    return True
+
         except Exception as e:
-            print("insert_permanent exception:" + str(e))
-            sys.stdout.flush()
+            print_flush("insert_permanent exception:" + str(e))
+            return False
