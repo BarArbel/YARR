@@ -639,7 +639,7 @@ io.on('connection', async socket =>{
           res.status === 200 && res.json().then(json => {
             if (json.result === "Success") {
               console.log("here! good")
-              break;
+              break; 
             }
           })
         }).catch(err => {
