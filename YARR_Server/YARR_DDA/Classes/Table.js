@@ -5,5 +5,6 @@ module.exports = class Table {
         var tempID = shortID.generate();
         this.time = Date.now();
         this.id = tempID.replace('-', '');
+        this.id = this.id.replace('_', '');
     }
 }
