@@ -114,7 +114,7 @@ namespace Project.Networking
             });
 
             On("errorMenu", (E) => {
-                SceneManager.LoadScene("Game");
+                SceneManager.LoadScene("ErrorMenu");
             });
 
         }

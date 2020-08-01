@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using SocketIO;
-using System;
+using UnityEngine.SceneManagement;
 
 namespace Project.Networking
 {
@@ -50,6 +48,10 @@ namespace Project.Networking
                 {
                     FindObjectOfType<GameManager>().NotificationDDAUpdate(E.data["LvSettings"]);
                 }
+            });
+
+            On("errorMenu", (E) => {
+                SceneManager.LoadScene("ErrorMenu");
             });
 
         }

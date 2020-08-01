@@ -9,6 +9,20 @@ const query_dda = util.promisify(mysqlConnection_dda.query).bind(mysqlConnection
 
 console.log('Server has started');
 
+
+// Take care of DB access exception
+async function exceptionDBAccess(msg, table, err, socket) {
+  try{
+    await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
+    await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
+  }
+  catch (err2) {
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err2 });
+    return;
+  }
+  socket.emit('errorMenu', {message: msg, 'error': err});
+}
+
 io.on('connection', async socket =>{
   let tableTimeId;
   console.log('Connection Made!');
@@ -23,8 +37,7 @@ io.on('connection', async socket =>{
     console.log(sql);
     mysqlConnection_platform.query(sql, (error, results) => {
         if (error || !results.length) {
-          // TODO: Take care of exception
-          socket.emit('cantUpdate', {message: "Couldn't update the instances table", instanceId: `${tableTimeId}`});
+          socket.emit('errorMenu', { "message" : "Couldn't update the instances table.", "error": error });
         }
         else {
           socket.emit('setInstanceID', {instanceId: `${tableTimeId}`});
@@ -62,7 +75,9 @@ io.on('connection', async socket =>{
     VALUES('${data.Time}','${data.Event+1}','${data.PlayerID}','${data.CoordX}','${data.CoordY}','${data.Item}','${data.Enemy}','${data.GameMode+1}');`;
     
     const { err, rows, fields } = await query_dda(sql);
-    if(err) throw err;
+    if(err) {
+      exceptionDBAccess("Unable to insert data.", tableTimeId, err, socket)
+    }
     console.log("data was added");
     socket.broadcast.emit('DDAupdate', `${tableTimeId}`);
   });
