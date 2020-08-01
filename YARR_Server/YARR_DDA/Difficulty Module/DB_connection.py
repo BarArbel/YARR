@@ -1,6 +1,7 @@
 import sys
 import os
 import aiomysql
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -247,108 +248,53 @@ class DBconnection:
 
     # Transfer all the data from the temporary table to a permanent one in the platform's DB.
     async def insert_permanent_table(self, instance_id):
-        select_query = ("SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
+        select_query = (
+                    "SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
         experiment_query = ("SELECT ExperimentId FROM " + os.getenv('DATABASE_PLATFORM') +
                             ".instances WHERE InstanceId = '" + instance_id + "'")
         insert_vals = []
         insert_query = ("INSERT INTO " + os.getenv('DATABASE_PLATFORM') + ".dda_calculations " +
                         "(ExperimentId, InstanceId, PlayerID, Penalty, Bonus, Skill, Level, Timestamp) VALUES " +
-                        "(%s, %s, %s, %s, %s, %s, %s, %s)")
+                        "(%s, %s, %s, %s, %s, %s, %s, %s) ON DUPLICATE KEY UPDATE " +
+                        "ExperimentId = VALUES(ExperimentId), InstanceId = VALUES(InstanceId), " +
+                        "PlayerID = VALUES(PlayerID), Penalty = VALUES(Penalty), Bonus = VALUES(Bonus), " +
+                        "Skill = VALUES(Skill), Level = VALUES(Level), Timestamp = VALUES(Timestamp);")
 
         try:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
-                    connected = False
-                    tries = self.tries_amount
-                    while not connected and tries > 0:
-                        try:
-                            plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'),
-                                                              db=os.getenv('DATABASE_PLATFORM'),
-                                                              port=int(os.getenv('PORT_PLATFORM')),
-                                                              password=os.getenv('PASSWORD'),
-                                                              user=os.getenv('USER'),
-                                                              auth_plugin='mysql_native_password')
-                            plat_cur = await plat_con.cursor()
+                    plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'),
+                                                      db=os.getenv('DATABASE_PLATFORM'),
+                                                      port=int(os.getenv('PORT_PLATFORM')),
+                                                      password=os.getenv('PASSWORD'),
+                                                      user=os.getenv('USER'),
+                                                      auth_plugin='mysql_native_password')
+                    plat_cur = await plat_con.cursor()
 
-                        except Exception as con_e:
-                            tries -= 1
-                            if plat_con:
-                                plat_con.close()
-                            if tries == 0:
-                                print_flush("insert_permanent exception: platform db connection")
-                                raise con_e
+                    await cursor.execute(select_query)
+                    select_fetch = await cursor.fetchall()
 
-                        else:
-                            connected = True
-                    print_flush("insert permanent connect")
-
-                    select_fetch = None
-                    tries = self.tries_amount
-                    while select_fetch is None and tries > 0:
-                        try:
-                            await cursor.execute(select_query)
-                            select_fetch = await cursor.fetchall()
-
-                        except Exception as sel_e:
-                            tries -= 1
-                            select_fetch = None
-                            if tries == 0:
-                                print_flush("insert_permanent exception: select query")
-                                raise sel_e
-
-                        else:
-                            if not select_fetch:
-                                select_fetch = None
-                    print_flush("insert permanent select")
-
-                    experiment_fetch = None
-                    tries = self.tries_amount
-                    while experiment_fetch is None and tries > 0:
-                        try:
-                            await plat_cur.execute(experiment_query)
-                            experiment_fetch = await plat_cur.fetchone()
-                            experiment_id = experiment_fetch[0]
-
-                        except Exception as exp_e:
-                            tries -= 1
-                            experiment_fetch = None
-                            if tries == 0:
-                                print_flush("insert_permanent exception: experiment query")
-                                raise exp_e
-
-                        else:
-                            if not experiment_fetch:
-                                experiment_fetch = None
-                    print_flush("insert permanent experiment")
+                    await plat_cur.execute(experiment_query)
+                    experiment_fetch = await plat_cur.fetchone()
+                    experiment_id = experiment_fetch[0]
 
                     for result in select_fetch:
                         insert_vals.append((experiment_id, instance_id) + result)
 
-                    inserted = False
-                    tries = self.tries_amount
-                    while not inserted and tries > 10:
-                        try:
-                            await plat_cur.executemany(insert_query, insert_vals)
-                            await plat_con.commit()
+                    await plat_cur.executemany(insert_query, insert_vals)
+                    await plat_con.commit()
 
-                        except Exception as ins_e:
-                            tries -= 1
-                            inserted = False
-                            if tries == 0:
-                                print_flush("insert_permanent exception: insert query")
-                                raise ins_e
-
-                        else:
-                            inserted = True
-                    print_flush("insert permanent insert")
-
-                    await plat_cur.close()
-                    print_flush("insert permanent close cur")
-                    await plat_con.close()
-                    print_flush("insert permanent close con")
+                    if plat_cur:
+                        await plat_cur.close()
+                    if plat_con:
+                        plat_con.close()
 
                     return True
 
         except Exception as e:
             print_flush("insert_permanent exception:" + str(e))
+            if plat_cur:
+                await plat_cur.close()
+            if plat_con:
+                plat_con.close()
             return False
