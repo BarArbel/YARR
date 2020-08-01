@@ -22,6 +22,7 @@ class DBconnection:
         self.tb = table_name
         self.DDAtb = "dda_"+table_name
         self.pool = None
+        self.tries_amount = 10
 
     # __init__ can't be async so this function need's to be called after an object of the class is created.
     async def init_extender(self, number_of_players):
@@ -36,20 +37,20 @@ class DBconnection:
         # If true - get the last timestamp for each player's level change.
         # else - create the instance's temporary DDA table.
         exists = None
-        tries = 10
+        tries = self.tries_amount
         while exists is None and tries > 0:
             exists = await self.check_if_table_exist()
             tries -= 1
         if exists:
             ret_flag = False
-            tries = 10
+            tries = self.tries_amount
             while ret_flag is False and tries > 0:
                 ret_flag = await self.init_timestamps()
                 tries -= 1
             self.newT_continueF = False
         else:
             ret_flag = False
-            tries = 10
+            tries = self.tries_amount
             while ret_flag is False and tries > 0:
                 ret_flag = await self.create_dda_table()
                 tries -= 1
@@ -161,7 +162,7 @@ class DBconnection:
     # Close connection to the DB.
     async def close_connection(self):
         ret_flag = False
-        tries = 10
+        tries = self.tries_amount
         while ret_flag is False and tries > 0:
             ret_flag = await self.remove_dda_table()
             tries -= 1
@@ -258,7 +259,7 @@ class DBconnection:
             async with self.pool.acquire() as con:
                 async with con.cursor() as cursor:
                     connected = False
-                    tries = 10
+                    tries = self.tries_amount
                     while not connected and tries > 0:
                         try:
                             plat_con = await aiomysql.connect(host=os.getenv('HOST_PLATFORM'),
@@ -279,9 +280,10 @@ class DBconnection:
 
                         else:
                             connected = True
+                    print_flush("insert permanent connect")
 
                     select_fetch = None
-                    tries = 10
+                    tries = self.tries_amount
                     while select_fetch is None and tries > 0:
                         try:
                             await cursor.execute(select_query)
@@ -297,9 +299,10 @@ class DBconnection:
                         else:
                             if not select_fetch:
                                 select_fetch = None
+                    print_flush("insert permanent select")
 
                     experiment_fetch = None
-                    tries = 10
+                    tries = self.tries_amount
                     while experiment_fetch is None and tries > 0:
                         try:
                             await plat_cur.execute(experiment_query)
@@ -316,12 +319,13 @@ class DBconnection:
                         else:
                             if not experiment_fetch:
                                 experiment_fetch = None
+                    print_flush("insert permanent experiment")
 
                     for result in select_fetch:
                         insert_vals.append((experiment_id, instance_id) + result)
 
                     inserted = False
-                    tries = 10
+                    tries = self.tries_amount
                     while not inserted and tries > 10:
                         try:
                             await plat_cur.executemany(insert_query, insert_vals)
@@ -336,9 +340,12 @@ class DBconnection:
 
                         else:
                             inserted = True
+                    print_flush("insert permanent insert")
 
                     await plat_cur.close()
+                    print_flush("insert permanent close cur")
                     await plat_con.close()
+                    print_flush("insert permanent close con")
 
                     return True
 

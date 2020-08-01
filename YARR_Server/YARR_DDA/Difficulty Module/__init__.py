@@ -183,7 +183,7 @@ async def insert_calculations_to_db(calcs, group_level, timestamp, gamemode):
     # The calculations for each individual player.
     for player_id in range(number_of_players):
         ret_flag = False
-        tries = 10
+        tries = con.tries_amount
         while ret_flag is False and tries > 0:
             ret_flag = await con.insert_dda_table(player_id + 1, calcs["penalty"][player_id], calcs["bonus"][player_id],
                                                   calcs["skill"][player_id], calcs["level"][player_id], timestamp)
@@ -192,10 +192,10 @@ async def insert_calculations_to_db(calcs, group_level, timestamp, gamemode):
     # For competitive mode insert another row for the group level.
     if gamemode == "Competitive":
         ret_flag = False
-        tries = 10
+        tries = con.tries_amount
         while ret_flag is False and tries > 0:
             ret_flag = await con.insert_dda_table(0, 0.0, 0.0, 0.0, group_level, timestamp)
-            tries -= 10
+            tries -= 1
 
 
 # Build the json format to send back to the game.
@@ -289,7 +289,7 @@ async def on_gameended(data):
     if data == instance_id:
         # Transfer all the calculations data to a permanent table in the platform's DB.
         ret_insert = False
-        tries = 10
+        tries = con.tries_amount
         while not ret_insert and tries > 0:
             ret_insert = await con.insert_permanent_table(instance_id)
             tries -= 1
@@ -321,7 +321,7 @@ async def init_vars(args):
     if con.newT_continueF:
         # If the instance is a game continuation calculate the player levels.
         levels = None
-        tries = 10
+        tries = con.tries_amount
         while levels is None and tries > 0:
             levels = await con.get_levels(number_of_players)
             tries -= 1
