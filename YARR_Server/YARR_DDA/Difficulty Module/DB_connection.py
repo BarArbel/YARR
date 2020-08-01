@@ -1,7 +1,6 @@
 import sys
 import os
 import aiomysql
-import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -248,8 +247,7 @@ class DBconnection:
 
     # Transfer all the data from the temporary table to a permanent one in the platform's DB.
     async def insert_permanent_table(self, instance_id):
-        select_query = (
-                    "SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
+        select_query = ("SELECT PlayerID, Penalty, Bonus, Skill, Level, Timestamp FROM " + self.db + "." + self.DDAtb)
         experiment_query = ("SELECT ExperimentId FROM " + os.getenv('DATABASE_PLATFORM') +
                             ".instances WHERE InstanceId = '" + instance_id + "'")
         insert_vals = []
