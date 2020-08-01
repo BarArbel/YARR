@@ -65,9 +65,9 @@ public class GameManager : MonoBehaviour
     private List<GameObject> PlayerPrefabs;
 
     // Input
-    //private List<KeyCode> RightMovement;
-    //private List<KeyCode> LeftMovement;
-    //private List<KeyCode> JumpMovement;
+    private List<KeyCode> RightMovement;
+    private List<KeyCode> LeftMovement;
+    private List<KeyCode> JumpMovement;
     List<string> Movement;
     List<string> Jump;
 
@@ -549,41 +549,62 @@ public class GameManager : MonoBehaviour
         ItemSinkSprites.Add(Resources.Load<Sprite>("Sprites/Kraken"));
         ItemSinkColliderSize.Add(new Vector2(2f, 3f));
 
-        // Initialize lists of buttons
-        //RightMovement = new List<KeyCode>();
-        //LeftMovement = new List<KeyCode>();
-        //JumpMovement = new List<KeyCode>();
-
         Movement = new List<string>();
         Jump = new List<string>();
+        Debug.Log("DataTransformer.keyboardORcontroller: " + DataTransformer.keyboardORcontroller);
+        if (DataTransformer.keyboardORcontroller == "Keyboard")
+        {
 
-        // Load prefered buttons in the order of players
-        // Player 1
-        //RightMovement.Add(KeyCode.RightArrow);
-        Movement.Add("JS1X");
-        // Player 2
-        //RightMovement.Add(KeyCode.D);
-        Movement.Add("JS2X");
-        // Player 3
-        //RightMovement.Add(KeyCode.L);
-        Movement.Add("JS3X");
+            // Initialize lists of buttons
+            //RightMovement = new List<KeyCode>();
+            //LeftMovement = new List<KeyCode>();
+            //JumpMovement = new List<KeyCode>();
 
-        // Player 1
-        //LeftMovement.Add(KeyCode.LeftArrow);
-        // Player 2
-        //LeftMovement.Add(KeyCode.A);
-        // Player 3
-        //LeftMovement.Add(KeyCode.K);
+            // Load prefered buttons in the order of players
+            // Player 1
+            //RightMovement.Add(KeyCode.RightArrow);
+            Movement.Add("Horizontal");
+            // Player 2
+            //RightMovement.Add(KeyCode.D);
+            Movement.Add("Horizontal2");
+            // Player 3
+            //RightMovement.Add(KeyCode.L);
+            Movement.Add("Horizontal3");
 
-        // Player 1
-        //JumpMovement.Add(KeyCode.Space);
-        Jump.Add("JS1Y");
-        // Player 2
-        //JumpMovement.Add(KeyCode.W);
-        Jump.Add("JS2Y");
-        // Player 3
-        //JumpMovement.Add(KeyCode.O);
-        Jump.Add("JS3Y");
+            // Player 1
+            //LeftMovement.Add(KeyCode.LeftArrow);
+            // Player 2
+            //LeftMovement.Add(KeyCode.A);
+            // Player 3
+            //LeftMovement.Add(KeyCode.K);
+
+            // Player 1
+            Jump.Add("Jump");
+            //JumpMovement.Add(KeyCode.Space);
+            // Player 2
+            //JumpMovement.Add(KeyCode.W);
+            Jump.Add("Jump2");
+            // Player 3
+            //JumpMovement.Add(KeyCode.O);
+            Jump.Add("Jump3");
+        }
+        else
+        {
+            // Load prefered buttons in the order of players
+            // Player 1
+            Movement.Add("JS1X");
+            // Player 2
+            Movement.Add("JS2X");
+            // Player 3
+            Movement.Add("JS3X");
+
+            // Player 1
+            Jump.Add("JS1Y");
+            // Player 2
+            Jump.Add("JS2Y");
+            // Player 3
+            Jump.Add("JS3Y");
+        }
 
         // TODO: Add keys dynamically according to input from user
 

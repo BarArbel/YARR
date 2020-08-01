@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text.RegularExpressions;
 using Project.Networking;
+using System.Linq;
 
 public class CodeValidator : MonoBehaviour
 {
@@ -17,6 +18,7 @@ public class CodeValidator : MonoBehaviour
     private readonly Color correctValueColor = new Color(0.5312541f, 1f, 0.4539427f, 1f);
     private bool isNewCorrect;
     private bool isInterruptedCorrect;
+    private ToggleGroup toggleGroup;
 
     // Allow only alphanumeric in string
     Regex rgx = new Regex("[^a-zA-Z0-9]");
@@ -75,9 +77,15 @@ public class CodeValidator : MonoBehaviour
     {
         if (isNewCorrect || isInterruptedCorrect)
         {
+            DataTransformer.keyboardORcontroller = currentSelection.name;
             DataTransformer.initDDAConnection();
             //InitExperiment(JSONObject rSettings);
         }
+    }
+
+    public Toggle currentSelection
+    {
+        get { return toggleGroup.ActiveToggles().FirstOrDefault(); }
     }
 
     // Start is called before the first frame update
@@ -88,6 +96,7 @@ public class CodeValidator : MonoBehaviour
         prevInputValue = gameObject.GetComponent<TMP_InputField>().text;        
         isNewCorrect = false;
         isInterruptedCorrect = false;
+        toggleGroup = GameObject.Find("ToggleGroup").GetComponent<ToggleGroup>();
 
         button = FindObjectOfType<Button>().gameObject;
         button.GetComponent<Button>().interactable = false;

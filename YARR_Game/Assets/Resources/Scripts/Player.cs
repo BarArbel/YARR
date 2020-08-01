@@ -439,13 +439,13 @@ public class Player : MonoBehaviour
         if (Health > 0)
         {          
             // Retrieve key presses for movement
-            if (Input.GetAxis(MovementAxis) < -0.9)
+            if (Input.GetAxis(MovementAxis) < -0.5)
             {
                 Direction.x = -1f;
                 // Click counter
                 ClickCounter++;
             }
-            else if (Input.GetAxis(MovementAxis) > 0.9)
+            else if (Input.GetAxis(MovementAxis) > 0.5)
             {
                 Direction.x = 1f;
                 // Click counter

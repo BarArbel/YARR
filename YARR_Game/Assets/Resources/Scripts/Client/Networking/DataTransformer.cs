@@ -13,6 +13,7 @@ namespace Project.Networking
         static SocketIOComponent GameSocket = null;
         static DataGameSnapShot data = new DataGameSnapShot();
         static ExperimentSettings settings = new ExperimentSettings();
+        public static string keyboardORcontroller;
 
         public static void SetInstanceID(string instID)
         {
