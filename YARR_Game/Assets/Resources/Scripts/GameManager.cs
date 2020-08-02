@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
-
+        Debug.Log("Trying to find out what is love!!!! " + RoundsSkins + "   " + BlindnessType);
         // Player Prefabs
         switch (RoundsSkins)
         {
@@ -480,7 +480,7 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/5 - WheelsRED"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/6 - SpringRED"));
                         //Treasures
-                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureRED"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDWheel"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureREDSpring"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
@@ -500,7 +500,7 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/8 - WheelsYellow"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/9 - SpringYellow"));
                         //Treasures
-                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOW"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWWheel"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasureYELLOWSpring"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
@@ -520,7 +520,7 @@ public class GameManager : MonoBehaviour
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/11 - WheelsPink"));
                         ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player/12 - SpringPink"));
                         //Treasures
-                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKFlag"));
+                        ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINK"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKWheel"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasures/TreasurePINKSpring"));
                         ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
