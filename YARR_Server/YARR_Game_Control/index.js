@@ -338,8 +338,8 @@ io.on('connection', async socket =>{
       }
       else {
         roundDuration = results[0]["RoundDuration"];
-        colorBlindness = results[0]["Disability"];
-        skin = results[0]["ColorSettings"];
+        colorBlindness = results[0]["ColorSettings"];
+        skin = results[0]["CharacterType"];
 
         socket.emit('newGameScene', {rSettings: {numberOfPlayers:  numOfPlayers, 
                                                     roundLength:      roundDuration, 
