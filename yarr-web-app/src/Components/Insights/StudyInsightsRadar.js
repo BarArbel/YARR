@@ -82,7 +82,7 @@ class StudyInsightRadar extends Component {
   renderData() {
     const { data, names, selectedName } = this.state
 
-    return data.length ? 
+    return data.length > 2 ? 
       (
       <div>
         <select
@@ -106,7 +106,7 @@ class StudyInsightRadar extends Component {
       </div>
     ) 
     :
-    <p style={{ textAlign: "center", paddingTop: "25px" }}>No data collected</p>
+    <p style={{ textAlign: "center", paddingTop: "25px" }}>Not enough data collected. Run atleast 3 experiments.</p>
   }
 
   render() {
