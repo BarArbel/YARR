@@ -22,7 +22,8 @@ class StudyBuilder extends Component {
     this.state = {
       title: "",
       studyQuestions: "",
-      description: ""
+      description: "",
+      submit: false
     }
 
     this.handleSubmit = this.handleSubmit.bind(this)
@@ -41,6 +42,7 @@ class StudyBuilder extends Component {
 
   async handleSubmit(event) {
     const { title, studyQuestions, description } = this.state
+    this.setState({ submit: true })
     const { 
       userInfo, 
       handleToggleBuildStudy, 
@@ -177,7 +179,7 @@ class StudyBuilder extends Component {
             <p style={descriptionStyle} className="input-limit">{descriptionRemaining}</p>
           </div>
           <div className="text-center mt-4">
-            <MDBBtn color="elegant" type="submit" className="login-btn">Save Study</MDBBtn>
+            <MDBBtn disabled={this.state.submit} color="elegant" type="submit" className="login-btn">Save Study</MDBBtn>
           </div>
         </form>
       </div>

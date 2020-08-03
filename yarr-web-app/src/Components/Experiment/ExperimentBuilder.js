@@ -31,7 +31,8 @@ class ExperimentBuilder extends Component {
       disability: 1,
       characterType: 1,
       colorSettings: 1,
-      nextPressed: false
+      nextPressed: false,
+      submit: false
     }
 
     this.renderInfo = this.renderInfo.bind(this)
@@ -173,6 +174,8 @@ class ExperimentBuilder extends Component {
       characterType,
       colorSettings
     } = this.state
+
+    this.setState({ submit: true })
     const {
       studyId,
       editForm,
@@ -673,7 +676,7 @@ class ExperimentBuilder extends Component {
             }
             {(wizardIndex === 3 || (wizardIndex === 0 && status !== "Ready" && status !== "Stopped" && status !== undefined)) ?
               <div className="text-center mt-4">
-                <MDBBtn color="elegant" onClick={this.handleSubmit} className="login-btn builderButton">Save Experiment</MDBBtn>
+                <MDBBtn disabled={this.state.submit} color="elegant" onClick={this.handleSubmit} className="login-btn builderButton">Save Experiment</MDBBtn>
               </div> : (null)
             }
           </div>
