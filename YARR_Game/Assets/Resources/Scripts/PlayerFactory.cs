@@ -79,7 +79,7 @@ public class PlayerFactory : MonoBehaviour
             {
                 int playerID = (int)playerSettings[i].x;
                 
-                GameObject playerObj = Instantiate(PlayerPrefab[playerID]);
+                GameObject playerObj = Instantiate(PlayerPrefab[playerID-1]);
                 Player player = playerObj.GetComponent<Player>();
 
                 // Init player properties

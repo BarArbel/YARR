@@ -32,7 +32,7 @@ async function generateInterrGameCode(socket) {
       }
     }
     catch(err) {
-      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database. #8', 'error': err });
       return;
     }
   }
@@ -51,7 +51,7 @@ async function setInterruptedGame(instanceId, experimentId, socket) {
     await query_platform(sql_update_instance);
   }
   catch(err) {
-    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database. #9', 'error': err });
     return;
   }
   // Generate game code
@@ -65,7 +65,7 @@ async function setInterruptedGame(instanceId, experimentId, socket) {
     await query_platform(sql_add_instance);
   }
   catch(err) {
-    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database. #10', 'error': err });
     return;
   }
 }
@@ -77,7 +77,7 @@ async function exceptionDBAccess(msg, table, err, socket) {
     await query_platform(`DROP TABLE ${process.env.DATABASE_PLATFORM}.tracker_input_${table.time}_${table.id} ;`);
   }
   catch (err2) {
-    socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err2 });
+    socket.emit('errorMenu', { 'message' : 'Unable to access the database. #1 ' + msg, 'error': err2 });
     return;
   }
   socket.emit('errorMenu', {message: msg, 'error': err});
@@ -137,7 +137,7 @@ io.on('connection', async socket =>{
       socket.broadcast.emit('message', `table ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} was created`);
     }
     catch(err) {
-      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database. #2', 'error': err });
       return;
     }
 
@@ -167,10 +167,10 @@ io.on('connection', async socket =>{
         await query_platform(`DROP TABLE ${process.env.DATABASE_DDA}.dda_input_${table.time}_${table.id} ;`);
       }
       catch (err2) {
-        socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+        socket.emit('errorMenu', { 'message' : 'Unable to access the database. #3', 'error': err2 });
         return;
       }
-      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database. #4', 'error': err });
       return;
     }
   });
@@ -192,7 +192,7 @@ io.on('connection', async socket =>{
           studyId = results[0]["StudyId"];
           mysqlConnection_platform.query(sql2, async (error, results) => {
             if (error || !results.length) {
-              exceptionDBAccess("Adding instance data failed", table, error, socket)
+              socket.emit('error', { 'message' : 'Adding instance data failed', 'error': error });
             }});
 
        } 
@@ -365,9 +365,11 @@ io.on('connection', async socket =>{
     const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE_PLATFORM}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
     mysqlConnection_platform.query(sql_del_gamecode, (error, results) => {
       if (error || !results.length) {
+        console.log("Is this happening #1");
         exceptionDBAccess("There are no rounds that match this experiment", table, error, socket);
       }
     console.log(sql_del_gamecode);
+    console.log("Is this happening #2");
     });
 
     socket.emit('interrGameSettings', data);
@@ -611,12 +613,12 @@ io.on('connection', async socket =>{
             }
           }
           catch (insert_error) {
-            socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+            socket.emit('errorMenu', { 'message' : 'Unable to access the database. #5', 'error': insert_error });
           }
         }
       }
       catch (select_error) {
-        socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+        socket.emit('errorMenu', { 'message' : 'Unable to access the database. #6', 'error': select_error });
       }
 
       let dda_drop = query_dda(drop_query + dda_table)
@@ -625,7 +627,7 @@ io.on('connection', async socket =>{
 
     }
     catch (error) {
-      socket.emit('errorMenu', { 'message' : 'Unable to access the database.', 'error': err });
+      socket.emit('errorMenu', { 'message' : 'Unable to access the database. #7', 'error': error });
     }
 
    let fetch_accomplished = false; 

@@ -89,7 +89,7 @@ public class Player : MonoBehaviour
 
     public bool SetHealth(int health)
     {
-        float spriteBrightness;
+        //float spriteBrightness;
 
         if (MaxHealth <= 0 || health > MaxHealth)
         {
@@ -97,8 +97,8 @@ public class Player : MonoBehaviour
         }
 
         Health = health;
-        spriteBrightness = (float)Health / (float)MaxHealth;
-        gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
+        //spriteBrightness = (float)Health / (float)MaxHealth;
+        //gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
 
         return true;
     }

@@ -106,14 +106,20 @@ namespace Project.Networking
             });
 
             On("interrGameSettings", (E) => {
+                Debug.Log("Is this happening #3");
+                Debug.Log(E.data["instanceId"].str);
+                Debug.Log(InterruptedInstanceID);
                 if (E.data["instanceId"].str == InterruptedInstanceID)
                 {
+                    
+                     Debug.Log("Is this happening #4");
                     FindObjectOfType<GameManager>().InitInterrExperiment(E.data);
 
                 }
             });
 
             On("errorMenu", (E) => {
+                Debug.Log("errorMenu: " + E.ToString());
                 SceneManager.LoadScene("ErrorMenu");
             });
 

@@ -313,3 +313,17 @@ E:\Miri\aStudiez\aYARR\YARR\YARR_Game\obj\Debug\Assembly-CSharp.csproj.CoreCompi
 E:\Miri\aStudiez\aYARR\YARR\YARR_Game\obj\Debug\Assembly-CSharp.csproj.CopyComplete
 E:\Miri\aStudiez\aYARR\YARR\YARR_Game\obj\Debug\Assembly-CSharp.dll
 E:\Miri\aStudiez\aYARR\YARR\YARR_Game\obj\Debug\Assembly-CSharp.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-hlapi.Editor.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-hlapi.Runtime.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-weaver.Editor.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEditor.SpatialTracking.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEditor.XR.LegacyInputHelpers.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEngine.SpatialTracking.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEngine.XR.LegacyInputHelpers.dll
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-hlapi.Editor.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-weaver.Editor.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEngine.XR.LegacyInputHelpers.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEditor.SpatialTracking.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEngine.SpatialTracking.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\UnityEditor.XR.LegacyInputHelpers.pdb
+E:\Miri\aStudiez\aYARR\YARR\YARR_Game\Temp\bin\Debug\com.unity.multiplayer-hlapi.Runtime.pdb
