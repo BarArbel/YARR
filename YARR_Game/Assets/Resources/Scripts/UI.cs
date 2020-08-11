@@ -71,11 +71,9 @@ public class UI : MonoBehaviour
             InitScoreText(ScoresIdicators[0]);
             ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 3f), -6.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
-            //GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.203f,0.796f,0.521f);
         }
         else
         {
-            //GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = Color.HSVToRGB(0.43f, 0.48f, 1);
             for (int i = 0; i < NumberOfPlayers; i++)
            {
                 ScoresIdicators.Add( new GameObject("Score"));
@@ -89,7 +87,7 @@ public class UI : MonoBehaviour
             GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.5f);
             foreach (var item in Platforms)
             {
-                item.GetComponent<SpriteRenderer>().color = new Color(0.6f, 0.7f, 0.8f);
+                item.GetComponent<SpriteRenderer>().color = new Color(1f, 0.5f, 0.5f);
             }
         }
         else if(Blinesstype == GameManager.ColorBlindness.Tritanopia)
@@ -97,7 +95,7 @@ public class UI : MonoBehaviour
             GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0f, 1f, 1f);
             foreach (var item in Platforms)
             {
-                item.GetComponent<SpriteRenderer>().color = new Color(0.8f, 0.8f, 0.8f);
+                item.GetComponent<SpriteRenderer>().color = new Color(1f, 0.7f, 0.3f);
             }
         }
 

@@ -609,7 +609,7 @@ public class GameManager : MonoBehaviour
         // TODO: Add keys dynamically according to input from user
 
         // Player factory settings
-        SpawnLocation = new Vector2(0f, -3f);
+        SpawnLocation = new Vector2(0f, -5f);
         InitialHealth = 3;
         MyItemsAmount = 1;
         OthersItemsAmount = 1;
