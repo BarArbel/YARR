@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
-        Debug.Log("Trying to find out what is love!!!! " + RoundsSkins + "   " + BlindnessType);
+
         // Player Prefabs
         switch (RoundsSkins)
         {
@@ -819,7 +819,7 @@ public class GameManager : MonoBehaviour
 
             // Initialize UI
             GameObject canvas = GameObject.Find("Canvas");
-            canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
+            canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers,BlindnessType);
 
             // Interrupted game initializations
             if (!IsNewRound)
