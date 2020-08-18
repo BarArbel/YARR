@@ -365,8 +365,7 @@ io.on('connection', async socket =>{
     const sql_del_gamecode = `DELETE FROM ${process.env.DATABASE_PLATFORM}.interupted_instances WHERE InstanceId = '${table.time}_${table.id}' ;`;
     mysqlConnection_platform.query(sql_del_gamecode, (error, results) => {
       if (error || !results.length) {
-        console.log("Is this happening #1");
-        exceptionDBAccess("There are no rounds that match this experiment #3", table, error, socket);
+        socket.emit('error', { 'message' : 'There are no rounds that match this experiment #3', 'error': error });
       }
     console.log(sql_del_gamecode);
     console.log("Is this happening #2");
@@ -585,14 +584,15 @@ io.on('connection', async socket =>{
       let result = await query_platform(`SELECT ExperimentId FROM ${process.env.DATABASE_PLATFORM}.instances WHERE InstanceId = '${instance_id}'`)
       let experiment_id = result[0].ExperimentId
       let values = []
-
+      console.log("This happens #1")
       try {
         let dda_select = await query_dda(select_query + dda_table)
-
+        console.log("This happens #2")
         if (dda_select.length) {
           dda_select.map(row => {
             let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
             values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
+            console.log("This happens #3")
           })
         }
 
@@ -602,6 +602,7 @@ io.on('connection', async socket =>{
           tracker_select.map(row => {
             let { Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode } = row
             values.push([instance_id, experiment_id, Timestamp, Event, PlayerID, CoordX, CoordY, Item, Enemy, GameMode])
+            console.log("This happens #4")
           })
         }
 
@@ -611,14 +612,17 @@ io.on('connection', async socket =>{
             if (!insert_result.affectedRows) {
               console.log(`no new rows inserted to ${permanent_table}`)
             }
+            console.log("This happens #5")
           }
           catch (insert_error) {
             socket.emit('errorMenu', { 'message' : 'Unable to access the database. #5', 'error': insert_error });
+            console.log("This happens #6")
           }
         }
       }
       catch (select_error) {
         socket.emit('errorMenu', { 'message' : 'Unable to access the database. #6', 'error': select_error });
+        console.log("This happens #7")
       }
 
       let dda_drop = query_dda(drop_query + dda_table)
@@ -632,6 +636,7 @@ io.on('connection', async socket =>{
 
    let fetch_accomplished = false; 
    while(!fetch_accomplished) {
+        console.log("This happens #8")
         // after all queries are done, invoke analyzeData
         fetch('https://yarr-insight-service.herokuapp.com/analyzeData', {
           method: 'POST',
