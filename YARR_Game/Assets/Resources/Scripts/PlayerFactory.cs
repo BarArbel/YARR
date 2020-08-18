@@ -62,7 +62,7 @@ public class PlayerFactory : MonoBehaviour
             GameObject playerObj = Instantiate(PlayerPrefab[i]);
             Player player = playerObj.GetComponent<Player>();
             player.transform.SetParent(GameObject.Find("Map").transform);
-           
+            playerObj.transform.position = new Vector3(2,-5f,0);
             playerObj.tag = "Player";
             //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
@@ -81,13 +81,13 @@ public class PlayerFactory : MonoBehaviour
                 
                 GameObject playerObj = Instantiate(PlayerPrefab[playerID-1]);
                 Player player = playerObj.GetComponent<Player>();
-
+                
                 // Init player properties
                 //player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
                 //checkfor keyboard
                 player.PlayerInit(Movement[i],Jump[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
-                
 
+                
 
                 player.transform.SetParent(GameObject.Find("Map").transform);
                 // Init player health

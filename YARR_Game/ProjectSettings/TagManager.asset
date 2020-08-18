@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Treasure
   - HealthText
+  - Platform
   layers:
   - Default
   - TransparentFX

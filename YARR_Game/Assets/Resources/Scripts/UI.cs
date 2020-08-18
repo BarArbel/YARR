@@ -17,7 +17,7 @@ public class UI : MonoBehaviour
     private GameObject countdownDisplay;
     private GameObject gameModDisplay;
     private int countdownTime;
-    private GameObject backGround;
+    private GameObject[] Platforms;
 
     // UI Debug
     public GameObject DebugIndicator;
@@ -26,7 +26,7 @@ public class UI : MonoBehaviour
     public Text debugText;
     public GameManager.Level Difficulty;
 
-    public void UIInit( int initialHealth, GameManager.GameMode mode, /*DEBUG*/GameManager.Level difficulty, /*DEBUG*/List<ObjectFactory> enemyFactories, /*DEBUG*/List<ObjectFactory> itemFactories, List<Sprite> playerSprites, int numberOfPlayers) 
+    public void UIInit( int initialHealth, GameManager.GameMode mode, /*DEBUG*/GameManager.Level difficulty, /*DEBUG*/List<ObjectFactory> enemyFactories, /*DEBUG*/List<ObjectFactory> itemFactories, List<Sprite> playerSprites, int numberOfPlayers, GameManager.ColorBlindness Blinesstype) 
     {
         float BotLeftCorner = -10.2f;
         GameObject canvas = GameObject.Find("Canvas");        
@@ -38,6 +38,7 @@ public class UI : MonoBehaviour
         InitialHealth = initialHealth;
         HealthPrefab = Resources.Load<GameObject>("Prefabs/HealthIndicator");
         PlayerSprites = new List<Sprite>(playerSprites);
+        Platforms = GameObject.FindGameObjectsWithTag("Platform");
 
         countdownDisplay = Instantiate(Resources.Load<GameObject>("Prefabs/countdownDisplay"), new Vector3(0, 0, 0), transform.rotation);
         countdownDisplay.transform.SetParent(canvas.transform);
@@ -70,11 +71,9 @@ public class UI : MonoBehaviour
             InitScoreText(ScoresIdicators[0]);
             ScoresIdicators[0].transform.position = new Vector3(BotLeftCorner + (((float)NumberOfPlayers + 0.7f) * 3f), -6.5f, 0);
             ScoresIdicators[0].GetComponent<Text>().color = new Color(0f, 0f, 0f);
-            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.203f,0.796f,0.521f);
         }
         else
         {
-            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = Color.HSVToRGB(0.43f, 0.48f, 1);
             for (int i = 0; i < NumberOfPlayers; i++)
            {
                 ScoresIdicators.Add( new GameObject("Score"));
@@ -82,6 +81,25 @@ public class UI : MonoBehaviour
                 ScoresIdicators[i].transform.position = new Vector3(HealthIdicators[i].transform.position.x+0.8f, HealthIdicators[i].transform.position.y-0.2f, 0);
            }
         }
+
+        if (Blinesstype == GameManager.ColorBlindness.Protanopia)
+        {
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0.3f, 0.3f, 0.5f);
+            foreach (var item in Platforms)
+            {
+                item.GetComponent<SpriteRenderer>().color = new Color(1f, 0.5f, 0.5f);
+            }
+        }
+        else if(Blinesstype == GameManager.ColorBlindness.Tritanopia)
+        {
+            GameObject.Find("BackGround").GetComponent<SpriteRenderer>().color = new Color(0f, 1f, 1f);
+            foreach (var item in Platforms)
+            {
+                item.GetComponent<SpriteRenderer>().color = new Color(1f, 0.7f, 0.3f);
+            }
+        }
+
+
         // UI Debug
         DebugIndicator = new GameObject("DEBUGMODE");
         Difficulty = difficulty;

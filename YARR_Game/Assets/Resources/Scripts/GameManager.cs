@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
         //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
-        Debug.Log("Trying to find out what is love!!!! " + RoundsSkins + "   " + BlindnessType);
+
         // Player Prefabs
         switch (RoundsSkins)
         {
@@ -609,7 +609,7 @@ public class GameManager : MonoBehaviour
         // TODO: Add keys dynamically according to input from user
 
         // Player factory settings
-        SpawnLocation = new Vector2(0f, -3f);
+        SpawnLocation = new Vector2(0f, -5f);
         InitialHealth = 3;
         MyItemsAmount = 1;
         OthersItemsAmount = 1;
@@ -819,7 +819,7 @@ public class GameManager : MonoBehaviour
 
             // Initialize UI
             GameObject canvas = GameObject.Find("Canvas");
-            canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers);
+            canvas.GetComponent<UI>().UIInit(InitialHealth, Mode, /*DEBUG*/Difficulty, /*DEBUG*/EnemyFactories, /*DEBUG*/ItemFactories, GetPlayerSprites(), NumberOfPlayers,BlindnessType);
 
             // Interrupted game initializations
             if (!IsNewRound)
