@@ -6,7 +6,7 @@ async function ExpQueries(experimentId, InstanceId){
     INSERT INTO yarr.exp_insights_bar
     select * from (
         select  ExperimentID, GameMode, 
-                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
+                if((sum(ItemTaken)/sum(ItemSpawns))*100 > 100,100,(sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsCaptured,
                 if(100-((sum(ItemTaken)/sum(ItemSpawns))*100) < 0, 0,100-((sum(ItemTaken)/sum(ItemSpawns))*100)) PercentItemsMissed,
                 (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
                 (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
@@ -276,7 +276,7 @@ async function StudyQueries(studyId) {
         FROM eng
         WHERE CharacterType = 3
         GROUP BY  1,2,3,4,6,5) all_eng
-    GROUP BY 1,2,3,5
+    GROUP BY 1,2,3,5,6
     ORDER BY AxisTime
     ON DUPLICATE KEY UPDATE AxisEngagement= VALUES(AxisEngagement);`;
     console.log("Here's a sql thing yo yo yo yo yo yo yo yo yo yo");
