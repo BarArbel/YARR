@@ -24,8 +24,8 @@ async function ExpQueries(experimentId, InstanceId){
         group by 1,2    ) coop_sums 
     union all (
     select ExperimentID, GameMode, 
-          (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
-          100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
+          if((sum(ItemTaken)/sum(ItemSpawns))*100 > 100,100,(sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsCaptured,
+          if(100-((sum(ItemTaken)/sum(ItemSpawns))*100) < 0, 0,100-((sum(ItemTaken)/sum(ItemSpawns))*100)) PercentItemsMissed,
           (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
           (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
           (sum(EnemyBlock)/sum(EnemySpawns)*100) PercentEnemiesBlock
@@ -193,8 +193,8 @@ async function StudyQueries(studyId) {
     select * from
     (select * from (
         select  ResearcherId, StudyId, GameMode, 
-                (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
-                100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
+                if((sum(ItemTaken)/sum(ItemSpawns))*100 > 100,100,(sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsCaptured,
+                if(100-((sum(ItemTaken)/sum(ItemSpawns))*100) < 0, 0,100-((sum(ItemTaken)/sum(ItemSpawns))*100)) PercentItemsMissed,
                 (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
                 (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
                 (sum(EnemyBlock)/sum(EnemySpawns)*100) PercentEnemiesBlock
@@ -211,8 +211,8 @@ async function StudyQueries(studyId) {
         group by 1,2    ) coop_sums 
     union all 
     (select ResearcherId, StudyId, GameMode, 
-    (sum(ItemTaken)/sum(ItemSpawns))*100 PercentItemsCaptured,
-     100-((sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsMissed,
+      if((sum(ItemTaken)/sum(ItemSpawns))*100 > 100,100,(sum(ItemTaken)/sum(ItemSpawns))*100) PercentItemsCaptured,
+      if(100-((sum(ItemTaken)/sum(ItemSpawns))*100) < 0, 0,100-((sum(ItemTaken)/sum(ItemSpawns))*100)) PercentItemsMissed,
      (sum(EnemyAvoid)/sum(EnemySpawns)*100) PercentEnemiesAvoid,
      (sum(EnemyDamage)/sum(EnemySpawns)*100) PercentEnemiesHit,
      (sum(EnemyBlock)/sum(EnemySpawns)*100) PercentEnemiesBlock

@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public bool StaticMode = true;
     public bool CoopMode = true;
 
-    //Round settings
+    // Round settings
     private int NumberOfRounds;
     private List<GameMode> RoundsModes;
     private Skin RoundsSkins;
