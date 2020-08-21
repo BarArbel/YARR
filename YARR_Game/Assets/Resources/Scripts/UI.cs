@@ -8,8 +8,8 @@ public class UI : MonoBehaviour
 {
     private GameManager.GameMode Mode;
     private int NumberOfPlayers;
-    int InitialHealth;
-    List<Sprite> PlayerSprites;
+    private int InitialHealth;
+    private List<Sprite> PlayerSprites;
     private GameObject HealthPrefab;
     private List<GameObject> HealthIdicators;
     private List<GameObject> ScoresIdicators;

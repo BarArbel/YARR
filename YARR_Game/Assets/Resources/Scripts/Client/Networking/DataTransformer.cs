@@ -9,10 +9,10 @@ namespace Project.Networking
 {
     public static class DataTransformer
     {
-        static SocketIOComponent DDASocket;
-        static SocketIOComponent GameSocket = null;
-        static DataGameSnapShot data = new DataGameSnapShot();
-        static ExperimentSettings settings = new ExperimentSettings();
+        private static SocketIOComponent DDASocket;
+        private static SocketIOComponent GameSocket = null;
+        private static DataGameSnapShot data = new DataGameSnapShot();
+        private static ExperimentSettings settings = new ExperimentSettings();
         public static string keyboardORcontroller;
 
         public static void SetInstanceID(string instID)

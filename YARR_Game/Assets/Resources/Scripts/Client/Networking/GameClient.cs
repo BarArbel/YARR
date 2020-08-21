@@ -8,9 +8,9 @@ namespace Project.Networking
 {
     public class GameClient : SocketIOComponent
     {
-        string InstanceID;
-        string InterruptedInstanceID;
-        AsyncOperation asyncLoadLevel;
+        private string InstanceID;
+        private string InterruptedInstanceID;
+        private AsyncOperation asyncLoadLevel;
 
         public override void Start()
         {

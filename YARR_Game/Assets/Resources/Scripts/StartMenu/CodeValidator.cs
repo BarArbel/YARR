@@ -21,7 +21,7 @@ public class CodeValidator : MonoBehaviour
     private ToggleGroup toggleGroup;
 
     // Allow only alphanumeric in string
-    Regex rgx = new Regex("[^a-zA-Z0-9]");
+    private Regex rgx = new Regex("[^a-zA-Z0-9]");
 
     bool ValidateText()
     {
