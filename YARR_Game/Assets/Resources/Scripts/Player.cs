@@ -303,7 +303,7 @@ public class Player : MonoBehaviour
     }
     
 
-    void OnTriggerEnter2D(Collider2D collider)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
         const int itemLayer = 10;
         const int enemyLayer = 11;
@@ -516,7 +516,7 @@ public class Player : MonoBehaviour
         if (Health <= 0 && IsGrounded(boxCollider2D, MapLayer)) { rigidbody2D.velocity = new Vector2(0, 0); }
     }
 
-    void FixBoat(Player player)
+    private void FixBoat(Player player)
     {
         player.SetHealth();
         //FindObjectOfType<GameManager>().NotificationPlayerRevived(GetID());
@@ -525,7 +525,7 @@ public class Player : MonoBehaviour
 
     }
 
-    void AccidentalFallIdentified()
+    private void AccidentalFallIdentified()
     {
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.fallAccidently, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         // Clear lists for future identifications
@@ -538,7 +538,7 @@ public class Player : MonoBehaviour
 
     // If get closer to enemy - it's accidental
     // If get further from item - it's accidental 
-    bool IdentifyFall()
+    private bool IdentifyFall()
     {
 
         // Identify first falling samples
@@ -646,7 +646,7 @@ public class Player : MonoBehaviour
     }
 
     //
-    IEnumerator Countdown()
+    private IEnumerator Countdown()
     {
         while(immuneTimer > 0)
         {

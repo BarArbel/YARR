@@ -16,7 +16,7 @@ public class Enemy : MonoBehaviour
     private double TimeBetweenPathRecalculation;
     private double TimeLeft;
     private double RecalculationsAvailable;
-    private Vector3 direction;
+    private Vector3 Direction;
 
     // Response time properties
     private float ResponseTime;
@@ -80,12 +80,12 @@ public class Enemy : MonoBehaviour
 
     private void setDirection()
     {
-        direction = (TargetTransform.position - transform.position).normalized;
-        if (direction.x < 0)
+        Direction = (TargetTransform.position - transform.position).normalized;
+        if (Direction.x < 0)
         {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x) * -1.0f, transform.localScale.y, transform.localScale.z);
         }
-        else if (direction.x > 0)
+        else if (Direction.x > 0)
         {
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, transform.localScale.z);
         }
@@ -93,7 +93,7 @@ public class Enemy : MonoBehaviour
 
     // If get closer to enemy - it's accidental
     // If get further from item - it's accidental 
-    bool IdentifyResponse()
+    private bool IdentifyResponse()
     {
 
         // Identify first sample
@@ -155,7 +155,7 @@ public class Enemy : MonoBehaviour
         return false;
     }
 
-    void ResponseIdentified()
+    private void ResponseIdentified()
     {
         // TODO: tweak response time
         Debug.Log("Response: " + ResponseTime * 1000);
@@ -181,10 +181,10 @@ public class Enemy : MonoBehaviour
         }
 
         // Move toward last saved direction
-        transform.position += direction * Speed * Time.deltaTime;
+        transform.position += Direction * Speed * Time.deltaTime;
     }
 
-    void OnTriggerEnter2D(Collider2D collider)
+    private void OnTriggerEnter2D(Collider2D collider)
     {
         
         int playerLayer = LayerMask.NameToLayer("Player");
