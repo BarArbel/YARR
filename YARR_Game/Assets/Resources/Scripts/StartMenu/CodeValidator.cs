@@ -23,7 +23,7 @@ public class CodeValidator : MonoBehaviour
     // Allow only alphanumeric in string
     private Regex rgx = new Regex("[^a-zA-Z0-9]");
 
-    bool ValidateText()
+    private bool ValidateText()
     {
         string code = rgx.Replace(currInputValue, "");
         if (code.Length != codeLen)
