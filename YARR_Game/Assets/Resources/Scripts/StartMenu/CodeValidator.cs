@@ -79,7 +79,6 @@ public class CodeValidator : MonoBehaviour
         {
             DataTransformer.keyboardORcontroller = currentSelection.name;
             DataTransformer.initDDAConnection();
-            //InitExperiment(JSONObject rSettings);
         }
     }
 

@@ -63,7 +63,6 @@ public class Player : MonoBehaviour
         Item[] inventory = new Item[OthersItemInventory.Length];
         OthersItemInventory.CopyTo(inventory, 0);
         return inventory;
-        // TODO: return OthersItemInventory.ToImmutableArray<Item>();
     }
 
     public List<Item> GetTotalItemInventory()
@@ -82,14 +81,12 @@ public class Player : MonoBehaviour
 
         animator.SetBool("Dead", false);
         Health = MaxHealth;
-        //gameObject.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 1);
         this.GetComponent<Transform>().Rotate(0, 0, -180, Space.Self);
         return true;
     }
 
     public bool SetHealth(int health)
     {
-        //float spriteBrightness;
 
         if (MaxHealth <= 0 || health > MaxHealth)
         {
@@ -97,8 +94,6 @@ public class Player : MonoBehaviour
         }
 
         Health = health;
-        //spriteBrightness = (float)Health / (float)MaxHealth;
-        //gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
 
         return true;
     }
@@ -113,7 +108,6 @@ public class Player : MonoBehaviour
         }
         Health-=enemy.GetDamage();
         spriteBrightness = (float)Health / (float)MaxHealth;
-        //gameObject.GetComponent<SpriteRenderer>().color = new Color(spriteBrightness, spriteBrightness, spriteBrightness, 1);
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.getDamaged, player, 0, enemy.GetID(), GetGameMode());
 
         if (Health == 0)
@@ -426,9 +420,6 @@ public class Player : MonoBehaviour
             if (FixBoatTime >= 3f)
             {
                 FixBoat(otherPlayer.GetComponent<Player>());
-
-                // Reset revival
-                //FixBoatTime = -1f;
             }
         }
     }
@@ -519,7 +510,6 @@ public class Player : MonoBehaviour
     private void FixBoat(Player player)
     {
         player.SetHealth();
-        //FindObjectOfType<GameManager>().NotificationPlayerRevived(GetID());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revivePlayer, gameObject.GetComponent<Player>(), 0, 0, GetGameMode());
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.revived, ID, transform.position.x, transform.position.y, 0, 0, GetGameMode());
 
@@ -645,7 +635,7 @@ public class Player : MonoBehaviour
         return false;
     }
 
-    //
+    // Countdown for protection aura
     private IEnumerator Countdown()
     {
         while(immuneTimer > 0)

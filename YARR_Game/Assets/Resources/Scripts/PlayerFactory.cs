@@ -44,13 +44,12 @@ public class PlayerFactory : MonoBehaviour
         NumberOfPlayers = numberOfPlayers;
         IsNewGame = isNewGame;
 
-        //PlayerSprites = new List<Sprite>(playerSprites);
         this.Movement = new List<string>(Movement);
         this.Jump = new List<string>(Jump);
 
         // Unchangable initializations
         PlayerCounter = 0;
-        PlayerPrefab = new List<GameObject>(PlayerPrefabs);//Resources.Load<GameObject>("Prefabs/Player");
+        PlayerPrefab = new List<GameObject>(PlayerPrefabs);
 
     }
 
@@ -64,7 +63,6 @@ public class PlayerFactory : MonoBehaviour
             player.transform.SetParent(GameObject.Find("Map").transform);
             playerObj.transform.position = new Vector3(2,-5f,0);
             playerObj.tag = "Player";
-            //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             // Init player properties
             player.PlayerInit(Movement[i], Jump[i], PlayerCounter, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
@@ -83,8 +81,7 @@ public class PlayerFactory : MonoBehaviour
                 Player player = playerObj.GetComponent<Player>();
                 
                 // Init player properties
-                //player.PlayerInit(RightMovement[i], LeftMovement[i], JumpMovement[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
-                //checkfor keyboard
+                //check for keyboard
                 player.PlayerInit(Movement[i],Jump[i], playerID, InitialHealth, MyItemsAmount, OthersItemsAmount, IsSpriteDirectionRight, HeldItemHeight);
 
                 
@@ -96,9 +93,6 @@ public class PlayerFactory : MonoBehaviour
                 playerObj.transform.position = new Vector3(playerSettings[i].y, playerSettings[i].z, 0);
 
                 playerObj.tag = "Player";
-
-                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[playerID];
-                //playerObj.GetComponent<SpriteRenderer>().sprite = PlayerSprites[i];
 
             }
         }

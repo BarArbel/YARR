@@ -28,20 +28,9 @@ public class Powerup : Item
         {
             IsPickedUp = true;
             Carrier = carrier;
-            //transform.localScale *= 0.5f;
 
         }
     }
-
-    //override public void SetDisown()
-    //{
-    //    if (IsPickedUp == true)
-    //    {
-    //        IsPickedUp = false;
-    //        Carrier = null;
-    //        transform.localScale /= 0.5f;
-    //    }
-    //}
 
     private void SetDestroy()
     {
@@ -64,12 +53,6 @@ public class Powerup : Item
 
         DataTransformer.sendDDA(Time.realtimeSinceStartup, Event.powerupSpawn, 0, transform.position.x, transform.position.y, GetID(), 0, GetGameMode());
     }
-
-    //private void OnTriggerEnter2D(Collider2D collision)
-    //{
-    //    CancelInvoke();
-    //    Destroy(this.gameObject);
-    //}
 
     void Update()
     {

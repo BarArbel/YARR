@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Mathematics;
-//using System.Text.Json;
-//using System.Text.Json.Serialization;
 
 public class EnemyFactory : ObjectFactory
 {
@@ -36,7 +32,6 @@ public class EnemyFactory : ObjectFactory
         int[]   LevelsOf_TurnsAvailable = { 0, 3, 4, 5, 6, 6};
         float[] LevelsOf_TimeBetweenPathRecalculation = { 0, 2.5f, 2f, 1.5f, 1f, 1f};
 
-        // TODO: write this better
         if (level - 1 < 1)
         {
             SpawnRateRange = LevelsOf_SpawnRateRange[0];
@@ -61,13 +56,6 @@ public class EnemyFactory : ObjectFactory
 
         LevelPrecision = level;
         LevelSpeedAndSpawn = level;
-        // TODO: Do we need this?
-        /*if (!IsLevelModified)
-        {
-            IsLevelModified = true;
-            LevelSpeedAndSpawn = 2;
-            LevelPrecision = 2;
-        }*/
     }
 
     protected override void Spawn()
@@ -84,7 +72,6 @@ public class EnemyFactory : ObjectFactory
             enemyObj.transform.SetParent(GameObject.Find("Map").transform);
             enemyObj.layer = enemyLayer;
             enemyObj.GetComponent<Enemy>().EnemyInit(GetID(), Damage, Speed, TurnsAvailable, TimeBetweenPathRecalculation);
-            //enemyObj.GetComponent<SpriteRenderer>().sprite = GetSprite();
         }
     }
 

@@ -32,7 +32,6 @@ public class PowerupFactory : ObjectFactory
             new float2(-3, -2), new float2(-3, 0), new float2(-3, 2), new float2(0, 2), new float2(0, 3.5f), new float2(1, 3.5f)
         };
 
-        // TODO: write this better
         if (level - 1 < 0)
         {
             DestroyTimer = LevelsOf_DestroyTimer[0];
@@ -45,13 +44,6 @@ public class PowerupFactory : ObjectFactory
         }
 
         LevelTimerAndSpawn = level;
-        // TODO: Do we need this?
-        /*if (!IsLevelModified)
-            {
-                IsLevelModified = true;
-                LevelTimerAndSpawn = 3;
-            }
-        }*/
     }
 
     protected override void Spawn()
@@ -79,6 +71,6 @@ public class PowerupFactory : ObjectFactory
     // Update is called once per frame
     void Update()
     {
-        // TODO
+
     }
 }

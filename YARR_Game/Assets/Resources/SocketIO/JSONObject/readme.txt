@@ -1,5 +1,8 @@
 ==Author==
-[mailto:schoen@defectivestudios.com Matt Schoen] of [http://www.defectivestudios.com Defective Studios]
+[mailto:schoen@defectivestudios.com Matt Schoen] of [http:
+
+
+www.defectivestudios.com Defective Studios]
 
 ==Download==
 [[Media:JSONObject.zip|Download JSONObject.zip]]

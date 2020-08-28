@@ -34,7 +34,6 @@ public class ItemFactory : ObjectFactory
             new float2(-3, -2), new float2(-3, 0), new float2(-3, 2), new float2(0, 2), new float2(0, 3.5f), new float2(1, 3.5f)
         };
 
-        // TODO: write this better
         // general level = Difficulty indexes carried from round to round
         if (level - 1 < 1)
         {
@@ -48,13 +47,6 @@ public class ItemFactory : ObjectFactory
         }
 
         LevelTimerAndSpawn = level;
-        // TODO: Do we need this?
-        /*if (!IsLevelModified)
-            {
-                IsLevelModified = true;
-                LevelTimerAndSpawn = 3;
-            }
-        }*/
     }
 
     protected override void Spawn()
@@ -110,6 +102,6 @@ public class ItemFactory : ObjectFactory
     // Update is called once per frame
     void Update()
     {
-        // TODO
+
     }
 }

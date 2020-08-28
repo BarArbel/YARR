@@ -301,29 +301,11 @@ public class GameManager : MonoBehaviour
             PlayerDifficIndexes[i] = (int)difficulty;
         }
 
-        // Load ALL possible sprites
-        // Player sprites
-        //ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player1"));
-        //ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player2"));
-        //ColorSprites.Add(Resources.Load<Sprite>("Sprites/Player3"));
-
-        // TODO: Add player shape sprites
-
-        // TODO: Add player type sprites
-
         // Enemy sprites
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/Parrot1"));
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/Parrot2"));
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/Parrot3"));
         EnemySprites.Add(Resources.Load<Sprite>("Sprites/ParrotGeneral"));
-
-        // Enemy Prefabs
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotBlue"));
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotGreen"));
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotRed"));
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotYellow"));
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotPink"));
-        //EnemyPrefabs.Add(Resources.Load<GameObject>("Prefabs/Parrot/ParrotColorful"));
 
         // Player Prefabs
         switch (RoundsSkins)
@@ -533,12 +515,6 @@ public class GameManager : MonoBehaviour
                 break;
         }
 
-        // Item sprites
-        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure1"));
-        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure2"));
-        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Treasure3"));
-        //ItemSprites.Add(Resources.Load<Sprite>("Sprites/Food"));
-
         //Powerup sprites
         PowerupSprites.Add(Resources.Load<Sprite>("Sprites/Powerup"));
 
@@ -555,37 +531,19 @@ public class GameManager : MonoBehaviour
         if (DataTransformer.keyboardORcontroller == "Keyboard")
         {
 
-            // Initialize lists of buttons
-            //RightMovement = new List<KeyCode>();
-            //LeftMovement = new List<KeyCode>();
-            //JumpMovement = new List<KeyCode>();
-
             // Load prefered buttons in the order of players
             // Player 1
-            //RightMovement.Add(KeyCode.RightArrow);
             Movement.Add("Horizontal");
             // Player 2
-            //RightMovement.Add(KeyCode.D);
             Movement.Add("Horizontal2");
             // Player 3
-            //RightMovement.Add(KeyCode.L);
             Movement.Add("Horizontal3");
 
             // Player 1
-            //LeftMovement.Add(KeyCode.LeftArrow);
-            // Player 2
-            //LeftMovement.Add(KeyCode.A);
-            // Player 3
-            //LeftMovement.Add(KeyCode.K);
-
-            // Player 1
             Jump.Add("Jump");
-            //JumpMovement.Add(KeyCode.Space);
             // Player 2
-            //JumpMovement.Add(KeyCode.W);
             Jump.Add("Jump2");
             // Player 3
-            //JumpMovement.Add(KeyCode.O);
             Jump.Add("Jump3");
         }
         else
@@ -606,8 +564,6 @@ public class GameManager : MonoBehaviour
             Jump.Add("JS3Y");
         }
 
-        // TODO: Add keys dynamically according to input from user
-
         // Player factory settings
         SpawnLocation = new Vector2(0f, -5f);
         InitialHealth = 3;
@@ -626,20 +582,6 @@ public class GameManager : MonoBehaviour
     public Vector2 GetItemSinkCollider() { return (ItemSinkColliderSize[(int)Mode]); }
     public Sprite GetItemSinkSprite() { return (ItemSinkSprites[(int)Mode]); }
     public List<Sprite> GetPlayerSprites() { return (new List<Sprite>(ColorSprites)); }
-    //{
-    //    switch (SkinType)
-    //    {
-    //        case Skin.Color:
-    //            return (new List<Sprite>(ColorSprites));
-    //        case Skin.Shape:
-    //            return (new List<Sprite>(ShapeSprites));
-    //        case Skin.Type:
-    //            return (new List<Sprite>(TypeSprites));
-    //        default:
-    //            return (new List<Sprite>(ColorSprites));
-    //    }
-
-    //}
 
     // Setters
     public void SetMode(GameMode mode) { Mode = mode; }
@@ -681,8 +623,7 @@ public class GameManager : MonoBehaviour
                                             IsSpriteDirectionRight, HeldItemHeight, NumberOfPlayers,
                                             PlayerPrefabs, Movement, Jump, IsNewRound);
 
-            // Initialize Enemy factories            
-            GameObject enemyObj; //= Resources.Load<GameObject>("Prefabs/Enemy");
+            // Initialize Enemy factories                        
             int lvlsum = 0;
             int lvlMean;
             Debug.Log("CurrentRound = " + CurrentRound);
@@ -747,8 +688,6 @@ public class GameManager : MonoBehaviour
                     {
                         GameObject itemObj = Resources.Load<GameObject>("Prefabs/Food");
                         ItemFactories.Add(gameObject.AddComponent(typeof(ItemFactory)) as ItemFactory);
-                        // TODO: uncomment or delete after checking the new overloaded method
-                        //ItemFactories[i].FactoryInit(-1, lvlMean, itemObj, ItemSprites[ItemSprites.Count - 1], IsNewRound);
                         if (CurrentRound == 1)
                         {
                                 PlayerDifficIndexes[i] = 2;
@@ -962,18 +901,9 @@ public class GameManager : MonoBehaviour
                 Player player = players[i].GetComponent<Player>();
                 if (player.GetHealth() > 0)
                 {
-                    //EnemyFactories[player.GetID()-1].FreezeSpawn(false);
-                    //ItemFactories[player.GetID() - 1].FreezeSpawn(false);
-                    //PowerupFactories[player.GetID() - 1].FreezeSpawn(false);
                     return false;
                 }
-                else
-                {
-                    //EnemyFactories[player.GetID()-1].FreezeSpawn(true);
-                    //ItemFactories[player.GetID() - 1].FreezeSpawn(true);
-                    //PowerupFactories[player.GetID() - 1].FreezeSpawn(true);
-                    //Debug.Log("froze spawn for player " + i);
-                }
+
             }
 
             IsGameLost = true;
@@ -1013,7 +943,6 @@ public class GameManager : MonoBehaviour
                     // Assuming the new change is in range
                     if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
                     {
-                        //TODO: redo this later
                         // PlayerDifficIndexes is the current index, in a static game it doesn't show what it's supposed to be next
                         if (PlayerDifficIndexes[i] + LevelGeneral > 5)
                         {
@@ -1032,10 +961,6 @@ public class GameManager : MonoBehaviour
                             Debug.Log("Player " + (i + 1) + " Level Update: " + evnt);
                             DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
                         }
-                        /*EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                        ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                        Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
-                        DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, i+1, (int)Mode); */
                     }
                 }
 
@@ -1055,7 +980,6 @@ public class GameManager : MonoBehaviour
                 if (!(PlayerDifficIndexes[i] == 1 && LevelGeneral == -1) && !(PlayerDifficIndexes[i] == 6 && LevelGeneral == 1))
                 {
 
-                    //TODO: redo this later
                     if (PlayerDifficIndexes[i] + LevelGeneral > 5)
                     {
                         PlayerDifficIndexes[i] = 5;
@@ -1136,13 +1060,7 @@ public class GameManager : MonoBehaviour
 
     public void NotificationPlayerDied(int playerID)
     {
-        //EnemyFactories[playerID].FreezeSpawn(true);
         GameLost();
-    }
-
-    public void NotificationPlayerRevived(int playerID)
-    {
-        //EnemyFactories[playerID].FreezeSpawn(false);
     }
 
 

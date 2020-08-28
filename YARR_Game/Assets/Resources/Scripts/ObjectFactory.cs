@@ -89,10 +89,6 @@ public abstract class ObjectFactory : MonoBehaviour
 
     public void SetDDAChanges(int LevelGeneral)
     {
-        // TODO: delete these variables since we don't use them anymore
-        /*DDALevelSpawnHeightAndTimer = heightTimer;
-        DDALevelPrecision = precision;
-        DDALevelSpeedAndSpawnRate = speedspawn;*/
 
         if (!IsStatic)
         {

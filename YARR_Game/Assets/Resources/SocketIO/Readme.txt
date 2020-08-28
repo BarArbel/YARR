@@ -6,7 +6,9 @@
   
   This plugin allows you to integrate your Unity game with Socket.IO back-end
   It implements the protocol described at socket.io-protocol github repo.
-  ( https://github.com/automattic/socket.io-protocol )
+  ( https:
+  
+  github.com/automattic/socket.io-protocol )
   
   While connected, Socket.IO run on it's own thread to avoid blocking the main
   thread. Events are queued and dispatched on the next frame they are received.

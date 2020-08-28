@@ -30,7 +30,11 @@ using System;
 
 namespace WebSocketSharp
 {
-  /// <summary>
+  
+    
+    
+    
+    / <summary>
   /// Contains the values that indicate whether the byte order is a Little-endian or Big-endian.
   /// </summary>
   public enum ByteOrder : byte

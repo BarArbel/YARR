@@ -79,7 +79,6 @@ public class ItemSink : Singleton
                 {
                     player.RemoveItem(myItemInventory[i]);
                     SetScore(player);
-                    // TODO: destroy item
                     break;
                 }
             }
