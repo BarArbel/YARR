@@ -7,7 +7,6 @@ const spawn = require("child_process").spawn;
 const query_platform = util.promisify(mysqlConnection_platform.query).bind(mysqlConnection_platform);
 const query_dda = util.promisify(mysqlConnection_dda.query).bind(mysqlConnection_dda);
 
-console.log('Server has started');
 
 
 // Take care of DB access exception
@@ -25,7 +24,6 @@ async function exceptionDBAccess(msg, table, err, socket) {
 
 io.on('connection', async socket =>{
   let tableTimeId;
-  console.log('Connection Made!');
   socket.emit('connectionConfirmed');
 
   // Get Instance ID from the game client
@@ -34,7 +32,7 @@ io.on('connection', async socket =>{
     const sql = `SET SQL_SAFE_UPDATES=0;
                  UPDATE  ${process.env.DATABASE_PLATFORM}.instances SET DDAParity = true  where InstanceId = '${tableTimeId}' ;
                  SET SQL_SAFE_UPDATES=1;   `;
-    console.log(sql);
+
     mysqlConnection_platform.query(sql, (error, results) => {
         if (error || !results.length) {
           socket.emit('errorMenu', { "message" : "Couldn't update the instances table.", "error": error });
@@ -44,16 +42,13 @@ io.on('connection', async socket =>{
         }
       });
 
-    console.log(tableTimeId);
   });
 
   // Initiate DDA calculations
   socket.on('initDDA', async data => {
-    console.log("INIT DDA ARE WE GETTING HERE SON");
     let initLevel = data.InitLevel;
     let numOfPlayers = data.NumOfPlayers;
-    console.log(data);
-    console.log("lvl: " + initLevel + " num: "+ numOfPlayers);
+
     const pythonProcess = spawn(`${process.env.PYTHON}`, ["Difficulty Module/__init__.py", `${tableTimeId}`, initLevel, numOfPlayers]);
     
     pythonProcess.stdout.on('data', (chunk) => {
@@ -78,24 +73,20 @@ io.on('connection', async socket =>{
     if(err) {
       exceptionDBAccess("Unable to insert data.", tableTimeId, err, socket)
     }
-    console.log("data was added");
     socket.broadcast.emit('DDAupdate', `${tableTimeId}`);
   });
 
   // Update game difficulty
   socket.on('LevelSettings', data => {
     socket.broadcast.emit('LevelSettings', data);
-    console.log('variables sent to game');
   });
 
   socket.on('gameEnded', () => {
     // insert DDa + Tracker into perma table
-    console.log("game ended")
     socket.broadcast.emit('gameEnded', `${tableTimeId}`);
   });
 
   socket.on('disconnect', () => {
-    console.log('A player has disconnected');
     //delete tables[thisTableID];
     socket.broadcast.emit('DDAupdate', `table ${process.env.DATABASE}.dda_input_${tableTimeId} finished the game`);
   });
