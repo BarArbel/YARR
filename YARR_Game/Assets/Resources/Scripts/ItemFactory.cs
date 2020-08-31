@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Mathematics;
-using Project.Networking;
-using Event = Project.Networking.Event;
 
 public class ItemFactory : ObjectFactory
 {
@@ -21,7 +17,6 @@ public class ItemFactory : ObjectFactory
     {
         // What are levels? PlayerDifficIndexes[i] aka Difficulty indexes from round to round
         int level = GetLevels();
-        Debug.Log("Level: " + level + " player = " + GetID());
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;

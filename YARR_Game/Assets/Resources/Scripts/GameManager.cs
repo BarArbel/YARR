@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 using Project.Networking;
@@ -101,9 +100,6 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        Debug.Log("Hello InitExperiment");
-        Debug.Log(rSettings);
-
         // Experiment properties
         RoundTimer = 0;
         NumberOfRounds = rSettings.list[0].list[3].Count;
@@ -153,9 +149,6 @@ public class GameManager : MonoBehaviour
         {
             return false;
         }
-
-        Debug.Log("Hello InitInterrExperiment");
-        Debug.Log(rSettings);
 
         // Experiment properties
         RoundTimer = 0;
@@ -527,7 +520,7 @@ public class GameManager : MonoBehaviour
 
         Movement = new List<string>();
         Jump = new List<string>();
-        Debug.Log("DataTransformer.keyboardORcontroller: " + DataTransformer.keyboardORcontroller);
+
         if (DataTransformer.keyboardORcontroller == "Keyboard")
         {
 
@@ -626,7 +619,6 @@ public class GameManager : MonoBehaviour
             // Initialize Enemy factories                        
             int lvlsum = 0;
             int lvlMean;
-            Debug.Log("CurrentRound = " + CurrentRound);
             for (int i=0; i< NumberOfPlayers; i++)
             {
                     lvlsum += PlayerDifficIndexes[i];
@@ -917,7 +909,6 @@ public class GameManager : MonoBehaviour
 
     public void NotificationDDAUpdate(JSONObject calcs)
     {
-        Debug.Log(calcs);
 
         int calcsIndex = (int)calcs.list[0].n;
         int LevelSpawnHeightAndTimer;
@@ -958,7 +949,6 @@ public class GameManager : MonoBehaviour
                             EnemyFactories[i].SetDDAChanges(LevelGeneral);
                             ItemFactories[i].SetDDAChanges(LevelGeneral);
                             Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
-                            Debug.Log("Player " + (i + 1) + " Level Update: " + evnt);
                             DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, i + 1, (int)Mode);
                         }
                     }
@@ -996,12 +986,7 @@ public class GameManager : MonoBehaviour
                         Event evnt = LevelGeneral > 0 ? Event.lvlUp : (LevelGeneral < 0 ? Event.lvlDown : Event.lvlStay);
                         DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i + 1, 0, 0, 0, -1, (int)Mode);
                     }
-                    /*PlayerDifficIndexes[i][0] += LevelPrecision;
-                    Debug.Log(LevelPrecision);
-                    EnemyFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    ItemFactories[i].SetDDAChanges(LevelSpawnHeightAndTimer, LevelPrecision, LevelSpeedAndSpawnRate);
-                    Event evnt = LevelPrecision > 0 ? Event.lvlUp : (LevelPrecision < 0 ? Event.lvlDown : Event.lvlStay);
-                    DataTransformer.sendTracker(Time.realtimeSinceStartup, evnt, i+1, 0, 0, 0, -1, (int)Mode);*/
+
                 }
             }
         }

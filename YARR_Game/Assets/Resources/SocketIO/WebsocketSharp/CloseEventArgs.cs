@@ -35,7 +35,7 @@ namespace WebSocketSharp
     
     
     
-    / <summary>
+    // <summary>
   /// Contains the event data associated with a <see cref="WebSocket.OnClose"/> event.
   /// </summary>
   /// <remarks>

@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Unity.Mathematics;
-using Project.Networking;
-using Event = Project.Networking.Event;
 
 public class PowerupFactory : ObjectFactory
 {
@@ -19,7 +15,6 @@ public class PowerupFactory : ObjectFactory
     protected override void ModifyLevelSettings()
     {
         int level = GetLevels();
-        Debug.Log("item factory levels = " + level + " player = " + GetID());
         int startingDifficulty = GetStartingDifficulty();
         Damage = 0;
         Speed = 0;

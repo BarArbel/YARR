@@ -30,14 +30,6 @@ namespace Project.Networking
                 InstanceID = E.data["instanceId"].str;
             });
 
-            On("disconected", (E) => {
-                Debug.Log("disconected");
-            });
-
-            /*On("ExperimentID", (E) => {
-                Debug.Log("My table number is: " + E.data);
-                DataTransformer.createTables();
-            });*/
 
             On("LevelSettings", (E) => {
                 if (E.data["instanceId"].str == InstanceID)

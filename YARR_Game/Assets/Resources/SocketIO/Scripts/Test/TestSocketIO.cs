@@ -53,7 +53,7 @@ public class TestSocketIO : MonoBehaviour
 
 
 
-        wait 1 seconds and continue
+        //wait 1 seconds and continue
 		yield return new WaitForSeconds(1);
 		
 		socket.Emit("beep");

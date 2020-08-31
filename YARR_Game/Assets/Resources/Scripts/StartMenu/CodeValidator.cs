@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Text.RegularExpressions;
@@ -90,7 +88,6 @@ public class CodeValidator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Debug.Log("Start from SetGameConnection");
         DataTransformer.SetGameConnection();
         prevInputValue = gameObject.GetComponent<TMP_InputField>().text;        
         isNewCorrect = false;

@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Project.Networking;
 using Event = Project.Networking.Event;
@@ -157,7 +156,6 @@ public class Enemy : MonoBehaviour
 
     private void ResponseIdentified()
     {
-        Debug.Log("Response: " + ResponseTime * 1000);
         DataTransformer.sendTracker(Time.realtimeSinceStartup, Event.playerResponseTime, GetID(),0,0, (int)(ResponseTime*1000), 0, GetGameMode());
         ResponseTime = -1;
     }

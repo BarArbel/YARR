@@ -1,8 +1,5 @@
-﻿using Project.Networking;
-using SocketIO;
+﻿using SocketIO;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Project.Networking
@@ -38,7 +35,6 @@ namespace Project.Networking
             if (GameSocket == null || GameSocket.IsConnected == false)
             {
                 GameSocket = GameObject.Find("[Network Container]").GetComponent<GameClient>();
-                Debug.Log("SetGameConnection");
                 GameSocket.Connect();
             }           
         }
@@ -47,13 +43,11 @@ namespace Project.Networking
             if (DDASocket.IsConnected)
             {
                 DDASocket.Emit("gameEnded");
-                Debug.Log("game ended");
                 DDASocket.Close();
             }
             if (GameSocket.IsConnected && !DDASocket.IsConnected)
             {
                 GameSocket.Emit("gameEnded");
-                Debug.Log("game ended");
                 GameSocket.Close();
                 GameSocket = null;
             }
@@ -175,13 +169,11 @@ namespace Project.Networking
 
         public static void SyncNewScene(JSONObject E)
         {
-            Debug.Log("SyncNewScene" + E);
             GameSocket.Emit("SyncNewScene", E);
         }
 
         public static void SyncInterruptedScene(JSONObject E)
         {
-            Debug.Log("SyncInterruptedScene" + E);
             GameSocket.Emit("SyncInterruptedScene", E);
         }
     }
