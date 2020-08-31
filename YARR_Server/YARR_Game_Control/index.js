@@ -211,7 +211,6 @@ io.on('connection', async socket =>{
 
     mysqlConnection_platform.query(sql, (error, results) => {
         if (error || !results.length) {
-          // TODO: Take care of exception
           socket.emit('noAvailableInstance', {message: "There's no instance with such ID", instanceId: `${table.time}_${table.id}`});
         }
         else{
